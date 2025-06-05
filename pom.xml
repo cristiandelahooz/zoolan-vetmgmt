@@ -65,7 +65,18 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
-
+        <!-- Mapper -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.5.5.Final</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Additional Spring Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -103,6 +114,11 @@
             <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>annotationProcessor</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -121,7 +137,8 @@
                         <toggleOffOn/>
                         <eclipse>
                             <version>4.35</version>
-                            <file>${project.basedir}/eclipse-formatter.xml</file>
+                            <file>${project.basedir}/eclipse-formatter.xml
+                            </file>
                         </eclipse>
                     </java>
                     <typescript>
@@ -134,7 +151,8 @@
                         </excludes>
                         <prettier>
                             <prettierVersion>3.3.3</prettierVersion>
-                            <configFile>${project.basedir}/.prettierrc.json</configFile>
+                            <configFile>${project.basedir}/.prettierrc.json
+                            </configFile>
                         </prettier>
                     </typescript>
                 </configuration>
