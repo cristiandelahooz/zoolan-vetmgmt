@@ -11,14 +11,17 @@ import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @BrowserCallable
-@Transactional
+@Validated
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface UserService {
 
 	/**
