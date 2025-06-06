@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @NoArgsConstructor
+@SuperBuilder
+@RequiredArgsConstructor
 @AllArgsConstructor
 public class User extends AbstractEntity<Long> {
 
