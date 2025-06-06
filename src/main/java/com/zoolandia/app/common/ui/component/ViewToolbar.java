@@ -1,4 +1,4 @@
-package com.zoolandia.app.base.ui.component;
+package com.zoolandia.app.common.ui.component;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;

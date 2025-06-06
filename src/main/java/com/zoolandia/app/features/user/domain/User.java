@@ -1,6 +1,5 @@
 package com.zoolandia.app.features.user.domain;
 
-import com.zoolandia.app.base.domain.AbstractEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

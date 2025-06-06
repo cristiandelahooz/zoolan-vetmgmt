@@ -1,4 +1,4 @@
-package com.zoolandia.app.base.domain;
+package com.zoolandia.app.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.MappedSuperclass;
