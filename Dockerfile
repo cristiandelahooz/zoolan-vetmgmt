@@ -8,11 +8,11 @@ WORKDIR /app
 COPY pom.xml .
 
 # Descarga las dependencias necesarias (esto se hace antes de copiar el código para aprovechar la caché de Docker)
-RUN mvn dependency:go-offline -B
+RUN ./mvnw dependency:go-offline -B
 
 # Copia el resto del código fuente del proyecto y compila en una sola capa para optimizar la caché
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
 
 # Usa una imagen base más ligera para ejecutar la aplicación
 FROM eclipse-temurin:21-jre
