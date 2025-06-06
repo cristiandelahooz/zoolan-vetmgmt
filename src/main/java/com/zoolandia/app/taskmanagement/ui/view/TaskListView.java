@@ -1,6 +1,6 @@
 package com.zoolandia.app.taskmanagement.ui.view;
 
-import com.zoolandia.app.base.ui.component.ViewToolbar;
+import com.zoolandia.app.common.ui.component.ViewToolbar;
 import com.zoolandia.app.taskmanagement.domain.Task;
 import com.zoolandia.app.taskmanagement.service.TaskService;
 import com.vaadin.flow.component.button.Button;

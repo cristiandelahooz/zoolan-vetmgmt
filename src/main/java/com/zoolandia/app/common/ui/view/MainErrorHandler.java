@@ -1,4 +1,4 @@
-package com.zoolandia.app.base.ui.view;
+package com.zoolandia.app.common.ui.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.notification.Notification;
