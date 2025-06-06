@@ -3,10 +3,7 @@ package com.zoolandia.app.features.client.domain;
 import com.zoolandia.app.features.user.domain.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnTransformer;
 import org.jspecify.annotations.Nullable;
@@ -14,10 +11,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "client")
-@Data
+@PrimaryKeyJoinColumn(name = "client_id")
+@Getter
+@Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -57,6 +55,7 @@ public class Client extends User {
 					joinColumns = @JoinColumn(name = "client_id")
 	)
 	@Column(name = "contact_number")
+	@Builder.Default
 	private Set<String> additionalContactNumbers = new HashSet<>();
 
 	@Column(name = "emergency_contact_name")
@@ -70,15 +69,19 @@ public class Client extends User {
 
 	@Column(name = "rating")
 	@Enumerated(EnumType.STRING)
+	@Builder.Default
 	private ClientRating rating = ClientRating.BUENO;
 
 	@Column(name = "credit_limit")
+	@Builder.Default
 	private Double creditLimit = 0.0;
 
 	@Column(name = "current_balance")
+	@Builder.Default
 	private Double currentBalance = 0.0;
 
 	@Column(name = "payment_terms_days")
+	@Builder.Default
 	private Integer paymentTermsDays = 0;
 
 	@Column(name = "notes", length = 1000)
@@ -112,10 +115,10 @@ public class Client extends User {
 	private String referencePoints;
 
 	@Column(name = "receives_promotional_info")
+	@Builder.Default
 	private boolean receivesPromotionalInfo = true;
 
 	@Column(name = "verified")
+	@Builder.Default
 	private boolean verified = false;
-
-
 }
