@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class User extends AbstractEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
