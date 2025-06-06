@@ -7,7 +7,7 @@ import com.zoolandia.app.features.client.service.dto.ClientCreateDTO;
 import com.zoolandia.app.features.client.service.dto.ClientUpdateDTO;
 import com.zoolandia.app.features.client.service.exception.ClientNotFoundException;
 import com.zoolandia.app.features.client.service.exception.DuplicateIdentificationException;
-import com.zoolandia.app.features.client.service.mapper.ClientMapper;
+import com.zoolandia.app.features.client.mapper.ClientMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
