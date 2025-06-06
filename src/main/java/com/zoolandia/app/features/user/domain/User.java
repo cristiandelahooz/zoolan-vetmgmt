@@ -13,15 +13,11 @@ import org.jspecify.annotations.Nullable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "user")
 @Data
-@Builder
 @NoArgsConstructor
 @SuperBuilder
-@RequiredArgsConstructor
-@AllArgsConstructor
 public class User extends AbstractEntity<Long> {
 
     @Id
