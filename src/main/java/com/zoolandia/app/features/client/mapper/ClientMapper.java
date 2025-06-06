@@ -1,4 +1,4 @@
-package com.zoolandia.app.features.client.service.mapper;
+package com.zoolandia.app.features.client.mapper;
 
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.client.service.dto.ClientCreateDTO;
