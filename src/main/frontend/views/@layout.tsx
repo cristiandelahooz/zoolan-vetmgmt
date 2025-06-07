@@ -10,7 +10,7 @@ import {
 import {ViewToolbar} from 'Frontend/components/ViewToolbar'
 import {Suspense, useState} from 'react'
 import {Outlet, useLocation, useNavigate} from 'react-router'
-import UserMenu from 'Frontend/components/UserMenu.js'
+import {UserMenu} from 'Frontend/components/UserMenu'
 
 function Header({isSideNavOpened}: { isSideNavOpened: boolean }) {
     // TODO Replace with real application logo and name
