@@ -1,19 +1,24 @@
+import { HorizontalLayout } from '@vaadin/react-components';
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import { useDataProvider } from '@vaadin/hilla-react-crud'
 import { useSignal } from '@vaadin/hilla-react-signals'
-import { Button, Grid, GridColumn, TextField } from '@vaadin/react-components'
-import { Notification } from '@vaadin/react-components/Notification'
 import { Group } from 'Frontend/components/ViewToolbar'
 import Client from 'Frontend/generated/com/zoolandia/app/features/client/domain/Client'
 import { ClientServiceImpl } from 'Frontend/generated/endpoints'
 import handleError from 'Frontend/views/_ErrorHandler'
+import { Button } from '@vaadin/react-components/Button';
+import { Grid } from '@vaadin/react-components/Grid';
+import { GridColumn } from '@vaadin/react-components/GridColumn';
+import { Notification } from '@vaadin/react-components/Notification';
+import { TextField } from '@vaadin/react-components/TextField';
+
 
 export const config: ViewConfig = {
   title: 'Clients',
   menu: {
     icon: 'vaadin:users',
     order: 0,
-    title: 'Clientes >'
+    title: 'Clientes'
   }
 }
 
