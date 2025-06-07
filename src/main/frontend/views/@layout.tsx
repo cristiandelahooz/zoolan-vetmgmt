@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { createMenuItems } from '@vaadin/hilla-file-router/runtime.js'
 import {
   AppLayout,
   Avatar,
@@ -9,24 +9,26 @@ import {
   ProgressBar,
   Scroller,
   SideNav,
-  SideNavItem,
-} from '@vaadin/react-components';
-import { Suspense } from 'react';
-import { createMenuItems } from '@vaadin/hilla-file-router/runtime.js';
+  SideNavItem
+} from '@vaadin/react-components'
+import { ViewToolbar } from 'Frontend/components/ViewToolbar'
+import { Suspense, useState } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router'
 
-function Header() {
+function Header({ isSideNavOpened }: { isSideNavOpened: boolean }) {
   // TODO Replace with real application logo and name
   return (
-    <div className="flex p-m gap-m items-center" slot="drawer">
-      <Icon icon="vaadin:cubes" className="text-primary icon-l" />
-      <span className="font-semibold text-l">Zoolan Vetmgmt</span>
-    </div>
-  );
+    <>
+      <div className="flex items-center" {...(isSideNavOpened ? { slot: 'drawer' } : {})}>
+        <ViewToolbar title={isSideNavOpened ? 'Zoolandia' : ''} />
+      </div>
+    </>
+  )
 }
 
 function MainMenu() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
 
   return (
     <SideNav className="mx-m" onNavigate={({ path }) => path != null && navigate(path)} location={location}>
@@ -37,10 +39,10 @@ function MainMenu() {
         </SideNavItem>
       ))}
     </SideNav>
-  );
+  )
 }
 
-type UserMenuItem = MenuBarItem<{ action?: () => void }>;
+type UserMenuItem = MenuBarItem<{ action?: () => void }>
 
 function UserMenu() {
   // TODO Replace with real user information and actions
@@ -48,28 +50,32 @@ function UserMenu() {
     {
       component: (
         <>
-          <Avatar theme="xsmall" name="John Smith" colorIndex={5} className="mr-s" /> John Smith
+          <Avatar theme="xsmall" name="Sindy" colorIndex={5} className="mr-s" />
+          Sindy
         </>
       ),
       children: [
         { text: 'View Profile', disabled: true, action: () => console.log('View Profile') },
         { text: 'Manage Settings', disabled: true, action: () => console.log('Manage Settings') },
-        { text: 'Logout', disabled: true, action: () => console.log('Logout') },
-      ],
-    },
-  ];
+        { text: 'Logout', disabled: true, action: () => console.log('Logout') }
+      ]
+    }
+  ]
   const onItemSelected = (event: MenuBarItemSelectedEvent<UserMenuItem>) => {
-    event.detail.value.action?.();
-  };
-  return (
-    <MenuBar theme="tertiary-inline" items={items} onItemSelected={onItemSelected} className="m-m" slot="drawer" />
-  );
+    event.detail.value.action?.()
+  }
+  return <MenuBar theme="tertiary-inline" items={items} onItemSelected={onItemSelected} className="m-m" slot="drawer" />
 }
 
 export default function MainLayout() {
+  const [isSideNavOpened, setSideNavOpened] = useState(true)
+
+  const handleDrawerToggle: () => void = () => {
+    setSideNavOpened(!isSideNavOpened)
+  }
   return (
-    <AppLayout primarySection="drawer">
-      <Header />
+    <AppLayout primarySection="drawer" onDrawerOpenedChanged={handleDrawerToggle}>
+      <Header isSideNavOpened={isSideNavOpened} />
       <Scroller slot="drawer">
         <MainMenu />
       </Scroller>
@@ -78,5 +84,5 @@ export default function MainLayout() {
         <Outlet />
       </Suspense>
     </AppLayout>
-  );
+  )
 }
