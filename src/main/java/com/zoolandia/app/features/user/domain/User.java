@@ -1,11 +1,7 @@
 package com.zoolandia.app.features.user.domain;
 
-import com.zoolandia.app.base.domain.AbstractEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.Nullable;
@@ -66,9 +62,21 @@ public class User {
     @Nullable
     protected String nationality;
 
-    @Column(name = "address", length = 500)
-    @Nullable
-    protected String address;
+    @Column(name = "province")
+    @NotNull(message = "La provincia es requerida")
+    private String province;
+
+    @Column(name = "municipality")
+    @NotNull(message = "El municipio es requerido")
+    private String municipality;
+
+    @Column(name = "sector")
+    @NotNull(message = "El sector es requerido")
+    private String sector;
+
+    @Column(name = "street_address")
+    @NotNull(message = "La dirección es requerida")
+    private String streetAddress;
 
     @Column(name = "profile_picture_url")
     @Nullable
@@ -85,8 +93,8 @@ public class User {
     protected LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    protected UserRole role;
+    @Column(name = "system_role")
+    protected SystemRole systemRole;
 
     @PrePersist
     protected void onCreate() {
