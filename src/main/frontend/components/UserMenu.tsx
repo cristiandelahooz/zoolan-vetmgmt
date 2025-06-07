@@ -6,7 +6,7 @@ import {
 
 type UserMenuItem = MenuBarItem<{ action?: () => void }>
 
-function UserMenu() {
+export const UserMenu = () => {
     // TODO Replace with real user information and actions
     const items: Array<UserMenuItem> = [
         {
