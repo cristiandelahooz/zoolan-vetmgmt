@@ -1,5 +1,7 @@
 package com.zoolandia.app.features.client.service;
 
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.hilla.BrowserCallable;
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.client.domain.ClientRating;
 import com.zoolandia.app.features.client.repository.ClientRepository;
@@ -15,15 +17,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
 @Validated
 @RequiredArgsConstructor
+@BrowserCallable
+@AnonymousAllowed // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class ClientServiceImpl implements ClientService {
 
 	private final ClientRepository clientRepository;
