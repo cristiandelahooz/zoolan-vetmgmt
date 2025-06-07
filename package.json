@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@babel/preset-react": "7.26.3",
+    "@biomejs/biome": "1.9.4",
     "@preact/signals-react-transform": "0.5.1",
     "@rollup/plugin-replace": "6.0.2",
     "@rollup/pluginutils": "5.1.4",
