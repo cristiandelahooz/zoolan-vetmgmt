@@ -1,9 +1,10 @@
+const PREFIX = './src/main/frontend'
+
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  content: [`${PREFIX}/index.html`, `${PREFIX}/**/*.{js,ts,jsx,tsx,html}`],
   theme: {
-    extend: {},
+    extend: {}
   },
-  plugins: [],
+  plugins: []
 }
-
