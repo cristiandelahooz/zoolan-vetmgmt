@@ -20,8 +20,12 @@ public class PetCreateDTO {
     @NotNull(message = "La raza es requerida")
     private PetBreed breed;
 
-    @PastOrPresent(message = "La fecha de nacimiento no puede ser futura")
     private LocalDate birthDate;
+
+    @AssertTrue(message = "La fecha no puede ser futura")
+    public boolean isBirthDateValid() {
+        return birthDate == null || !birthDate.isAfter(LocalDate.now());
+    }
 
     @NotNull(message = "Debe asociarse a un cliente")
     private Long ownerId;
