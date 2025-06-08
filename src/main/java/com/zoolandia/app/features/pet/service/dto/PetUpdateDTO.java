@@ -17,8 +17,12 @@ public class PetUpdateDTO {
 
     private PetBreed breed;
 
-    @PastOrPresent(message = "La fecha de nacimiento no puede ser futura")
     private LocalDate birthDate;
+
+    @AssertTrue(message = "La fecha no puede ser futura")
+    public boolean isBirthDateValid() {
+        return birthDate == null || !birthDate.isAfter(LocalDate.now());
+    }
 
     private Long ownerId;
 }
