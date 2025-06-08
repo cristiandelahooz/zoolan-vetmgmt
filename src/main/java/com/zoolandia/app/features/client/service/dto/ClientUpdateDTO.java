@@ -1,5 +1,6 @@
 package com.zoolandia.app.features.client.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zoolandia.app.features.client.domain.ClientRating;
 import com.zoolandia.app.features.client.domain.PreferredContactMethod;
 import com.zoolandia.app.features.client.domain.ReferenceSource;
@@ -24,6 +25,7 @@ public class ClientUpdateDTO {
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid phone number")
     private String phoneNumber;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
     
     private Gender gender;
