@@ -26,4 +26,6 @@ public interface ClientMapper {
 			throw new InvalidIdentificationException();
 		}
 	}
+
+	ClientCreateDTO toDTO(Client client);
 }
