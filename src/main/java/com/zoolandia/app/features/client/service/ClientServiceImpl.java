@@ -37,7 +37,7 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	@Transactional
-	@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+	//@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
 	public Client createClient(@Valid ClientCreateDTO clientDTO) {
 		log.debug("Request to create Client : {}", clientDTO);
 
