@@ -131,7 +131,7 @@
       "workbox-core": "7.3.0",
       "workbox-precaching": "7.3.0"
     },
-    "hash": "fad34b2c806ed9c8da34652ed6aa6c8e5c2ecf11682a28a7e95de8960584e873"
+    "hash": "7be77b104f009682b7196274c5acad48c5b79b37c5d10e812b53e0106ea3c768"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -162,6 +162,10 @@
     "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles",
     "autoprefixer": "$autoprefixer",
     "postcss": "$postcss",
-    "tailwindcss": "$tailwindcss"
+    "tailwindcss": "$tailwindcss",
+    "@radix-ui/react-dropdown-menu": "$@radix-ui/react-dropdown-menu",
+    "clsx": "$clsx",
+    "lucide-react": "$lucide-react",
+    "tailwind-merge": "$tailwind-merge"
   }
 }
