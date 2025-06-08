@@ -6,7 +6,6 @@ import com.zoolandia.app.features.client.domain.ReferenceSource;
 import com.zoolandia.app.features.user.domain.Gender;
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
 import java.util.Set;
