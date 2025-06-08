@@ -1,7 +1,6 @@
 package com.zoolandia.app.features.client.domain;
 
 public enum ClientRating {
-	EXCELENTE("Cliente excelente"),
 	MUY_BUENO("Cliente muy bueno"),
 	BUENO("Cliente bueno"),
 	REGULAR("Cliente regular"),
