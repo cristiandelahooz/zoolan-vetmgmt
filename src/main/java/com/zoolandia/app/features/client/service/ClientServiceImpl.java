@@ -2,6 +2,9 @@ package com.zoolandia.app.features.client.service;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.hilla.crud.CrudRepositoryService;
+import com.vaadin.hilla.crud.FormService;
+import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.client.domain.ClientRating;
 import com.zoolandia.app.features.client.repository.ClientRepository;
@@ -13,15 +16,14 @@ import com.zoolandia.app.features.client.mapper.ClientMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -30,7 +32,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
-public class ClientServiceImpl implements ClientService {
+public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository> implements ClientService, FormService<ClientCreateDTO, Long> {
 
 	private final ClientRepository clientRepository;
 	private final ClientMapper clientMapper;
@@ -49,6 +51,25 @@ public class ClientServiceImpl implements ClientService {
 		log.info("Created Client with ID: {}", client.getId());
 		return client;
 	}
+
+	@Override
+	public @Nullable ClientCreateDTO save(ClientCreateDTO value) {
+		try {
+			Client client = createClient(value);
+			ClientCreateDTO generated = clientMapper.toDTO(client);
+			log.info("Client created successfully with ID: {}", generated.getUsername());
+			return generated;
+		} catch (Exception e) {
+			log.error("Error creating Client: {}", e.getMessage());
+			throw e;
+		}
+	}
+
+	@Override
+	public void delete(Long id) {
+		deactivateClient(id);
+	}
+
 
 	@Override
 	@Transactional
@@ -150,7 +171,7 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	@Transactional
-	@PreAuthorize("hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('ADMIN')")
 	public void deactivateClient(Long id) {
 		log.debug("Request to deactivate Client : {}", id);
 
@@ -211,9 +232,7 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public boolean isValidIdentification(String cedula, String passport, String rnc) {
-		return (cedula != null && !cedula.trim().isEmpty()) ||
-						(passport != null && !passport.trim().isEmpty()) ||
-						(rnc != null && !rnc.trim().isEmpty());
+		return !cedula.trim().isEmpty() || !passport.trim().isEmpty() || !rnc.trim().isEmpty();
 	}
 
 	@Override
@@ -226,42 +245,36 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	private void validateUniqueIdentification(String cedula, String passport, String rnc) {
-		if (cedula != null && clientRepository.existsByCedula(cedula)) {
+		if (clientRepository.existsByCedula(cedula)) {
 			throw new DuplicateIdentificationException("cedula", cedula);
 		}
-		if (passport != null && clientRepository.existsByPassport(passport)) {
+		if (clientRepository.existsByPassport(passport)) {
 			throw new DuplicateIdentificationException("passport", passport);
 		}
-		if (rnc != null && clientRepository.existsByRnc(rnc)) {
+		if (clientRepository.existsByRnc(rnc)) {
 			throw new DuplicateIdentificationException("rnc", rnc);
 		}
 	}
 
 	private void validateUniqueIdentificationForUpdate(Long id, String cedula,
 	                                                   String passport, String rnc) {
-		if (cedula != null) {
-			clientRepository.findByCedula(cedula)
-							.ifPresent(client -> {
-								if (!client.getId().equals(id)) {
-									throw new DuplicateIdentificationException("cedula", cedula);
-								}
-							});
-		}
-		if (passport != null) {
-			clientRepository.findByPassport(passport)
-							.ifPresent(client -> {
-								if (!client.getId().equals(id)) {
-									throw new DuplicateIdentificationException("passport", passport);
-								}
-							});
-		}
-		if (rnc != null) {
-			clientRepository.findByRnc(rnc)
-							.ifPresent(client -> {
-								if (!client.getId().equals(id)) {
-									throw new DuplicateIdentificationException("rnc", rnc);
-								}
-							});
-		}
+		clientRepository.findByCedula(cedula)
+						.ifPresent(client -> {
+							if (!client.getId().equals(id)) {
+								throw new DuplicateIdentificationException("cedula", cedula);
+							}
+						});
+		clientRepository.findByPassport(passport)
+						.ifPresent(client -> {
+							if (!client.getId().equals(id)) {
+								throw new DuplicateIdentificationException("passport", passport);
+							}
+						});
+		clientRepository.findByRnc(rnc)
+						.ifPresent(client -> {
+							if (!client.getId().equals(id)) {
+								throw new DuplicateIdentificationException("rnc", rnc);
+							}
+						});
 	}
 }
