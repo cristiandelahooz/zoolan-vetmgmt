@@ -33,7 +33,7 @@ import java.util.Optional;
 @AnonymousAllowed
 // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository>
-    implements ClientService, FormService<ClientCreateDTO, Long> {
+        implements ClientService, FormService<ClientCreateDTO, Long> {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
@@ -54,8 +54,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     }
 
     /**
-     * Implementation of FormService.save() method.
-     * This method is used by Vaadin Hilla for CRUD operations.
+     * Implementation of FormService.save() method. This method is used by Vaadin Hilla for CRUD operations.
      */
     @Override
     @Transactional
@@ -78,17 +77,15 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     }
 
     /**
-     * Implementation of FormService.delete() method.
-     * This method is used by Vaadin Hilla for CRUD operations.
-     * Uses soft delete by deactivating the client.
+     * Implementation of FormService.delete() method. This method is used by Vaadin Hilla for CRUD operations. Uses soft
+     * delete by deactivating the client.
      */
     @Override
     @Transactional
     public void delete(Long id) {
         log.debug("Request to delete Client via FormService : {}", id);
 
-        Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setActive(false);
         clientRepository.save(client);
@@ -102,8 +99,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public Client updateClient(Long id, @Valid ClientUpdateDTO clientDTO) {
         log.debug("Request to update Client : {}", clientDTO);
 
-        Client existingClient = clientRepository.findById(id)
-            .orElseThrow(() -> new ClientNotFoundException(id));
+        Client existingClient = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         validateUniqueIdentificationForUpdate(id, clientDTO.getCedula(), clientDTO.getPassport(), clientDTO.getRnc());
 
@@ -154,10 +150,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         return clientRepository.findAll((root, query, cb) -> {
             String pattern = "%" + searchTerm.toLowerCase() + "%";
             return cb.or(cb.like(cb.lower(root.get("firstName")), pattern),
-                cb.like(cb.lower(root.get("lastName")), pattern),
-                cb.like(root.get("cedula"), pattern),
-                cb.like(root.get("passport"), pattern),
-                cb.like(root.get("rnc"), pattern));
+                    cb.like(cb.lower(root.get("lastName")), pattern), cb.like(root.get("cedula"), pattern),
+                    cb.like(root.get("passport"), pattern), cb.like(root.get("rnc"), pattern));
         }, pageable);
     }
 
@@ -181,8 +175,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void updateClientRating(Long id, ClientRating newRating) {
         log.debug("Request to update Client rating : {} to {}", id, newRating);
 
-        Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setRating(newRating);
         clientRepository.save(client);
@@ -196,8 +189,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void deactivateClient(Long id) {
         log.debug("Request to deactivate Client : {}", id);
 
-        Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setActive(false);
         clientRepository.save(client);
@@ -211,8 +203,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void reactivateClient(Long id) {
         log.debug("Request to reactivate Client : {}", id);
 
-        Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setActive(true);
         clientRepository.save(client);
@@ -226,8 +217,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public boolean verifyClient(Long id) {
         log.debug("Request to verify Client : {}", id);
 
-        Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setVerified(true);
         clientRepository.save(client);
@@ -242,8 +232,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void updateCreditLimit(Long id, Double newLimit) {
         log.debug("Request to update Client credit limit : {} to {}", id, newLimit);
 
-        Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setCreditLimit(newLimit);
         clientRepository.save(client);
