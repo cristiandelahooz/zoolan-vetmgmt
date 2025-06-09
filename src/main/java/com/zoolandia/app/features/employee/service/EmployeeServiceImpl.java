@@ -1,5 +1,7 @@
 package com.zoolandia.app.features.employee.service;
 
+import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.features.employee.domain.Employee;
 import com.zoolandia.app.features.employee.domain.EmployeeRole;
 import com.zoolandia.app.features.employee.repository.EmployeeRepository;
@@ -26,7 +28,8 @@ import java.util.Optional;
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class EmployeeServiceImpl implements EmployeeService {
+@BrowserCallable
+public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, EmployeeRepository> implements EmployeeService  {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
