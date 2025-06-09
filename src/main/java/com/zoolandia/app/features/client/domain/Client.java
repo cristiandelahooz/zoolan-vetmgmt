@@ -49,12 +49,6 @@ public class Client extends User {
     @Enumerated(EnumType.STRING)
     private PreferredContactMethod preferredContactMethod;
 
-    @CollectionTable(name = "client_contact_numbers", joinColumns = @JoinColumn(name = "client_id"))
-    @Column(name = "contact_number")
-    @Builder.Default
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> additionalContactNumbers = new HashSet<>();
-
     @Column(name = "emergency_contact_name")
     @Nullable
     private String emergencyContactName;
@@ -110,10 +104,6 @@ public class Client extends User {
     @Column(name = "reference_points", length = 500)
     @Nullable
     private String referencePoints;
-
-    @Column(name = "receives_promotional_info")
-    @Builder.Default
-    private boolean receivesPromotionalInfo = true;
 
     @Column(name = "verified")
     @Builder.Default
