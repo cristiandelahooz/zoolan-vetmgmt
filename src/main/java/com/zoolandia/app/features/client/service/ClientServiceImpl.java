@@ -2,7 +2,6 @@ package com.zoolandia.app.features.client.service;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import com.vaadin.hilla.crud.CrudRepositoryService;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.features.client.domain.Client;
@@ -31,9 +30,10 @@ import java.util.Optional;
 @Validated
 @RequiredArgsConstructor
 @BrowserCallable
-@AnonymousAllowed // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
+@AnonymousAllowed
+// TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository>
-        implements ClientService, FormService<ClientCreateDTO, Long> {
+    implements ClientService, FormService<ClientCreateDTO, Long> {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
@@ -53,22 +53,47 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         return client;
     }
 
+    /**
+     * Implementation of FormService.save() method.
+     * This method is used by Vaadin Hilla for CRUD operations.
+     */
     @Override
+    @Transactional
     public @Nullable ClientCreateDTO save(ClientCreateDTO value) {
         try {
-            Client client = createClient(value);
-            ClientCreateDTO generated = clientMapper.toDTO(client);
-            log.info("Client created successfully with ID: {}", generated.getUsername());
-            return generated;
+            log.debug("Request to save Client via FormService: {}", value);
+
+            validateUniqueIdentification(value.getCedula(), value.getPassport(), value.getRnc());
+
+            Client client = clientMapper.toEntity(value);
+            client = clientRepository.save(client);
+
+            ClientCreateDTO result = clientMapper.toDTO(client);
+            log.info("Client saved successfully via FormService with ID: {}", client.getId());
+            return result;
         } catch (Exception e) {
-            log.error("Error creating Client: {}", e.getMessage());
+            log.error("Error saving Client via FormService: {}", e.getMessage());
             throw e;
         }
     }
 
+    /**
+     * Implementation of FormService.delete() method.
+     * This method is used by Vaadin Hilla for CRUD operations.
+     * Uses soft delete by deactivating the client.
+     */
     @Override
+    @Transactional
     public void delete(Long id) {
-        deactivateClient(id);
+        log.debug("Request to delete Client via FormService : {}", id);
+
+        Client client = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException(id));
+
+        client.setActive(false);
+        clientRepository.save(client);
+
+        log.info("Client deactivated via FormService, ID: {}", id);
     }
 
     @Override
@@ -77,7 +102,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public Client updateClient(Long id, @Valid ClientUpdateDTO clientDTO) {
         log.debug("Request to update Client : {}", clientDTO);
 
-        Client existingClient = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client existingClient = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException(id));
 
         validateUniqueIdentificationForUpdate(id, clientDTO.getCedula(), clientDTO.getPassport(), clientDTO.getRnc());
 
@@ -128,8 +154,10 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         return clientRepository.findAll((root, query, cb) -> {
             String pattern = "%" + searchTerm.toLowerCase() + "%";
             return cb.or(cb.like(cb.lower(root.get("firstName")), pattern),
-                    cb.like(cb.lower(root.get("lastName")), pattern), cb.like(root.get("cedula"), pattern),
-                    cb.like(root.get("passport"), pattern), cb.like(root.get("rnc"), pattern));
+                cb.like(cb.lower(root.get("lastName")), pattern),
+                cb.like(root.get("cedula"), pattern),
+                cb.like(root.get("passport"), pattern),
+                cb.like(root.get("rnc"), pattern));
         }, pageable);
     }
 
@@ -153,7 +181,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void updateClientRating(Long id, ClientRating newRating) {
         log.debug("Request to update Client rating : {} to {}", id, newRating);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setRating(newRating);
         clientRepository.save(client);
@@ -167,7 +196,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void deactivateClient(Long id) {
         log.debug("Request to deactivate Client : {}", id);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setActive(false);
         clientRepository.save(client);
@@ -181,7 +211,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void reactivateClient(Long id) {
         log.debug("Request to reactivate Client : {}", id);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setActive(true);
         clientRepository.save(client);
@@ -195,7 +226,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public boolean verifyClient(Long id) {
         log.debug("Request to verify Client : {}", id);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setVerified(true);
         clientRepository.save(client);
@@ -210,7 +242,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void updateCreditLimit(Long id, Double newLimit) {
         log.debug("Request to update Client credit limit : {} to {}", id, newLimit);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setCreditLimit(newLimit);
         clientRepository.save(client);
@@ -227,38 +260,46 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteClient(Long id) {
-        log.debug("Request to delete Client : {}", id);
+        log.debug("Request to hard delete Client : {}", id);
         clientRepository.deleteById(id);
-        log.info("Deleted Client ID: {}", id);
+        log.info("Hard deleted Client ID: {}", id);
     }
 
     private void validateUniqueIdentification(String cedula, String passport, String rnc) {
-        if (clientRepository.existsByCedula(cedula)) {
+        if (!cedula.trim().isEmpty() && clientRepository.existsByCedula(cedula)) {
             throw new DuplicateIdentificationException("cedula", cedula);
         }
-        if (clientRepository.existsByPassport(passport)) {
+        if (!passport.trim().isEmpty() && clientRepository.existsByPassport(passport)) {
             throw new DuplicateIdentificationException("passport", passport);
         }
-        if (clientRepository.existsByRnc(rnc)) {
+        if (!rnc.trim().isEmpty() && clientRepository.existsByRnc(rnc)) {
             throw new DuplicateIdentificationException("rnc", rnc);
         }
     }
 
     private void validateUniqueIdentificationForUpdate(Long id, String cedula, String passport, String rnc) {
-        clientRepository.findByCedula(cedula).ifPresent(client -> {
-            if (!client.getId().equals(id)) {
-                throw new DuplicateIdentificationException("cedula", cedula);
-            }
-        });
-        clientRepository.findByPassport(passport).ifPresent(client -> {
-            if (!client.getId().equals(id)) {
-                throw new DuplicateIdentificationException("passport", passport);
-            }
-        });
-        clientRepository.findByRnc(rnc).ifPresent(client -> {
-            if (!client.getId().equals(id)) {
-                throw new DuplicateIdentificationException("rnc", rnc);
-            }
-        });
+        if (!cedula.trim().isEmpty()) {
+            clientRepository.findByCedula(cedula).ifPresent(client -> {
+                if (!client.getId().equals(id)) {
+                    throw new DuplicateIdentificationException("cedula", cedula);
+                }
+            });
+        }
+
+        if (!passport.trim().isEmpty()) {
+            clientRepository.findByPassport(passport).ifPresent(client -> {
+                if (!client.getId().equals(id)) {
+                    throw new DuplicateIdentificationException("passport", passport);
+                }
+            });
+        }
+
+        if (!rnc.trim().isEmpty()) {
+            clientRepository.findByRnc(rnc).ifPresent(client -> {
+                if (!client.getId().equals(id)) {
+                    throw new DuplicateIdentificationException("rnc", rnc);
+                }
+            });
+        }
     }
 }
