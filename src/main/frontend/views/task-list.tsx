@@ -1,12 +1,12 @@
-import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, DatePicker, Grid, GridColumn, TextField } from '@vaadin/react-components';
-import { Notification } from '@vaadin/react-components/Notification';
-import { TaskService } from 'Frontend/generated/endpoints';
-import { useSignal } from '@vaadin/hilla-react-signals';
-import handleError from 'Frontend/views/_ErrorHandler';
-import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import Task from 'Frontend/generated/com/zoolandia/app/taskmanagement/domain/Task';
-import { useDataProvider } from '@vaadin/hilla-react-crud';
+import { ViewConfig } from '@vaadin/hilla-file-router/types.js'
+import { Button, DatePicker, Grid, GridColumn, TextField } from '@vaadin/react-components'
+import { Notification } from '@vaadin/react-components/Notification'
+import { TaskService } from 'Frontend/generated/endpoints'
+import { useSignal } from '@vaadin/hilla-react-signals'
+import handleError from 'Frontend/views/_ErrorHandler'
+import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar'
+import Task from 'Frontend/generated/com/zoolandia/app/taskmanagement/domain/Task'
+import { useDataProvider } from '@vaadin/hilla-react-crud'
 
 export const config: ViewConfig = {
   title: 'Task List',
@@ -15,37 +15,37 @@ export const config: ViewConfig = {
     order: 1,
     title: 'Task List',
   },
-};
+}
 
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: 'medium',
   timeStyle: 'medium',
-});
+})
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: 'medium',
-});
+})
 
 type TaskEntryFormProps = {
-  onTaskCreated?: () => void;
-};
+  onTaskCreated?: () => void
+}
 
 function TaskEntryForm(props: TaskEntryFormProps) {
-  const description = useSignal('');
-  const dueDate = useSignal<string | undefined>('');
+  const description = useSignal('')
+  const dueDate = useSignal<string | undefined>('')
   const createTask = async () => {
     try {
-      await TaskService.createTask(description.value, dueDate.value);
+      await TaskService.createTask(description.value, dueDate.value)
       if (props.onTaskCreated) {
-        props.onTaskCreated();
+        props.onTaskCreated()
       }
-      description.value = '';
-      dueDate.value = undefined;
-      Notification.show('Task added', { duration: 3000, position: 'bottom-end', theme: 'success' });
+      description.value = ''
+      dueDate.value = undefined
+      Notification.show('Task added', { duration: 3000, position: 'bottom-end', theme: 'success' })
     } catch (error) {
-      handleError(error);
+      handleError(error)
     }
-  };
+  }
   return (
     <>
       <TextField
@@ -66,13 +66,13 @@ function TaskEntryForm(props: TaskEntryFormProps) {
         Create
       </Button>
     </>
-  );
+  )
 }
 
 export default function TaskListView() {
   const dataProvider = useDataProvider<Task>({
     list: (pageable) => TaskService.list(pageable),
-  });
+  })
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
@@ -91,5 +91,5 @@ export default function TaskListView() {
         </GridColumn>
       </Grid>
     </main>
-  );
+  )
 }
