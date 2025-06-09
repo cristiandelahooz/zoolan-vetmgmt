@@ -9,7 +9,6 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Data
 public class ClientCreateDTO {
@@ -36,8 +35,10 @@ public class ClientCreateDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
+    @NotNull
     private Gender gender;
 
+    @NotBlank(message = "La nacionalidad es requerida")
     private String nationality;
 
     @Pattern(regexp = "^[0-9]{11}$", message = "La cédula debe contener exactamente 11 dígitos")
@@ -53,8 +54,6 @@ public class ClientCreateDTO {
 
     @NotNull(message = "El método de contacto preferido es requerido")
     private PreferredContactMethod preferredContactMethod;
-
-    private Set<@Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Proporcione números de teléfono válidos") String> additionalContactNumbers;
 
     private String emergencyContactName;
 
@@ -88,6 +87,4 @@ public class ClientCreateDTO {
 
     @Size(max = 500, message = "Los puntos de referencia no pueden exceder 500 caracteres")
     private String referencePoints;
-
-    private boolean receivesPromotionalInfo = true;
 }
