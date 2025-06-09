@@ -23,7 +23,6 @@ function MainMenu() {
 					))}
 				</SideNavItem>
 			))}
-			<DropdownMenuRadioGroupDemo />
 		</SideNav>
 	);
 }
