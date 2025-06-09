@@ -45,8 +45,6 @@ public class ClientUpdateDTO {
 
     private PreferredContactMethod preferredContactMethod;
 
-    private Set<@Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Proporcione números de teléfono válidos") String> additionalContactNumbers;
-
     private String emergencyContactName;
 
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Proporcione un número de emergencia válido")
@@ -63,13 +61,18 @@ public class ClientUpdateDTO {
 
     private ReferenceSource referenceSource;
 
+    @NotBlank(message = "La provincia es requerida")
     private String province;
+
+    @NotBlank(message = "El municipio es requerido")
     private String municipality;
+
+    @NotBlank(message = "El sector es requerido")
     private String sector;
+
+    @NotBlank(message = "La dirección es requerida")
     private String streetAddress;
 
     @Size(max = 500, message = "Los puntos de referencia no pueden exceder 500 caracteres")
     private String referencePoints;
-
-    private Boolean receivesPromotionalInfo;
 }
