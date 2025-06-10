@@ -1,5 +1,6 @@
 package com.zoolandia.app.features.pet.service.dto;
 
+import com.zoolandia.app.features.pet.domain.Gender;
 import com.zoolandia.app.features.pet.domain.PetBreed;
 import com.zoolandia.app.features.pet.domain.PetType;
 import jakarta.validation.constraints.*;
@@ -25,5 +26,8 @@ public class PetUpdateDTO {
     }
 
     private Long ownerId;
+
+    @NotNull(message = "El género es requerido")
+    private Gender gender;
 }
 
