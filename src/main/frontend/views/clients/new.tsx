@@ -21,19 +21,93 @@ export default function Register() {
     navigate(ROUTES.CLIENTS)
   }
   return (
-    <>
-      <main className="w-full h-full flex flex-col box-border gap-s p-m">
-        <AutoForm
-          service={ClientServiceImpl}
-          model={ClientCreateDTOModel}
-          onSubmitSuccess={handleOnSubmitSuccess}
-          fieldOptions={{
-            password: {
-              renderer: ({ field }) => <PasswordField {...field} />,
-            },
-          }}
-        />
-      </main>
-    </>
+    <main className="w-full h-full flex flex-col box-border gap-s p-m">
+      <AutoForm
+        service={ClientServiceImpl}
+        model={ClientCreateDTOModel}
+        onSubmitSuccess={handleOnSubmitSuccess}
+        fieldOptions={{
+          username: {
+            label: 'Nombre de Usuario',
+          },
+          password: {
+            renderer: ({ field }) => <PasswordField {...field} />,
+            label: 'Contraseña',
+          },
+          email: {
+            label: 'Correo Electrónico',
+          },
+          firstName: {
+            label: 'Nombre',
+          },
+          lastName: {
+            label: 'Apellido',
+          },
+          phoneNumber: {
+            label: 'Número de Teléfono',
+          },
+          birthDate: {
+            label: 'Fecha de Nacimiento',
+          },
+          gender: {
+            label: 'Género',
+          },
+          nationality: {
+            label: 'Nacionalidad',
+          },
+          cedula: {
+            label: 'Cédula',
+          },
+          passport: {
+            label: 'Pasaporte',
+          },
+          rnc: {
+            label: 'RNC',
+          },
+          companyName: {
+            label: 'Nombre de la Empresa',
+          },
+          preferredContactMethod: {
+            label: 'Método de Contacto Preferido',
+          },
+          emergencyContactName: {
+            label: 'Nombre del Contacto de Emergencia',
+          },
+          emergencyContactNumber: {
+            label: 'Número de Contacto de Emergencia',
+          },
+          rating: {
+            label: 'Calificación',
+          },
+          creditLimit: {
+            label: 'Límite de Crédito',
+          },
+          paymentTermsDays: {
+            label: 'Días de Términos de Pago',
+          },
+          notes: {
+            label: 'Notas',
+          },
+          referenceSource: {
+            label: 'Fuente de Referencia',
+          },
+          province: {
+            label: 'Provincia',
+          },
+          municipality: {
+            label: 'Municipio',
+          },
+          sector: {
+            label: 'Sector',
+          },
+          streetAddress: {
+            label: 'Dirección',
+          },
+          referencePoints: {
+            label: 'Puntos de Referencia',
+          },
+        }}
+      />
+    </main>
   )
 }
