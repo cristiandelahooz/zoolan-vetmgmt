@@ -1,4 +1,0 @@
-onlyBuiltDependencies:
-  - '@biomejs/biome'
-  - '@vaadin/vaadin-usage-statistics'
-  - esbuild
