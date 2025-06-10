@@ -1,5 +1,7 @@
 package com.zoolandia.app.features.pet.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.zoolandia.app.features.pet.domain.Gender;
 import com.zoolandia.app.features.pet.domain.PetBreed;
 import com.zoolandia.app.features.pet.domain.PetType;
 import jakarta.validation.constraints.*;
@@ -23,10 +25,14 @@ public class PetCreateDTO {
     private LocalDate birthDate;
 
     @AssertTrue(message = "La fecha no puede ser futura")
+    @JsonIgnore
     public boolean isBirthDateValid() {
         return birthDate == null || !birthDate.isAfter(LocalDate.now());
     }
 
     @NotNull(message = "Debe asociarse a un cliente")
     private Long ownerId;
+
+    @NotNull(message = "El género es requerido")
+    private Gender gender;
 }
