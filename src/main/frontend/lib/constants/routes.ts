@@ -1,7 +1,7 @@
 export const ROUTES = {
   // Client routes
   CLIENTS: '/clients',
-  CLIENT_REGISTER: '/clients/register',
+  CLIENT_REGISTER: '/clients/new',
   CLIENT_EDIT: '/clients/edit',
   CLIENT_VIEW: '/clients/view',
 
@@ -10,6 +10,9 @@ export const ROUTES = {
   SETTINGS: '/settings',
   LOGIN: '/login',
   LOGOUT: '/logout',
+
+  // General routes
+  HOME: '/',
 } as const
 
 // Type for route values
