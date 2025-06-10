@@ -43,7 +43,6 @@ export const AUTO_GRID_CLIENT_COLUMN_OPTIONS = {
   birthDate: { header: 'Fecha de Nacimiento' },
   gender: { header: 'Género' },
   nationality: { header: 'Nacionalidad' },
-  address: { header: 'Dirección' },
   profilePictureUrl: { header: 'URL de Foto de Perfil' },
   active: { header: 'Activo' },
   createdAt: { header: 'Fecha de Creación' },

@@ -1,4 +1,3 @@
-
 package com.zoolandia.app.features.user.service;
 
 import com.vaadin.hilla.BrowserCallable;
@@ -28,42 +27,49 @@ public interface UserService {
      * Creates a new user in the system
      *
      * @param username
-     *            unique username for the user
+     *         unique username for the user
      * @param password
-     *            user's password
+     *         user's password
      * @param email
-     *            user's email address
+     *         user's email address
      * @param firstName
-     *            user's first name
+     *         user's first name
      * @param lastName
-     *            user's last name
+     *         user's last name
      * @param phoneNumber
-     *            user's phone number
+     *         user's phone number
      * @param birthDate
-     *            user's date of birth
+     *         user's date of birth
      * @param gender
-     *            user's gender
+     *         user's gender
      * @param nationality
-     *            user's nationality
-     * @param address
-     *            user's address
+     *         user's nationality
+     * @param province
+     *         user's province
+     * @param municipality
+     *         user's municipality
+     * @param sector
+     *         user's sector
+     * @param streetAddress
+     *         user's street address
      * @param role
-     *            user's role in the system
+     *         user's role in the system
      * @return the created user
      */
     @Secured("ROLE_ADMIN")
     User createUser(@NotBlank @Size(min = 3, max = 50) String username, @NotBlank @Size(min = 8) String password,
             @Nullable @Email String email, @NotBlank String firstName, @NotBlank String lastName,
             @Nullable String phoneNumber, @Nullable LocalDate birthDate, Gender gender, @Nullable String nationality,
-            @Nullable String address, UserRole role);
+            @NotBlank String province, @NotBlank String municipality, @NotBlank String sector,
+            @NotBlank String streetAddress, UserRole role);
 
     /**
      * Updates an existing user's information
      *
      * @param userId
-     *            user ID to update
+     *         user ID to update
      * @param updateData
-     *            updated user information
+     *         updated user information
      * @return the updated user
      */
     @Secured({ "ROLE_ADMIN", "ROLE_USER" })
@@ -73,7 +79,7 @@ public interface UserService {
      * Retrieves a user by their ID
      *
      * @param userId
-     *            the ID of the user to retrieve
+     *         the ID of the user to retrieve
      * @return the user if found
      */
     Optional<User> getUserById(Long userId);
@@ -82,7 +88,7 @@ public interface UserService {
      * Retrieves a user by their username
      *
      * @param username
-     *            the username to search for
+     *         the username to search for
      * @return the user if found
      */
     Optional<User> getUserByUsername(String username);
@@ -91,7 +97,7 @@ public interface UserService {
      * Lists all users with pagination
      *
      * @param pageable
-     *            pagination information
+     *         pagination information
      * @return list of users
      */
     @Secured("ROLE_ADMIN")
@@ -101,7 +107,7 @@ public interface UserService {
      * Deactivates a user account
      *
      * @param userId
-     *            the ID of the user to deactivate
+     *         the ID of the user to deactivate
      */
     @Secured("ROLE_ADMIN")
     void deactivateUser(Long userId);
@@ -110,7 +116,7 @@ public interface UserService {
      * Activates a user account
      *
      * @param userId
-     *            the ID of the user to activate
+     *         the ID of the user to activate
      */
     @Secured("ROLE_ADMIN")
     void activateUser(Long userId);
@@ -119,11 +125,11 @@ public interface UserService {
      * Changes a user's password
      *
      * @param userId
-     *            the ID of the user
+     *         the ID of the user
      * @param currentPassword
-     *            the current password
+     *         the current password
      * @param newPassword
-     *            the new password
+     *         the new password
      */
     @Secured({ "ROLE_ADMIN", "ROLE_USER" })
     void changePassword(Long userId, @NotBlank String currentPassword, @NotBlank @Size(min = 8) String newPassword);
@@ -132,9 +138,9 @@ public interface UserService {
      * Updates a user's profile picture
      *
      * @param userId
-     *            the ID of the user
+     *         the ID of the user
      * @param profilePictureUrl
-     *            the URL of the new profile picture
+     *         the URL of the new profile picture
      */
     @Secured({ "ROLE_ADMIN", "ROLE_USER" })
     void updateProfilePicture(Long userId, @Nullable String profilePictureUrl);
@@ -143,13 +149,13 @@ public interface UserService {
      * Searches for users based on various criteria
      *
      * @param searchTerm
-     *            the search term to match against name, email, or username
+     *         the search term to match against name, email, username, or address
      * @param role
-     *            optional role filter
+     *         optional role filter
      * @param active
-     *            optional active status filter
+     *         optional active status filter
      * @param pageable
-     *            pagination information
+     *         pagination information
      * @return list of matching users
      */
     @Secured("ROLE_ADMIN")

@@ -36,14 +36,30 @@ public class UserServiceImpl implements UserService {
     @AnonymousAllowed
     public User createUser(String username, String password, @Nullable String email, String firstName, String lastName,
             @Nullable String phoneNumber, @Nullable LocalDate birthDate, Gender gender, @Nullable String nationality,
-            @Nullable String address, UserRole role) {
+            String province, String municipality, String sector, String streetAddress, UserRole role) {
 
         validateNewUser(username, email);
 
-        var user = User.builder().username(username).password(passwordEncoder.encode(password)).email(email)
-                .firstName(firstName).lastName(lastName).phoneNumber(phoneNumber).birthDate(birthDate).gender(gender)
-                .nationality(nationality).address(address).role(role).active(true).createdAt(LocalDateTime.now(clock))
-                .updatedAt(LocalDateTime.now(clock)).build();
+        var user = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .email(email)
+                .firstName(firstName)
+                .lastName(lastName)
+                .phoneNumber(phoneNumber)
+                .birthDate(birthDate)
+                .gender(gender)
+                .nationality(nationality)
+                .province(province)
+                .municipality(municipality)
+                .sector(sector)
+                .streetAddress(streetAddress)
+                .role(role)
+                .active(true)
+                .createdAt(LocalDateTime.now(clock))
+                .updatedAt(LocalDateTime.now(clock))
+                .build();
+
 
         return userRepository.save(user);
     }
@@ -64,7 +80,6 @@ public class UserServiceImpl implements UserService {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // Only allow users to update their own profile unless they're an admin
         if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
                 && !user.getUsername().equals(currentUser.getName())) {
             throw new SecurityException("You can only update your own profile");
@@ -93,9 +108,11 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(updateData.getPhoneNumber());
         user.setBirthDate(updateData.getBirthDate());
         user.setNationality(updateData.getNationality());
-        user.setAddress(updateData.getAddress());
+        user.setProvince(updateData.getProvince());
+        user.setMunicipality(updateData.getMunicipality());
+        user.setSector(updateData.getSector());
+        user.setStreetAddress(updateData.getStreetAddress());
 
-        // Only admins can update roles
         if (updateData.getRole() != user.getRole() && SecurityContextHolder.getContext().getAuthentication()
                 .getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             user.setRole(updateData.getRole());
@@ -108,7 +125,6 @@ public class UserServiceImpl implements UserService {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId);
 
-        // Only allow users to view their own profile unless they're an admin
         if (user.isPresent()
                 && !currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
                 && !user.get().getUsername().equals(currentUser.getName())) {
@@ -155,7 +171,6 @@ public class UserServiceImpl implements UserService {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // Only allow users to change their own password unless they're an admin
         if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
                 && !user.getUsername().equals(currentUser.getName())) {
             throw new SecurityException("You can only change your own password");
@@ -176,7 +191,6 @@ public class UserServiceImpl implements UserService {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // Only allow users to update their own profile picture unless they're an admin
         if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
                 && !user.getUsername().equals(currentUser.getName())) {
             throw new SecurityException("You can only update your own profile picture");
@@ -199,7 +213,10 @@ public class UserServiceImpl implements UserService {
                     cb.like(cb.lower(root.get("username")), "%" + searchTerm.toLowerCase() + "%"),
                     cb.like(cb.lower(root.get("email")), "%" + searchTerm.toLowerCase() + "%"),
                     cb.like(cb.lower(root.get("firstName")), "%" + searchTerm.toLowerCase() + "%"),
-                    cb.like(cb.lower(root.get("lastName")), "%" + searchTerm.toLowerCase() + "%")));
+                    cb.like(cb.lower(root.get("lastName")), "%" + searchTerm.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("province")), "%" + searchTerm.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("municipality")), "%" + searchTerm.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("sector")), "%" + searchTerm.toLowerCase() + "%")));
         }
 
         if (role != null) {

@@ -3,10 +3,7 @@ package com.zoolandia.app.features.user.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.Nullable;
@@ -69,9 +66,21 @@ public class User {
     @Nullable
     protected String nationality;
 
-    @Column(name = "address", length = 500)
-    @Nullable
-    protected String address;
+    @Column(name = "province")
+    @NotNull(message = "La provincia es requerida")
+    protected String province;
+
+    @Column(name = "municipality")
+    @NotNull(message = "El municipio es requerido")
+    protected String municipality;
+
+    @Column(name = "sector")
+    @NotNull(message = "El sector es requerido")
+    protected String sector;
+
+    @Column(name = "street_address")
+    @NotNull(message = "La dirección es requerida")
+    protected String streetAddress;
 
     @Column(name = "profile_picture_url")
     @Nullable
