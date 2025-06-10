@@ -15,4 +15,6 @@ public interface PetMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "owner", source = "ownerId", qualifiedByName = "mapOwner")
     void updatePetFromDTO(PetUpdateDTO dto, @MappingTarget Pet pet);
+
+    PetCreateDTO toCreateDTO(Pet savedPet);
 }
