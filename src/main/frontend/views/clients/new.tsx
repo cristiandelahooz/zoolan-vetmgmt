@@ -1,11 +1,14 @@
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
-import { AutoForm } from '@vaadin/hilla-react-crud'
-import { Notification, PasswordField } from '@vaadin/react-components'
+import type { SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
 import type ClientCreateDTO from 'Frontend/generated/com/zoolandia/app/features/client/service/dto/ClientCreateDTO'
+import type React from 'react'
+
+import { AutoForm } from '@vaadin/hilla-react-crud'
+import { Notification } from '@vaadin/react-components'
 import ClientCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/client/service/dto/ClientCreateDTOModel'
 import { ClientServiceImpl } from 'Frontend/generated/endpoints'
+import { AUTO_FORM_CLIENT_FIELD_OPTIONS } from 'Frontend/lib/constants/client-field-config'
 import { ROUTES } from 'Frontend/lib/constants/routes'
-import type React from 'react'
 import { useNavigate } from 'react-router'
 
 export const config: ViewConfig = {
@@ -20,93 +23,21 @@ export default function Register() {
     console.log(item)
     navigate(ROUTES.CLIENTS)
   }
+  const handleOnSubmitError = ({ error }: SubmitErrorEvent) => {
+    Notification.show(`Error al registrar cliente: ${error.message}`, {
+      duration: 5000,
+      position: 'bottom-end',
+      theme: 'error',
+    })
+  }
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <AutoForm
         service={ClientServiceImpl}
         model={ClientCreateDTOModel}
         onSubmitSuccess={handleOnSubmitSuccess}
-        fieldOptions={{
-          username: {
-            label: 'Nombre de Usuario',
-          },
-          password: {
-            renderer: ({ field }) => <PasswordField {...field} />,
-            label: 'Contraseña',
-          },
-          email: {
-            label: 'Correo Electrónico',
-          },
-          firstName: {
-            label: 'Nombre',
-          },
-          lastName: {
-            label: 'Apellido',
-          },
-          phoneNumber: {
-            label: 'Número de Teléfono',
-          },
-          birthDate: {
-            label: 'Fecha de Nacimiento',
-          },
-          gender: {
-            label: 'Género',
-          },
-          nationality: {
-            label: 'Nacionalidad',
-          },
-          cedula: {
-            label: 'Cédula',
-          },
-          passport: {
-            label: 'Pasaporte',
-          },
-          rnc: {
-            label: 'RNC',
-          },
-          companyName: {
-            label: 'Nombre de la Empresa',
-          },
-          preferredContactMethod: {
-            label: 'Método de Contacto Preferido',
-          },
-          emergencyContactName: {
-            label: 'Nombre del Contacto de Emergencia',
-          },
-          emergencyContactNumber: {
-            label: 'Número de Contacto de Emergencia',
-          },
-          rating: {
-            label: 'Calificación',
-          },
-          creditLimit: {
-            label: 'Límite de Crédito',
-          },
-          paymentTermsDays: {
-            label: 'Días de Términos de Pago',
-          },
-          notes: {
-            label: 'Notas',
-          },
-          referenceSource: {
-            label: 'Fuente de Referencia',
-          },
-          province: {
-            label: 'Provincia',
-          },
-          municipality: {
-            label: 'Municipio',
-          },
-          sector: {
-            label: 'Sector',
-          },
-          streetAddress: {
-            label: 'Dirección',
-          },
-          referencePoints: {
-            label: 'Puntos de Referencia',
-          },
-        }}
+        onSubmitError={handleOnSubmitError}
+        fieldOptions={AUTO_FORM_CLIENT_FIELD_OPTIONS}
       />
     </main>
   )
