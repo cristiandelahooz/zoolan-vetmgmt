@@ -3,6 +3,7 @@ package com.zoolandia.app.features.pet.service;
 import com.vaadin.hilla.BrowserCallable;
 import com.zoolandia.app.features.pet.domain.Pet;
 import com.zoolandia.app.features.pet.service.dto.PetCreateDTO;
+import com.zoolandia.app.features.pet.service.dto.PetSummaryDTO;
 import com.zoolandia.app.features.pet.service.dto.PetUpdateDTO;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -52,7 +54,9 @@ public interface PetService {
      * @param pageable pagination information
      * @return paginated list of Pets
      */
-    Page<Pet> getAllPets(Pageable pageable);
+    //Page<Pet> getAllPets(Pageable pageable);
+    List<PetSummaryDTO> getAllPets(Pageable pageable);
+
 
     /**
      * Retrieves Pets by owner ID.
@@ -68,5 +72,5 @@ public interface PetService {
      *
      * @param id the ID of the pet to delete
      */
-    void deletePet(Long id);
+    void delete(Long id);
 }
