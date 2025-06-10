@@ -20,7 +20,6 @@ import java.time.LocalDate;
 public class Employee extends User {
 
     @Column(name = "employee_role")
-    @NotBlank(message = "Role is required")
     @Enumerated(EnumType.STRING)
     private EmployeeRole employeeRole;
 
