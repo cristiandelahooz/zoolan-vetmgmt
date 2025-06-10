@@ -1,6 +1,8 @@
 package com.zoolandia.app.features.employee.service;
 
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.features.employee.domain.Employee;
 import com.zoolandia.app.features.employee.domain.EmployeeRole;
@@ -29,7 +31,8 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @BrowserCallable
-public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, EmployeeRepository> implements EmployeeService  {
+@AnonymousAllowed
+public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, EmployeeRepository> implements EmployeeService, FormService<EmployeeCreateDTO, Long> {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
@@ -243,4 +246,52 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     private boolean hasActiveAssignments(Employee employee) {
         return false;
     }
+
+
+    /**
+     * Implementation of FormService.save() method. This method is used by Vaadin Hilla for CRUD operations.
+     */
+    @Override
+    @Transactional
+    public @org.springframework.lang.Nullable EmployeeCreateDTO save(EmployeeCreateDTO value) {
+        try {
+            log.debug("Request to save Employee via FormService: {}", value);
+
+            if (employeeRepository.existsByUsername(value.getUsername())) {
+                throw new DuplicateEmployeeException("username", value.getUsername());
+            }
+
+            Employee employee = employeeMapper.toEntity(value);
+            employee.setPassword(passwordEncoder.encode(value.getPassword()));
+            employee = employeeRepository.save(employee);
+
+            EmployeeCreateDTO result = employeeMapper.toDTO(employee);
+            log.info("Employee saved successfully via FormService with ID: {}", employee.getId());
+            return result;
+        } catch (Exception e) {
+            log.error("Error saving Employee via FormService: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Implementation of FormService.delete() method. This method is used by Vaadin Hilla for CRUD operations. Uses soft
+     * delete by deactivating the employee.
+     */
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        log.debug("Request to delete Employee via FormService: {}", id);
+
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        employee.setActive(false);
+        employeeRepository.save(employee);
+
+        log.info("Employee deactivated via FormService, ID: {}", id);
+
+    }
+
+
 }
