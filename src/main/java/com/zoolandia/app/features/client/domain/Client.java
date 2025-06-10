@@ -85,21 +85,6 @@ public class Client extends User {
     @Nullable
     private ReferenceSource referenceSource;
 
-    @Column(name = "province")
-    @NotNull(message = "La provincia es requerida")
-    private String province;
-
-    @Column(name = "municipality")
-    @NotNull(message = "El municipio es requerido")
-    private String municipality;
-
-    @Column(name = "sector")
-    @NotNull(message = "El sector es requerido")
-    private String sector;
-
-    @Column(name = "street_address")
-    @NotNull(message = "La dirección es requerida")
-    private String streetAddress;
 
     @Column(name = "reference_points", length = 500)
     @Nullable
