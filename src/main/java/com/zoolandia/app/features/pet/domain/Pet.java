@@ -31,4 +31,8 @@ public class Pet {
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client owner;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
 }
