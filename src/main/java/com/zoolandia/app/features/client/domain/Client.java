@@ -85,7 +85,6 @@ public class Client extends User {
     @Nullable
     private ReferenceSource referenceSource;
 
-
     @Column(name = "reference_points", length = 500)
     @Nullable
     private String referencePoints;

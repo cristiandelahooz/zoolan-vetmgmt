@@ -60,6 +60,7 @@ public class UserServiceImpl implements UserService {
                 .updatedAt(LocalDateTime.now(clock))
                 .build();
 
+
         return userRepository.save(user);
     }
 
@@ -107,7 +108,6 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(updateData.getPhoneNumber());
         user.setBirthDate(updateData.getBirthDate());
         user.setNationality(updateData.getNationality());
-
         user.setProvince(updateData.getProvince());
         user.setMunicipality(updateData.getMunicipality());
         user.setSector(updateData.getSector());
