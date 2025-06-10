@@ -1,10 +1,9 @@
 package com.zoolandia.app.features.employee.mapper;
 
 import com.zoolandia.app.features.employee.domain.Employee;
-import com.zoolandia.app.features.employee.domain.EmployeeRole;
 import com.zoolandia.app.features.employee.service.dto.EmployeeCreateDTO;
 import com.zoolandia.app.features.employee.service.dto.EmployeeUpdateDTO;
-import com.zoolandia.app.features.user.domain.SystemRole;
+
 import org.mapstruct.*;
 
 /**
@@ -41,4 +40,6 @@ public interface EmployeeMapper {
             employee.setSystemRole(employee.getEmployeeRole().getSystemRole());
         }
     }
+
+    EmployeeCreateDTO toDTO(Employee employee);
 }
