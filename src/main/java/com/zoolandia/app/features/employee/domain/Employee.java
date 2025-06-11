@@ -4,6 +4,7 @@ import com.zoolandia.app.features.user.domain.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -24,6 +25,7 @@ public class Employee extends User {
     private EmployeeRole employeeRole;
 
     @Column(name = "salary")
+    @PositiveOrZero(message = "Salary must be zero or positive")
     @Builder.Default
     private Double salary = 0.0;
 
@@ -35,5 +37,17 @@ public class Employee extends User {
     @Column(name = "available")
     @Builder.Default
     private boolean available = false;
+
+    @Column(name = "work_schedule")
+    @NotBlank(message = "Work schedule is required")
+    private String workSchedule;
+
+    @Column(name = "emergency_contact_name")
+    @NotBlank(message = "Emergency contact name is required")
+    private String emergencyContactName;
+
+    @Column(name = "emergency_contact_phone")
+    @NotBlank(message = "Emergency contact phone is required")
+    private String emergencyContactPhone;
 
 }
