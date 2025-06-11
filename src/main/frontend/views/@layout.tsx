@@ -1,6 +1,6 @@
 import { AppLayout, DrawerToggle, Icon, ProgressBar, Scroller, SideNav, SideNavItem } from '@vaadin/react-components'
 import { UserMenu } from 'Frontend/components/UserMenu'
-import { type MenuItemConfig, menuConfig } from 'Frontend/components/config/menuConfig'
+import { type MenuItemConfig, menuConfig } from 'Frontend/config/menuConfig'
 import { Suspense } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 
@@ -14,9 +14,10 @@ function MainMenu() {
       onNavigate={({ path }) => path != null && navigate(path)}
       location={location}
     >
-      {menuConfig.map(({ path, icon, title, children }: MenuItemConfig) => (
+      {menuConfig.map(({ path, icon, src, title, children }: MenuItemConfig) => (
         <SideNavItem path={path} key={path}>
           {icon && <Icon icon={icon} className="mr-s" slot="prefix" />}
+          {src && <Icon src={src} className="mr-s" slot="prefix" />}
           {title}
           {children?.map((child: MenuItemConfig) => (
             <SideNavItem path={child.path} key={child.path} slot="children">
