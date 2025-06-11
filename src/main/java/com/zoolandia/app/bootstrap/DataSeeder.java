@@ -31,13 +31,15 @@ public class DataSeeder implements CommandLineRunner {
         clientDTO.setLastName("Pérez");
         clientDTO.setEmail("juan.perez@email.com");
         clientDTO.setPhoneNumber("+18091234567");
+        clientDTO.setNationality("Domiciliado en el Estado Dominicano");
+        clientDTO.setPassport("A12345678");
+        clientDTO.setRnc("123456789");
         clientDTO.setBirthDate(LocalDate.of(1985, 5, 15));
         clientDTO.setGender(Gender.MALE);
 
         // Campos específicos de Client
         clientDTO.setCedula("40212345678");
         clientDTO.setPreferredContactMethod(PreferredContactMethod.EMAIL);
-        clientDTO.setAdditionalContactNumbers(Set.of("+18099876543", "+18095551234"));
         clientDTO.setEmergencyContactName("María Pérez");
         clientDTO.setEmergencyContactNumber("+18091111111");
         clientDTO.setRating(ClientRating.BUENO);
@@ -55,7 +57,6 @@ public class DataSeeder implements CommandLineRunner {
         clientDTO.setReferencePoints("Cerca del parque central");
 
         // Configuraciones
-        clientDTO.setReceivesPromotionalInfo(true);
         //clientDTO.setVerified(false);
 
         // Crear el cliente y guardar el resultado
