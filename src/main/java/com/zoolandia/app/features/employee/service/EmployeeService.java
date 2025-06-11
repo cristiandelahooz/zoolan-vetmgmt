@@ -145,14 +145,6 @@ public interface EmployeeService {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     void setEmergencyAvailability(Long id, boolean available);
 
-    /**
-     * Adds a certification or specialization to an Employee.
-     *
-     * @param id the ID of the employee
-     * @param certification the certification to add
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    void addCertification(Long id, String certification);
 
     /**
      * Retrieves Employees hired between specific dates.
