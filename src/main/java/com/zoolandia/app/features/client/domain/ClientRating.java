@@ -1,20 +1,19 @@
 package com.zoolandia.app.features.client.domain;
 
 public enum ClientRating {
-	EXCELENTE("Cliente excelente"),
-	MUY_BUENO("Cliente muy bueno"),
-	BUENO("Cliente bueno"),
-	REGULAR("Cliente regular"),
-	PAGO_TARDIO("Cliente con pagos tardíos"),
-	CONFLICTIVO("Cliente conflictivo");
+    MUY_BUENO("Cliente muy bueno"),
+    BUENO("Cliente bueno"),
+    REGULAR("Cliente regular"),
+    PAGO_TARDIO("Cliente con pagos tardíos"),
+    CONFLICTIVO("Cliente conflictivo");
 
-	private final String description;
+    private final String description;
 
-	ClientRating(String description) {
-		this.description = description;
-	}
+    ClientRating(String description) {
+        this.description = description;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 }

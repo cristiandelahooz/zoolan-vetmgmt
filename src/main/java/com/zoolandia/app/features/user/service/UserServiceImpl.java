@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
             String municipality,
             String sector,
             String streetAddress,
-            SystemRole systemRole) {
+            SystemRole role) {
 
         validateNewUser(username, email);
 
@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
                 .municipality(municipality)
                 .sector(sector)
                 .streetAddress(streetAddress)
-                .systemRole(systemRole)
+                .role(role)
                 .active(true)
                 .createdAt(LocalDateTime.now(clock))
                 .updatedAt(LocalDateTime.now(clock))
@@ -125,23 +125,23 @@ public class UserServiceImpl implements UserService {
         user.setSector(updateData.getSector());
         user.setStreetAddress(updateData.getStreetAddress());
 
-        if (updateData.getSystemRole() != user.getSystemRole() &&
+        if (updateData.getRole() != user.getRole() &&
                 SecurityContextHolder.getContext().getAuthentication()
                         .getAuthorities().stream()
                         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            user.setSystemRole(updateData.getSystemRole());
+            user.setRole(updateData.getRole());
         }
     }
 
     @Override
-    @Secured({"ROLE_ADMIN", "ROLE_USER"})
+    @Secured({ "ROLE_ADMIN", "ROLE_USER" })
     public Optional<User> getUserById(Long userId) {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId);
 
-        if (user.isPresent() &&
-                !currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) &&
-                !user.get().getUsername().equals(currentUser.getName())) {
+        if (user.isPresent()
+                && !currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+                &&!user.get().getUsername().equals(currentUser.getName())) {
             return Optional.empty();
         }
 
@@ -234,9 +234,10 @@ public class UserServiceImpl implements UserService {
                             cb.like(cb.lower(root.get("username")), "%" + searchTerm.toLowerCase() + "%"),
                             cb.like(cb.lower(root.get("email")), "%" + searchTerm.toLowerCase() + "%"),
                             cb.like(cb.lower(root.get("firstName")), "%" + searchTerm.toLowerCase() + "%"),
-                            cb.like(cb.lower(root.get("lastName")), "%" + searchTerm.toLowerCase() + "%")
-                    )
-            );
+                            cb.like(cb.lower(root.get("lastName")), "%" + searchTerm.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("province")), "%" + searchTerm.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("municipality")), "%" + searchTerm.toLowerCase() + "%"),
+            cb.like(cb.lower(root.get("sector")), "%" + searchTerm.toLowerCase() + "%")));
         }
 
         if (systemRole != null) {

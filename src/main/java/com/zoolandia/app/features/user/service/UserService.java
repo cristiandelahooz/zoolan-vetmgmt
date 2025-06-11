@@ -5,7 +5,6 @@ import com.zoolandia.app.features.user.domain.SystemRole;
 import com.zoolandia.app.features.user.domain.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Pageable;
@@ -20,24 +19,37 @@ import java.util.Optional;
  */
 public interface UserService {
 
-
     /**
-     * Creates a new user.
+     * Creates a new user in the system
      *
-     * @param username the username
-     * @param password the password
-     * @param email the email address
-     * @param firstName the first name
-     * @param lastName the last name
-     * @param phoneNumber the phone number
-     * @param birthDate the birth date
-     * @param gender the gender
-     * @param nationality the nationality
-     * @param province the province
-     * @param municipality the municipality
-     * @param sector the sector
-     * @param streetAddress the street address
-     * @param systemRole the system role
+     * @param username
+     *         unique username for the user
+     * @param password
+     *         user's password
+     * @param email
+     *         user's email address
+     * @param firstName
+     *         user's first name
+     * @param lastName
+     *         user's last name
+     * @param phoneNumber
+     *         user's phone number
+     * @param birthDate
+     *         user's date of birth
+     * @param gender
+     *         user's gender
+     * @param nationality
+     *         user's nationality
+     * @param province
+     *         user's province
+     * @param municipality
+     *         user's municipality
+     * @param sector
+     *         user's sector
+     * @param streetAddress
+     *         user's street address
+     * @param role
+     *         user's role in the system
      * @return the created user
      */
     @Secured("ROLE_ADMIN")
@@ -51,18 +63,18 @@ public interface UserService {
             @Nullable LocalDate birthDate,
             Gender gender,
             @Nullable String nationality,
-            @NotNull String province,
-            @NotNull String municipality,
-            @NotNull String sector,
-            @NotNull String streetAddress,
-            SystemRole systemRole
+            @NotBlank String province,
+            @NotBlank String municipality,
+            @NotBlank String sector,
+            @NotBlank String streetAddress,
+            SystemRole role
     );
 
     /**
-     * Updates an existing user.
+     * Updates an existing user's information
      *
-     * @param userId the user ID
-     * @param updateData the user data to update
+     * @param userId user ID to update
+     * @param updateData updated user information
      * @return the updated user
      */
     @Secured({"ROLE_ADMIN", "ROLE_USER"})
@@ -80,16 +92,17 @@ public interface UserService {
     /**
      * Retrieves a user by username.
      *
-     * @param username the username
+     * @param username
+     *         the username
      * @return an Optional containing the user if found, or empty otherwise
      */
     Optional<User> getUserByUsername(String username);
 
     /**
-     * Lists users with pagination.
+     * Lists all users with pagination
      *
-     * @param pageable the pagination information
-     * @return a list of users
+     * @param pageable pagination information
+     * @return list of users
      */
     @Secured("ROLE_ADMIN")
     List<User> listUsers(Pageable pageable);
@@ -97,7 +110,8 @@ public interface UserService {
     /**
      * Deactivates a user.
      *
-     * @param userId the user ID
+     * @param userId
+     *         the user ID
      */
     @Secured("ROLE_ADMIN")
     void deactivateUser(Long userId);
@@ -105,43 +119,49 @@ public interface UserService {
     /**
      * Activates a user.
      *
-     * @param userId the user ID
+     * @param userId
+     *         the user ID
      */
     @Secured("ROLE_ADMIN")
     void activateUser(Long userId);
 
     /**
-     * Changes the password for a user.
+     * Changes a user's password
      *
-     * @param userId the user ID
+     * @param userId the ID of the user
      * @param currentPassword the current password
      * @param newPassword the new password
      */
     @Secured({"ROLE_ADMIN", "ROLE_USER"})
-    void changePassword(Long userId, String currentPassword, String newPassword);
+    void changePassword(
+            Long userId,
+            @NotBlank String currentPassword,
+            @NotBlank @Size(min = 8) String newPassword
+    );
 
     /**
-     * Updates the profile picture URL for a user.
+     * Updates a user's profile picture
      *
-     * @param userId the user ID
-     * @param profilePictureUrl the new profile picture URL
+     * @param userId the ID of the user
+     * @param profilePictureUrl the URL of the new profile picture
      */
     @Secured({"ROLE_ADMIN", "ROLE_USER"})
     void updateProfilePicture(Long userId, @Nullable String profilePictureUrl);
 
     /**
-     * Searches for users by criteria.
+     * Searches for users based on various criteria
      *
-     * @param searchTerm the search term
-     * @param systemRole the system role
-     * @param active whether the user is active
-     * @param pageable the pagination information
-     * @return a list of users matching the criteria
+     * @param searchTerm the search term to match against name, email, or username
+     * @param role optional role filter
+     * @param active optional active status filter
+     * @param pageable pagination information
+     * @return list of matching users
      */
     @Secured("ROLE_ADMIN")
     List<User> searchUsers(
             @Nullable String searchTerm,
-            @Nullable SystemRole systemRole,
+            @Nullable SystemRole role,
             @Nullable Boolean active,
-            Pageable pageable);
+            Pageable pageable
+    );
 }

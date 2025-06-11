@@ -1,5 +1,7 @@
 package com.zoolandia.app.features.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -30,6 +32,7 @@ public class User {
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     @Column(name = "password")
+    @JsonIgnore
     protected String password;
 
     @Email(message = "Please provide a valid email address")
@@ -52,6 +55,7 @@ public class User {
 
     @Column(name = "birth_date")
     @Nullable
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     protected LocalDate birthDate;
 
     @Column(name = "gender")
@@ -64,19 +68,23 @@ public class User {
 
     @Column(name = "province")
     @NotNull(message = "La provincia es requerida")
-    private String province;
+    protected String province;
 
     @Column(name = "municipality")
     @NotNull(message = "El municipio es requerido")
-    private String municipality;
+    protected String municipality;
 
     @Column(name = "sector")
     @NotNull(message = "El sector es requerido")
-    private String sector;
+    protected String sector;
 
     @Column(name = "street_address")
     @NotNull(message = "La dirección es requerida")
-    private String streetAddress;
+    protected String streetAddress;
+
+    @Column(name = "reference_points", length = 500)
+    @Nullable
+    protected String referencePoints;
 
     @Column(name = "profile_picture_url")
     @Nullable
@@ -94,7 +102,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "system_role")
-    protected SystemRole systemRole;
+    protected SystemRole role;
 
     @PrePersist
     protected void onCreate() {
