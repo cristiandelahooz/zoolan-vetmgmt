@@ -2,7 +2,7 @@ import type { ViewConfig } from "@vaadin/hilla-file-router/types.js";
 import { AutoForm } from "@vaadin/hilla-react-crud";
 import PetCreateDTOModel from "Frontend/generated/com/zoolandia/app/features/pet/service/dto/PetCreateDTOModel";
 import { PetServiceImpl } from "Frontend/generated/endpoints";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Notification } from "@vaadin/react-components";
 
 export const config: ViewConfig = {
