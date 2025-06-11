@@ -18,18 +18,22 @@ public interface EmployeeMapper {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "employeeRole", source = "employeeRole")
     @Mapping(target = "systemRole", expression = "java(dto.getEmployeeRole().getSystemRole())")
+    @Mapping(target = "emergencyContactName", source = "emergencyContactName")
+    @Mapping(target = "emergencyContactPhone", source = "emergencyContactPhone")
     Employee toEntity(EmployeeCreateDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "employeeRole", source = "employeeRole")
     @Mapping(target = "systemRole", expression = "java(dto.getEmployeeRole() != null ? dto.getEmployeeRole().getSystemRole() : employee.getSystemRole())")
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "emergencyContactName", source = "emergencyContactName")
+    @Mapping(target = "emergencyContactPhone", source = "emergencyContactPhone")
     void partialUpdate(@MappingTarget Employee employee, EmployeeUpdateDTO dto);
 
     @AfterMapping
     default void validateEmployeeData(@MappingTarget Employee employee) {
         if (employee.getSalary() != null && employee.getSalary() < 0) {
-            employee.setSalary(0.0);
+            throw new IllegalArgumentException("Salary cannot be negative");
         }
 
         if (employee.getHireDate() == null) {
