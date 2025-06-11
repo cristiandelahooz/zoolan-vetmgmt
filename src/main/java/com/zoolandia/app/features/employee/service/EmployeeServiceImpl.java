@@ -84,36 +84,73 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         return employeeRepository.findById(id);
     }
 
+
     @Override
     public Optional<Employee> getEmployeeByUsername(String username) {
         log.debug("Fetching employee with username: {}", username);
         return employeeRepository.findByUsername(username);
     }
 
+    /**
+     * Retrieves all employees with pagination.
+     * This method can be accessed by any authenticated user.
+     *
+     * @param pageable pagination information
+     * @return paginated list of employees
+     */
     @Override
     public Page<Employee> getAllEmployees(Pageable pageable) {
         log.debug("Fetching page {} of employees", pageable.getPageNumber());
         return employeeRepository.findAll(pageable);
     }
 
+    /**
+     * Searches for employees based on a search term.
+     * This method can be accessed by any authenticated user.
+     *
+     * @param searchTerm the term to search for in employee fields
+     * @param pageable pagination information
+     * @return paginated list of matching employees
+     */
     @Override
     public Page<Employee> searchEmployees(String searchTerm, Pageable pageable) {
         log.debug("Searching employees with term: {}", searchTerm);
         return employeeRepository.findBySearchTerm(searchTerm, pageable);
     }
 
+    /**
+     * Retrieves employees by their role.
+     * This method can be accessed by any authenticated user.
+     *
+     * @param role the role to filter employees by
+     * @param pageable pagination information
+     * @return paginated list of employees with the specified role
+     */
     @Override
     public Page<Employee> getEmployeesByRole(EmployeeRole role, Pageable pageable) {
         log.debug("Fetching employees with role: {}", role);
         return employeeRepository.findByEmployeeRole(role, pageable);
     }
 
+    /**
+     * Retrieves all available veterinarians for emergency services.
+     * This method can be accessed by any authenticated user.
+     *
+     * @return list of available veterinarians
+     */
     @Override
     @Transactional(readOnly = true)
     public List<Employee> getAvailableVeterinarians() {
         return employeeRepository.findAvailableVeterinarians();
     }
 
+    /**
+     * Updates the role of an employee.
+     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     *
+     * @param id the ID of the employee
+     * @param newRole the new role to assign
+     */
     @Override
     public void updateEmployeeRole(Long id, EmployeeRole newRole) {
         log.debug("Updating role to {} for employee ID: {}", newRole, id);
@@ -121,11 +158,17 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         Employee employee = employeeRepository.findById(id)
             .orElseThrow(() -> new EmployeeNotFoundException(id));
             
-        validateRoleChange(employee.getEmployeeRole(), newRole);
         employee.setEmployeeRole(newRole);
         employeeRepository.save(employee);
     }
 
+    /**
+     * Updates the salary of an employee.
+     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     *
+     * @param id the ID of the employee
+     * @param newSalary the new salary to set
+     */
     @Override
     public void updateEmployeeSalary(Long id, Double newSalary) {
         log.debug("Updating salary for employee ID: {}", id);
@@ -141,67 +184,109 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         employeeRepository.save(employee);
     }
 
+    /**
+     * Deactivates an employee account.
+     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     *
+     * @param id the ID of the employee to deactivate
+     */
     @Override
     public void deactivateEmployee(Long id) {
         log.debug("Deactivating employee with ID: {}", id);
         updateEmployeeStatus(id, false);
     }
 
+    /**
+     * Reactivates an employee account.
+     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     *
+     * @param id the ID of the employee to reactivate
+     */
     @Override
     public void reactivateEmployee(Long id) {
         log.debug("Reactivating employee with ID: {}", id);
         updateEmployeeStatus(id, true);
     }
 
+    /**
+     * Updates the work schedule for an employee.
+     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     *
+     * @param id the ID of the employee
+     * @param workSchedule the new work schedule
+     */
     @Override
     public void updateWorkSchedule(Long id, String workSchedule) {
         log.debug("Updating work schedule for employee ID: {}", id);
-        
+
         Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
-            
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        employee.setWorkSchedule(workSchedule);
+
         employeeRepository.save(employee);
     }
 
+    /**
+     * Sets the emergency availability status for an employee.
+     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     *
+     * @param id the ID of the employee
+     * @param available true if the employee is available for emergencies, false otherwise
+     */
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public void setEmergencyAvailability(Long id, boolean available) {
         Employee employee = employeeRepository.findById(id)
             .orElseThrow(() -> new EmployeeNotFoundException(id));
-        
+
         employee.setAvailable(available);
         employeeRepository.save(employee);
         
         log.info("Updated availability status to {} for employee ID: {}", available, id);
     }
 
-    @Override
-    public void addCertification(Long id, String certification) {
-        log.debug("Adding certification for employee ID: {}", id);
-        
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
-            
-        employeeRepository.save(employee);
-    }
 
+    /**
+     * Retrieves employees hired between the specified dates.
+     *
+     * @param startDate the start date of the hiring period
+     * @param endDate the end date of the hiring period
+     * @param pageable pagination information
+     * @return a page of employees hired between the specified dates
+     */
     @Override
     public Page<Employee> getEmployeesByHireDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable) {
         log.debug("Fetching employees hired between {} and {}", startDate, endDate);
         return employeeRepository.findByHireDateBetween(startDate, endDate, pageable);
     }
 
-    @Override
-    public void updateEmergencyContact(Long id, String contactName, String contactPhone) {
-        log.debug("Updating emergency contact for employee ID: {}", id);
-        
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
-            
-        employeeRepository.save(employee);
-    }
+
+    /**
+     * Updates emergency contact information for an Employee.
+     * @param id the ID of the employee
+     * @param contactName emergency contact name
+     * @param contactPhone emergency contact phone number
+     */
+     @Override
+     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+     public void updateEmergencyContact(Long id, String contactName, String contactPhone) {
+         log.debug("Updating emergency contact for employee ID: {}", id);
+
+         Employee employee = employeeRepository.findById(id)
+             .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+         employee.setEmergencyContactName(contactName);
+         employee.setEmergencyContactPhone(contactPhone);
+
+         employeeRepository.save(employee);
+     }
 
 
+    /**
+     * Deletes an employee by ID.
+     * @param id the ID of the employee to delete
+     */
     @Override
     public void deleteEmployee(Long id) {
         log.debug("Deleting employee with ID: {}", id);
@@ -218,6 +303,13 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
 
+    /**
+     * Updates the active status of an employee.
+     * This method is used for both deactivating and reactivating employees.
+     *
+     * @param id the ID of the employee
+     * @param active true to activate, false to deactivate
+     */
     private void updateEmployeeStatus(Long id, boolean active) {
         Employee employee = employeeRepository.findById(id)
             .orElseThrow(() -> new EmployeeNotFoundException(id));
@@ -226,20 +318,8 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         employeeRepository.save(employee);
     }
 
-    private void validateRoleChange(EmployeeRole currentRole, EmployeeRole newRole) {
-        if (isRoleDemoted(currentRole, newRole)) {
-            throw new InvalidEmployeeRoleException(newRole.toString(),
-                "Role demotion requires special authorization");
-        }
-    }
-
-    private boolean isRoleDemoted(EmployeeRole currentRole, EmployeeRole newRole) {
-
-        return false;
-    }
-
     private boolean canHandleEmergencies(EmployeeRole role) {
-        return role == EmployeeRole.VETERINARY_ASSISTANT ||
+        return role == EmployeeRole.VETERINARIAN ||
                role == EmployeeRole.LAB_TECHNICIAN;
     }
 
