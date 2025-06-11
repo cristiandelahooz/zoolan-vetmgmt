@@ -1,4 +1,4 @@
-import { Avatar, MenuBar, MenuBarItem, MenuBarItemSelectedEvent } from '@vaadin/react-components'
+import { Avatar, MenuBar, type MenuBarItem, type MenuBarItemSelectedEvent } from '@vaadin/react-components'
 
 type UserMenuItem = MenuBarItem<{ action?: () => void }>
 
