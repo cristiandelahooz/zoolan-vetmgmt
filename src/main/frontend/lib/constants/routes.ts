@@ -13,6 +13,12 @@ export const ROUTES = {
 
   // General routes
   HOME: '/',
+
+  // Pet routes
+  PETS: '/pets',
+  PET_REGISTER: '/pets/new',
+  PET_EDIT: '/pets/edit',
+  PET_VIEW: '/pets/view',
 } as const
 
 // Type for route values
