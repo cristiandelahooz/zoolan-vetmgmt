@@ -34,9 +34,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @AnonymousAllowed
-    public User createUser(String username, String password, @Nullable String email, String firstName, String lastName,
-            @Nullable String phoneNumber, @Nullable LocalDate birthDate, Gender gender, @Nullable String nationality,
-            String province, String municipality, String sector, String streetAddress, UserRole role) {
+    public User createUser(
+            String username,
+            String password,
+            @Nullable String email,
+            String firstName,
+            String lastName,
+            @Nullable String phoneNumber,
+            @Nullable LocalDate birthDate,
+            Gender gender,
+            @Nullable String nationality,
+            String province,
+            String municipality,
+            String sector,
+            String streetAddress,
+            SystemRole role) {
 
         validateNewUser(username, email);
 
@@ -60,7 +72,6 @@ public class UserServiceImpl implements UserService {
                 .updatedAt(LocalDateTime.now(clock))
                 .build();
 
-
         return userRepository.save(user);
     }
 
@@ -75,10 +86,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Secured({ "ROLE_ADMIN", "ROLE_USER" })
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public User updateUser(Long userId, User updateData) {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
-        var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
                 && !user.getUsername().equals(currentUser.getName())) {
@@ -113,8 +125,10 @@ public class UserServiceImpl implements UserService {
         user.setSector(updateData.getSector());
         user.setStreetAddress(updateData.getStreetAddress());
 
-        if (updateData.getRole() != user.getRole() && SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+        if (updateData.getRole() != user.getRole() &&
+                SecurityContextHolder.getContext().getAuthentication()
+                        .getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             user.setRole(updateData.getRole());
         }
     }
@@ -127,7 +141,7 @@ public class UserServiceImpl implements UserService {
 
         if (user.isPresent()
                 && !currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
-                && !user.get().getUsername().equals(currentUser.getName())) {
+                &&!user.get().getUsername().equals(currentUser.getName())) {
             return Optional.empty();
         }
 
@@ -159,17 +173,19 @@ public class UserServiceImpl implements UserService {
     }
 
     private void updateUserStatus(Long userId, boolean active) {
-        var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         user.setActive(active);
         user.setUpdatedAt(LocalDateTime.now(clock));
         userRepository.save(user);
     }
 
     @Override
-    @Secured({ "ROLE_ADMIN", "ROLE_USER" })
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public void changePassword(Long userId, String currentPassword, String newPassword) {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
-        var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
                 && !user.getUsername().equals(currentUser.getName())) {
@@ -186,10 +202,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Secured({ "ROLE_ADMIN", "ROLE_USER" })
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     public void updateProfilePicture(Long userId, @Nullable String profilePictureUrl) {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
-        var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
                 && !user.getUsername().equals(currentUser.getName())) {
@@ -203,24 +220,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Secured("ROLE_ADMIN")
-    public List<User> searchUsers(@Nullable String searchTerm, @Nullable UserRole role, @Nullable Boolean active,
+    public List<User> searchUsers(
+            @Nullable String searchTerm,
+            @Nullable SystemRole systemRole,
+            @Nullable Boolean active,
             Pageable pageable) {
 
         Specification<User> spec = Specification.where(null);
 
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            spec = spec.and((root, query, cb) -> cb.or(
-                    cb.like(cb.lower(root.get("username")), "%" + searchTerm.toLowerCase() + "%"),
-                    cb.like(cb.lower(root.get("email")), "%" + searchTerm.toLowerCase() + "%"),
-                    cb.like(cb.lower(root.get("firstName")), "%" + searchTerm.toLowerCase() + "%"),
-                    cb.like(cb.lower(root.get("lastName")), "%" + searchTerm.toLowerCase() + "%"),
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(cb.lower(root.get("username")), "%" + searchTerm.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("email")), "%" + searchTerm.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("firstName")), "%" + searchTerm.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("lastName")), "%" + searchTerm.toLowerCase() + "%"),
                     cb.like(cb.lower(root.get("province")), "%" + searchTerm.toLowerCase() + "%"),
                     cb.like(cb.lower(root.get("municipality")), "%" + searchTerm.toLowerCase() + "%"),
-                    cb.like(cb.lower(root.get("sector")), "%" + searchTerm.toLowerCase() + "%")));
+            cb.like(cb.lower(root.get("sector")), "%" + searchTerm.toLowerCase() + "%")));
         }
 
-        if (role != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("role"), role));
+        if (systemRole != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("systemRole"), systemRole));
         }
 
         if (active != null) {

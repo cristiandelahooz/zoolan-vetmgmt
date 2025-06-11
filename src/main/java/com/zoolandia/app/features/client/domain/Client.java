@@ -8,9 +8,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnTransformer;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Table(name = "client")
 @PrimaryKeyJoinColumn(name = "client_id")
@@ -84,10 +81,6 @@ public class Client extends User {
     @Enumerated(EnumType.STRING)
     @Nullable
     private ReferenceSource referenceSource;
-
-    @Column(name = "reference_points", length = 500)
-    @Nullable
-    private String referencePoints;
 
     @Column(name = "verified")
     @Builder.Default

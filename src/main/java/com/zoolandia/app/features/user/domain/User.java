@@ -82,6 +82,10 @@ public class User {
     @NotNull(message = "La dirección es requerida")
     protected String streetAddress;
 
+    @Column(name = "reference_points", length = 500)
+    @Nullable
+    protected String referencePoints;
+
     @Column(name = "profile_picture_url")
     @Nullable
     protected String profilePictureUrl;
@@ -97,8 +101,8 @@ public class User {
     protected LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    protected UserRole role;
+    @Column(name = "system_role")
+    protected SystemRole role;
 
     @PrePersist
     protected void onCreate() {
