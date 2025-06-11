@@ -75,21 +75,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
      *
      * @return list of available veterinarians
      */
-    @Query("SELECT e FROM Employee e WHERE e.employeeRole = 'VETERINARY_ASSISTANT' " +
-            "AND e.active = true AND EXISTS (SELECT 1 FROM Employee emp WHERE emp.id = e.id " +
-            "AND emp.available = true)")
+    @Query("SELECT e FROM Employee e WHERE e.employeeRole = 'VETERINARIAN' " +
+            "AND e.active = true AND e.available = true")
     List<Employee> findAvailableVeterinarians();
 
-    /**
-     * Finds all active employees with specific certifications.
-     *
-     * @param certification the certification to filter by
-     * @param pageable pagination information
-     * @return page of employees with the specified certification
-     */
-    @Query("SELECT e FROM Employee e WHERE e.active = true AND " +
-           "EXISTS (SELECT 1 FROM Employee emp WHERE emp.id = e.id)")
-    Page<Employee> findByCertification(@Param("certification") String certification, Pageable pageable);
+
 
     /**
      * Finds all employees by salary range.
