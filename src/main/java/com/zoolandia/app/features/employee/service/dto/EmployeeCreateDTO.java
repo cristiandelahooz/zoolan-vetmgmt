@@ -76,5 +76,15 @@ public class EmployeeCreateDTO {
     @Builder.Default
     private boolean active = true;
 
+    @NotBlank(message = "Work schedule is required")
+    private String workSchedule;
+
+    @NotBlank(message = "Emergency contact name is required")
+    private String emergencyContactName;
+
+    @NotBlank(message = "Emergency contact phone is required")
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid emergency contact phone number")
+    private String emergencyContactPhone;
+
 
 }
