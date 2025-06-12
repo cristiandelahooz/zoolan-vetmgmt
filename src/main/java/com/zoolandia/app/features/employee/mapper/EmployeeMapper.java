@@ -40,8 +40,8 @@ public interface EmployeeMapper {
             employee.setHireDate(java.time.LocalDate.now());
         }
 
-        if (employee.getEmployeeRole() != null && employee.getRole() == null) {
-            employee.setRole(employee.getEmployeeRole().getSystemRole());
+        if (employee.getEmployeeRole() != null && employee.getSystemRole() == null) {
+            employee.setSystemRole(employee.getEmployeeRole().getSystemRole());
         }
     }
 
