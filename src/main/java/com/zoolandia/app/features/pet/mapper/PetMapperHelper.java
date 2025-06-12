@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class PetMapperHelper {
 
-    @Autowired
-    private ClientRepository clientRepository;
+  @Autowired private ClientRepository clientRepository;
 
-    @Named("mapOwner")
-    public Client mapOwner(Long ownerId) {
-        if (ownerId == null)
-            return null;
-        return clientRepository.findById(ownerId).orElseThrow(() -> new OwnerNotFoundException(ownerId));
-    }
+  @Named("mapOwner")
+  public Client mapOwner(Long ownerId) {
+    if (ownerId == null) return null;
+    return clientRepository
+        .findById(ownerId)
+        .orElseThrow(() -> new OwnerNotFoundException(ownerId));
+  }
 }

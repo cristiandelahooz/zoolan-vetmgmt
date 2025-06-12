@@ -5,16 +5,19 @@ import com.zoolandia.app.features.pet.service.dto.PetCreateDTO;
 import com.zoolandia.app.features.pet.service.dto.PetUpdateDTO;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = PetMapperHelper.class)
+@Mapper(
+    componentModel = "spring",
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    uses = PetMapperHelper.class)
 public interface PetMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "owner", source = "ownerId", qualifiedByName = "mapOwner")
-    Pet toEntity(PetCreateDTO dto);
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "owner", source = "ownerId", qualifiedByName = "mapOwner")
+  Pet toEntity(PetCreateDTO dto);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "owner", source = "ownerId", qualifiedByName = "mapOwner")
-    void updatePetFromDTO(PetUpdateDTO dto, @MappingTarget Pet pet);
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  @Mapping(target = "owner", source = "ownerId", qualifiedByName = "mapOwner")
+  void updatePetFromDTO(PetUpdateDTO dto, @MappingTarget Pet pet);
 
-    PetCreateDTO toCreateDTO(Pet savedPet);
+  PetCreateDTO toCreateDTO(Pet savedPet);
 }

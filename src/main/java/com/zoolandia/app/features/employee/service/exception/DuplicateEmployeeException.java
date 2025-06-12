@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
 public class DuplicateEmployeeException extends EmployeeException {
-    public DuplicateEmployeeException(String field, String value) {
-        super(String.format("Employee with %s '%s' already exists", field, value));
-    }
+  public DuplicateEmployeeException(String field, String value) {
+    super(String.format("Employee with %s '%s' already exists", field, value));
+  }
 }
