@@ -1,6 +1,6 @@
 package com.zoolandia.app.taskmanagement.domain;
 
-import com.zoolandia.app.base.domain.AbstractEntity;
+import com.zoolandia.app.common.entity.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

@@ -1,75 +1,43 @@
-import { Outlet, useLocation, useNavigate } from 'react-router';
-import {
-  AppLayout,
-  Avatar,
-  Icon,
-  MenuBar,
-  MenuBarItem,
-  MenuBarItemSelectedEvent,
-  ProgressBar,
-  Scroller,
-  SideNav,
-  SideNavItem,
-} from '@vaadin/react-components';
-import { Suspense } from 'react';
-import { createMenuItems } from '@vaadin/hilla-file-router/runtime.js';
-
-function Header() {
-  // TODO Replace with real application logo and name
-  return (
-    <div className="flex p-m gap-m items-center" slot="drawer">
-      <Icon icon="vaadin:cubes" className="text-primary icon-l" />
-      <span className="font-semibold text-l">Zoolan Vetmgmt</span>
-    </div>
-  );
-}
+import { AppLayout, DrawerToggle, Icon, ProgressBar, Scroller, SideNav, SideNavItem } from '@vaadin/react-components'
+import { UserMenu } from 'Frontend/components/UserMenu'
+import { type MenuItemConfig, menuConfig } from 'Frontend/config/menuConfig'
+import { Suspense } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 
 function MainMenu() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
 
   return (
-    <SideNav className="mx-m" onNavigate={({ path }) => path != null && navigate(path)} location={location}>
-      {createMenuItems().map(({ to, icon, title }) => (
-        <SideNavItem path={to} key={to}>
-          {icon && <Icon icon={icon} slot="prefix" />}
+    <SideNav
+      className="mx-m layout-side-nav"
+      onNavigate={({ path }) => path != null && navigate(path)}
+      location={location}
+    >
+      {menuConfig.map(({ path, icon, src, title, children }: MenuItemConfig) => (
+        <SideNavItem path={path} key={path}>
+          {icon && <Icon icon={icon} className="mr-s" slot="prefix" />}
+          {src && <Icon src={src} className="mr-s" slot="prefix" />}
           {title}
+          {children?.map((child: MenuItemConfig) => (
+            <SideNavItem path={child.path} key={child.path} slot="children">
+              {child.icon && <Icon icon={child.icon} className="mr-s" slot="prefix" />}
+              {child.title}
+            </SideNavItem>
+          ))}
         </SideNavItem>
       ))}
     </SideNav>
-  );
-}
-
-type UserMenuItem = MenuBarItem<{ action?: () => void }>;
-
-function UserMenu() {
-  // TODO Replace with real user information and actions
-  const items: Array<UserMenuItem> = [
-    {
-      component: (
-        <>
-          <Avatar theme="xsmall" name="John Smith" colorIndex={5} className="mr-s" /> John Smith
-        </>
-      ),
-      children: [
-        { text: 'View Profile', disabled: true, action: () => console.log('View Profile') },
-        { text: 'Manage Settings', disabled: true, action: () => console.log('Manage Settings') },
-        { text: 'Logout', disabled: true, action: () => console.log('Logout') },
-      ],
-    },
-  ];
-  const onItemSelected = (event: MenuBarItemSelectedEvent<UserMenuItem>) => {
-    event.detail.value.action?.();
-  };
-  return (
-    <MenuBar theme="tertiary-inline" items={items} onItemSelected={onItemSelected} className="m-m" slot="drawer" />
-  );
+  )
 }
 
 export default function MainLayout() {
   return (
-    <AppLayout primarySection="drawer">
-      <Header />
+    <AppLayout>
+      <DrawerToggle slot="navbar" />
+      <NavLink to="/" slot="navbar">
+        Zoolandia
+      </NavLink>
       <Scroller slot="drawer">
         <MainMenu />
       </Scroller>
@@ -78,5 +46,5 @@ export default function MainLayout() {
         <Outlet />
       </Suspense>
     </AppLayout>
-  );
+  )
 }

@@ -1,5 +1,6 @@
 package com.zoolandia.app.features.client.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zoolandia.app.features.client.domain.ClientRating;
 import com.zoolandia.app.features.client.domain.PreferredContactMethod;
 import com.zoolandia.app.features.client.domain.ReferenceSource;
@@ -24,10 +25,11 @@ public class ClientUpdateDTO {
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid phone number")
     private String phoneNumber;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
-    
+
     private Gender gender;
-    
+
     private String nationality;
 
     @Pattern(regexp = "^[0-9]{11}$", message = "La cédula debe contener exactamente 11 dígitos")
@@ -42,9 +44,6 @@ public class ClientUpdateDTO {
     private String companyName;
 
     private PreferredContactMethod preferredContactMethod;
-
-    private Set<@Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", 
-            message = "Proporcione números de teléfono válidos") String> additionalContactNumbers;
 
     private String emergencyContactName;
 
@@ -62,13 +61,18 @@ public class ClientUpdateDTO {
 
     private ReferenceSource referenceSource;
 
+    @NotBlank(message = "La provincia es requerida")
     private String province;
+
+    @NotBlank(message = "El municipio es requerido")
     private String municipality;
+
+    @NotBlank(message = "El sector es requerido")
     private String sector;
+
+    @NotBlank(message = "La dirección es requerida")
     private String streetAddress;
 
     @Size(max = 500, message = "Los puntos de referencia no pueden exceder 500 caracteres")
     private String referencePoints;
-
-    private Boolean receivesPromotionalInfo;
 }

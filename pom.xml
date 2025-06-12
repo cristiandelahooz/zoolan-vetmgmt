@@ -185,11 +185,9 @@
                         <excludes>
                             <exclude>src/main/frontend/generated/**</exclude>
                         </excludes>
-                        <prettier>
-                            <prettierVersion>3.3.3</prettierVersion>
-                            <configFile>${project.basedir}/.prettierrc.json
-                            </configFile>
-                        </prettier>
+                        <biome>
+                            <version>1.9.4</version>
+                        </biome>
                     </typescript>
                 </configuration>
             </plugin>

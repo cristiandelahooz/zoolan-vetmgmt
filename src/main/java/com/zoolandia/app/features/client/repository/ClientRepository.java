@@ -13,11 +13,18 @@ import java.util.Optional;
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long>, JpaSpecificationExecutor<Client> {
     Optional<Client> findByCedula(String cedula);
+
     Optional<Client> findByPassport(String passport);
+
     Optional<Client> findByRnc(String rnc);
+
     boolean existsByCedula(String cedula);
+
     boolean existsByPassport(String passport);
+
     boolean existsByRnc(String rnc);
+
     Page<Client> findByRating(ClientRating rating, Pageable pageable);
+
     Page<Client> findByProvince(String province, Pageable pageable);
 }
