@@ -6,7 +6,7 @@ export interface MenuItemConfig {
   path: string | undefined
   title: string
   icon?: IconProps['icon']
-  src?: string | undefined
+  src?: string
   children?: MenuItemConfig[]
 }
 
