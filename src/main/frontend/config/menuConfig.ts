@@ -22,7 +22,7 @@ export const menuConfig: MenuItemConfig[] = [
     icon: 'lumo:user',
     children: [
       { path: ROUTES.CLIENTS, title: 'Listar', icon: 'lumo:align-left' },
-      { path: ROUTES.CLIENT_REGISTER, title: 'Registrar', icon: 'lumo:edit' },
+      { path: ROUTES.CLIENT_NEW, title: 'Registrar', icon: 'lumo:edit' },
     ],
   },
   {
@@ -36,7 +36,7 @@ export const menuConfig: MenuItemConfig[] = [
         icon: 'lumo:align-left',
       },
       {
-        path: ROUTES.PET_REGISTER,
+        path: ROUTES.PET_NEW,
         title: 'Registrar',
         icon: 'lumo:edit',
       },
