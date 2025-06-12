@@ -30,4 +30,3 @@ public class PetUpdateDTO {
     @NotNull(message = "El género es requerido")
     private Gender gender;
 }
-

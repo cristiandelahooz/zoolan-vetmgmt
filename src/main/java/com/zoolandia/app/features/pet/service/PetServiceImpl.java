@@ -25,14 +25,14 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 import java.util.List;
 
-
 @Slf4j
 @Service
 @Validated
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
-public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetRepository> implements PetService, FormService<PetCreateDTO, Long> {
+public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetRepository>
+        implements PetService, FormService<PetCreateDTO, Long> {
 
     private final PetRepository petRepository;
     private final PetMapper petMapper;
@@ -56,8 +56,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public Pet updatePet(Long id, @Valid PetUpdateDTO petDTO) {
         log.debug("Request to update Pet : {}", petDTO);
 
-        Pet existingPet = petRepository.findById(id)
-                .orElseThrow(() -> new PetNotFoundException(id));
+        Pet existingPet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
 
         petMapper.updatePetFromDTO(petDTO, existingPet);
 
@@ -71,29 +70,21 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         return petRepository.findById(id);
     }
 
-    /*@Override
-    @Transactional(readOnly = true)
-    public Page<Pet> getAllPets(Pageable pageable) {
-        log.debug("Request to get all Pets");
-        return petRepository.findAll(pageable);
-    }*/
+    /*
+     * @Override
+     * 
+     * @Transactional(readOnly = true) public Page<Pet> getAllPets(Pageable pageable) {
+     * log.debug("Request to get all Pets"); return petRepository.findAll(pageable); }
+     */
 
     @Override
     @Transactional(readOnly = true)
     public List<PetSummaryDTO> getAllPets(Pageable pageable) {
         return petRepository.findAll(pageable).stream()
-                .map(pet -> new PetSummaryDTO(
-                        pet.getId(),
-                        pet.getName(),
-                        pet.getType(),
-                        pet.getBreed(),
-                        pet.getBirthDate(),
-                        pet.getOwner().getFirstName() + " " + pet.getOwner().getLastName()
-                ))
+                .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
+                        pet.getBirthDate(), pet.getOwner().getFirstName() + " " + pet.getOwner().getLastName()))
                 .toList();
     }
-
-
 
     @Override
     @Transactional(readOnly = true)
@@ -104,20 +95,20 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
     @Override
     @Transactional
-   // @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
         log.debug("Request to delete Pet : {}", id);
         petRepository.deleteById(id);
         log.info("Deleted Pet ID: {}", id);
-        /*log.debug("Request to delete Pet via FormService : {}", id);
-
-        Pet client = petRepository.findById(id)
-                .orElseThrow(() -> new PetNotFoundException(id));
-
-        //pet.setActive(false);
-        petRepository.save(client);
-
-        log.info("Pet deactivated via FormService, ID: {}", id);*/
+        /*
+         * log.debug("Request to delete Pet via FormService : {}", id);
+         * 
+         * Pet client = petRepository.findById(id) .orElseThrow(() -> new PetNotFoundException(id));
+         * 
+         * //pet.setActive(false); petRepository.save(client);
+         * 
+         * log.info("Pet deactivated via FormService, ID: {}", id);
+         */
     }
 
     @Override
@@ -136,4 +127,3 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     }
 
 }
-

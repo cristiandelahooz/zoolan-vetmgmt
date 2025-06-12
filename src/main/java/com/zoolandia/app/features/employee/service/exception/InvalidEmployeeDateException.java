@@ -12,7 +12,7 @@ public class InvalidEmployeeDateException extends EmployeeException {
     }
 
     public InvalidEmployeeDateException(LocalDate hireDate, LocalDate birthDate) {
-        super(String.format("Invalid date combination: hire date %s cannot be before birth date %s", 
-            hireDate, birthDate));
+        super(String.format("Invalid date combination: hire date %s cannot be before birth date %s", hireDate,
+                birthDate));
     }
 }

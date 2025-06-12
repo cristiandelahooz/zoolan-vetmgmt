@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * DTO for updating an existing Employee
- * All fields are nullable to allow partial updates
+ * DTO for updating an existing Employee All fields are nullable to allow partial updates
  */
 @Data
 @Builder

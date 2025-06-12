@@ -5,4 +5,3 @@ public class PetNotFoundException extends RuntimeException {
         super("Mascota no encontrada con ID: " + id);
     }
 }
-

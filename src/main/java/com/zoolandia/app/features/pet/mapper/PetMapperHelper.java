@@ -15,9 +15,8 @@ public class PetMapperHelper {
 
     @Named("mapOwner")
     public Client mapOwner(Long ownerId) {
-        if (ownerId == null) return null;
-        return clientRepository.findById(ownerId)
-                .orElseThrow(() -> new OwnerNotFoundException(ownerId));
+        if (ownerId == null)
+            return null;
+        return clientRepository.findById(ownerId).orElseThrow(() -> new OwnerNotFoundException(ownerId));
     }
 }
-

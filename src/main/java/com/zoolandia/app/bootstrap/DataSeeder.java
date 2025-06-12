@@ -62,10 +62,9 @@ public class DataSeeder implements CommandLineRunner {
         // Crear el cliente y guardar el resultado
         var client = clientService.createClient(clientDTO);
 
-// Mostrar datos
+        // Mostrar datos
         System.out.println("Cliente de prueba creado: " + clientDTO.getFirstName() + " " + clientDTO.getLastName());
         System.out.println("Cliente creado con ID: " + client.getId());
-
 
     }
 }

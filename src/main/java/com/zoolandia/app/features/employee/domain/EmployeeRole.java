@@ -19,7 +19,6 @@ public enum EmployeeRole {
     KENNEL_ASSISTANT("Asistente de Perreras", "Cuidado de animales hospitalizados", SystemRole.USER),
     LAB_TECHNICIAN("Técnico de Laboratorio", "Análisis de laboratorio", SystemRole.USER);
 
-
     private final String displayName;
     private final String description;
     private final SystemRole systemRole;

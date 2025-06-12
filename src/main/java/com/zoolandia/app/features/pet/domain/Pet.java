@@ -25,7 +25,6 @@ public class Pet {
     @Enumerated(EnumType.STRING)
     private PetBreed breed;
 
-
     private LocalDate birthDate;
 
     @ManyToOne

@@ -33,7 +33,7 @@ public class Employee extends User {
     @NotNull(message = "Hire date is required")
     @Builder.Default
     private LocalDate hireDate = LocalDate.now();
-    
+
     @Column(name = "available")
     @Builder.Default
     private boolean available = false;

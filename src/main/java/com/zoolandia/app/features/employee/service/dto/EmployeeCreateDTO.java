@@ -11,15 +11,14 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * DTO for creating a new Employee
- * Includes all required fields from both User and Employee entities
+ * DTO for creating a new Employee Includes all required fields from both User and Employee entities
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeCreateDTO {
-    
+
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
@@ -85,6 +84,5 @@ public class EmployeeCreateDTO {
     @NotBlank(message = "Emergency contact phone is required")
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid emergency contact phone number")
     private String emergencyContactPhone;
-
 
 }

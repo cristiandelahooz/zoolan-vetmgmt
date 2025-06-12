@@ -32,7 +32,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
-public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, EmployeeRepository> implements EmployeeService, FormService<EmployeeCreateDTO, Long> {
+public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, EmployeeRepository>
+        implements EmployeeService, FormService<EmployeeCreateDTO, Long> {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
@@ -41,32 +42,31 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     @Override
     public Employee createEmployee(@Valid EmployeeCreateDTO employeeDTO) {
         log.debug("Creating new employee with username: {}", employeeDTO.getUsername());
-        
+
         if (employeeRepository.existsByUsername(employeeDTO.getUsername())) {
             throw new DuplicateEmployeeException("username", employeeDTO.getUsername());
         }
 
-        if (employeeDTO.getHireDate() != null && employeeDTO.getBirthDate() != null &&
-            employeeDTO.getHireDate().isBefore(employeeDTO.getBirthDate())) {
+        if (employeeDTO.getHireDate() != null && employeeDTO.getBirthDate() != null
+                && employeeDTO.getHireDate().isBefore(employeeDTO.getBirthDate())) {
             throw new InvalidEmployeeDateException(employeeDTO.getHireDate(), employeeDTO.getBirthDate());
         }
 
         Employee employee = employeeMapper.toEntity(employeeDTO);
         employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
-        
+
         return employeeRepository.save(employee);
     }
 
     @Override
     public Employee updateEmployee(Long id, @Valid EmployeeUpdateDTO employeeDTO) {
         log.debug("Updating employee with ID: {}", id);
-        
-        Employee existingEmployee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
 
-        if (employeeDTO.getUsername() != null &&
-            !existingEmployee.getUsername().equals(employeeDTO.getUsername()) &&
-            employeeRepository.existsByUsername(employeeDTO.getUsername())) {
+        Employee existingEmployee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        if (employeeDTO.getUsername() != null && !existingEmployee.getUsername().equals(employeeDTO.getUsername())
+                && employeeRepository.existsByUsername(employeeDTO.getUsername())) {
             throw new DuplicateEmployeeException("username", employeeDTO.getUsername());
         }
 
@@ -84,7 +84,6 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         return employeeRepository.findById(id);
     }
 
-
     @Override
     public Optional<Employee> getEmployeeByUsername(String username) {
         log.debug("Fetching employee with username: {}", username);
@@ -92,10 +91,10 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     /**
-     * Retrieves all employees with pagination.
-     * This method can be accessed by any authenticated user.
+     * Retrieves all employees with pagination. This method can be accessed by any authenticated user.
      *
-     * @param pageable pagination information
+     * @param pageable
+     *            pagination information
      * @return paginated list of employees
      */
     @Override
@@ -105,11 +104,12 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     /**
-     * Searches for employees based on a search term.
-     * This method can be accessed by any authenticated user.
+     * Searches for employees based on a search term. This method can be accessed by any authenticated user.
      *
-     * @param searchTerm the term to search for in employee fields
-     * @param pageable pagination information
+     * @param searchTerm
+     *            the term to search for in employee fields
+     * @param pageable
+     *            pagination information
      * @return paginated list of matching employees
      */
     @Override
@@ -119,11 +119,12 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     /**
-     * Retrieves employees by their role.
-     * This method can be accessed by any authenticated user.
+     * Retrieves employees by their role. This method can be accessed by any authenticated user.
      *
-     * @param role the role to filter employees by
-     * @param pageable pagination information
+     * @param role
+     *            the role to filter employees by
+     * @param pageable
+     *            pagination information
      * @return paginated list of employees with the specified role
      */
     @Override
@@ -133,8 +134,8 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     /**
-     * Retrieves all available veterinarians for emergency services.
-     * This method can be accessed by any authenticated user.
+     * Retrieves all available veterinarians for emergency services. This method can be accessed by any authenticated
+     * user.
      *
      * @return list of available veterinarians
      */
@@ -145,50 +146,50 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     /**
-     * Updates the role of an employee.
-     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     * Updates the role of an employee. This method can only be accessed by users with ADMIN or MANAGER roles.
      *
-     * @param id the ID of the employee
-     * @param newRole the new role to assign
+     * @param id
+     *            the ID of the employee
+     * @param newRole
+     *            the new role to assign
      */
     @Override
     public void updateEmployeeRole(Long id, EmployeeRole newRole) {
         log.debug("Updating role to {} for employee ID: {}", newRole, id);
-        
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
-            
+
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+
         employee.setEmployeeRole(newRole);
         employeeRepository.save(employee);
     }
 
     /**
-     * Updates the salary of an employee.
-     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     * Updates the salary of an employee. This method can only be accessed by users with ADMIN or MANAGER roles.
      *
-     * @param id the ID of the employee
-     * @param newSalary the new salary to set
+     * @param id
+     *            the ID of the employee
+     * @param newSalary
+     *            the new salary to set
      */
     @Override
     public void updateEmployeeSalary(Long id, Double newSalary) {
         log.debug("Updating salary for employee ID: {}", id);
-        
+
         if (newSalary < 0) {
             throw new InvalidSalaryException(newSalary);
         }
 
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
-            
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+
         employee.setSalary(newSalary);
         employeeRepository.save(employee);
     }
 
     /**
-     * Deactivates an employee account.
-     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     * Deactivates an employee account. This method can only be accessed by users with ADMIN or MANAGER roles.
      *
-     * @param id the ID of the employee to deactivate
+     * @param id
+     *            the ID of the employee to deactivate
      */
     @Override
     public void deactivateEmployee(Long id) {
@@ -197,10 +198,10 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     /**
-     * Reactivates an employee account.
-     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     * Reactivates an employee account. This method can only be accessed by users with ADMIN or MANAGER roles.
      *
-     * @param id the ID of the employee to reactivate
+     * @param id
+     *            the ID of the employee to reactivate
      */
     @Override
     public void reactivateEmployee(Long id) {
@@ -209,18 +210,18 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     /**
-     * Updates the work schedule for an employee.
-     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     * Updates the work schedule for an employee. This method can only be accessed by users with ADMIN or MANAGER roles.
      *
-     * @param id the ID of the employee
-     * @param workSchedule the new work schedule
+     * @param id
+     *            the ID of the employee
+     * @param workSchedule
+     *            the new work schedule
      */
     @Override
     public void updateWorkSchedule(Long id, String workSchedule) {
         log.debug("Updating work schedule for employee ID: {}", id);
 
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 
         employee.setWorkSchedule(workSchedule);
 
@@ -228,31 +229,34 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     /**
-     * Sets the emergency availability status for an employee.
-     * This method can only be accessed by users with ADMIN or MANAGER roles.
+     * Sets the emergency availability status for an employee. This method can only be accessed by users with ADMIN or
+     * MANAGER roles.
      *
-     * @param id the ID of the employee
-     * @param available true if the employee is available for emergencies, false otherwise
+     * @param id
+     *            the ID of the employee
+     * @param available
+     *            true if the employee is available for emergencies, false otherwise
      */
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public void setEmergencyAvailability(Long id, boolean available) {
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 
         employee.setAvailable(available);
         employeeRepository.save(employee);
-        
+
         log.info("Updated availability status to {} for employee ID: {}", available, id);
     }
-
 
     /**
      * Retrieves employees hired between the specified dates.
      *
-     * @param startDate the start date of the hiring period
-     * @param endDate the end date of the hiring period
-     * @param pageable pagination information
+     * @param startDate
+     *            the start date of the hiring period
+     * @param endDate
+     *            the end date of the hiring period
+     * @param pageable
+     *            pagination information
      * @return a page of employees hired between the specified dates
      */
     @Override
@@ -261,72 +265,70 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         return employeeRepository.findByHireDateBetween(startDate, endDate, pageable);
     }
 
-
     /**
      * Updates emergency contact information for an Employee.
-     * @param id the ID of the employee
-     * @param contactName emergency contact name
-     * @param contactPhone emergency contact phone number
+     * 
+     * @param id
+     *            the ID of the employee
+     * @param contactName
+     *            emergency contact name
+     * @param contactPhone
+     *            emergency contact phone number
      */
-     @Override
-     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-     public void updateEmergencyContact(Long id, String contactName, String contactPhone) {
-         log.debug("Updating emergency contact for employee ID: {}", id);
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public void updateEmergencyContact(Long id, String contactName, String contactPhone) {
+        log.debug("Updating emergency contact for employee ID: {}", id);
 
-         Employee employee = employeeRepository.findById(id)
-             .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 
-         employee.setEmergencyContactName(contactName);
-         employee.setEmergencyContactPhone(contactPhone);
+        employee.setEmergencyContactName(contactName);
+        employee.setEmergencyContactPhone(contactPhone);
 
-         employeeRepository.save(employee);
-     }
-
+        employeeRepository.save(employee);
+    }
 
     /**
      * Deletes an employee by ID.
-     * @param id the ID of the employee to delete
+     * 
+     * @param id
+     *            the ID of the employee to delete
      */
     @Override
     public void deleteEmployee(Long id) {
         log.debug("Deleting employee with ID: {}", id);
-        
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
-            
+
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+
         if (hasActiveAssignments(employee)) {
-            throw new EmployeeOperationNotAllowedException("delete",
-                "Employee has active assignments");
+            throw new EmployeeOperationNotAllowedException("delete", "Employee has active assignments");
         }
-        
+
         employeeRepository.delete(employee);
     }
 
-
     /**
-     * Updates the active status of an employee.
-     * This method is used for both deactivating and reactivating employees.
+     * Updates the active status of an employee. This method is used for both deactivating and reactivating employees.
      *
-     * @param id the ID of the employee
-     * @param active true to activate, false to deactivate
+     * @param id
+     *            the ID of the employee
+     * @param active
+     *            true to activate, false to deactivate
      */
     private void updateEmployeeStatus(Long id, boolean active) {
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EmployeeNotFoundException(id));
-            
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+
         employee.setActive(active);
         employeeRepository.save(employee);
     }
 
     private boolean canHandleEmergencies(EmployeeRole role) {
-        return role == EmployeeRole.VETERINARIAN ||
-               role == EmployeeRole.LAB_TECHNICIAN;
+        return role == EmployeeRole.VETERINARIAN || role == EmployeeRole.LAB_TECHNICIAN;
     }
 
     private boolean hasActiveAssignments(Employee employee) {
         return false;
     }
-
 
     /**
      * Implementation of FormService.save() method. This method is used by Vaadin Hilla for CRUD operations.
@@ -363,8 +365,7 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     public void delete(Long id) {
         log.debug("Request to delete Employee via FormService: {}", id);
 
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 
         employee.setActive(false);
         employeeRepository.save(employee);
@@ -372,6 +373,5 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         log.info("Employee deactivated via FormService, ID: {}", id);
 
     }
-
 
 }

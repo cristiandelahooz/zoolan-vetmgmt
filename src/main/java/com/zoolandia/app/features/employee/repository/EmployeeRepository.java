@@ -23,7 +23,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     /**
      * Finds an employee by their username.
      *
-     * @param username the username to search for
+     * @param username
+     *            the username to search for
      * @return the employee if found
      */
     Optional<Employee> findByUsername(String username);
@@ -31,7 +32,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     /**
      * Checks if an employee exists with the given username.
      *
-     * @param username the username to check
+     * @param username
+     *            the username to check
      * @return true if an employee exists with the username
      */
     boolean existsByUsername(String username);
@@ -39,19 +41,23 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     /**
      * Finds all employees with a specific role.
      *
-     * @param employeeRole the role to filter by
-     * @param pageable pagination information
+     * @param employeeRole
+     *            the role to filter by
+     * @param pageable
+     *            pagination information
      * @return page of employees with the specified role
      */
     Page<Employee> findByEmployeeRole(EmployeeRole employeeRole, Pageable pageable);
 
-
     /**
      * Finds employees hired between two dates.
      *
-     * @param startDate start of the date range
-     * @param endDate end of the date range
-     * @param pageable pagination information
+     * @param startDate
+     *            start of the date range
+     * @param endDate
+     *            end of the date range
+     * @param pageable
+     *            pagination information
      * @return page of employees hired within the date range
      */
     Page<Employee> findByHireDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
@@ -59,15 +65,16 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     /**
      * Searches for employees based on various fields.
      *
-     * @param searchTerm the term to search for
-     * @param pageable pagination information
+     * @param searchTerm
+     *            the term to search for
+     * @param pageable
+     *            pagination information
      * @return page of employees matching the search term
      */
-    @Query("SELECT e FROM Employee e WHERE " +
-           "LOWER(e.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(e.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(e.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(e.username) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    @Query("SELECT e FROM Employee e WHERE " + "LOWER(e.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+            + "LOWER(e.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+            + "LOWER(e.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+            + "LOWER(e.username) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Employee> findBySearchTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     /**
@@ -75,18 +82,19 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
      *
      * @return list of available veterinarians
      */
-    @Query("SELECT e FROM Employee e WHERE e.employeeRole = 'VETERINARIAN' " +
-            "AND e.active = true AND e.available = true")
+    @Query("SELECT e FROM Employee e WHERE e.employeeRole = 'VETERINARIAN' "
+            + "AND e.active = true AND e.available = true")
     List<Employee> findAvailableVeterinarians();
-
-
 
     /**
      * Finds all employees by salary range.
      *
-     * @param minSalary minimum salary
-     * @param maxSalary maximum salary
-     * @param pageable pagination information
+     * @param minSalary
+     *            minimum salary
+     * @param maxSalary
+     *            maximum salary
+     * @param pageable
+     *            pagination information
      * @return page of employees within the salary range
      */
     Page<Employee> findBySalaryBetween(Double minSalary, Double maxSalary, Pageable pageable);
@@ -94,7 +102,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     /**
      * Counts active employees by role.
      *
-     * @param employeeRole the role to count
+     * @param employeeRole
+     *            the role to count
      * @return number of active employees with the specified role
      */
     long countByEmployeeRoleAndAvailableTrue(EmployeeRole employeeRole);
@@ -104,6 +113,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
      */
     @Query("SELECT e FROM Employee e WHERE e.employeeRole = :role AND e.available = true AND e.active = true")
     List<Employee> findAvailableEmployeesByRole(@Param("employeeRole") EmployeeRole employeeRole);
-
 
 }
