@@ -102,7 +102,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "system_role")
-    protected SystemRole role;
+    protected SystemRole systemRole;
 
     @PrePersist
     protected void onCreate() {

@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
             String municipality,
             String sector,
             String streetAddress,
-            SystemRole role) {
+            SystemRole systemRole) {
 
         validateNewUser(username, email);
 
@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
                 .municipality(municipality)
                 .sector(sector)
                 .streetAddress(streetAddress)
-                .role(role)
+                .systemRole(systemRole)
                 .active(true)
                 .createdAt(LocalDateTime.now(clock))
                 .updatedAt(LocalDateTime.now(clock))
@@ -125,11 +125,11 @@ public class UserServiceImpl implements UserService {
         user.setSector(updateData.getSector());
         user.setStreetAddress(updateData.getStreetAddress());
 
-        if (updateData.getRole() != user.getRole() &&
+        if (updateData.getSystemRole() != user.getSystemRole() &&
                 SecurityContextHolder.getContext().getAuthentication()
                         .getAuthorities().stream()
                         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            user.setRole(updateData.getRole());
+            user.setSystemRole(updateData.getSystemRole());
         }
     }
 

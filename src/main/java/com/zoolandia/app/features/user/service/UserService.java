@@ -48,7 +48,7 @@ public interface UserService {
      *         user's sector
      * @param streetAddress
      *         user's street address
-     * @param role
+     * @param systemRole
      *         user's role in the system
      * @return the created user
      */
@@ -67,7 +67,7 @@ public interface UserService {
             @NotBlank String municipality,
             @NotBlank String sector,
             @NotBlank String streetAddress,
-            SystemRole role
+            SystemRole systemRole
     );
 
     /**
