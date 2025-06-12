@@ -45,7 +45,7 @@ export const menuConfig: MenuItemConfig[] = [
   {
     path: undefined,
     title: 'Empleados',
-    src: petsIcon,
+    icon: 'vaadin:doctor',
     children: [
       {
         path: ROUTES.EMPLOYEES,
