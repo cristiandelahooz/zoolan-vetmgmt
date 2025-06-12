@@ -42,4 +42,21 @@ export const menuConfig: MenuItemConfig[] = [
       },
     ],
   },
+  {
+    path: undefined,
+    title: 'Empleados',
+    src: petsIcon,
+    children: [
+      {
+        path: ROUTES.EMPLOYEES,
+        title: 'Listar',
+        icon: 'lumo:align-left',
+      },
+      {
+        path: ROUTES.EMPLOYEE_NEW,
+        title: 'Registrar',
+        icon: 'lumo:edit',
+      },
+    ],
+  },
 ]

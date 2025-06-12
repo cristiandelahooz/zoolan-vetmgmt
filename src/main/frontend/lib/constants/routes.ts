@@ -1,7 +1,7 @@
 export const ROUTES = {
   // Client routes
   CLIENTS: '/clients',
-  CLIENT_REGISTER: '/clients/new',
+  CLIENT_NEW: '/clients/new',
   CLIENT_EDIT: '/clients/edit',
   CLIENT_VIEW: '/clients/view',
 
@@ -16,9 +16,12 @@ export const ROUTES = {
 
   // Pet routes
   PETS: '/pets',
-  PET_REGISTER: '/pets/new',
+  PET_NEW: '/pets/new',
   PET_EDIT: '/pets/edit',
   PET_VIEW: '/pets/view',
+  EMPLOYEES: '/employees',
+  EMPLOYEE_EDIT: '/employees/edit',
+  EMPLOYEE_NEW: '/employees/new',
 } as const
 
 // Type for route values
