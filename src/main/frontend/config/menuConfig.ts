@@ -1,6 +1,6 @@
 import type { IconProps } from '@vaadin/react-components'
 import { ROUTES } from 'Frontend/lib/constants/routes'
-import petsIcon from 'Frontend/lib/icons/pets.svg'
+import petsIcon from 'Frontend/public/icons/pets.svg'
 
 export interface MenuItemConfig {
   path: string | undefined
