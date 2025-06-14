@@ -55,8 +55,6 @@ function GroupingLayoutRenderer({ children }: AutoFormLayoutRendererProps<Client
         <strong>Información de Login:</strong>
       </h4>
       <HorizontalLayout theme="spacing" className="pb-l">
-        {fieldsMapping.get('username')}
-        {fieldsMapping.get('password')}
         {fieldsMapping.get('email')}
       </HorizontalLayout>
 

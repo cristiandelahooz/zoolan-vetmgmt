@@ -18,6 +18,30 @@ import org.jspecify.annotations.Nullable;
 @AllArgsConstructor
 public class Client extends User {
 
+    @Override
+    @Column(name = "username", nullable = true)
+    @Nullable
+    public String getUsername() {
+        return super.getUsername();
+    }
+
+    @Override
+    public void setUsername(String username) {
+        super.setUsername(username);
+    }
+
+    @Override
+    @Column(name = "password", nullable = true)
+    @Nullable
+    public String getPassword() {
+        return super.getPassword();
+    }
+
+    @Override
+    public void setPassword(String password) {
+        super.setPassword(password);
+    }
+
     @Pattern(regexp = "^[0-9]{11}$", message = "La cédula debe contener exactamente 11 dígitos")
     @Column(name = "cedula", length = 11)
     @Nullable
