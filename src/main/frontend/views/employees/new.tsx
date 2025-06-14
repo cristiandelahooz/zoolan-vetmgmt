@@ -2,9 +2,8 @@ import {AutoForm, AutoFormLayoutRendererProps} from '@vaadin/hilla-react-crud'
 import { AUTO_FORM_EMPLOYEE_FIELD_OPTIONS } from 'Frontend/lib/constants/employee-field-config'
 import { EmployeeServiceImpl } from 'Frontend/generated/endpoints'
 import EmployeeCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/employee/service/dto/EmployeeCreateDTOModel'
-import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import { useNavigate } from 'react-router'
-import {HorizontalLayout, Notification, PasswordField, VerticalLayout} from '@vaadin/react-components'
+import {HorizontalLayout, Notification, VerticalLayout} from '@vaadin/react-components'
 import type EmployeeCreateDTO from 'Frontend/generated/com/zoolandia/app/features/employee/service/dto/EmployeeCreateDTO'
 
 
