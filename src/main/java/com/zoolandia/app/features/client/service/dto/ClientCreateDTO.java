@@ -2,6 +2,7 @@ package com.zoolandia.app.features.client.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zoolandia.app.features.client.domain.ClientRating;
+import com.zoolandia.app.features.client.domain.ClientValidationGroup;
 import com.zoolandia.app.features.client.domain.PreferredContactMethod;
 import com.zoolandia.app.features.client.domain.ReferenceSource;
 import com.zoolandia.app.features.user.domain.Gender;
@@ -21,7 +22,7 @@ public class ClientCreateDTO {
     @NotBlank(message = "Last name is required")
     private String lastName;
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid phone number")
+    @Pattern(regexp = "^(809|849|829)\\d{7}$", message = "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
     private String phoneNumber;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -33,13 +34,13 @@ public class ClientCreateDTO {
     @NotBlank(message = "La nacionalidad es requerida")
     private String nationality;
 
-    @Pattern(regexp = "^[0-9]{11}$", message = "La cédula debe contener exactamente 11 dígitos")
+    @Pattern(regexp = "\\d{11}$", message = "La cédula debe contener exactamente 11 dígitos")
     private String cedula;
 
     @Pattern(regexp = "^[0-9A-Z]{9}$", message = "El pasaporte debe contener 9 caracteres alfanuméricos")
     private String passport;
 
-    @Pattern(regexp = "^[0-9]{9}$", message = "El RNC debe contener exactamente 9 dígitos")
+    @Pattern(regexp = "\\d{9}$", message = "El RNC debe contener exactamente 9 dígitos")
     private String rnc;
 
     private String companyName;
@@ -79,4 +80,11 @@ public class ClientCreateDTO {
 
     @Size(max = 500, message = "Los puntos de referencia no pueden exceder 500 caracteres")
     private String referencePoints;
+
+    @AssertTrue(message = "Debe proporcionar al menos cédula, pasaporte o RNC")
+    private boolean isValidIdentification() {
+        return (cedula != null && !cedula.trim().isEmpty()) ||
+                (passport != null && !passport.trim().isEmpty()) ||
+                (rnc != null && !rnc.trim().isEmpty());
+    }
 }

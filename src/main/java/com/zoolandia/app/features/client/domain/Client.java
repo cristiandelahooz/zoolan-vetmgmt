@@ -42,7 +42,7 @@ public class Client extends User {
         super.setPassword(password);
     }
 
-    @Pattern(regexp = "^[0-9]{11}$", message = "La cédula debe contener exactamente 11 dígitos")
+    @Pattern(regexp = "\\d{11}$", message = "La cédula debe contener exactamente 11 dígitos")
     @Column(name = "cedula", length = 11)
     @Nullable
     private String cedula;
@@ -52,14 +52,14 @@ public class Client extends User {
     @Nullable
     private String passport;
 
-    @Pattern(regexp = "^[0-9]{9}$", message = "El RNC debe contener exactamente 9 dígitos")
+    @Pattern(regexp = "\\d{9}$", message = "El RNC debe contener exactamente 9 dígitos")
     @Column(name = "rnc", length = 9)
     @Nullable
     private String rnc;
 
-    @AssertTrue(message = "Debe proporcionar al menos cédula o pasaporte")
+    @AssertTrue(message = "Debe proporcionar al menos cédula, pasaporte o RNC")
     private boolean isValidIdentification() {
-        return cedula != null || passport != null;
+        return cedula != null || passport != null || rnc != null;
     }
 
     @Column(name = "company_name")
@@ -74,7 +74,7 @@ public class Client extends User {
     @Nullable
     private String emergencyContactName;
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Proporcione un número de teléfono válido")
+    @Pattern(regexp = "^(809|849|829)\\d{7}$", message = "Proporcione un número de teléfono de emergencia válido (809, 849 o 829 seguido de 7 dígitos)")
     @Column(name = "emergency_contact_number")
     @Nullable
     private String emergencyContactNumber;
