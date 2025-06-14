@@ -8,7 +8,7 @@ import ClientCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/
 import { ClientServiceImpl } from 'Frontend/generated/endpoints'
 import { AUTO_FORM_CLIENT_FIELD_OPTIONS } from 'Frontend/lib/constants/client-field-config'
 import { ROUTES } from 'Frontend/lib/constants/routes'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 
 export const config: ViewConfig = {
   title: 'Registrar Cliente',
