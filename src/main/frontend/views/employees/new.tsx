@@ -5,6 +5,7 @@ import EmployeeCreateDTOModel from 'Frontend/generated/com/zoolandia/app/feature
 import { useNavigate } from 'react-router'
 import { HorizontalLayout, Notification, VerticalLayout } from '@vaadin/react-components'
 import type EmployeeCreateDTO from 'Frontend/generated/com/zoolandia/app/features/employee/service/dto/EmployeeCreateDTO'
+import { SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
 
 function GroupingLayoutRenderer({ children }: AutoFormLayoutRendererProps<EmployeeCreateDTOModel>) {
   const fieldsMapping = new Map<string, JSX.Element>()
@@ -68,15 +69,25 @@ export default function EmployeesRegisterView() {
   const navigate = useNavigate()
   const handleOnSubmitSuccess = ({ item }: { item: EmployeeCreateDTO }) => {
     Notification.show('Empleado registrado', { duration: 3000, position: 'bottom-end', theme: 'success' })
-    console.log(item)
     navigate(`/employees/`, { replace: true })
   }
+
+  const handleOnSubmitError = (error: SubmitErrorEvent) => {
+    const message = error.error?.message || 'Unknown error'
+    Notification.show(`Error al registrar el empleado: ${message}`, {
+      duration: 5000,
+      position: 'bottom-end',
+      theme: 'error',
+    })
+  }
+
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <AutoForm
         service={EmployeeServiceImpl}
         model={EmployeeCreateDTOModel}
         onSubmitSuccess={handleOnSubmitSuccess}
+        onSubmitError={handleOnSubmitError}
         fieldOptions={AUTO_FORM_EMPLOYEE_FIELD_OPTIONS}
         layoutRenderer={GroupingLayoutRenderer}
       />
