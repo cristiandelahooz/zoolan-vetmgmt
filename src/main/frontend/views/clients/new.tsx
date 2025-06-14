@@ -1,10 +1,9 @@
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
-import type { SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
+import type { AutoFormLayoutRendererProps, SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
 import type ClientCreateDTO from 'Frontend/generated/com/zoolandia/app/features/client/service/dto/ClientCreateDTO'
-import type React from 'react'
 
 import { AutoForm } from '@vaadin/hilla-react-crud'
-import { Notification } from '@vaadin/react-components'
+import { HorizontalLayout, Notification, VerticalLayout } from '@vaadin/react-components'
 import ClientCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/client/service/dto/ClientCreateDTOModel'
 import { ClientServiceImpl } from 'Frontend/generated/endpoints'
 import { AUTO_FORM_CLIENT_FIELD_OPTIONS } from 'Frontend/lib/constants/client-field-config'
@@ -18,6 +17,7 @@ export const config: ViewConfig = {
 export default function Register() {
   const navigate = useNavigate()
 
+  //TODO: configure a professional logger
   const handleOnSubmitSuccess = ({ item }: { item: ClientCreateDTO }) => {
     Notification.show('Cliente registrado', { duration: 3000, position: 'bottom-end', theme: 'success' })
     console.log(item)
@@ -35,10 +35,95 @@ export default function Register() {
       <AutoForm
         service={ClientServiceImpl}
         model={ClientCreateDTOModel}
+        layoutRenderer={GroupingLayoutRenderer}
         onSubmitSuccess={handleOnSubmitSuccess}
         onSubmitError={handleOnSubmitError}
         fieldOptions={AUTO_FORM_CLIENT_FIELD_OPTIONS}
       />
     </main>
+  )
+}
+
+function GroupingLayoutRenderer({ children }: AutoFormLayoutRendererProps<ClientCreateDTOModel>) {
+  const fieldsMapping = new Map<string, JSX.Element>()
+  for (const field of children) {
+    fieldsMapping.set(field.props?.propertyInfo?.name, field)
+  }
+  return (
+    <VerticalLayout>
+      <h4>
+        <strong>Información de Login:</strong>
+      </h4>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('username')}
+        {fieldsMapping.get('password')}
+        {fieldsMapping.get('email')}
+      </HorizontalLayout>
+
+      <h4>
+        <strong>Información Personal:</strong>
+      </h4>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('firstName')}
+        {fieldsMapping.get('lastName')}
+        {fieldsMapping.get('birthDate')}
+      </HorizontalLayout>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('gender')}
+        {fieldsMapping.get('nationality')}
+        {fieldsMapping.get('cedula')}
+        {fieldsMapping.get('passport')}
+      </HorizontalLayout>
+
+      <h4>
+        <strong>Información de Contacto:</strong>
+      </h4>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('phoneNumber')}
+        {fieldsMapping.get('preferredContactMethod')}
+      </HorizontalLayout>
+
+      <h4>
+        <strong>Información de Emergencia:</strong>
+      </h4>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('emergencyContactName')}
+        {fieldsMapping.get('emergencyContactNumber')}
+      </HorizontalLayout>
+
+      <h4>
+        <strong>Información de Empresa:</strong>
+      </h4>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('companyName')}
+        {fieldsMapping.get('rnc')}
+        {fieldsMapping.get('creditLimit')}
+      </HorizontalLayout>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('paymentTermsDays')}
+      </HorizontalLayout>
+
+      <h4>
+        <strong>Dirección:</strong>
+      </h4>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('province')}
+        {fieldsMapping.get('municipality')}
+        {fieldsMapping.get('sector')}
+      </HorizontalLayout>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('streetAddress')}
+        {fieldsMapping.get('referencePoints')}
+      </HorizontalLayout>
+
+      <h4>
+        <strong>Otros:</strong>
+      </h4>
+      <HorizontalLayout theme="spacing" className="pb-l">
+        {fieldsMapping.get('rating')}
+        {fieldsMapping.get('notes')}
+        {fieldsMapping.get('referenceSource')}
+      </HorizontalLayout>
+    </VerticalLayout>
   )
 }
