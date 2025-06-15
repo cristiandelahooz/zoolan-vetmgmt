@@ -126,4 +126,13 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         }
     }
 
+    @Transactional(readOnly = true)
+    public java.util.Map<String, String[]> getPetTypeAndBreeds() {
+        java.util.Map<String, String[]> map = new java.util.HashMap<>();
+        for (com.zoolandia.app.features.pet.domain.PetType type : com.zoolandia.app.features.pet.domain.PetType.values()) {
+            map.put(type.name(), type.getBreeds());
+        }
+        return map;
+    }
+
 }
