@@ -48,7 +48,7 @@ public class User {
     @Column(name = "last_name")
     protected String lastName;
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid phone number")
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
     @Column(name = "phone_number")
     @Nullable
     protected String phoneNumber;
