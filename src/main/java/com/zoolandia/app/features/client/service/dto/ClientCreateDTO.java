@@ -81,10 +81,28 @@ public class ClientCreateDTO {
     @Size(max = 500, message = "Los puntos de referencia no pueden exceder 500 caracteres")
     private String referencePoints;
 
-    @AssertTrue(message = "Debe proporcionar al menos cédula, pasaporte o RNC")
+    @Nullable
+    String referencePoints
+) {
+    @AssertTrue(message = "Debe proporcionar exactamente uno de los siguientes: cédula, pasaporte o RNC")
     private boolean isValidIdentification() {
-        return (cedula != null && !cedula.trim().isEmpty()) ||
-                (passport != null && !passport.trim().isEmpty()) ||
-                (rnc != null && !rnc.trim().isEmpty());
+        return countProvidedIdentificationDocuments() == MAX_IDENTIFICATION_DOCUMENT_COUNT;
     }
-}
+
+    private int countProvidedIdentificationDocuments() {
+        return (int) getIdentificationDocuments()
+                .filter(this::isDocumentProvided)
+                .count();
+    }
+
+    private Stream<String> getIdentificationDocuments() {
+        return Stream.of(cedula, passport, rnc);
+    }
+
+    private boolean isDocumentProvided(String document) {
+        return document != null && !isBlankString(document);
+    }
+
+    private boolean isBlankString(String value) {
+        return value.trim().isEmpty();
+    }
