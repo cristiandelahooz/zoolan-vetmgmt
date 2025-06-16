@@ -11,6 +11,8 @@ import org.jspecify.annotations.Nullable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static com.zoolandia.app.common.constants.ValidationConstants.*;
+
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
@@ -24,12 +26,10 @@ public class User {
     @Column(name = "user_id")
     protected Long id;
 
-    @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     @Column(name = "username", unique = true)
     protected String username;
 
-    @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     @Column(name = "password")
     @JsonIgnore
@@ -40,11 +40,9 @@ public class User {
     @Nullable
     protected String email;
 
-    @NotBlank(message = "First name is required")
     @Column(name = "first_name")
     protected String firstName;
 
-    @NotBlank(message = "Last name is required")
     @Column(name = "last_name")
     protected String lastName;
 
@@ -55,7 +53,7 @@ public class User {
 
     @Column(name = "birth_date")
     @Nullable
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     protected LocalDate birthDate;
 
     @Column(name = "gender")
@@ -79,7 +77,7 @@ public class User {
     protected String sector;
 
     @Column(name = "street_address")
-    @NotNull(message = "La dirección es requerida")
+    @NotNull(message = "La dirección de la calle es requerida")
     protected String streetAddress;
 
     @Column(name = "reference_points", length = 500)
