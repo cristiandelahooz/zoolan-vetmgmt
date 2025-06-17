@@ -27,7 +27,5 @@ export const usePetFormStore = create<PetFormState>((set) => ({
       birthDate: '',
       gender: '',
       ownerId: undefined,
-      setField: () => {},
-      reset: () => {},
     }),
 }))
