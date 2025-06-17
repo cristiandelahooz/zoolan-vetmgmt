@@ -280,27 +280,31 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
             });
         }
     }
+
     private void validateUniqueIdentification(String cedula, String passport, String rnc) {
         if (hasSingleValidDocument(cedula, passport, rnc)) {
             validateSingleDocumentUniqueness(cedula, passport, rnc);
         }
     }
 
-
     private boolean hasSingleValidDocument(String cedula, String passport, String rnc) {
         int documentCount = countNonEmptyDocuments(cedula, passport, rnc);
 
         if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
-            throw new IllegalArgumentException("Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT + " documento de identificación permitido");
+            throw new IllegalArgumentException("Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT
+                    + " documento de identificación permitido");
         }
         return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
     }
 
     private int countNonEmptyDocuments(String cedula, String passport, String rnc) {
         int count = 0;
-        if (isNotEmpty(cedula)) count++;
-        if (isNotEmpty(passport)) count++;
-        if (isNotEmpty(rnc)) count++;
+        if (isNotEmpty(cedula))
+            count++;
+        if (isNotEmpty(passport))
+            count++;
+        if (isNotEmpty(rnc))
+            count++;
         return count;
     }
 
