@@ -1,48 +1,57 @@
 package com.zoolandia.app.features.pet.domain;
 
+import lombok.Getter;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Getter
 public enum PetType {
-    DOG(
-            "Perro",
-            new String[] {
-                    "Labrador Retriever", "Golden Retriever", "German Shepherd", "Pug", "French Bulldog", "Bulldog",
-                    "Poodle", "Beagle", "Rottweiler", "Yorkshire Terrier", "Dachshund", "Siberian Husky",
-                    "Boxer", "Chihuahua", "Shih Tzu", "Boston Terrier", "Cocker Spaniel", "Border Collie",
-                    "Australian Shepherd", "Great Dane", "Doberman Pinscher", "Mastiff", "Saint Bernard", "Dalmatian",
-                    "Pitbull Terrier", "Otro"
-            }
-    ),
-    CAT(
-            "Gato",
-            new String[] {
-                    "Persian", "Siamese", "Maine Coon", "Sphynx", "Bengal", "British Shorthair", "Ragdoll",
-                    "Abyssinian", "Russian Blue", "Scottish Fold", "Sphynx", "American Shorthair", "Exotic Shorthair",
-                    "Devon Rex", "Norwegian Forest", "Birman", "Oriental Shorthair", "Manx", "Turkish Angora", "Bombay",
-                    "Munchkin", "Otro"
-            }
-    ),
-    BIRD(
-            "Ave",
-            new String[] {
-                    "Canary", "Parakeet", "Cockatiel", "Lovebird", "Finch", "Conure", "Macaw", "African Grey",
-                    "Budgerigar", "Cockatoo", "Cardinal", "Parrotlet", "Caique", "Amazon Parrot", "Eclectus", "Otro"
-            }
-    ),
-    // ...otros tipos...
-    UNKNOWN("Desconocido", new String[] { "Desconocido" });
+    DOG(Arrays.asList(
+        "Labrador Retriever", "Golden Retriever", "German Shepherd", "French Bulldog",
+        "Bulldog", "Poodle", "Beagle", "Rottweiler", "Yorkshire Terrier", "Dachshund",
+        "Siberian Husky", "Boxer", "Border Collie", "Australian Shepherd", "Shih Tzu"
+    )),
+    
+    CAT(Arrays.asList(
+        "Persian", "Maine Coon", "British Shorthair", "Ragdoll", "Abyssinian",
+        "Siamese", "Scottish Fold", "Sphynx", "Bengal", "Russian Blue",
+        "American Shorthair", "Birman", "Oriental Shorthair", "Devon Rex", "Norwegian Forest Cat"
+    )),
+    
+    BIRD(Arrays.asList(
+        "Parakeet", "Cockatiel", "Canary", "Lovebird", "Finch",
+        "Conure", "Macaw", "African Grey", "Cockatoo", "Budgerigar"
+    )),
+    
+    RABBIT(Arrays.asList(
+        "Holland Lop", "Netherland Dwarf", "Mini Rex", "Lionhead", "Flemish Giant",
+        "Angora", "Dutch", "Mini Lop", "Rex", "Himalayan"
+    )),
+    
+    HAMSTER(Arrays.asList(
+        "Syrian", "Dwarf Campbell Russian", "Dwarf Winter White Russian", "Roborovski", "Chinese"
+    )),
+    
+    FISH(Arrays.asList(
+        "Goldfish", "Betta", "Guppy", "Angelfish", "Neon Tetra",
+        "Discus", "Mollies", "Platies", "Corydoras", "Barbs"
+    )),
+    
+    REPTILE(Arrays.asList(
+        "Bearded Dragon", "Leopard Gecko", "Ball Python", "Corn Snake", "Blue-Tongued Skink",
+        "Crested Gecko", "Red-Eared Slider", "Green Iguana", "Chameleon", "Monitor Lizard"
+    )),
+    
+    OTHER(Arrays.asList("Mixed", "Unknown", "Other"));
 
-    private final String displayName;
-    private final String[] breeds;
+    private final List<String> breeds;
 
-    PetType(String displayName, String[] breeds) {
-        this.displayName = displayName;
+    PetType(List<String> breeds) {
         this.breeds = breeds;
     }
-
-    public String getDisplayName() {
-        return displayName;
+    public boolean isValidBreedForType(String breed) {
+        return breeds.contains(breed);
     }
 
-    public String[] getBreeds() {
-        return breeds;
-    }
 }
