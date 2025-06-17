@@ -1,5 +1,5 @@
-import { Dialog, Button, TextField, SelectChangeEvent } from '@vaadin/react-components'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
+import { Button, Dialog, TextField } from '@vaadin/react-components'
 import ClientModel from 'Frontend/generated/com/zoolandia/app/features/client/domain/ClientModel'
 import { ClientServiceImpl } from 'Frontend/generated/endpoints'
 import { useState } from 'react'
