@@ -33,11 +33,6 @@ public enum PetType {
         "Syrian", "Dwarf Campbell Russian", "Dwarf Winter White Russian", "Roborovski", "Chinese"
     )),
     
-    FISH(Arrays.asList(
-        "Goldfish", "Betta", "Guppy", "Angelfish", "Neon Tetra",
-        "Discus", "Mollies", "Platies", "Corydoras", "Barbs"
-    )),
-    
     REPTILE(Arrays.asList(
         "Bearded Dragon", "Leopard Gecko", "Ball Python", "Corn Snake", "Blue-Tongued Skink",
         "Crested Gecko", "Red-Eared Slider", "Green Iguana", "Chameleon", "Monitor Lizard"
