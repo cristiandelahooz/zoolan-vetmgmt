@@ -1,18 +1,22 @@
-import { Dialog, Button, TextField } from '@vaadin/react-components'
+import { Dialog, Button, TextField, SelectChangeEvent } from '@vaadin/react-components'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
 import ClientModel from 'Frontend/generated/com/zoolandia/app/features/client/domain/ClientModel'
 import { ClientServiceImpl } from 'Frontend/generated/endpoints'
 import { useState } from 'react'
 
-export function SelectOwnerDialog({
-  open,
-  onClose,
-  onSelect,
-}: {
+export interface SelectedClient {
+  id: number
+  firstName: string
+  lastName: string
+}
+
+type SelectOwnerDialogType = {
   open: boolean
   onClose: () => void
-  onSelect: (client: any) => void
-}) {
+  onSelect: (client: SelectedClient) => void
+}
+
+export function SelectOwnerDialog({ open, onClose, onSelect }: SelectOwnerDialogType) {
   const [selectedClient, setSelectedClient] = useState<any>(null)
 
   return (
@@ -52,7 +56,7 @@ export function SelectOwnerDialog({
             onClick={() => {
               if (!selectedClient) return
               onSelect(selectedClient)
-              setTimeout(() => onClose(), 0)
+              onClose()
             }}
             disabled={!selectedClient}
           >
