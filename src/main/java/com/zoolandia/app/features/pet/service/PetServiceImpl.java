@@ -4,6 +4,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
+import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.mapper.PetMapper;
 import com.zoolandia.app.features.pet.repository.PetRepository;
 import com.zoolandia.app.features.pet.domain.Pet;
@@ -22,8 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -72,7 +72,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
     /*
      * @Override
-     * 
+     *
      * @Transactional(readOnly = true) public Page<Pet> getAllPets(Pageable pageable) {
      * log.debug("Request to get all Pets"); return petRepository.findAll(pageable); }
      */
@@ -100,15 +100,15 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         log.debug("Request to delete Pet : {}", id);
         petRepository.deleteById(id);
         log.info("Deleted Pet ID: {}", id);
-        /*
-         * log.debug("Request to delete Pet via FormService : {}", id);
-         * 
-         * Pet client = petRepository.findById(id) .orElseThrow(() -> new PetNotFoundException(id));
-         * 
-         * //pet.setActive(false); petRepository.save(client);
-         * 
-         * log.info("Pet deactivated via FormService, ID: {}", id);
-         */
+
+        log.debug("Request to delete Pet via FormService : {}", id);
+
+        Pet pet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
+
+        pet.setActive(false);
+        petRepository.save(pet);
+
+        log.info("Pet deactivated via FormService, ID: {}", id);
     }
 
     @Override
@@ -127,12 +127,23 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     }
 
     @Transactional(readOnly = true)
-    public java.util.Map<String, String[]> getPetTypeAndBreeds() {
-        java.util.Map<String, String[]> map = new java.util.HashMap<>();
-        for (com.zoolandia.app.features.pet.domain.PetType type : com.zoolandia.app.features.pet.domain.PetType.values()) {
+    public Map<String, List<String>> getPetTypeAndBreeds() {
+        Map<String, List<String>> map = new HashMap<>();
+        for (PetType type : PetType.values()) {
             map.put(type.name(), type.getBreeds());
         }
         return map;
     }
 
+    @Transactional(readOnly = true)
+    public List<String> getBreedsByType(PetType petType) {
+        return petType.getBreeds();
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getAllPetTypes() {
+        return Arrays.stream(PetType.values())
+                .map(Enum::name)
+                .toList();
+    }
 }
