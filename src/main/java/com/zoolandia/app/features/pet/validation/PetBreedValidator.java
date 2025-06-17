@@ -21,10 +21,8 @@ public class PetBreedValidator implements ConstraintValidator<ValidPetBreed, Pet
         if (!isValid) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
-                            String.format("Breed '%s' is not valid for pet type '%s'",
-                                    pet.getBreed(), pet.getType().name()))
-                    .addPropertyNode("breed")
-                    .addConstraintViolation();
+                    String.format("Breed '%s' is not valid for pet type '%s'", pet.getBreed(), pet.getType().name()))
+                    .addPropertyNode("breed").addConstraintViolation();
         }
 
         return isValid;

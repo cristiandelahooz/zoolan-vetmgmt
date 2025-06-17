@@ -142,8 +142,6 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
     @Transactional(readOnly = true)
     public List<String> getAllPetTypes() {
-        return Arrays.stream(PetType.values())
-                .map(Enum::name)
-                .toList();
+        return Arrays.stream(PetType.values()).map(Enum::name).toList();
     }
 }

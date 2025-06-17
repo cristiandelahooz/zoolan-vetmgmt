@@ -13,16 +13,14 @@ public class PetBreedDTOValidator implements ConstraintValidator<ValidPetBreedDT
         }
 
         boolean isValid = dto.getType().getBreeds().contains(dto.getBreed());
-        
+
         if (!isValid) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
-                String.format("Breed '%s' is not valid for pet type '%s'", 
-                    dto.getBreed(), dto.getType().name()))
-                .addPropertyNode("breed")
-                .addConstraintViolation();
+                    String.format("Breed '%s' is not valid for pet type '%s'", dto.getBreed(), dto.getType().name()))
+                    .addPropertyNode("breed").addConstraintViolation();
         }
-        
+
         return isValid;
     }
 }
