@@ -2,14 +2,14 @@ import { AutoForm, type AutoFormLayoutRendererProps } from '@vaadin/hilla-react-
 import {
   HorizontalLayout,
   IntegerField,
+  type IntegerFieldProps,
   Notification,
   Select,
-  TextField,
-  VerticalLayout,
-  type IntegerFieldProps,
   type SelectChangeEvent,
   type SelectProps,
+  TextField,
   type TextFieldChangeEvent,
+  VerticalLayout,
 } from '@vaadin/react-components'
 import PetCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/pet/service/dto/PetCreateDTOModel'
 import { PetServiceImpl } from 'Frontend/generated/endpoints'
