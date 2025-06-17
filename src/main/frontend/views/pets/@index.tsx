@@ -1,7 +1,12 @@
+import React from 'react'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
 import { PetServiceImpl } from 'Frontend/generated/endpoints'
 import PetModel from 'Frontend/generated/com/zoolandia/app/features/pet/domain/PetModel'
+
+const OwnerRenderer: React.FC<{ item: PetModel }> = ({ item }) => (
+  <span>{item.owner ? `${item.owner.firstName} ${item.owner.lastName}` : ''}</span>
+)
 
 export const config: ViewConfig = {
   menu: { title: 'Ver' },
@@ -14,13 +19,26 @@ export default function PetListView() {
       <AutoGrid
         service={PetServiceImpl}
         model={PetModel}
+        visibleColumns={['name', 'type', 'breed', 'birthDate', 'owner', 'owner.cedula', 'gender']}
         columnOptions={{
           name: { header: 'Nombre' },
           type: { header: 'Tipo' },
           breed: { header: 'Raza' },
-          gender: { header: 'Género' },
           birthDate: { header: 'Fecha de Nacimiento' },
-          owner: { header: 'Dueño' },
+          owner: {
+            header: 'Dueño',
+            renderer: OwnerRenderer,
+            filterable: false,
+            sortable: false,
+          },
+          'owner.cedula': {
+            header: 'Cédula',
+            filterable: true,
+            sortable: true,
+            width: '50px',
+          },
+
+          gender: { header: 'Género' },
         }}
       />
     </main>

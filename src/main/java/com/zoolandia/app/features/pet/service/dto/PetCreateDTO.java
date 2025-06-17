@@ -2,14 +2,15 @@ package com.zoolandia.app.features.pet.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zoolandia.app.features.pet.domain.Gender;
-import com.zoolandia.app.features.pet.domain.PetBreed;
 import com.zoolandia.app.features.pet.domain.PetType;
+import com.zoolandia.app.features.pet.validation.ValidPetBreedDTO;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
+@ValidPetBreedDTO
 public class PetCreateDTO {
 
     @NotBlank(message = "El nombre de la mascota es requerido")
@@ -20,7 +21,7 @@ public class PetCreateDTO {
     private PetType type;
 
     @NotNull(message = "La raza es requerida")
-    private PetBreed breed;
+    private String breed;
 
     private LocalDate birthDate;
 
