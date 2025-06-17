@@ -21,50 +21,33 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        ClientCreateDTO clientDTO = new ClientCreateDTO();
+        String email = "juan.perez@email.com";
+        String firstName = "Juan";
+        String lastName = "Pérez";
+        String phoneNumber = "8091234567";
+        LocalDate birthDate = LocalDate.of(1985, 5, 15);
+        Gender gender = Gender.MALE;
+        String nationality = "Domiciliado en el Estado Dominicano";
+        String cedula = "40212345678";
+        PreferredContactMethod contactMethod = PreferredContactMethod.EMAIL;
+        String emergencyName = "María Pérez";
+        String emergencyPhone = "8091111111";
+        ClientRating rating = ClientRating.BUENO;
+        Double creditLimit = 5000.0;
+        Integer paymentTerms = 30;
+        String notes = "Cliente nuevo, referido por publicidad";
+        ReferenceSource referenceSource = ReferenceSource.REDES_SOCIALES;
+        String province = "Santo Domingo";
+        String municipality = "Santo Domingo Este";
+        String sector = "Los Mina";
+        String address = "Calle Principal #123";
+        String referencePoints = "Cerca del parque central";
 
-        // Campos heredados de User
-        clientDTO.setUsername("juanperez");
-        clientDTO.setPassword("secure123");
+        ClientCreateDTO clientDTO = new ClientCreateDTO(email, firstName, lastName, phoneNumber, birthDate, gender,
+                nationality, cedula, null, null, null, contactMethod, emergencyName, emergencyPhone, rating,
+                creditLimit, paymentTerms, notes, referenceSource, province, municipality, sector, address,
+                referencePoints);
 
-        clientDTO.setFirstName("Juan");
-        clientDTO.setLastName("Pérez");
-        clientDTO.setEmail("juan.perez@email.com");
-        clientDTO.setPhoneNumber("+18091234567");
-        clientDTO.setNationality("Domiciliado en el Estado Dominicano");
-        clientDTO.setPassport("A12345678");
-        clientDTO.setRnc("123456789");
-        clientDTO.setBirthDate(LocalDate.of(1985, 5, 15));
-        clientDTO.setGender(Gender.MALE);
-
-        // Campos específicos de Client
-        clientDTO.setCedula("40212345678");
-        clientDTO.setPreferredContactMethod(PreferredContactMethod.EMAIL);
-        clientDTO.setEmergencyContactName("María Pérez");
-        clientDTO.setEmergencyContactNumber("+18091111111");
-        clientDTO.setRating(ClientRating.BUENO);
-        clientDTO.setCreditLimit(5000.0);
-        //clientDTO.setCurrentBalance(0.0);
-        clientDTO.setPaymentTermsDays(30);
-        clientDTO.setNotes("Cliente nuevo, referido por publicidad");
-        clientDTO.setReferenceSource(ReferenceSource.REDES_SOCIALES);
-
-        // Dirección
-        clientDTO.setProvince("Santo Domingo");
-        clientDTO.setMunicipality("Santo Domingo Este");
-        clientDTO.setSector("Los Mina");
-        clientDTO.setStreetAddress("Calle Principal #123");
-        clientDTO.setReferencePoints("Cerca del parque central");
-
-        // Configuraciones
-        //clientDTO.setVerified(false);
-
-        // Crear el cliente y guardar el resultado
-        var client = clientService.createClient(clientDTO);
-
-        // Mostrar datos
-        System.out.println("Cliente de prueba creado: " + clientDTO.getFirstName() + " " + clientDTO.getLastName());
-        System.out.println("Cliente creado con ID: " + client.getId());
-
+        clientService.createClient(clientDTO);
     }
 }
