@@ -6,85 +6,111 @@ import com.zoolandia.app.features.client.domain.PreferredContactMethod;
 import com.zoolandia.app.features.client.domain.ReferenceSource;
 import com.zoolandia.app.features.user.domain.Gender;
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
-@Data
-public class ClientCreateDTO {
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    private String username;
+import static com.zoolandia.app.common.constants.ValidationConstants.*;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters long")
-    private String password;
-
+public record ClientCreateDTO(
     @Email(message = "Please provide a valid email address")
-    private String email;
+    String email,
 
-    @NotBlank(message = "First name is required")
-    private String firstName;
+    String firstName,
 
-    @NotBlank(message = "Last name is required")
-    private String lastName;
+    String lastName,
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid phone number")
-    private String phoneNumber;
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
+    String phoneNumber,
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate birthDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
+    @Nullable
+    LocalDate birthDate,
 
-    @NotNull
-    private Gender gender;
+    @Nullable
+    Gender gender,
 
-    @NotBlank(message = "La nacionalidad es requerida")
-    private String nationality;
+    String nationality,
 
-    @Pattern(regexp = "^[0-9]{11}$", message = "La cédula debe contener exactamente 11 dígitos")
-    private String cedula;
+    @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
+    @Nullable
+    String cedula,
 
-    @Pattern(regexp = "^[0-9A-Z]{9}$", message = "El pasaporte debe contener 9 caracteres alfanuméricos")
-    private String passport;
+    @Pattern(regexp = PASSPORT_PATTERN, message = "El pasaporte debe contener 9 caracteres alfanuméricos")
+    @Nullable
+    String passport,
 
-    @Pattern(regexp = "^[0-9]{9}$", message = "El RNC debe contener exactamente 9 dígitos")
-    private String rnc;
+    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
+    @Nullable
+    String rnc,
 
-    private String companyName;
+    @Nullable
+    String companyName,
 
-    @NotNull(message = "El método de contacto preferido es requerido")
-    private PreferredContactMethod preferredContactMethod;
+    PreferredContactMethod preferredContactMethod,
 
-    private String emergencyContactName;
+    @Nullable
+    String emergencyContactName,
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Proporcione un número de emergencia válido")
-    private String emergencyContactNumber;
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de emergencia válido")
+    @Nullable
+    String emergencyContactNumber,
 
-    private ClientRating rating;
+    @Nullable
+    ClientRating rating,
 
     @PositiveOrZero(message = "El límite de crédito no puede ser negativo")
-    private Double creditLimit;
+    @Nullable
+    Double creditLimit,
 
     @PositiveOrZero(message = "Los días de término de pago no pueden ser negativos")
-    private Integer paymentTermsDays;
+    @Nullable
+    Integer paymentTermsDays,
 
     @Size(max = 1000, message = "Las notas no pueden exceder 1000 caracteres")
-    private String notes;
+    @Nullable
+    String notes,
 
-    private ReferenceSource referenceSource;
+    @Nullable
+    ReferenceSource referenceSource,
 
     @NotBlank(message = "La provincia es requerida")
-    private String province;
+    String province,
 
     @NotBlank(message = "El municipio es requerido")
-    private String municipality;
+    String municipality,
 
     @NotBlank(message = "El sector es requerido")
-    private String sector;
+    String sector,
 
     @NotBlank(message = "La dirección es requerida")
-    private String streetAddress;
+    String streetAddress,
 
     @Size(max = 500, message = "Los puntos de referencia no pueden exceder 500 caracteres")
-    private String referencePoints;
+    @Nullable
+    String referencePoints
+) {
+    @AssertTrue(message = "Debe proporcionar exactamente uno de los siguientes: cédula, pasaporte o RNC")
+    private boolean isValidIdentification() {
+        return countProvidedIdentificationDocuments() == MAX_IDENTIFICATION_DOCUMENT_COUNT;
+    }
+
+    private int countProvidedIdentificationDocuments() {
+        return (int) getIdentificationDocuments()
+                .filter(this::isDocumentProvided)
+                .count();
+    }
+
+    private Stream<String> getIdentificationDocuments() {
+        return Stream.of(cedula, passport, rnc);
+    }
+
+    private boolean isDocumentProvided(String document) {
+        return document != null && !isBlankString(document);
+    }
+
+    private boolean isBlankString(String value) {
+        return value.trim().isEmpty();
+    }
 }

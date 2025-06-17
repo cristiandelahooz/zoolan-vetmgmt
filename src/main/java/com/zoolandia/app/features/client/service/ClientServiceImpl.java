@@ -4,6 +4,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
+import com.zoolandia.app.common.constants.ValidationConstants;
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.client.domain.ClientRating;
 import com.zoolandia.app.features.client.repository.ClientRepository;
@@ -44,7 +45,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public Client createClient(@Valid ClientCreateDTO clientDTO) {
         log.debug("Request to create Client : {}", clientDTO);
 
-        validateUniqueIdentification(clientDTO.getCedula(), clientDTO.getPassport(), clientDTO.getRnc());
+        validateUniqueIdentification(clientDTO.cedula(), clientDTO.passport(), clientDTO.rnc());
 
         Client client = clientMapper.toEntity(clientDTO);
         client = clientRepository.save(client);
@@ -62,7 +63,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         try {
             log.debug("Request to save Client via FormService: {}", value);
 
-            validateUniqueIdentification(value.getCedula(), value.getPassport(), value.getRnc());
+            validateUniqueIdentification(value.cedula(), value.passport(), value.rnc());
 
             Client client = clientMapper.toEntity(value);
             client = clientRepository.save(client);
@@ -254,18 +255,6 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         log.info("Hard deleted Client ID: {}", id);
     }
 
-    private void validateUniqueIdentification(String cedula, String passport, String rnc) {
-        if (!cedula.trim().isEmpty() && clientRepository.existsByCedula(cedula)) {
-            throw new DuplicateIdentificationException("cedula", cedula);
-        }
-        if (!passport.trim().isEmpty() && clientRepository.existsByPassport(passport)) {
-            throw new DuplicateIdentificationException("passport", passport);
-        }
-        if (!rnc.trim().isEmpty() && clientRepository.existsByRnc(rnc)) {
-            throw new DuplicateIdentificationException("rnc", rnc);
-        }
-    }
-
     private void validateUniqueIdentificationForUpdate(Long id, String cedula, String passport, String rnc) {
         if (!cedula.trim().isEmpty()) {
             clientRepository.findByCedula(cedula).ifPresent(client -> {
@@ -289,6 +278,61 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
                     throw new DuplicateIdentificationException("rnc", rnc);
                 }
             });
+        }
+    }
+    private void validateUniqueIdentification(String cedula, String passport, String rnc) {
+        if (hasSingleValidDocument(cedula, passport, rnc)) {
+            validateSingleDocumentUniqueness(cedula, passport, rnc);
+        }
+    }
+
+
+    private boolean hasSingleValidDocument(String cedula, String passport, String rnc) {
+        int documentCount = countNonEmptyDocuments(cedula, passport, rnc);
+
+        if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
+            throw new IllegalArgumentException("Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT + " documento de identificación permitido");
+        }
+        return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
+    }
+
+    private int countNonEmptyDocuments(String cedula, String passport, String rnc) {
+        int count = 0;
+        if (isNotEmpty(cedula)) count++;
+        if (isNotEmpty(passport)) count++;
+        if (isNotEmpty(rnc)) count++;
+        return count;
+    }
+
+    private boolean isNotEmpty(String document) {
+        return document != null && !document.trim().isEmpty();
+    }
+
+    private void validateSingleDocumentUniqueness(String cedula, String passport, String rnc) {
+        if (isNotEmpty(cedula)) {
+            validateCedulaUniqueness(cedula);
+        } else if (isNotEmpty(passport)) {
+            validatePassportUniqueness(passport);
+        } else if (isNotEmpty(rnc)) {
+            validateRncUniqueness(rnc);
+        }
+    }
+
+    private void validateCedulaUniqueness(String cedula) {
+        if (clientRepository.existsByCedula(cedula)) {
+            throw new DuplicateIdentificationException("cedula", cedula);
+        }
+    }
+
+    private void validatePassportUniqueness(String passport) {
+        if (clientRepository.existsByPassport(passport)) {
+            throw new DuplicateIdentificationException("passport", passport);
+        }
+    }
+
+    private void validateRncUniqueness(String rnc) {
+        if (clientRepository.existsByRnc(rnc)) {
+            throw new DuplicateIdentificationException("rnc", rnc);
         }
     }
 }

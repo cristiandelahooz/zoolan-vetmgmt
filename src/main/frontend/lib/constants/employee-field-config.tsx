@@ -23,6 +23,7 @@ export const AUTO_GRID_EMPLOYEE_FIELD_OPTIONS = {
   notes: { header: 'Notas' },
   available: { header: 'Disponible' },
   active: { header: 'Activo' },
+  workSchedule: { header: 'Horario de Trabajo' },
   emergencyContactName: { header: 'Nombre del Contacto de Emergencia' },
   emergencyContactPhone: { header: 'Teléfono del Contacto de Emergencia' },
 }
@@ -49,6 +50,7 @@ export const AUTO_FORM_EMPLOYEE_FIELD_OPTIONS = {
   notes: { label: 'Notas' },
   available: { label: 'Disponible' },
   active: { label: 'Activo' },
+  workSchedule: { label: 'Horario de Trabajo' },
   emergencyContactName: { label: 'Nombre del Contacto de Emergencia' },
   emergencyContactPhone: { label: 'Teléfono del Contacto de Emergencia' },
 }
