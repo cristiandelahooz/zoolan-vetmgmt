@@ -2,6 +2,7 @@ import { AutoForm, type AutoFormLayoutRendererProps } from '@vaadin/hilla-react-
 import {
   HorizontalLayout,
   IntegerField,
+  type IntegerFieldChangeEvent,
   type IntegerFieldProps,
   Notification,
   Select,
@@ -87,7 +88,15 @@ export default function PetEntryFormView() {
     ownerId: {
       label: 'ID del Dueño',
       renderer: ({ field }: { field: IntegerFieldProps }) => (
-        <IntegerField hidden={true} {...field} value={ownerId?.toString() ?? ''} />
+        <IntegerField
+          hidden={true}
+          {...field}
+          value={ownerId?.toString() ?? ''}
+          onChange={(e: IntegerFieldChangeEvent) => {
+            const value = e.target.value ? Number.parseInt(e.target.value, 10) : undefined
+            setField('ownerId', value)
+          }}
+        />
       ),
     },
   }
@@ -99,7 +108,24 @@ export default function PetEntryFormView() {
     }
 
     setOwnerName(`${client.firstName} ${client.lastName}`)
-    setField('ownerId', client.id)
+    setTimeout(() => {
+      const ownerIdInput = document.querySelector('vaadin-integer-field[name="ownerId"]') as HTMLInputElement
+      if (ownerIdInput) {
+        ownerIdInput.value = client.id.toString()
+        ownerIdInput.dispatchEvent(
+          new CustomEvent('change', {
+            detail: { value: client.id.toString() },
+            bubbles: true,
+          }),
+        )
+        ownerIdInput.dispatchEvent(
+          new CustomEvent('input', {
+            detail: { value: client.id.toString() },
+            bubbles: true,
+          }),
+        )
+      }
+    }, 0)
     setDialogOpen(false)
   }
 
