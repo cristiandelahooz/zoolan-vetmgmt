@@ -7,13 +7,14 @@ import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.common.constants.ValidationConstants;
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.client.domain.ClientRating;
+import com.zoolandia.app.features.client.mapper.ClientMapper;
 import com.zoolandia.app.features.client.repository.ClientRepository;
 import com.zoolandia.app.features.client.service.dto.ClientCreateDTO;
 import com.zoolandia.app.features.client.service.dto.ClientUpdateDTO;
 import com.zoolandia.app.features.client.service.exception.ClientNotFoundException;
 import com.zoolandia.app.features.client.service.exception.DuplicateIdentificationException;
-import com.zoolandia.app.features.client.mapper.ClientMapper;
 import jakarta.validation.Valid;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -24,315 +25,341 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @Validated
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
-// TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
+// TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only
+// for development/testing purposes.
 public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository>
-        implements ClientService, FormService<ClientCreateDTO, Long> {
+    implements ClientService, FormService<ClientCreateDTO, Long> {
 
-    private final ClientRepository clientRepository;
-    private final ClientMapper clientMapper;
+  private final ClientRepository clientRepository;
+  private final ClientMapper clientMapper;
 
-    @Override
-    @Transactional
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public Client createClient(@Valid ClientCreateDTO clientDTO) {
-        log.debug("Request to create Client : {}", clientDTO);
+  @Override
+  @Transactional
+  // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+  public Client createClient(@Valid ClientCreateDTO clientDTO) {
+    log.debug("Request to create Client : {}", clientDTO);
 
-        validateUniqueIdentification(clientDTO.cedula(), clientDTO.passport(), clientDTO.rnc());
+    validateUniqueIdentification(clientDTO.cedula(), clientDTO.passport(), clientDTO.rnc());
 
-        Client client = clientMapper.toEntity(clientDTO);
-        client = clientRepository.save(client);
+    Client client = clientMapper.toEntity(clientDTO);
+    client = clientRepository.save(client);
 
-        log.info("Created Client with ID: {}", client.getId());
-        return client;
+    log.info("Created Client with ID: {}", client.getId());
+    return client;
+  }
+
+  /**
+   * Implementation of FormService.save() method. This method is used by Vaadin Hilla for CRUD
+   * operations.
+   */
+  @Override
+  @Transactional
+  public @Nullable ClientCreateDTO save(ClientCreateDTO value) {
+    try {
+      log.debug("Request to save Client via FormService: {}", value);
+
+      validateUniqueIdentification(value.cedula(), value.passport(), value.rnc());
+
+      Client client = clientMapper.toEntity(value);
+      client = clientRepository.save(client);
+
+      ClientCreateDTO result = clientMapper.toDTO(client);
+      log.info("Client saved successfully via FormService with ID: {}", client.getId());
+      return result;
+    } catch (Exception e) {
+      log.error("Error saving Client via FormService: {}", e.getMessage());
+      throw e;
     }
+  }
 
-    /**
-     * Implementation of FormService.save() method. This method is used by Vaadin Hilla for CRUD operations.
-     */
-    @Override
-    @Transactional
-    public @Nullable ClientCreateDTO save(ClientCreateDTO value) {
-        try {
-            log.debug("Request to save Client via FormService: {}", value);
+  /**
+   * Implementation of FormService.delete() method. This method is used by Vaadin Hilla for CRUD
+   * operations. Uses soft delete by deactivating the client.
+   */
+  @Override
+  @Transactional
+  public void delete(Long id) {
+    log.debug("Request to delete Client via FormService : {}", id);
 
-            validateUniqueIdentification(value.cedula(), value.passport(), value.rnc());
+    Client client =
+        clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-            Client client = clientMapper.toEntity(value);
-            client = clientRepository.save(client);
+    client.setActive(false);
+    clientRepository.save(client);
 
-            ClientCreateDTO result = clientMapper.toDTO(client);
-            log.info("Client saved successfully via FormService with ID: {}", client.getId());
-            return result;
-        } catch (Exception e) {
-            log.error("Error saving Client via FormService: {}", e.getMessage());
-            throw e;
-        }
-    }
+    log.info("Client deactivated via FormService, ID: {}", id);
+  }
 
-    /**
-     * Implementation of FormService.delete() method. This method is used by Vaadin Hilla for CRUD operations. Uses soft
-     * delete by deactivating the client.
-     */
-    @Override
-    @Transactional
-    public void delete(Long id) {
-        log.debug("Request to delete Client via FormService : {}", id);
+  @Override
+  @Transactional
+  @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+  public Client updateClient(Long id, @Valid ClientUpdateDTO clientDTO) {
+    log.debug("Request to update Client : {}", clientDTO);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+    Client existingClient =
+        clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-        client.setActive(false);
-        clientRepository.save(client);
+    validateUniqueIdentificationForUpdate(
+        id, clientDTO.getCedula(), clientDTO.getPassport(), clientDTO.getRnc());
 
-        log.info("Client deactivated via FormService, ID: {}", id);
-    }
+    clientMapper.updateClientFromDTO(clientDTO, existingClient);
 
-    @Override
-    @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public Client updateClient(Long id, @Valid ClientUpdateDTO clientDTO) {
-        log.debug("Request to update Client : {}", clientDTO);
+    return clientRepository.save(existingClient);
+  }
 
-        Client existingClient = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Client> getClientById(Long id) {
+    log.debug("Request to get Client : {}", id);
+    return clientRepository.findById(id);
+  }
 
-        validateUniqueIdentificationForUpdate(id, clientDTO.getCedula(), clientDTO.getPassport(), clientDTO.getRnc());
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Client> getClientByCedula(String cedula) {
+    log.debug("Request to get Client by cedula : {}", cedula);
+    return clientRepository.findByCedula(cedula);
+  }
 
-        clientMapper.updateClientFromDTO(clientDTO, existingClient);
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Client> getClientByPassport(String passport) {
+    log.debug("Request to get Client by passport : {}", passport);
+    return clientRepository.findByPassport(passport);
+  }
 
-        return clientRepository.save(existingClient);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Client> getClientByRnc(String rnc) {
+    log.debug("Request to get Client by RNC : {}", rnc);
+    return clientRepository.findByRnc(rnc);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Client> getClientById(Long id) {
-        log.debug("Request to get Client : {}", id);
-        return clientRepository.findById(id);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Client> getAllClients(Pageable pageable) {
+    log.debug("Request to get all Clients");
+    return clientRepository.findAll(pageable);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Client> getClientByCedula(String cedula) {
-        log.debug("Request to get Client by cedula : {}", cedula);
-        return clientRepository.findByCedula(cedula);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Client> searchClients(String searchTerm, Pageable pageable) {
+    log.debug("Request to search Clients with term: {}", searchTerm);
+    return clientRepository.findAll(
+        (root, query, cb) -> {
+          String pattern = "%" + searchTerm.toLowerCase() + "%";
+          return cb.or(
+              cb.like(cb.lower(root.get("firstName")), pattern),
+              cb.like(cb.lower(root.get("lastName")), pattern),
+              cb.like(root.get("cedula"), pattern),
+              cb.like(root.get("passport"), pattern),
+              cb.like(root.get("rnc"), pattern));
+        },
+        pageable);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Client> getClientByPassport(String passport) {
-        log.debug("Request to get Client by passport : {}", passport);
-        return clientRepository.findByPassport(passport);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Client> getClientsByRating(ClientRating rating, Pageable pageable) {
+    log.debug("Request to get Clients by rating : {}", rating);
+    return clientRepository.findByRating(rating, pageable);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Client> getClientByRnc(String rnc) {
-        log.debug("Request to get Client by RNC : {}", rnc);
-        return clientRepository.findByRnc(rnc);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public Page<Client> getClientsByProvince(String province, Pageable pageable) {
+    log.debug("Request to get Clients by province : {}", province);
+    return clientRepository.findByProvince(province, pageable);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Client> getAllClients(Pageable pageable) {
-        log.debug("Request to get all Clients");
-        return clientRepository.findAll(pageable);
-    }
+  @Override
+  @Transactional
+  @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIAN')")
+  public void updateClientRating(Long id, ClientRating newRating) {
+    log.debug("Request to update Client rating : {} to {}", id, newRating);
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Client> searchClients(String searchTerm, Pageable pageable) {
-        log.debug("Request to search Clients with term: {}", searchTerm);
-        return clientRepository.findAll((root, query, cb) -> {
-            String pattern = "%" + searchTerm.toLowerCase() + "%";
-            return cb.or(cb.like(cb.lower(root.get("firstName")), pattern),
-                    cb.like(cb.lower(root.get("lastName")), pattern), cb.like(root.get("cedula"), pattern),
-                    cb.like(root.get("passport"), pattern), cb.like(root.get("rnc"), pattern));
-        }, pageable);
-    }
+    Client client =
+        clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Client> getClientsByRating(ClientRating rating, Pageable pageable) {
-        log.debug("Request to get Clients by rating : {}", rating);
-        return clientRepository.findByRating(rating, pageable);
-    }
+    client.setRating(newRating);
+    clientRepository.save(client);
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Client> getClientsByProvince(String province, Pageable pageable) {
-        log.debug("Request to get Clients by province : {}", province);
-        return clientRepository.findByProvince(province, pageable);
-    }
+    log.info("Updated rating for Client ID: {} to {}", id, newRating);
+  }
 
-    @Override
-    @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIAN')")
-    public void updateClientRating(Long id, ClientRating newRating) {
-        log.debug("Request to update Client rating : {} to {}", id, newRating);
+  @Override
+  @Transactional
+  // @PreAuthorize("hasRole('ADMIN')")
+  public void deactivateClient(Long id) {
+    log.debug("Request to deactivate Client : {}", id);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+    Client client =
+        clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-        client.setRating(newRating);
-        clientRepository.save(client);
+    client.setActive(false);
+    clientRepository.save(client);
 
-        log.info("Updated rating for Client ID: {} to {}", id, newRating);
-    }
+    log.info("Deactivated Client ID: {}", id);
+  }
 
-    @Override
-    @Transactional
-    //@PreAuthorize("hasRole('ADMIN')")
-    public void deactivateClient(Long id) {
-        log.debug("Request to deactivate Client : {}", id);
+  @Override
+  @Transactional
+  @PreAuthorize("hasRole('ADMIN')")
+  public void reactivateClient(Long id) {
+    log.debug("Request to reactivate Client : {}", id);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+    Client client =
+        clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-        client.setActive(false);
-        clientRepository.save(client);
+    client.setActive(true);
+    clientRepository.save(client);
 
-        log.info("Deactivated Client ID: {}", id);
-    }
+    log.info("Reactivated Client ID: {}", id);
+  }
 
-    @Override
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void reactivateClient(Long id) {
-        log.debug("Request to reactivate Client : {}", id);
+  @Override
+  @Transactional
+  @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+  public boolean verifyClient(Long id) {
+    log.debug("Request to verify Client : {}", id);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+    Client client =
+        clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-        client.setActive(true);
-        clientRepository.save(client);
+    client.setVerified(true);
+    clientRepository.save(client);
 
-        log.info("Reactivated Client ID: {}", id);
-    }
+    log.info("Verified Client ID: {}", id);
+    return true;
+  }
 
-    @Override
-    @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public boolean verifyClient(Long id) {
-        log.debug("Request to verify Client : {}", id);
+  @Override
+  @Transactional
+  @PreAuthorize("hasRole('ADMIN')")
+  public void updateCreditLimit(Long id, Double newLimit) {
+    log.debug("Request to update Client credit limit : {} to {}", id, newLimit);
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+    Client client =
+        clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-        client.setVerified(true);
-        clientRepository.save(client);
+    client.setCreditLimit(newLimit);
+    clientRepository.save(client);
 
-        log.info("Verified Client ID: {}", id);
-        return true;
-    }
+    log.info("Updated credit limit for Client ID: {} to {}", id, newLimit);
+  }
 
-    @Override
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void updateCreditLimit(Long id, Double newLimit) {
-        log.debug("Request to update Client credit limit : {} to {}", id, newLimit);
+  @Override
+  public boolean isValidIdentification(String cedula, String passport, String rnc) {
+    return !cedula.trim().isEmpty() || !passport.trim().isEmpty() || !rnc.trim().isEmpty();
+  }
 
-        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+  @Override
+  @Transactional
+  @PreAuthorize("hasRole('ADMIN')")
+  public void deleteClient(Long id) {
+    log.debug("Request to hard delete Client : {}", id);
+    clientRepository.deleteById(id);
+    log.info("Hard deleted Client ID: {}", id);
+  }
 
-        client.setCreditLimit(newLimit);
-        clientRepository.save(client);
-
-        log.info("Updated credit limit for Client ID: {} to {}", id, newLimit);
-    }
-
-    @Override
-    public boolean isValidIdentification(String cedula, String passport, String rnc) {
-        return !cedula.trim().isEmpty() || !passport.trim().isEmpty() || !rnc.trim().isEmpty();
-    }
-
-    @Override
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void deleteClient(Long id) {
-        log.debug("Request to hard delete Client : {}", id);
-        clientRepository.deleteById(id);
-        log.info("Hard deleted Client ID: {}", id);
-    }
-
-    private void validateUniqueIdentificationForUpdate(Long id, String cedula, String passport, String rnc) {
-        if (!cedula.trim().isEmpty()) {
-            clientRepository.findByCedula(cedula).ifPresent(client -> {
+  private void validateUniqueIdentificationForUpdate(
+      Long id, String cedula, String passport, String rnc) {
+    if (!cedula.trim().isEmpty()) {
+      clientRepository
+          .findByCedula(cedula)
+          .ifPresent(
+              client -> {
                 if (!client.getId().equals(id)) {
-                    throw new DuplicateIdentificationException("cedula", cedula);
+                  throw new DuplicateIdentificationException("cedula", cedula);
                 }
-            });
-        }
+              });
+    }
 
-        if (!passport.trim().isEmpty()) {
-            clientRepository.findByPassport(passport).ifPresent(client -> {
+    if (!passport.trim().isEmpty()) {
+      clientRepository
+          .findByPassport(passport)
+          .ifPresent(
+              client -> {
                 if (!client.getId().equals(id)) {
-                    throw new DuplicateIdentificationException("passport", passport);
+                  throw new DuplicateIdentificationException("passport", passport);
                 }
-            });
-        }
+              });
+    }
 
-        if (!rnc.trim().isEmpty()) {
-            clientRepository.findByRnc(rnc).ifPresent(client -> {
+    if (!rnc.trim().isEmpty()) {
+      clientRepository
+          .findByRnc(rnc)
+          .ifPresent(
+              client -> {
                 if (!client.getId().equals(id)) {
-                    throw new DuplicateIdentificationException("rnc", rnc);
+                  throw new DuplicateIdentificationException("rnc", rnc);
                 }
-            });
-        }
+              });
     }
-    private void validateUniqueIdentification(String cedula, String passport, String rnc) {
-        if (hasSingleValidDocument(cedula, passport, rnc)) {
-            validateSingleDocumentUniqueness(cedula, passport, rnc);
-        }
+  }
+
+  private void validateUniqueIdentification(String cedula, String passport, String rnc) {
+    if (hasSingleValidDocument(cedula, passport, rnc)) {
+      validateSingleDocumentUniqueness(cedula, passport, rnc);
     }
+  }
 
+  private boolean hasSingleValidDocument(String cedula, String passport, String rnc) {
+    int documentCount = countNonEmptyDocuments(cedula, passport, rnc);
 
-    private boolean hasSingleValidDocument(String cedula, String passport, String rnc) {
-        int documentCount = countNonEmptyDocuments(cedula, passport, rnc);
-
-        if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
-            throw new IllegalArgumentException("Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT + " documento de identificación permitido");
-        }
-        return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
+    if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
+      throw new IllegalArgumentException(
+          "Máximo "
+              + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT
+              + " documento de identificación permitido");
     }
+    return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
+  }
 
-    private int countNonEmptyDocuments(String cedula, String passport, String rnc) {
-        int count = 0;
-        if (isNotEmpty(cedula)) count++;
-        if (isNotEmpty(passport)) count++;
-        if (isNotEmpty(rnc)) count++;
-        return count;
-    }
+  private int countNonEmptyDocuments(String cedula, String passport, String rnc) {
+    int count = 0;
+    if (isNotEmpty(cedula)) count++;
+    if (isNotEmpty(passport)) count++;
+    if (isNotEmpty(rnc)) count++;
+    return count;
+  }
 
-    private boolean isNotEmpty(String document) {
-        return document != null && !document.trim().isEmpty();
-    }
+  private boolean isNotEmpty(String document) {
+    return document != null && !document.trim().isEmpty();
+  }
 
-    private void validateSingleDocumentUniqueness(String cedula, String passport, String rnc) {
-        if (isNotEmpty(cedula)) {
-            validateCedulaUniqueness(cedula);
-        } else if (isNotEmpty(passport)) {
-            validatePassportUniqueness(passport);
-        } else if (isNotEmpty(rnc)) {
-            validateRncUniqueness(rnc);
-        }
+  private void validateSingleDocumentUniqueness(String cedula, String passport, String rnc) {
+    if (isNotEmpty(cedula)) {
+      validateCedulaUniqueness(cedula);
+    } else if (isNotEmpty(passport)) {
+      validatePassportUniqueness(passport);
+    } else if (isNotEmpty(rnc)) {
+      validateRncUniqueness(rnc);
     }
+  }
 
-    private void validateCedulaUniqueness(String cedula) {
-        if (clientRepository.existsByCedula(cedula)) {
-            throw new DuplicateIdentificationException("cedula", cedula);
-        }
+  private void validateCedulaUniqueness(String cedula) {
+    if (clientRepository.existsByCedula(cedula)) {
+      throw new DuplicateIdentificationException("cedula", cedula);
     }
+  }
 
-    private void validatePassportUniqueness(String passport) {
-        if (clientRepository.existsByPassport(passport)) {
-            throw new DuplicateIdentificationException("passport", passport);
-        }
+  private void validatePassportUniqueness(String passport) {
+    if (clientRepository.existsByPassport(passport)) {
+      throw new DuplicateIdentificationException("passport", passport);
     }
+  }
 
-    private void validateRncUniqueness(String rnc) {
-        if (clientRepository.existsByRnc(rnc)) {
-            throw new DuplicateIdentificationException("rnc", rnc);
-        }
+  private void validateRncUniqueness(String rnc) {
+    if (clientRepository.existsByRnc(rnc)) {
+      throw new DuplicateIdentificationException("rnc", rnc);
     }
+  }
 }
