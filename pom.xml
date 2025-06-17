@@ -14,6 +14,7 @@
         <java.version>21</java.version>
         <vaadin.version>24.7.6</vaadin.version>
         <archunit.version>1.4.1</archunit.version>
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
     </properties>
 
     <parent>
@@ -65,7 +66,17 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
-
+        <!-- Mapper -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
         <!-- Additional Spring Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -103,6 +114,11 @@
             <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
@@ -111,6 +127,42 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <dependency>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </dependency>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <compilerArg>
+                            -Amapstruct.defaultComponentModel=spring
+                        </compilerArg>
+                    </compilerArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
@@ -121,7 +173,8 @@
                         <toggleOffOn/>
                         <eclipse>
                             <version>4.35</version>
-                            <file>${project.basedir}/eclipse-formatter.xml</file>
+                            <file>${project.basedir}/eclipse-formatter.xml
+                            </file>
                         </eclipse>
                     </java>
                     <typescript>
@@ -132,10 +185,9 @@
                         <excludes>
                             <exclude>src/main/frontend/generated/**</exclude>
                         </excludes>
-                        <prettier>
-                            <prettierVersion>3.3.3</prettierVersion>
-                            <configFile>${project.basedir}/.prettierrc.json</configFile>
-                        </prettier>
+                        <biome>
+                            <version>1.9.4</version>
+                        </biome>
                     </typescript>
                 </configuration>
             </plugin>
