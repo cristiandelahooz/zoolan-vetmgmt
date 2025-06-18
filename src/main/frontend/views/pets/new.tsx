@@ -16,7 +16,7 @@ import PetCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/pet
 import { PetServiceImpl } from 'Frontend/generated/endpoints'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { usePetFormStore } from '../../store/petAutoFormStore'
+import { usePetFormStore } from '../../stores/petAutoFormStore'
 import { SelectOwnerDialog, type SelectedClient } from './_SelectOwnerDialog'
 
 export default function PetEntryFormView() {
