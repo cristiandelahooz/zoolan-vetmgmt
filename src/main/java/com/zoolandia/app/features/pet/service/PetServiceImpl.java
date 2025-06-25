@@ -83,15 +83,11 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Transactional(readOnly = true)
     public List<PetSummaryDTO> getAllPets(Pageable pageable) {
         return petRepository.findAll(pageable).stream()
-                .map(pet -> new PetSummaryDTO(
-                        pet.getId(),
-                        pet.getName(),
-                        pet.getType(),
-                        pet.getBreed(),
+                .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
                         pet.getBirthDate(),
-                        pet.getOwners().isEmpty() ? "Sin dueño" :
-                                pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()
-                ))
+                        pet.getOwners().isEmpty()
+                                ? "Sin dueño"
+                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
                 .toList();
     }
 
@@ -154,31 +150,25 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         return Arrays.stream(PetType.values()).map(Enum::name).toList();
     }
 
-
     @Transactional
     public Pet mergePets(Long keepPetId, Long removePetId) {
         log.debug("Request to merge pets: keep={}, remove={}", keepPetId, removePetId);
 
         // Obtener ambas mascotas
-        Pet keepPet = petRepository.findById(keepPetId)
-                .orElseThrow(() -> new PetNotFoundException(keepPetId));
-        Pet removePet = petRepository.findById(removePetId)
-                .orElseThrow(() -> new PetNotFoundException(removePetId));
+        Pet keepPet = petRepository.findById(keepPetId).orElseThrow(() -> new PetNotFoundException(keepPetId));
+        Pet removePet = petRepository.findById(removePetId).orElseThrow(() -> new PetNotFoundException(removePetId));
 
         // Validar que sean la misma mascota (mismo nombre y tipo)
-        if (!keepPet.getName().equalsIgnoreCase(removePet.getName()) ||
-                !keepPet.getType().equals(removePet.getType())) {
+        if (!keepPet.getName().equalsIgnoreCase(removePet.getName())
+                || !keepPet.getType().equals(removePet.getType())) {
             throw new IllegalArgumentException("Las mascotas no parecen ser la misma (nombre o tipo diferentes)");
         }
 
         // Fusionar owners (evitar duplicados por ID)
-        Set<Long> existingOwnerIds = keepPet.getOwners().stream()
-                .map(Client::getId)
-                .collect(Collectors.toSet());
+        Set<Long> existingOwnerIds = keepPet.getOwners().stream().map(Client::getId).collect(Collectors.toSet());
 
         List<Client> newOwners = removePet.getOwners().stream()
-                .filter(owner -> !existingOwnerIds.contains(owner.getId()))
-                .toList();
+                .filter(owner -> !existingOwnerIds.contains(owner.getId())).toList();
 
         // Agregar los nuevos owners
         keepPet.getOwners().addAll(newOwners);
@@ -190,8 +180,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         petRepository.save(keepPet);
         petRepository.save(removePet);
 
-        log.info("Merged pets: {} total owners now associated with pet ID {}",
-                keepPet.getOwners().size(), keepPetId);
+        log.info("Merged pets: {} total owners now associated with pet ID {}", keepPet.getOwners().size(), keepPetId);
 
         return keepPet;
     }
@@ -202,6 +191,4 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         return petRepository.findSimilarPetsByName(name);
     }
 
-
 }
-

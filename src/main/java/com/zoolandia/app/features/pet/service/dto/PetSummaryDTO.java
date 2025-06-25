@@ -4,11 +4,5 @@ import com.zoolandia.app.features.pet.domain.PetType;
 
 import java.time.LocalDate;
 
-public record PetSummaryDTO(
-        Long id,
-        String name,
-        PetType type,
-        String breed,
-        LocalDate birthDate,
-        String ownerName
-) {}
+public record PetSummaryDTO(Long id, String name, PetType type, String breed, LocalDate birthDate, String ownerName) {
+}

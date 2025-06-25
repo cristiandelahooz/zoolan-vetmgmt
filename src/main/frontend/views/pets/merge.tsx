@@ -245,7 +245,7 @@ export default function PetMergeView() {
       <Dialog
         opened={dialogOpen}
         onOpenedChanged={(e) => setDialogOpen(e.detail.value)}
-        headerTitle="⚠️ Confirmar Fusión de Mascotas"
+        headerTitle="! Confirmar Fusión de Mascotas"
       >
         <VerticalLayout style={{ width: '450px', gap: '1rem' }}>
           <p>
@@ -272,7 +272,7 @@ export default function PetMergeView() {
 
           {selectedPets.removePet && (
             <div className="p-4 border-2 border-red-300 bg-red-50 rounded-lg">
-              <strong style={{ color: '#dc2626' }}>🗑️ SE ELIMINARÁ:</strong>
+              <strong style={{ color: '#dc2626' }}>🗑 SE ELIMINARÁ:</strong>
               <div>
                 <strong>Nombre:</strong> {selectedPets.removePet.name || ''}
               </div>
