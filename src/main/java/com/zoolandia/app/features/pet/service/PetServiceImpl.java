@@ -4,6 +4,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
+import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.mapper.PetMapper;
 import com.zoolandia.app.features.pet.repository.PetRepository;
@@ -24,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -81,8 +83,15 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Transactional(readOnly = true)
     public List<PetSummaryDTO> getAllPets(Pageable pageable) {
         return petRepository.findAll(pageable).stream()
-                .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
-                        pet.getBirthDate(), pet.getOwner().getFirstName() + " " + pet.getOwner().getLastName()))
+                .map(pet -> new PetSummaryDTO(
+                        pet.getId(),
+                        pet.getName(),
+                        pet.getType(),
+                        pet.getBreed(),
+                        pet.getBirthDate(),
+                        pet.getOwners().isEmpty() ? "Sin dueño" :
+                                pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()
+                ))
                 .toList();
     }
 
@@ -144,4 +153,55 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<String> getAllPetTypes() {
         return Arrays.stream(PetType.values()).map(Enum::name).toList();
     }
+
+
+    @Transactional
+    public Pet mergePets(Long keepPetId, Long removePetId) {
+        log.debug("Request to merge pets: keep={}, remove={}", keepPetId, removePetId);
+
+        // Obtener ambas mascotas
+        Pet keepPet = petRepository.findById(keepPetId)
+                .orElseThrow(() -> new PetNotFoundException(keepPetId));
+        Pet removePet = petRepository.findById(removePetId)
+                .orElseThrow(() -> new PetNotFoundException(removePetId));
+
+        // Validar que sean la misma mascota (mismo nombre y tipo)
+        if (!keepPet.getName().equalsIgnoreCase(removePet.getName()) ||
+                !keepPet.getType().equals(removePet.getType())) {
+            throw new IllegalArgumentException("Las mascotas no parecen ser la misma (nombre o tipo diferentes)");
+        }
+
+        // Fusionar owners (evitar duplicados por ID)
+        Set<Long> existingOwnerIds = keepPet.getOwners().stream()
+                .map(Client::getId)
+                .collect(Collectors.toSet());
+
+        List<Client> newOwners = removePet.getOwners().stream()
+                .filter(owner -> !existingOwnerIds.contains(owner.getId()))
+                .toList();
+
+        // Agregar los nuevos owners
+        keepPet.getOwners().addAll(newOwners);
+
+        // Desactivar la mascota que se va a "eliminar"
+        removePet.setActive(false);
+
+        // Guardar cambios
+        petRepository.save(keepPet);
+        petRepository.save(removePet);
+
+        log.info("Merged pets: {} total owners now associated with pet ID {}",
+                keepPet.getOwners().size(), keepPetId);
+
+        return keepPet;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Pet> findSimilarPetsByName(String name) {
+        log.debug("Searching for pets with name containing: {}", name);
+        return petRepository.findSimilarPetsByName(name);
+    }
+
+
 }
+
