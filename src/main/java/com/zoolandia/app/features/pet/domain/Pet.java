@@ -31,11 +31,7 @@ public class Pet {
     private LocalDate birthDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "pet_owners",
-            joinColumns = @JoinColumn(name = "pet_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
-    )
+    @JoinTable(name = "pet_owners", joinColumns = @JoinColumn(name = "pet_id"), inverseJoinColumns = @JoinColumn(name = "client_id"))
     private List<Client> owners = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
