@@ -18,6 +18,7 @@ export const ROUTES = {
   PETS: '/pets',
   PET_NEW: '/pets/new',
   PET_EDIT: '/pets/edit',
+  PET_MERGE: '/pets/merge',
   PET_VIEW: '/pets/view',
   EMPLOYEES: '/employees',
   EMPLOYEE_EDIT: '/employees/edit',
