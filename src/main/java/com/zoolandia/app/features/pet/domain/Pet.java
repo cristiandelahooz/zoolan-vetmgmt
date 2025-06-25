@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Entity
@@ -28,9 +30,13 @@ public class Pet {
 
     private LocalDate birthDate;
 
-    @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Client owner;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "pet_owners",
+            joinColumns = @JoinColumn(name = "pet_id"),
+            inverseJoinColumns = @JoinColumn(name = "client_id")
+    )
+    private List<Client> owners = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
