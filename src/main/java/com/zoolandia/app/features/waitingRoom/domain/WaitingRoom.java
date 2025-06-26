@@ -76,4 +76,3 @@ public class WaitingRoom {
         this.completedAt = LocalDateTime.now();
     }
 }
-

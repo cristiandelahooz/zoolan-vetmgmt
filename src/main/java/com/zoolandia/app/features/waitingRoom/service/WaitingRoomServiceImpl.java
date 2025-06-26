@@ -44,7 +44,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     @Override
     @Transactional
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Integer priority, String notes) {
+    public WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Integer priority,
+            String notes) {
         log.debug("Request to add to waiting room - Client: {}, Pet: {}", clientId, petId);
 
         // Verificar si ya está en la sala de espera
@@ -62,8 +63,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
                 .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + petId));
 
         // Verificar que la mascota pertenece al cliente - CÓDIGO ORIGINAL
-        boolean petBelongsToClient = pet.getOwners().stream()
-                .anyMatch(owner -> owner.getId().equals(clientId));
+        boolean petBelongsToClient = pet.getOwners().stream().anyMatch(owner -> owner.getId().equals(clientId));
 
         if (!petBelongsToClient) {
             throw new IllegalArgumentException("La mascota no pertenece al cliente especificado");
@@ -79,8 +79,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.setStatus(WaitingRoomStatus.WAITING);
 
         WaitingRoom saved = waitingRoomRepository.save(waitingRoom);
-        log.info("✅ Agregado a sala de espera con ID: {} para {} - {}",
-                saved.getId(), client.getFirstName(), pet.getName());
+        log.info("✅ Agregado a sala de espera con ID: {} para {} - {}", saved.getId(), client.getFirstName(),
+                pet.getName());
 
         return saved;
     }
@@ -90,10 +90,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     public List<WaitingRoom> getCurrentWaitingRoom() {
         log.debug("Request to get current waiting room");
 
-        List<WaitingRoomStatus> activeStatuses = Arrays.asList(
-                WaitingRoomStatus.WAITING,
-                WaitingRoomStatus.IN_CONSULTATION
-        );
+        List<WaitingRoomStatus> activeStatuses = Arrays.asList(WaitingRoomStatus.WAITING,
+                WaitingRoomStatus.IN_CONSULTATION);
 
         List<WaitingRoom> waitingList = waitingRoomRepository.findCurrentWaitingRoom(activeStatuses);
 
@@ -141,8 +139,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.startConsultation();
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
 
-        log.info("✅ Movido a consulta: {} - {} con {}",
-                waitingRoomId, waitingRoom.getClient().getFirstName(), waitingRoom.getPet().getName());
+        log.info("✅ Movido a consulta: {} - {} con {}", waitingRoomId, waitingRoom.getClient().getFirstName(),
+                waitingRoom.getPet().getName());
         return updated;
     }
 
@@ -162,8 +160,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.completeConsultation();
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
 
-        log.info("✅ Consulta completada: {} - {} con {}",
-                waitingRoomId, waitingRoom.getClient().getFirstName(), waitingRoom.getPet().getName());
+        log.info("✅ Consulta completada: {} - {} con {}", waitingRoomId, waitingRoom.getClient().getFirstName(),
+                waitingRoom.getPet().getName());
         return updated;
     }
 
@@ -176,8 +174,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
-        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETED ||
-                waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
+        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETED
+                || waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
             throw new IllegalStateException("No se puede cancelar una entrada ya completada o cancelada");
         }
 
@@ -185,8 +183,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.setCompletedAt(LocalDateTime.now());
 
         String currentNotes = waitingRoom.getNotes();
-        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") +
-                "Cancelado el " + LocalDateTime.now() + ": " + reason;
+        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + "Cancelado el " + LocalDateTime.now()
+                + ": " + reason;
         waitingRoom.setNotes(newNotes);
 
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -225,8 +223,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
         String currentNotes = waitingRoom.getNotes();
-        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") +
-                LocalDateTime.now() + " - " + additionalNotes;
+        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + LocalDateTime.now() + " - "
+                + additionalNotes;
 
         waitingRoom.setNotes(newNotes);
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -281,12 +279,10 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         Specification<WaitingRoom> spec = (root, query, cb) -> {
             String pattern = "%" + searchTerm.toLowerCase() + "%";
-            return cb.or(
-                    cb.like(cb.lower(root.get("client").get("firstName")), pattern),
+            return cb.or(cb.like(cb.lower(root.get("client").get("firstName")), pattern),
                     cb.like(cb.lower(root.get("client").get("lastName")), pattern),
                     cb.like(cb.lower(root.get("pet").get("name")), pattern),
-                    cb.like(cb.lower(root.get("reasonForVisit")), pattern)
-            );
+                    cb.like(cb.lower(root.get("reasonForVisit")), pattern));
         };
 
         return waitingRoomRepository.findAll(spec, pageable);
@@ -299,17 +295,15 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         WaitingRoomStatus waitingRoomStatus = WaitingRoomStatus.valueOf(status.toUpperCase());
 
-        Specification<WaitingRoom> spec = (root, query, cb) ->
-                cb.equal(root.get("status"), waitingRoomStatus);
+        Specification<WaitingRoom> spec = (root, query, cb) -> cb.equal(root.get("status"), waitingRoomStatus);
 
         return waitingRoomRepository.findAll(spec, pageable);
     }
 
     private double calculateAverageWaitTime() {
         try {
-            List<WaitingRoom> completedToday = getTodayHistory(Pageable.unpaged()).getContent().stream()
-                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED &&
-                            wr.getConsultationStartedAt() != null)
+            List<WaitingRoom> completedToday = getTodayHistory(Pageable.unpaged()).getContent().stream().filter(
+                    wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED && wr.getConsultationStartedAt() != null)
                     .toList();
 
             if (completedToday.isEmpty()) {
@@ -318,8 +312,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
             double totalMinutes = completedToday.stream()
                     .mapToDouble(wr -> Duration.between(wr.getArrivalTime(), wr.getConsultationStartedAt()).toMinutes())
-                    .average()
-                    .orElse(0.0);
+                    .average().orElse(0.0);
 
             return Math.round(totalMinutes * 100.0) / 100.0; // Redondear a 2 decimales
 

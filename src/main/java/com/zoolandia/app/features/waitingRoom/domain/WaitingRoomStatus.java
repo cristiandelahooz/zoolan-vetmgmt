@@ -1,10 +1,7 @@
 package com.zoolandia.app.features.waitingRoom.domain;
 
 public enum WaitingRoomStatus {
-    WAITING("Esperando"),
-    IN_CONSULTATION("En Consulta"),
-    COMPLETED("Completado"),
-    CANCELLED("Cancelado");
+    WAITING("Esperando"), IN_CONSULTATION("En Consulta"), COMPLETED("Completado"), CANCELLED("Cancelado");
 
     private final String displayName;
 

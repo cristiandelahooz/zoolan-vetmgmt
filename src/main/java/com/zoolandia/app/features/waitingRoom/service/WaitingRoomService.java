@@ -20,23 +20,37 @@ import java.util.Optional;
 public interface WaitingRoomService {
 
     WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Integer priority, String notes);
+
     List<WaitingRoom> getCurrentWaitingRoom();
+
     List<WaitingRoom> getWaitingEntries();
+
     List<WaitingRoom> getInConsultationEntries();
+
     WaitingRoom moveToConsultation(Long waitingRoomId);
+
     WaitingRoom completeConsultation(Long waitingRoomId);
+
     WaitingRoom cancelEntry(Long waitingRoomId, String reason);
+
     WaitingRoom updatePriority(Long waitingRoomId, Integer newPriority);
+
     WaitingRoom addNotes(Long waitingRoomId, String additionalNotes);
+
     Optional<WaitingRoom> getWaitingRoomById(Long id);
+
     Page<WaitingRoom> getTodayHistory(Pageable pageable);
 
     // Métodos de estadísticas separados
     long getWaitingCount();
+
     long getInConsultationCount();
+
     long getTodayCount();
+
     double getAverageWaitTime();
 
     Page<WaitingRoom> searchWaitingRoom(String searchTerm, Pageable pageable);
+
     Page<WaitingRoom> getWaitingRoomByStatus(String status, Pageable pageable);
 }
