@@ -17,6 +17,11 @@ export const menuConfig: MenuItemConfig[] = [
     icon: 'vaadin:home-o',
   },
   {
+    path: ROUTES.APPOINTMENTS,
+    title: 'Citas',
+    icon: 'vaadin:calendar',
+  },
+  {
     path: undefined,
     title: 'Clientes',
     icon: 'lumo:user',
