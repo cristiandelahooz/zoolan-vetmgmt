@@ -1,15 +1,16 @@
-import { AutoForm, AutoFormLayoutRendererProps } from '@vaadin/hilla-react-crud'
-import { AUTO_FORM_EMPLOYEE_FIELD_OPTIONS } from 'Frontend/lib/constants/employee-field-config'
-import { EmployeeServiceImpl } from 'Frontend/generated/endpoints'
-import EmployeeCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/employee/service/dto/EmployeeCreateDTOModel'
-import { useNavigate } from 'react-router'
+import type EmployeeCreateDTO from '@/generated/com/zoolandia/app/features/employee/service/dto/EmployeeCreateDTO'
+import EmployeeCreateDTOModel from '@/generated/com/zoolandia/app/features/employee/service/dto/EmployeeCreateDTOModel'
+import { EmployeeServiceImpl } from '@/generated/endpoints'
+import { AUTO_FORM_EMPLOYEE_FIELD_OPTIONS } from '@/lib/constants/employee-field-config'
+import { AutoForm, type AutoFormLayoutRendererProps, type SubmitErrorEvent } from '@vaadin/hilla-react-crud'
 import { HorizontalLayout, Notification, VerticalLayout } from '@vaadin/react-components'
-import type EmployeeCreateDTO from 'Frontend/generated/com/zoolandia/app/features/employee/service/dto/EmployeeCreateDTO'
-import { SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
+import { useNavigate } from 'react-router'
 
 function GroupingLayoutRenderer({ children }: AutoFormLayoutRendererProps<EmployeeCreateDTOModel>) {
   const fieldsMapping = new Map<string, JSX.Element>()
-  children.forEach((field) => fieldsMapping.set(field.props?.propertyInfo?.name, field))
+  for (const field of children) {
+    fieldsMapping.set(field.props?.propertyInfo?.name, field)
+  }
 
   return (
     <VerticalLayout>
@@ -69,7 +70,7 @@ export default function EmployeesRegisterView() {
   const navigate = useNavigate()
   const handleOnSubmitSuccess = ({ item }: { item: EmployeeCreateDTO }) => {
     Notification.show('Empleado registrado', { duration: 3000, position: 'bottom-end', theme: 'success' })
-    navigate(`/employees/`, { replace: true })
+    navigate('/employees/', { replace: true })
   }
 
   const handleOnSubmitError = (error: SubmitErrorEvent) => {

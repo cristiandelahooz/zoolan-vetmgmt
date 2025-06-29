@@ -1,5 +1,5 @@
 import { DrawerToggle } from '@vaadin/react-components'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 
 export function Group({ children }: PropsWithChildren) {
   return <div className="flex flex-col items-stretch gap-s md:flex-row md:items-center">{children}</div>
