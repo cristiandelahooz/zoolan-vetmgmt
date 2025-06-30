@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16-alpine
     restart: always
     environment:
       POSTGRES_DB: zoolan_vetmgmt
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
     ports:
       - "5432:5432"
     volumes:
