@@ -7,7 +7,6 @@ import type { EventClickArg, EventContentArg, EventDropArg } from '@fullcalendar
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin, { type DateClickArg } from '@fullcalendar/interaction'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import { Button } from '@vaadin/react-components'
 import { AppointmentDetailsModal } from './_AppointmentDetailsModal'
 import { CreateAppointmentModal } from './_CreateAppointmentModal'
 import { EditAppointmentModal } from './_EditAppointmentModal'
@@ -26,14 +25,22 @@ export default function AppointmentsCalendarView() {
     setNotification({ message, isOpen: true })
   }
 
+  const currentDateRange = useRef<{ start: string; end: string } | null>(null);
+
   const handleDatesSet = useCallback(
     (arg: any) => {
-      const start = arg.start.toISOString()
-      const end = arg.end.toISOString()
-      refetch(start, end)
+      const newStart = arg.start.toISOString();
+      const newEnd = arg.end.toISOString();
+
+      console.log('handleDatesSet called with:', { newStart, newEnd });
+
+      if (!currentDateRange.current || newStart !== currentDateRange.current.start || newEnd !== currentDateRange.current.end) {
+        currentDateRange.current = { start: newStart, end: newEnd };
+        refetch(newStart, newEnd);
+      }
     },
     [refetch],
-  )
+  );
 
   const handleDateClick = (arg: DateClickArg) => {
     setSelectedDate(arg.date)
