@@ -9,7 +9,7 @@ NC = \033[0m # No Color
 
 # Project Variables
 MAVEN_CMD = ./mvnw
-DOCKER_COMPOSE_FILE = docker-compose.yml
+DOCKER_COMPOSE_FILE = compose.yml
 
 help:
 	@echo ""
