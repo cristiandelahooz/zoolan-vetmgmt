@@ -1,0 +1,16 @@
+package com.zoolandia.app.features.medicalHistory.service;
+
+import com.vaadin.hilla.BrowserCallable;
+import com.zoolandia.app.features.medicalHistory.domain.MedicalHistory;
+import com.zoolandia.app.features.pet.domain.Pet;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+@BrowserCallable
+@Validated
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public interface MedicalHistoryService {
+    MedicalHistory findOrCreateByPet(Pet pet);
+    MedicalHistory findByPetId(Long petId);
+}
