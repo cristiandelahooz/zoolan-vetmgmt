@@ -10,7 +10,7 @@ export function useAppointments() {
   const fetchAppointments = useCallback(async (start?: string, end?: string) => {
     setLoading(true)
     try {
-      const fetchedAppointments = await AppointmentServiceImpl.getCalendarEvents(start, end)
+      const fetchedAppointments = await AppointmentServiceImpl.getCalendarEvents(start, end) || []
       setAppointments(fetchedAppointments)
     } catch (e: any) {
       setError(e.message)

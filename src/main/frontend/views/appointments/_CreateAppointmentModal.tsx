@@ -1,7 +1,7 @@
 import { ClientComboBox } from '@/components/ui/ClientComboBox'
 import type AppointmentCreateDTO from '@/generated/com/zoolandia/app/features/appointments/dtos/AppointmentCreateDTO'
 import { AppointmentServiceImpl } from '@/generated/endpoints'
-import { Button, Dialog, TextField } from '@vaadin/react-components'
+import { Button, Dialog, TextField, DateTimePicker } from '@vaadin/react-components'
 import { Controller, useForm } from 'react-hook-form'
 
 interface CreateAppointmentModalProps {
@@ -46,9 +46,8 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Create
       }
     >
       <form className="flex flex-col gap-m">
-        <TextField
+        <DateTimePicker
           label="Appointment Date Time"
-          type="datetime-local"
           defaultValue={selectedDate?.toISOString().substring(0, 16)}
           {...register('appointmentDateTime', { required: 'Appointment date is required' })}
           error-text={errors.appointmentDateTime?.message}
@@ -66,16 +65,14 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Create
             />
           )}
         />
-        <TextField
+        <DateTimePicker
           label="Start Time"
-          type="datetime-local"
           defaultValue={selectedDate?.toISOString().substring(0, 16)}
           {...register('start', { required: 'Start time is required' })}
           error-text={errors.start?.message}
         />
-        <TextField
+        <DateTimePicker
           label="End Time"
-          type="datetime-local"
           {...register('end', { required: 'End time is required' })}
           error-text={errors.end?.message}
         />

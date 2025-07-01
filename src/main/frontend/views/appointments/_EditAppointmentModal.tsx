@@ -2,7 +2,7 @@ import { ClientComboBox } from '@/components/ui/ClientComboBox'
 import type AppointmentResponseDTO from '@/generated/com/zoolandia/app/features/appointments/dtos/AppointmentResponseDTO'
 import type AppointmentUpdateDTO from '@/generated/com/zoolandia/app/features/appointments/dtos/AppointmentUpdateDTO'
 import { useAppointments } from '@/stores/useAppointments'
-import { Button, Dialog, TextField } from '@vaadin/react-components'
+import { Button, Dialog, TextField, DateTimePicker } from '@vaadin/react-components'
 import { Controller, useForm } from 'react-hook-form'
 
 interface EditAppointmentModalProps {
@@ -22,6 +22,9 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
     defaultValues: appointment
       ? {
           ...appointment,
+          appointmentDateTime: appointment.appointmentDateTime
+            ? new Date(appointment.appointmentDateTime).toISOString().substring(0, 16)
+            : '',
           start: appointment.start ? new Date(appointment.start).toISOString().substring(0, 16) : '',
           end: appointment.end ? new Date(appointment.end).toISOString().substring(0, 16) : '',
         }
@@ -58,9 +61,8 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
       }
     >
       <form className="flex flex-col gap-m">
-        <TextField
+        <DateTimePicker
           label="Appointment Date Time"
-          type="datetime-local"
           {...register('appointmentDateTime', { required: 'Appointment date is required' })}
           error-text={errors.appointmentDateTime?.message}
         />
@@ -77,15 +79,13 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
             />
           )}
         />
-        <TextField
+        <DateTimePicker
           label="Start Time"
-          type="datetime-local"
           {...register('start', { required: 'Start time is required' })}
           error-text={errors.start?.message}
         />
-        <TextField
+        <DateTimePicker
           label="End Time"
-          type="datetime-local"
           {...register('end', { required: 'End time is required' })}
           error-text={errors.end?.message}
         />

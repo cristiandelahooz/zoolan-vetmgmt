@@ -1,6 +1,6 @@
 import { AppLayout, DrawerToggle, Icon, ProgressBar, Scroller, SideNav, SideNavItem } from '@vaadin/react-components'
-import { UserMenu } from 'Frontend/components/UserMenu'
-import { type MenuItemConfig, menuConfig } from 'Frontend/config/menuConfig'
+import { UserMenu } from '@/components/UserMenu'
+import { type MenuItemConfig, menuConfig } from '@/config/menuConfig'
 import { Suspense } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 

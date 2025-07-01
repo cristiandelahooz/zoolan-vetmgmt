@@ -32,8 +32,6 @@ export default function AppointmentsCalendarView() {
       const newStart = arg.start.toISOString();
       const newEnd = arg.end.toISOString();
 
-      console.log('handleDatesSet called with:', { newStart, newEnd });
-
       if (!currentDateRange.current || newStart !== currentDateRange.current.start || newEnd !== currentDateRange.current.end) {
         currentDateRange.current = { start: newStart, end: newEnd };
         refetch(newStart, newEnd);
