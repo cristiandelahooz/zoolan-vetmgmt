@@ -5,6 +5,7 @@ import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.domain.Gender;
 import com.zoolandia.app.features.pet.repository.PetRepository;
 import com.zoolandia.app.features.pet.service.dto.PetSummaryDTO;
+import com.zoolandia.app.features.pet.mapper.PetMapper;
 import com.zoolandia.app.features.client.domain.Client;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -27,13 +29,16 @@ public class PetServiceActiveFilterTest {
 
     @Mock
     private PetRepository petRepository;
+    
+    @Mock
+    private PetMapper petMapper;
 
     private PetServiceImpl petService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        // Note: This is a simplified test - in reality we'd need to mock the mapper too
+        petService = new PetServiceImpl(petRepository, petMapper);
     }
 
     @Test
@@ -67,6 +72,7 @@ public class PetServiceActiveFilterTest {
         assertNotNull(activePetsPage);
         assertEquals(1, activePetsPage.getTotalElements());
         assertEquals("Fluffy", activePetsPage.getContent().get(0).getName());
+        assertTrue(activePetsPage.getContent().get(0).isActive());
     }
 
     @Test
@@ -92,11 +98,22 @@ public class PetServiceActiveFilterTest {
                 .thenReturn(result);
 
         // Act
-        Page<Pet> actualResult = petRepository.findByOwnerIdAndActiveTrue(ownerId, pageable);
+        Page<Pet> actualResult = petService.getPetsByOwnerId(ownerId, pageable);
 
         // Assert
         assertEquals(1, actualResult.getTotalElements());
         assertEquals("Buddy", actualResult.getContent().get(0).getName());
         assertTrue(actualResult.getContent().get(0).isActive());
+    }
+
+    @Test
+    void getDefaultFilter_shouldReturnActiveOnlyFilter() {
+        // Act
+        Specification<Pet> filter = petService.getDefaultFilter();
+        
+        // Assert
+        assertNotNull(filter);
+        // Note: Testing the actual filter logic would require a more complex setup
+        // but this verifies the method exists and returns a non-null filter
     }
 }

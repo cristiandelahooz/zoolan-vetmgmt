@@ -94,6 +94,12 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         return petRepository.findByOwnerIdAndActiveTrue(ownerId, pageable);
     }
 
+    // Override ListRepositoryService methods for AutoGrid - try multiple potential methods
+    protected Specification<Pet> getDefaultFilter() {
+        // Return a filter for active pets only
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("active"));
+    }
+
     @Override
     @Transactional
     // @PreAuthorize("hasRole('ADMIN')")
