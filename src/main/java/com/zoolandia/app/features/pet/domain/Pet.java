@@ -1,11 +1,14 @@
 package com.zoolandia.app.features.pet.domain;
 
 import com.zoolandia.app.features.client.domain.Client;
+import com.zoolandia.app.features.consultation.domain.Consultation;
 import com.zoolandia.app.features.pet.validation.ValidPetBreed;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Entity
@@ -35,6 +38,24 @@ public class Pet {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Consultation> consultations = new ArrayList<>();
+
+    @OneToOne(mappedBy = "pet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private com.zoolandia.app.features.medicalhistory.domain.MedicalHistory medicalHistory;
+
     @Builder.Default
     private boolean active = true;
+
+    @PostPersist
+    private void createMedicalHistory() {
+        if (this.medicalHistory == null) {
+            this.medicalHistory = com.zoolandia.app.features.medicalhistory.domain.MedicalHistory.builder()
+                    .pet(this)
+                    .notes("Historial médico creado automáticamente")
+                    .build();
+        }
+    }
+
 }
