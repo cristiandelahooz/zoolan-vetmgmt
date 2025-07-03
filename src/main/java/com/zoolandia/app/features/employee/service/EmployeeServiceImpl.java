@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -372,6 +373,14 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
 
         log.info("Employee deactivated via FormService, ID: {}", id);
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<Employee> getVeterinarians() {
+        log.debug("Request to get all veterinarians");
+        return employeeRepository.findAll().stream()
+                .filter(employee -> employee.getEmployeeRole() == EmployeeRole.VETERINARIAN)
+                .collect(Collectors.toList());
     }
 
 }
