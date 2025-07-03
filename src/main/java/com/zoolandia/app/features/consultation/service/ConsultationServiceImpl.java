@@ -2,6 +2,7 @@ package com.zoolandia.app.features.consultation.service;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.features.consultation.domain.Consultation;
 import com.zoolandia.app.features.consultation.repository.ConsultationRepository;
@@ -11,7 +12,7 @@ import com.zoolandia.app.features.employee.domain.Employee;
 import com.zoolandia.app.features.employee.service.EmployeeService;
 import com.zoolandia.app.features.pet.domain.Pet;
 import com.zoolandia.app.features.pet.service.PetService;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,20 +30,44 @@ import java.util.List;
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
-public class ConsultationServiceImpl extends ListRepositoryService<Consultation, Long, ConsultationRepository> implements ConsultationService {
+public class ConsultationServiceImpl extends ListRepositoryService<Consultation, Long, ConsultationRepository> implements ConsultationService, FormService<CreateConsultationDTO, Long> {
     private final ConsultationRepository consultationRepository;
     private final PetService petService;
     private final EmployeeService employeeService;
 
+
     @Override
-    public Consultation create(@Valid CreateConsultationDTO createDTO) {
+    public CreateConsultationDTO save(CreateConsultationDTO item) {
+        log.debug("Request to save Consultation : {}", item);
+
+        // Create the consultation entity
+        Consultation savedConsultation = create(item);
+
+        // Convert back to DTO for return
+        CreateConsultationDTO result = new CreateConsultationDTO();
+        result.setPetId(savedConsultation.getPet().getId());
+        result.setVeterinarianId(savedConsultation.getVeterinarian().getId());
+        result.setNotes(savedConsultation.getNotes());
+        result.setDiagnosis(savedConsultation.getDiagnosis());
+        result.setTreatment(savedConsultation.getTreatment());
+        result.setPrescription(savedConsultation.getPrescription());
+        result.setConsultationDate(savedConsultation.getConsultationDate());
+
+        return result;
+    }
+
+    @Override
+    public Consultation create(CreateConsultationDTO createDTO) {
         log.debug("Request to create Consultation : {}", createDTO);
 
         Pet pet = petService.getPetById(createDTO.getPetId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet not found with id: " + createDTO.getPetId()));
         Employee veterinarian = employeeService.getEmployeeById(createDTO.getVeterinarianId())
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + createDTO.getVeterinarianId()));
-        //MedicalHistory medicalHistory = ;
+
+        // Obtener o crear historial médico
+        MedicalHistory medicalHistory = medicalHistoryService.getOrCreateMedicalHistory(pet);
+
         Consultation consultation = new Consultation();
         consultation.setNotes(createDTO.getNotes());
         consultation.setDiagnosis(createDTO.getDiagnosis());
@@ -51,16 +76,22 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
         consultation.setConsultationDate(createDTO.getConsultationDate());
         consultation.setPet(pet);
         consultation.setVeterinarian(veterinarian);
-        //consultation.setMedicalHistory(medicalHistory);
+        consultation.setMedicalHistory(medicalHistory);
         consultation.setCreatedAt(LocalDateTime.now());
         consultation.setUpdatedAt(LocalDateTime.now());
         consultation.setActive(true);
 
-        return consultationRepository.save(consultation);
+        Consultation savedConsultation = consultationRepository.save(consultation);
+
+        // Agregar consulta al historial médico
+        medicalHistory.addConsultation(savedConsultation);
+        medicalHistoryService.updateMedicalHistory(medicalHistory);
+
+        return savedConsultation;
     }
 
     @Override
-    public Consultation update(Long id, @Valid UpdateConsultationDTO updateDTO) {
+    public Consultation update(Long id, UpdateConsultationDTO updateDTO) {
         log.debug("Request to update Consultation : {}", updateDTO);
 
         Consultation consultation = findById(id);
@@ -86,7 +117,6 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
 
         return consultationRepository.save(consultation);
     }
-
     @Override
     public Consultation partialUpdate(Long id, UpdateConsultationDTO updateDTO) {
         log.debug("Request to partially update Consultation : {}", updateDTO);
