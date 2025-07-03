@@ -2,6 +2,7 @@ package com.zoolandia.app.features.waitingRoom.service;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.client.repository.ClientRepository;
@@ -10,18 +11,21 @@ import com.zoolandia.app.features.pet.repository.PetRepository;
 import com.zoolandia.app.features.waitingRoom.domain.WaitingRoom;
 import com.zoolandia.app.features.waitingRoom.domain.WaitingRoomStatus;
 import com.zoolandia.app.features.waitingRoom.repository.WaitingRoomRepository;
+import com.zoolandia.app.features.waitingRoom.service.dto.WaitingRoomCreateDTO;
 import com.zoolandia.app.features.waitingRoom.service.exception.WaitingRoomNotFoundException;
+import org.jspecify.annotations.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import com.zoolandia.app.features.waitingRoom.domain.Priority;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +39,7 @@ import java.util.Optional;
 @AnonymousAllowed
 // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, Long, WaitingRoomRepository>
-        implements WaitingRoomService {
+        implements WaitingRoomService, FormService<WaitingRoomCreateDTO, Long> {
 
     private final WaitingRoomRepository waitingRoomRepository;
     private final ClientRepository clientRepository;
@@ -43,38 +47,65 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
     @Override
     @Transactional
+    public @Nullable WaitingRoomCreateDTO save(WaitingRoomCreateDTO dto) {
+        try {
+            log.debug("Request to save WaitingRoom via FormService: {}", dto);
+
+            WaitingRoom saved = addToWaitingRoom(
+                    dto.clientId(),
+                    dto.petId(),
+                    dto.reasonForVisit(),
+                    dto.priority(),
+                    dto.notes()
+            );
+
+            WaitingRoomCreateDTO result = new WaitingRoomCreateDTO(
+                    saved.getClient().getId(),
+                    saved.getPet().getId(),
+                    saved.getReasonForVisit(),
+                    saved.getPriority(),
+                    saved.getNotes()
+            );
+
+            log.info("WaitingRoom saved successfully via FormService with ID: {}", saved.getId());
+            return result;
+
+        } catch (Exception e) {
+            log.error("Error saving WaitingRoom via FormService: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    @Transactional
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Integer priority,
+    public WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Priority priority,
             String notes) {
         log.debug("Request to add to waiting room - Client: {}, Pet: {}", clientId, petId);
 
-        // Verificar si ya está en la sala de espera
         List<WaitingRoom> existing = waitingRoomRepository.findWaitingByClientAndPet(clientId, petId);
         if (!existing.isEmpty()) {
             log.warn("⚠️ Cliente y mascota ya están en la sala de espera");
             throw new IllegalStateException("El cliente y mascota ya están en la sala de espera");
         }
 
-        // Buscar cliente y mascota
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado con ID: " + clientId));
 
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + petId));
 
-        // Verificar que la mascota pertenece al cliente - CÓDIGO ORIGINAL
         boolean petBelongsToClient = pet.getOwners().stream().anyMatch(owner -> owner.getId().equals(clientId));
 
         if (!petBelongsToClient) {
             throw new IllegalArgumentException("La mascota no pertenece al cliente especificado");
         }
 
-        // Crear entrada en sala de espera
         WaitingRoom waitingRoom = new WaitingRoom();
         waitingRoom.setClient(client);
         waitingRoom.setPet(pet);
         waitingRoom.setReasonForVisit(reasonForVisit);
-        waitingRoom.setPriority(priority != null ? priority : 1);
+        waitingRoom.setPriority(priority != null ? priority : Priority.NORMAL);
         waitingRoom.setNotes(notes);
         waitingRoom.setStatus(WaitingRoomStatus.WAITING);
 
@@ -95,13 +126,12 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         List<WaitingRoom> waitingList = waitingRoomRepository.findCurrentWaitingRoom(activeStatuses);
 
-        // Forzar carga de relaciones para evitar LazyInitializationException
         waitingList.forEach(wr -> {
             if (wr.getClient() != null) {
-                wr.getClient().getFirstName(); // Forzar carga
+                wr.getClient().getFirstName();
             }
             if (wr.getPet() != null) {
-                wr.getPet().getName(); // Forzar carga
+                wr.getPet().getName();
             }
         });
 
@@ -195,15 +225,14 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
     @Override
     @Transactional
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public WaitingRoom updatePriority(Long waitingRoomId, Integer newPriority) {
+    public WaitingRoom updatePriority(Long waitingRoomId, Priority newPriority) {
         log.debug("Request to update priority: {} to {}", waitingRoomId, newPriority);
 
         WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
-        if (newPriority < 1 || newPriority > 3) {
-            throw new IllegalArgumentException("La prioridad debe estar entre 1 y 3");
+        if (newPriority == null) {
+            throw new IllegalArgumentException("La prioridad no puede ser nula");
         }
 
         waitingRoom.setPriority(newPriority);
@@ -242,13 +271,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
     @Override
     @Transactional(readOnly = true)
-    public Page<WaitingRoom> getTodayHistory(Pageable pageable) {
-        log.debug("Request to get today's waiting room history");
-        return waitingRoomRepository.findTodayHistory(pageable);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public long getWaitingCount() {
         return waitingRoomRepository.countByStatus(WaitingRoomStatus.WAITING);
     }
@@ -257,13 +279,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     @Transactional(readOnly = true)
     public long getInConsultationCount() {
         return waitingRoomRepository.countByStatus(WaitingRoomStatus.IN_CONSULTATION);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public long getTodayCount() {
-        Page<WaitingRoom> todayEntries = waitingRoomRepository.findTodayHistory(Pageable.unpaged());
-        return todayEntries.getTotalElements();
     }
 
     @Override
@@ -300,10 +315,38 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         return waitingRoomRepository.findAll(spec, pageable);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<WaitingRoom> getTodayHistory(Pageable pageable) {
+        log.debug("Request to get today's waiting room history");
+
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        return waitingRoomRepository.findTodayHistory(startOfDay, endOfDay, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getTodayCount() {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        Page<WaitingRoom> todayEntries = waitingRoomRepository.findTodayHistory(startOfDay, endOfDay, Pageable.unpaged());
+        return todayEntries.getTotalElements();
+    }
+
     private double calculateAverageWaitTime() {
         try {
-            List<WaitingRoom> completedToday = getTodayHistory(Pageable.unpaged()).getContent().stream().filter(
-                    wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED && wr.getConsultationStartedAt() != null)
+            LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+            LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+            List<WaitingRoom> completedToday = waitingRoomRepository
+                    .findTodayHistory(startOfDay, endOfDay, Pageable.unpaged())
+                    .getContent()
+                    .stream()
+                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED &&
+                            wr.getConsultationStartedAt() != null)
                     .toList();
 
             if (completedToday.isEmpty()) {
@@ -312,13 +355,70 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
             double totalMinutes = completedToday.stream()
                     .mapToDouble(wr -> Duration.between(wr.getArrivalTime(), wr.getConsultationStartedAt()).toMinutes())
-                    .average().orElse(0.0);
+                    .average()
+                    .orElse(0.0);
 
-            return Math.round(totalMinutes * 100.0) / 100.0; // Redondear a 2 decimales
+            return Math.round(totalMinutes * 100.0) / 100.0;
 
         } catch (Exception e) {
             log.warn("Error calculando tiempo promedio de espera: {}", e.getMessage());
             return 0.0;
         }
+    }
+
+    @Override
+    @Transactional
+    public WaitingRoom save(WaitingRoom waitingRoom) {
+        log.debug("Request to save WaitingRoom: {}", waitingRoom);
+
+        if (waitingRoom.getId() == null) {
+            if (waitingRoom.getClient() != null && waitingRoom.getPet() != null) {
+                List<WaitingRoom> existing = waitingRoomRepository.findWaitingByClientAndPet(
+                        waitingRoom.getClient().getId(),
+                        waitingRoom.getPet().getId()
+                );
+                if (!existing.isEmpty()) {
+                    throw new IllegalStateException("El cliente y mascota ya están en la sala de espera");
+                }
+            }
+
+            if (waitingRoom.getStatus() == null) {
+                waitingRoom.setStatus(WaitingRoomStatus.WAITING);
+            }
+            if (waitingRoom.getPriority() == null) {
+                waitingRoom.setPriority(Priority.NORMAL);
+            }
+            if (waitingRoom.getArrivalTime() == null) {
+                waitingRoom.setArrivalTime(LocalDateTime.now());
+            }
+        }
+
+        WaitingRoom saved = waitingRoomRepository.save(waitingRoom);
+        log.info("✅ WaitingRoom saved with ID: {}", saved.getId());
+
+        return saved;
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        log.debug("Request to delete WaitingRoom: {}", id);
+
+        WaitingRoom waitingRoom = waitingRoomRepository.findById(id)
+                .orElseThrow(() -> new WaitingRoomNotFoundException(id));
+
+        if (waitingRoom.getStatus() == WaitingRoomStatus.IN_CONSULTATION) {
+            throw new IllegalStateException("No se puede eliminar una entrada que está en consulta activa");
+        }
+
+        waitingRoomRepository.deleteById(id);
+        log.info("✅ WaitingRoom deleted with ID: {}", id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<WaitingRoom> get(Long id) {
+        log.debug("Request to get WaitingRoom: {}", id);
+        return waitingRoomRepository.findById(id);
     }
 }
