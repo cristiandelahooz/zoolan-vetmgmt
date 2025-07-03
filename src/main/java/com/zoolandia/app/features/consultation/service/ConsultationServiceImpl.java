@@ -5,14 +5,22 @@ import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.features.consultation.domain.Consultation;
+import com.zoolandia.app.features.consultation.mapper.ConsultationMapper;
 import com.zoolandia.app.features.consultation.repository.ConsultationRepository;
 import com.zoolandia.app.features.consultation.service.dto.CreateConsultationDTO;
 import com.zoolandia.app.features.consultation.service.dto.UpdateConsultationDTO;
 import com.zoolandia.app.features.employee.domain.Employee;
+import com.zoolandia.app.features.employee.repository.EmployeeRepository;
 import com.zoolandia.app.features.employee.service.EmployeeService;
+import com.zoolandia.app.features.employee.service.exception.EmployeeNotFoundException;
+import com.zoolandia.app.features.medicalHistory.domain.MedicalHistory;
+import com.zoolandia.app.features.medicalHistory.service.MedicalHistoryService;
 import com.zoolandia.app.features.pet.domain.Pet;
+import com.zoolandia.app.features.pet.repository.PetRepository;
 import com.zoolandia.app.features.pet.service.PetService;
 
+import com.zoolandia.app.features.pet.service.exception.PetNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -34,6 +43,10 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
     private final ConsultationRepository consultationRepository;
     private final PetService petService;
     private final EmployeeService employeeService;
+    private final MedicalHistoryService medicalHistoryService;
+    private final PetRepository petRepository;
+    private final ConsultationMapper consultationMapper;
+    private final EmployeeRepository employeeRepository;
 
 
     @Override
@@ -60,36 +73,51 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
     public Consultation create(CreateConsultationDTO createDTO) {
         log.debug("Request to create Consultation : {}", createDTO);
 
-        Pet pet = petService.getPetById(createDTO.getPetId())
-                .orElseThrow(() -> new EntityNotFoundException("Pet not found with id: " + createDTO.getPetId()));
-        Employee veterinarian = employeeService.getEmployeeById(createDTO.getVeterinarianId())
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + createDTO.getVeterinarianId()));
+        Pet pet = petRepository.findById(createDTO.getPetId())
+                .orElseThrow(() -> new PetNotFoundException(createDTO.getPetId()));
 
-        // Obtener o crear historial médico
+        Employee veterinarian = employeeRepository.findById(createDTO.getVeterinarianId())
+                .orElseThrow(() -> new EmployeeNotFoundException(createDTO.getVeterinarianId()));
+
         MedicalHistory medicalHistory = medicalHistoryService.getOrCreateMedicalHistory(pet);
 
-        Consultation consultation = new Consultation();
-        consultation.setNotes(createDTO.getNotes());
-        consultation.setDiagnosis(createDTO.getDiagnosis());
-        consultation.setTreatment(createDTO.getTreatment());
-        consultation.setPrescription(createDTO.getPrescription());
-        consultation.setConsultationDate(createDTO.getConsultationDate());
+        Consultation consultation = consultationMapper.toEntity(createDTO);
         consultation.setPet(pet);
         consultation.setVeterinarian(veterinarian);
         consultation.setMedicalHistory(medicalHistory);
-        consultation.setCreatedAt(LocalDateTime.now());
-        consultation.setUpdatedAt(LocalDateTime.now());
-        consultation.setActive(true);
 
         Consultation savedConsultation = consultationRepository.save(consultation);
 
-        // Agregar consulta al historial médico
-        medicalHistory.addConsultation(savedConsultation);
+        updateMedicalHistoryFromConsultation(medicalHistory, savedConsultation);
         medicalHistoryService.updateMedicalHistory(medicalHistory);
 
+        log.info("Created Consultation with ID: {} for Pet: {}", savedConsultation.getId(), pet.getId());
         return savedConsultation;
     }
 
+
+
+    /**
+     * Updates the medical history with the information from the consultation.
+     *
+     * @param medicalHistory The medical history to update.
+     * @param consultation   The consultation containing the new information.
+     */
+    private void updateMedicalHistoryFromConsultation(MedicalHistory medicalHistory, Consultation consultation) {
+        // Update medical history notes with consultation information
+        String currentNotes = medicalHistory.getNotes() != null ? medicalHistory.getNotes() : "";
+        String consultationInfo = String.format(
+                "\n--- Consulta del %s ---\nDiagnóstico: %s\nTratamiento: %s\nPrescripción: %s\nNotas: %s\n",
+                consultation.getConsultationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                consultation.getDiagnosis() != null ? consultation.getDiagnosis() : "No especificado",
+                consultation.getTreatment() != null ? consultation.getTreatment() : "No especificado",
+                consultation.getPrescription() != null ? consultation.getPrescription() : "No especificado",
+                consultation.getNotes() != null ? consultation.getNotes() : "No especificado"
+        );
+
+        medicalHistory.setNotes(currentNotes + consultationInfo);
+        medicalHistory.addConsultation(consultation);
+    }
     @Override
     public Consultation update(Long id, UpdateConsultationDTO updateDTO) {
         log.debug("Request to update Consultation : {}", updateDTO);
@@ -200,4 +228,7 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
         log.debug("Request to get all active Consultations");
         return consultationRepository.findByActiveTrue(pageable);
     }
+
+
+
 }
