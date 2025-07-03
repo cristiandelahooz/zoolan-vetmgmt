@@ -24,4 +24,10 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
     @Query("SELECT p FROM Pet p WHERE p.active = true ORDER BY p.name ASC")
     Page<Pet> findByActiveTrueOrderByNameAsc(Pageable pageable);
 
+    @Query("SELECT p FROM Pet p WHERE p.active = true")
+    Page<Pet> findAllActive(Pageable pageable);
+
+    @Query("SELECT p FROM Pet p WHERE p.active = true")
+    List<Pet> findAllActive();
+
 }
