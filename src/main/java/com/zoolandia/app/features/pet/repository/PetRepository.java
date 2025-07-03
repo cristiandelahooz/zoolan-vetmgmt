@@ -11,4 +11,8 @@ import org.springframework.data.domain.Pageable;
 public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificationExecutor<Pet> {
 
     Page<Pet> findByOwnerId(Long ownerId, Pageable pageable);
+    
+    Page<Pet> findByOwnerIdAndActiveTrue(Long ownerId, Pageable pageable);
+    
+    Page<Pet> findByActiveTrueOrderByNameAsc(Pageable pageable);
 }

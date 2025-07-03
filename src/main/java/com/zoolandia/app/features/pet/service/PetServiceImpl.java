@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,7 +81,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Override
     @Transactional(readOnly = true)
     public List<PetSummaryDTO> getAllPets(Pageable pageable) {
-        return petRepository.findAll(pageable).stream()
+        return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
                 .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
                         pet.getBirthDate(), pet.getOwner().getFirstName() + " " + pet.getOwner().getLastName()))
                 .toList();
@@ -90,7 +91,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Transactional(readOnly = true)
     public Page<Pet> getPetsByOwnerId(Long ownerId, Pageable pageable) {
         log.debug("Request to get Pets by Owner ID: {}", ownerId);
-        return petRepository.findByOwnerId(ownerId, pageable);
+        return petRepository.findByOwnerIdAndActiveTrue(ownerId, pageable);
     }
 
     @Override
