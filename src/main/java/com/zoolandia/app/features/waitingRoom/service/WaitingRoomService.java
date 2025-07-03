@@ -1,6 +1,7 @@
 package com.zoolandia.app.features.waitingRoom.service;
 
 import com.vaadin.hilla.BrowserCallable;
+import com.zoolandia.app.features.waitingRoom.domain.Priority;
 import com.zoolandia.app.features.waitingRoom.domain.WaitingRoom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ import java.util.Optional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface WaitingRoomService {
 
-    WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Integer priority, String notes);
+    WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Priority priority, String notes);
 
     List<WaitingRoom> getCurrentWaitingRoom();
 
@@ -33,7 +34,7 @@ public interface WaitingRoomService {
 
     WaitingRoom cancelEntry(Long waitingRoomId, String reason);
 
-    WaitingRoom updatePriority(Long waitingRoomId, Integer newPriority);
+    WaitingRoom updatePriority(Long waitingRoomId, Priority newPriority);
 
     WaitingRoom addNotes(Long waitingRoomId, String additionalNotes);
 
@@ -41,7 +42,6 @@ public interface WaitingRoomService {
 
     Page<WaitingRoom> getTodayHistory(Pageable pageable);
 
-    // Métodos de estadísticas separados
     long getWaitingCount();
 
     long getInConsultationCount();
@@ -53,4 +53,20 @@ public interface WaitingRoomService {
     Page<WaitingRoom> searchWaitingRoom(String searchTerm, Pageable pageable);
 
     Page<WaitingRoom> getWaitingRoomByStatus(String status, Pageable pageable);
+
+    /**
+     * Save a waitingRoom.
+     *
+     * @param waitingRoom the entity to save.
+     * @return the persisted entity.
+     */
+    WaitingRoom save(WaitingRoom waitingRoom);
+
+    /**
+     * Delete the waitingRoom by id.
+     *
+     * @param id the id of the entity.
+     */
+    void delete(Long id);
+
 }
