@@ -1,5 +1,6 @@
-package com.zoolandia.app.features.medicalhistory.domain;
+package com.zoolandia.app.features.medicalHistory.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zoolandia.app.features.consultation.domain.Consultation;
 import com.zoolandia.app.features.pet.domain.Pet;
 import jakarta.persistence.*;
@@ -15,8 +16,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"consultations"})
-@ToString(exclude = {"consultations"})
+@EqualsAndHashCode(exclude = {"consultations", "pet"})
+@ToString(exclude = {"consultations", "pet"})
 public class MedicalHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,9 +25,11 @@ public class MedicalHistory {
 
     @OneToOne
     @JoinColumn(name = "pet_id", unique = true)
+    @JsonIgnore
     private Pet pet;
 
     @OneToMany(mappedBy = "medicalHistory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     @Builder.Default
     private List<Consultation> consultations = new ArrayList<>();
 
