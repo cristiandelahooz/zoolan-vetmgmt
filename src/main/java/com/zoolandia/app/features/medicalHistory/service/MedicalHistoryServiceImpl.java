@@ -33,8 +33,15 @@ public class MedicalHistoryServiceImpl extends ListRepositoryService<MedicalHist
     @Override
     public MedicalHistory findByPetId(Long petId) {
         return medicalHistoryRepository.findByPetId(petId)
-                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
-                        "Medical History not found for Pet with id: " + petId));
+                .orElseGet(() -> {
+                    // Crear un historial médico vacío para la mascota
+                    MedicalHistory newHistory = new MedicalHistory();
+                    // Solo establece el petId sin guardar aún
+                    Pet pet = new Pet();
+                    pet.setId(petId);
+                    newHistory.setPet(pet);
+                    return newHistory;
+                });
     }
 
 }
