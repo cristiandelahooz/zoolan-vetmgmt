@@ -4,6 +4,8 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
+import com.zoolandia.app.features.consultation.domain.Consultation;
+import com.zoolandia.app.features.consultation.repository.ConsultationRepository;
 import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.mapper.PetMapper;
 import com.zoolandia.app.features.pet.repository.PetRepository;
@@ -36,6 +38,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
     private final PetRepository petRepository;
     private final PetMapper petMapper;
+    private final ConsultationRepository consultationRepository;
 
     @Override
     @Transactional
@@ -144,4 +147,11 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<String> getAllPetTypes() {
         return Arrays.stream(PetType.values()).map(Enum::name).toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<Consultation> getConsultationsByPetId(Long petId) {
+        log.debug("Request to get consultations for Pet: {}", petId);
+        return consultationRepository.findByPetIdAndActiveTrue(petId);
+    }
+
 }
