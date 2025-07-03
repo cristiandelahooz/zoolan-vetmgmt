@@ -5,10 +5,13 @@ import com.zoolandia.app.features.client.domain.PreferredContactMethod;
 import com.zoolandia.app.features.client.domain.ReferenceSource;
 import com.zoolandia.app.features.client.service.ClientService; // Usar la interfaz
 import com.zoolandia.app.features.client.service.dto.ClientCreateDTO;
+import com.zoolandia.app.features.consultation.service.ConsultationService;
 import com.zoolandia.app.features.consultation.service.dto.CreateConsultationDTO;
+import com.zoolandia.app.features.employee.domain.Employee;
 import com.zoolandia.app.features.employee.domain.EmployeeRole;
 import com.zoolandia.app.features.employee.service.EmployeeService;
 import com.zoolandia.app.features.employee.service.dto.EmployeeCreateDTO;
+import com.zoolandia.app.features.pet.domain.Pet;
 import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.service.PetService;
 import com.zoolandia.app.features.pet.service.dto.PetCreateDTO;
@@ -18,6 +21,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Component
@@ -27,6 +31,7 @@ public class DataSeeder implements CommandLineRunner {
     private final ClientService clientService; // Interfaz, no implementación
     private final PetService petService;
     private final EmployeeService employeeService;
+    private final ConsultationService consultationService;
 
 
 
@@ -70,7 +75,7 @@ public class DataSeeder implements CommandLineRunner {
         petDTO.setOwnerId(createdClient.getId());
         petDTO.setGender(com.zoolandia.app.features.pet.domain.Gender.MALE);
 
-        petService.createPet(petDTO);
+        Pet createdPet = petService.createPet(petDTO);
 
 
 
@@ -98,7 +103,7 @@ public class DataSeeder implements CommandLineRunner {
         employeeDTO.setEmergencyContactName("Luis García");
         employeeDTO.setEmergencyContactPhone("8094567890");
 
-        employeeService.createEmployee(employeeDTO);
+        Employee createdEmployee = employeeService.createEmployee(employeeDTO);
 
 
         CreateConsultationDTO consultationDTO = new CreateConsultationDTO();
@@ -107,10 +112,21 @@ public class DataSeeder implements CommandLineRunner {
         consultationDTO.setTreatment("Continuar con dieta balanceada y ejercicio regular");
         consultationDTO.setPrescription("Vitaminas multiples - 1 tableta diaria por 30 días");
         consultationDTO.setConsultationDate(LocalDateTime.now());
-        consultationDTO.setPetId(createdPet.getId()); // Necesitas guardar la referencia del pet creado
-        consultationDTO.setVeterinarianId(createdEmployee.getId()); // Necesitas guardar la referencia del empleado creado
+        consultationDTO.setPetId(createdPet.getId());
+        consultationDTO.setVeterinarianId(createdEmployee.getId());
 
         consultationService.create(consultationDTO);
+
+        CreateConsultationDTO anotherConsultationDTO = new CreateConsultationDTO();
+        anotherConsultationDTO.setNotes("Consulta de rutina. Mascota en buen estado general.");
+        anotherConsultationDTO.setDiagnosis("Examen físico anormal");
+        anotherConsultationDTO.setTreatment("Continuar con dieta balanceada y ejercicio regular");
+        anotherConsultationDTO.setPrescription("Vitaminas multiples - 2 tableta diaria por 30 días");
+        anotherConsultationDTO.setConsultationDate(LocalDateTime.now());
+        anotherConsultationDTO.setPetId(createdPet.getId());
+        anotherConsultationDTO.setVeterinarianId(createdEmployee.getId());
+
+        consultationService.create(anotherConsultationDTO);
 
     }
 }
