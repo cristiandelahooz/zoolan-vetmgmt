@@ -1,258 +1,343 @@
 import { AutoForm, AutoFormLayoutRendererProps } from '@vaadin/hilla-react-crud'
 import { AutoGrid } from "@vaadin/hilla-react-crud";
-import { ConsultationServiceImpl, PetServiceImpl, MedicalHistoryServiceImpl } from 'Frontend/generated/endpoints'
+import { ConsultationServiceImpl, PetServiceImpl } from 'Frontend/generated/endpoints'
 import CreateConsultationDTOModel from "Frontend/generated/com/zoolandia/app/features/consultation/service/dto/CreateConsultationDTOModel"
 import { useNavigate } from 'react-router'
 import { HorizontalLayout, Notification, VerticalLayout, Grid, GridColumn, TextField, Button, Dialog } from '@vaadin/react-components'
 import type CreateConsultationDTO from "Frontend/generated/com/zoolandia/app/features/consultation/service/dto/CreateConsultationDTO"
 import { SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
 import { useSignal } from '@vaadin/hilla-react-signals'
-import { useEffect, useState } from 'react'
-import MedicalHistory from 'Frontend/generated/com/zoolandia/app/features/medicalHistory/domain/MedicalHistory'
+import { useState } from 'react'
 import PetModel from "Frontend/generated/com/zoolandia/app/features/pet/domain/PetModel";
+import { SelectVeterinarianDialog, SelectedVeterinarian } from './_SelectVeterinarianDialog';
 
-const petListService = {
+const createPetListService = () => ({
     list: PetServiceImpl.list,
     save: PetServiceImpl.save,
     delete: PetServiceImpl.delete
-}
+});
 
 export interface SelectedPet {
-    id: number
-    name: string
-    type: string
-    breed: string
-    ownerName: string
+    id: number;
+    name: string;
+    type: string;
+    breed: string;
+    ownerName: string;
 }
 
 interface SelectPetDialogProps {
-    open: boolean
-    onClose: () => void
-    onSelect: (pet: SelectedPet) => void
+    isOpen: boolean;
+    onDialogClose: () => void;
+    onPetSelect: (pet: SelectedPet) => void;
 }
 
-export function SelectPetDialog({ open, onClose, onSelect }: SelectPetDialogProps) {
-    const [selectedPet, setSelectedPet] = useState<any>(null)
+const createSelectedPetFromGridItem = (item: any): SelectedPet => ({
+    id: item.id,
+    name: item.name,
+    type: item.type,
+    breed: item.breed,
+    ownerName: `${item.owner.firstName} ${item.owner.lastName}`
+});
+
+const formatPetDisplayName = (pet: SelectedPet): string =>
+    `${pet.name} (${pet.type} - ${pet.breed})`;
+
+const formatVeterinarianDisplayName = (veterinarian: SelectedVeterinarian): string => {
+    const baseDisplayName = `Dr. ${veterinarian.firstName} ${veterinarian.lastName}`;
+    return veterinarian.specialization
+        ? `${baseDisplayName} - ${veterinarian.specialization}`
+        : baseDisplayName;
+};
+
+const formatConsultationDateTime = (dateString: string): string => {
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch {
+        return dateString;
+    }
+};
+
+export function SelectPetDialog({ isOpen, onDialogClose, onPetSelect }: SelectPetDialogProps) {
+    const [currentSelectedPet, setCurrentSelectedPet] = useState<any>(null);
+    const petListService = createPetListService();
+
+    const handlePetSelection = (): void => {
+        if (!currentSelectedPet) return;
+
+        const selectedPet = createSelectedPetFromGridItem(currentSelectedPet);
+        onPetSelect(selectedPet);
+        onDialogClose();
+        resetSelectedPet();
+    };
+
+    const handleDialogClose = (): void => {
+        onDialogClose();
+        resetSelectedPet();
+    };
+
+    const resetSelectedPet = (): void => {
+        setCurrentSelectedPet(null);
+    };
+
+    const handlePetRowSelection = ({ detail }: any): void => {
+        if (detail.value) {
+            setCurrentSelectedPet(detail.value);
+        }
+    };
+
+    const petGridColumnOptions = {
+        name: { header: 'Nombre' },
+        type: { header: 'Tipo' },
+        breed: { header: 'Raza' },
+        'owner.firstName': { header: 'Propietario' },
+        'owner.lastName': { header: 'Apellido' }
+    };
+
+    const visiblePetColumns = ['name', 'type', 'breed', 'owner.firstName', 'owner.lastName'];
+
+    const selectedPetDisplayValue = currentSelectedPet
+        ? formatPetDisplayName(createSelectedPetFromGridItem(currentSelectedPet))
+        : '';
+
+    const isPetSelectionConfirmationDisabled = !currentSelectedPet;
 
     return (
-        <Dialog opened={open} onOpenedChanged={({ detail }) => !detail.value && onClose()}>
-            <div style={{ padding: '1rem', width: '700px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <Dialog opened={isOpen} onOpenedChanged={({ detail }) => !detail.value && handleDialogClose()}>
+            <div style={{ padding: '1rem', width: '800px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <h3>Seleccionar Mascota</h3>
 
                 <AutoGrid
                     service={petListService}
                     model={PetModel}
-                    columnOptions={{
-                        name: { header: 'Nombre' },
-                        type: { header: 'Tipo' },
-                        breed: { header: 'Raza' }
-                    }}
-                    visibleColumns={['name', 'type', 'breed']}
-                    onActiveItemChanged={({ detail }) => {
-                        if (detail.value) {
-                            setSelectedPet(detail.value)
-                        }
-                    }}
+                    columnOptions={petGridColumnOptions}
+                    visibleColumns={visiblePetColumns}
+                    onActiveItemChanged={handlePetRowSelection}
+                    style={{ height: '400px' }}
                 />
 
                 <TextField
                     label="Mascota seleccionada"
-                    value={selectedPet ? `${selectedPet.name}` : ''}
+                    value={selectedPetDisplayValue}
                     readonly
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                    <Button theme="tertiary" onClick={onClose}>
+                    <Button theme="tertiary" onClick={handleDialogClose}>
                         Cancelar
                     </Button>
                     <Button
                         theme="primary"
-                        onClick={() => {
-                            if (!selectedPet) return
-                            onSelect(selectedPet)
-                            onClose()
-                        }}
-                        disabled={!selectedPet}
+                        onClick={handlePetSelection}
+                        disabled={isPetSelectionConfirmationDisabled}
                     >
-                        Aceptar
+                        Seleccionar
                     </Button>
                 </div>
             </div>
         </Dialog>
-    )
+    );
 }
 
 function ConsultationLayoutRenderer({ children }: AutoFormLayoutRendererProps<CreateConsultationDTOModel>) {
-  const fieldsMapping = new Map<string, JSX.Element>()
-  children.forEach((field) => {
-    const fieldName = field.props?.propertyInfo?.name
-    if (fieldName) {
-      fieldsMapping.set(fieldName, field)
-    }
-  })
-
-  return (
-      <VerticalLayout>
-        <h4><strong>Información Básica de la Consulta:</strong></h4>
-        <VerticalLayout style={{ marginBottom: '1.5rem' }}>
-          <HorizontalLayout theme="spacing" className="pb-l">
-            {fieldsMapping.get('consultationDate')}
-            {fieldsMapping.get('veterinarianId')}
-          </HorizontalLayout>
+    return (
+        <VerticalLayout style={{ alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {children}
+            </div>
         </VerticalLayout>
-
-        <h4><strong>Detalles Médicos:</strong></h4>
-        <VerticalLayout style={{ marginBottom: '1.5rem' }}>
-          {fieldsMapping.get('diagnosis')}
-          {fieldsMapping.get('treatment')}
-          {fieldsMapping.get('prescription')}
-        </VerticalLayout>
-
-        <h4><strong>Notas:</strong></h4>
-        <VerticalLayout style={{ marginBottom: '1.5rem' }}>
-          {fieldsMapping.get('notes')}
-        </VerticalLayout>
-      </VerticalLayout>
-  )
+    );
 }
 
 export default function NewConsultationView() {
-    const navigate = useNavigate()
-    const [dialogOpen, setDialogOpen] = useState(false)
-    const [petName, setPetName] = useState('')
-    const [selectedPetId, setSelectedPetId] = useState<number | undefined>()
-    const [formKey, setFormKey] = useState(0) // Para forzar re-render del form
-    const medicalHistory = useSignal<MedicalHistory[]>([])
-    const isLoading = useSignal(false)
+    const navigate = useNavigate();
 
-    const loadMedicalHistory = async (petId: number) => {
+    const [isPetDialogOpen, setIsPetDialogOpen] = useState(false);
+    const [selectedPetDisplayName, setSelectedPetDisplayName] = useState('');
+    const [selectedPetId, setSelectedPetId] = useState<number | undefined>();
+
+    const [isVeterinarianDialogOpen, setIsVeterinarianDialogOpen] = useState(false);
+    const [selectedVeterinarianDisplayName, setSelectedVeterinarianDisplayName] = useState('');
+    const [selectedVeterinarianId, setSelectedVeterinarianId] = useState<number | undefined>();
+
+    const [consultationFormKey, setConsultationFormKey] = useState(0);
+    const [petConsultationHistory, setPetConsultationHistory] = useState<any[]>([]);
+
+    const isConsultationHistoryLoading = useSignal(false);
+
+    const loadPetConsultationHistory = async (petId: number): Promise<void> => {
         if (!petId) {
-            medicalHistory.value = []
-            return
+            setPetConsultationHistory([]);
+            return;
         }
 
-        isLoading.value = true
+        isConsultationHistoryLoading.value = true;
         try {
-            const history = await MedicalHistoryServiceImpl.findByPetId(petId)
-            if (!history) {
-                medicalHistory.value = []
-            } else {
-                medicalHistory.value = history ? [history] : []
-            }
+            const consultationsList = await PetServiceImpl.getConsultationsByPetId(petId);
+            setPetConsultationHistory(consultationsList || []);
         } catch (error) {
-            console.error('Error loading medical history:', error)
-            medicalHistory.value = []
+            console.error('Error loading consultation history:', error);
+            setPetConsultationHistory([]);
         } finally {
-            isLoading.value = false
+            isConsultationHistoryLoading.value = false;
         }
-    }
+    };
 
-    const handlePetSelect = (pet: SelectedPet) => {
-        setPetName(`${pet.name} (${pet.type} - ${pet.breed})`)
-        setSelectedPetId(pet.id)
-        setDialogOpen(false)
-        loadMedicalHistory(pet.id)
-        setFormKey(prev => prev + 1) // Forzar re-render del form
-    }
+    const handlePetSelection = (selectedPet: SelectedPet): void => {
+        const petDisplayName = formatPetDisplayName(selectedPet);
+        setSelectedPetDisplayName(petDisplayName);
+        setSelectedPetId(selectedPet.id);
+        loadPetConsultationHistory(selectedPet.id);
+        refreshConsultationForm();
+    };
 
-    const handleOnSubmitSuccess = ({ item }: { item: CreateConsultationDTO }) => {
-        Notification.show('Consulta creada exitosamente')
-        navigate('/consultations')
-    }
+    const handleVeterinarianSelection = (selectedVeterinarian: SelectedVeterinarian): void => {
+        const veterinarianDisplayName = formatVeterinarianDisplayName(selectedVeterinarian);
+        setSelectedVeterinarianDisplayName(veterinarianDisplayName);
+        setSelectedVeterinarianId(selectedVeterinarian.id);
+        refreshConsultationForm();
+    };
 
-    const handleOnSubmitError = (error: SubmitErrorEvent) => {
-        console.error('Error creating consultation:', error)
-        showErrorNotification('Error al crear la consulta')
-    }
+    const refreshConsultationForm = (): void => {
+        setConsultationFormKey(prev => prev + 1);
+    };
 
-    const showErrorNotification = (message: string) => {
-        Notification.show(message, { theme: 'error' })
-    }
+    const handleConsultationSubmitSuccess = ({ item }: { item: CreateConsultationDTO }): void => {
+        showSuccessNotification('Consulta creada exitosamente');
+        if (selectedPetId) {
+            loadPetConsultationHistory(selectedPetId);
+        }
+        navigate('/consultations');
+    };
 
-    const formatDate = (dateString: string): string => {
-        return new Date(dateString).toLocaleDateString('es-ES')
-    }
+    const handleConsultationSubmitError = (error: SubmitErrorEvent): void => {
+        console.error('Error creating consultation:', error);
+        showErrorNotification('Error al crear la consulta. Por favor, intente nuevamente.');
+    };
 
-    // Crear objeto inicial con petId para el formulario
-    const initialItem = selectedPetId ? { petId: selectedPetId } : undefined
+    const showSuccessNotification = (message: string): void => {
+        Notification.show(message, { theme: 'success' });
+    };
 
-    const fieldOptions = {
+    const showErrorNotification = (message: string): void => {
+        Notification.show(message, { theme: 'error' });
+    };
+
+    const createInitialConsultationData = (): Partial<CreateConsultationDTO> | undefined => {
+        if (!selectedPetId || !selectedVeterinarianId) return undefined;
+
+        return {
+            petId: selectedPetId,
+            veterinarianId: selectedVeterinarianId
+        };
+    };
+
+    const consultationFormFieldOptions = {
         petId: {
             renderer: () => (
                 <TextField
                     label="Mascota"
-                    value={petName}
+                    value={selectedPetDisplayName}
                     readonly
-                    onClick={() => setDialogOpen(true)}
+                    onClick={() => setIsPetDialogOpen(true)}
                     placeholder="Haz click para seleccionar una mascota"
                     style={{ cursor: 'pointer', width: '100%' }}
                 />
             ),
         },
-    }
+        veterinarianId: {
+            renderer: () => (
+                <TextField
+                    label="Veterinario"
+                    value={selectedVeterinarianDisplayName}
+                    readonly
+                    onClick={() => setIsVeterinarianDialogOpen(true)}
+                    placeholder="Haz click para seleccionar un veterinario"
+                    style={{ cursor: 'pointer', width: '100%' }}
+                />
+            ),
+        },
+    };
+
+    const consultationGridColumnDefinitions = [
+        {
+            path: 'consultationDate',
+            header: 'Fecha',
+            renderer: ({ item }: any) => formatConsultationDateTime(item.consultationDate)
+        },
+        { path: 'diagnosis', header: 'Diagnóstico' },
+        { path: 'treatment', header: 'Tratamiento' },
+        { path: 'notes', header: 'Notas' }
+    ];
+
+    const renderConsultationHistorySection = (): JSX.Element => {
+        if (!selectedPetId) return <></>;
+
+        return (
+            <VerticalLayout style={{ flex: '1', minWidth: '300px' }}>
+                <h4><strong>Historial de Consultas:</strong></h4>
+                {isConsultationHistoryLoading.value ? (
+                    <div>Cargando historial...</div>
+                ) : petConsultationHistory.length === 0 ? (
+                    <div style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+                        No hay consultas disponibles para esta mascota
+                    </div>
+                ) : (
+                    <Grid items={petConsultationHistory} style={{ height: '400px' }}>
+                        {consultationGridColumnDefinitions.map((column, index) => (
+                            <GridColumn
+                                key={index}
+                                path={column.path}
+                                header={column.header}
+                                renderer={column.renderer}
+                            />
+                        ))}
+                    </Grid>
+                )}
+            </VerticalLayout>
+        );
+    };
 
     return (
         <>
             <main className="w-full h-full flex flex-col box-border gap-s p-m">
                 <h2>Nueva Consulta</h2>
 
-                <HorizontalLayout style={{ width: '100%', alignItems: 'flex-start', gap: '2rem' }}>
-                    <VerticalLayout style={{ flex: '2' }}>
-                        <h4><strong>Seleccionar Mascota:</strong></h4>
-                        <VerticalLayout className="w-full mb-6">
-                            <TextField
-                                className="w-full cursor-pointer"
-                                label="Mascota"
-                                value={petName}
-                                readonly
-                                onClick={() => setDialogOpen(true)}
-                                placeholder="Haz click para seleccionar una mascota"
-                            />
-                        </VerticalLayout>
-
+                <HorizontalLayout style={{ alignItems: 'flex-start', gap: '2rem' }}>
+                    <VerticalLayout style={{ flex: '1', minWidth: '400px' }}>
                         <AutoForm
-                            key={formKey} // Usar key para forzar re-render
+                            key={consultationFormKey}
                             service={ConsultationServiceImpl}
                             model={CreateConsultationDTOModel}
-                            item={initialItem} // Pasar item inicial con petId
-                            onSubmitSuccess={handleOnSubmitSuccess}
-                            onSubmitError={handleOnSubmitError}
+                            onSubmitSuccess={handleConsultationSubmitSuccess}
+                            onSubmitError={handleConsultationSubmitError}
+                            item={createInitialConsultationData()}
+                            fieldOptions={consultationFormFieldOptions}
                             layoutRenderer={ConsultationLayoutRenderer}
-                            fieldOptions={fieldOptions}
                         />
                     </VerticalLayout>
 
-                    {selectedPetId && (
-                        <VerticalLayout style={{ flex: '1', minWidth: '300px' }}>
-                            <h4><strong>Historial Médico:</strong></h4>
-                            {isLoading.value ? (
-                                <div>Cargando historial...</div>
-                            ) : medicalHistory.value.length === 0 ? (
-                                <div style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
-                                    No hay historial médico disponible para esta mascota
-                                </div>
-                            ) : (
-                                <Grid items={medicalHistory.value} style={{ height: '400px' }}>
-                                    <GridColumn
-                                        header="Fecha"
-                                        renderer={({ item }) => (
-                                            <span>{formatDate(item.createdAt || item.updatedAt || '')}</span>
-                                        )}
-                                    />
-                                    <GridColumn path="diagnosis" header="Diagnóstico" />
-                                    <GridColumn path="treatment" header="Tratamiento" />
-                                </Grid>
-                            )}
-                        </VerticalLayout>
-                    )}
+                    {renderConsultationHistorySection()}
                 </HorizontalLayout>
             </main>
 
             <SelectPetDialog
-                open={dialogOpen}
-                onClose={() => setDialogOpen(false)}
-                onSelect={handlePetSelect}
+                isOpen={isPetDialogOpen}
+                onDialogClose={() => setIsPetDialogOpen(false)}
+                onPetSelect={handlePetSelection}
+            />
+
+            <SelectVeterinarianDialog
+                isOpen={isVeterinarianDialogOpen}
+                onDialogClose={() => setIsVeterinarianDialogOpen(false)}
+                onVeterinarianSelect={handleVeterinarianSelection}
             />
         </>
-    )
+    );
 }
