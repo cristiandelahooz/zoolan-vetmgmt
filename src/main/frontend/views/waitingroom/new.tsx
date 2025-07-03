@@ -91,12 +91,7 @@ export default function WaitingRoomNewView() {
     petId: {
       label: 'ID de la Mascota',
       renderer: ({ field }: { field: IntegerFieldProps }) => (
-        <IntegerField
-          hidden={true}
-          {...field}
-          onChange={(e: IntegerFieldChangeEvent) => {
-          }}
-        />
+        <IntegerField hidden={true} {...field} onChange={(e: IntegerFieldChangeEvent) => {}} />
       ),
     },
   }
@@ -129,7 +124,7 @@ export default function WaitingRoomNewView() {
           }),
         )
       }
-      
+
       const petIdInput = document.querySelector('vaadin-integer-field[name="petId"]') as HTMLInputElement
       if (petIdInput) {
         petIdInput.value = ''

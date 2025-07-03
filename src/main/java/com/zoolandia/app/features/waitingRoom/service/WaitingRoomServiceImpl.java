@@ -51,21 +51,11 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         try {
             log.debug("Request to save WaitingRoom via FormService: {}", dto);
 
-            WaitingRoom saved = addToWaitingRoom(
-                    dto.clientId(),
-                    dto.petId(),
-                    dto.reasonForVisit(),
-                    dto.priority(),
-                    dto.notes()
-            );
+            WaitingRoom saved = addToWaitingRoom(dto.clientId(), dto.petId(), dto.reasonForVisit(), dto.priority(),
+                    dto.notes());
 
-            WaitingRoomCreateDTO result = new WaitingRoomCreateDTO(
-                    saved.getClient().getId(),
-                    saved.getPet().getId(),
-                    saved.getReasonForVisit(),
-                    saved.getPriority(),
-                    saved.getNotes()
-            );
+            WaitingRoomCreateDTO result = new WaitingRoomCreateDTO(saved.getClient().getId(), saved.getPet().getId(),
+                    saved.getReasonForVisit(), saved.getPriority(), saved.getNotes());
 
             log.info("WaitingRoom saved successfully via FormService with ID: {}", saved.getId());
             return result;
@@ -332,7 +322,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-        Page<WaitingRoom> todayEntries = waitingRoomRepository.findTodayHistory(startOfDay, endOfDay, Pageable.unpaged());
+        Page<WaitingRoom> todayEntries = waitingRoomRepository.findTodayHistory(startOfDay, endOfDay,
+                Pageable.unpaged());
         return todayEntries.getTotalElements();
     }
 
@@ -342,11 +333,9 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
             LocalDateTime endOfDay = startOfDay.plusDays(1);
 
             List<WaitingRoom> completedToday = waitingRoomRepository
-                    .findTodayHistory(startOfDay, endOfDay, Pageable.unpaged())
-                    .getContent()
-                    .stream()
-                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED &&
-                            wr.getConsultationStartedAt() != null)
+                    .findTodayHistory(startOfDay, endOfDay, Pageable.unpaged()).getContent().stream()
+                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED
+                            && wr.getConsultationStartedAt() != null)
                     .toList();
 
             if (completedToday.isEmpty()) {
@@ -355,8 +344,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
             double totalMinutes = completedToday.stream()
                     .mapToDouble(wr -> Duration.between(wr.getArrivalTime(), wr.getConsultationStartedAt()).toMinutes())
-                    .average()
-                    .orElse(0.0);
+                    .average().orElse(0.0);
 
             return Math.round(totalMinutes * 100.0) / 100.0;
 
@@ -373,10 +361,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         if (waitingRoom.getId() == null) {
             if (waitingRoom.getClient() != null && waitingRoom.getPet() != null) {
-                List<WaitingRoom> existing = waitingRoomRepository.findWaitingByClientAndPet(
-                        waitingRoom.getClient().getId(),
-                        waitingRoom.getPet().getId()
-                );
+                List<WaitingRoom> existing = waitingRoomRepository
+                        .findWaitingByClientAndPet(waitingRoom.getClient().getId(), waitingRoom.getPet().getId());
                 if (!existing.isEmpty()) {
                     throw new IllegalStateException("El cliente y mascota ya están en la sala de espera");
                 }

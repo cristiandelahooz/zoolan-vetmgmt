@@ -230,7 +230,7 @@ export default function WaitingRoomView() {
       case Priority.EMERGENCY:
         return { icon: '🚨', text: 'Emergencia', theme: 'badge error primary' }
       case Priority.URGENT:
-        return { icon: '⚠️', text: 'Urgente', theme: 'badge contrast primary' }
+        return { icon: '!', text: 'Urgente', theme: 'badge contrast primary' }
       case Priority.NORMAL:
       default:
         return { icon: '✅', text: 'Normal', theme: 'badge success primary' }
@@ -276,7 +276,7 @@ export default function WaitingRoomView() {
 
   const priorityItems = [
     { label: '✅ Normal - Consulta de rutina', value: Priority.NORMAL },
-    { label: '⚠️ Urgente - Requiere atención pronta', value: Priority.URGENT },
+    { label: '! Urgente - Requiere atención pronta', value: Priority.URGENT },
     { label: '🚨 Emergencia - Atención inmediata', value: Priority.EMERGENCY },
   ]
 
@@ -398,7 +398,7 @@ export default function WaitingRoomView() {
                     <span className="text-s text-secondary">
                       {entry.client?.cedula && `Cédula: ${entry.client.cedula}`}
                       {entry.client?.phoneNumber && ` • 📞 ${entry.client.phoneNumber}`}
-                      {entry.client?.email && ` • ✉️ ${entry.client.email}`}
+                      {entry.client?.email && ` • ✉ ${entry.client.email}`}
                     </span>
                   </VerticalLayout>
 

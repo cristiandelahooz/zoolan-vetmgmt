@@ -51,7 +51,7 @@ const PriorityRenderer: React.FC<{ item: WaitingRoomModel }> = ({ item }) => {
     case Priority.EMERGENCY:
       return <span style={{ color: '#dc2626', fontWeight: 'bold' }}>🚨 Emergencia</span>
     case Priority.URGENT:
-      return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>⚠️ Urgente</span>
+      return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>! Urgente</span>
     case Priority.NORMAL:
     default:
       return <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✅ Normal</span>

@@ -1,9 +1,7 @@
 package com.zoolandia.app.features.waitingRoom.domain;
 
 public enum Priority {
-    NORMAL("Normal", 1),
-    URGENT("Urgente", 2),
-    EMERGENCY("Emergencia", 3);
+    NORMAL("Normal", 1), URGENT("Urgente", 2), EMERGENCY("Emergencia", 3);
 
     private final String displayName;
     private final int numericValue;

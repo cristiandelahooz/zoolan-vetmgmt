@@ -57,7 +57,8 @@ public interface WaitingRoomService {
     /**
      * Save a waitingRoom.
      *
-     * @param waitingRoom the entity to save.
+     * @param waitingRoom
+     *            the entity to save.
      * @return the persisted entity.
      */
     WaitingRoom save(WaitingRoom waitingRoom);
@@ -65,7 +66,8 @@ public interface WaitingRoomService {
     /**
      * Delete the waitingRoom by id.
      *
-     * @param id the id of the entity.
+     * @param id
+     *            the id of the entity.
      */
     void delete(Long id);
 
