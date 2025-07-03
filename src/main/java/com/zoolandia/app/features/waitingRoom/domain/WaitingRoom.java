@@ -23,12 +23,12 @@ public class WaitingRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
     @NotNull
     private Client client;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pet_id", nullable = false)
     @NotNull
     private Pet pet;
@@ -45,8 +45,10 @@ public class WaitingRoom {
     @Column(name = "reason_for_visit")
     private String reasonForVisit;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "priority", nullable = false)
-    private Integer priority = 1; // 1 = Normal, 2 = Urgent, 3 = Emergency
+    @NotNull
+    private Priority priority = Priority.NORMAL;
 
     @Column(name = "notes")
     private String notes;
@@ -64,13 +66,11 @@ public class WaitingRoom {
         }
     }
 
-    // Método para marcar como en consulta
     public void startConsultation() {
         this.status = WaitingRoomStatus.IN_CONSULTATION;
         this.consultationStartedAt = LocalDateTime.now();
     }
 
-    // Método para completar la consulta
     public void completeConsultation() {
         this.status = WaitingRoomStatus.COMPLETED;
         this.completedAt = LocalDateTime.now();
