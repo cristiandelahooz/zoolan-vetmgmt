@@ -198,4 +198,11 @@ public interface EmployeeService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     void deleteEmployee(Long id);
+
+    /**
+     * Retrieves all employees who are veterinarians.
+     *
+     * @return list of veterinarian employees
+     */
+    List<Employee> getVeterinarians();
 }

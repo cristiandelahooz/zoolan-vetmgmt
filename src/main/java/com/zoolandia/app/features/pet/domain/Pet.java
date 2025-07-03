@@ -1,10 +1,13 @@
 package com.zoolandia.app.features.pet.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zoolandia.app.features.client.domain.Client;
+import com.zoolandia.app.features.medicalHistory.domain.MedicalHistory;
 import com.zoolandia.app.features.pet.validation.ValidPetBreed;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.*;
+
 
 @Builder
 @Entity
@@ -13,6 +16,8 @@ import lombok.*;
 @ValidPetBreed
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"medicalHistory"})
+@ToString(exclude = {"medicalHistory"})
 public class Pet {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,5 +39,20 @@ public class Pet {
   @Enumerated(EnumType.STRING)
   private Gender gender;
 
-  @Builder.Default private boolean active = true;
+    @OneToOne(mappedBy = "pet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private MedicalHistory medicalHistory;
+
+    @Builder.Default
+    private boolean active = true;
+
+    @PostPersist
+    private void createMedicalHistory() {
+        if (this.medicalHistory == null) {
+            this.medicalHistory = MedicalHistory.builder()
+                    .pet(this)
+                    .notes("Historial médico creado automáticamente")
+                    .build();
+        }
+    }
 }

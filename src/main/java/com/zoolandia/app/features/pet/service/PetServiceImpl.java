@@ -4,7 +4,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
+import com.zoolandia.app.features.consultation.domain.Consultation;
+import com.zoolandia.app.features.consultation.repository.ConsultationRepository;
 import com.zoolandia.app.features.pet.domain.Pet;
+
 import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.mapper.PetMapper;
 import com.zoolandia.app.features.pet.repository.PetRepository;
@@ -31,104 +34,114 @@ import org.springframework.validation.annotation.Validated;
 @BrowserCallable
 @AnonymousAllowed
 public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetRepository>
-    implements PetService, FormService<PetCreateDTO, Long> {
+        implements PetService, FormService<PetCreateDTO, Long> {
 
-  private final PetRepository petRepository;
-  private final PetMapper petMapper;
+    private final PetRepository petRepository;
+    private final PetMapper petMapper;
+    private final ConsultationRepository consultationRepository;
 
-  @Override
-  @Transactional
-  // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
-  public Pet createPet(@Valid PetCreateDTO petDTO) {
-    log.debug("Request to create Pet : {}", petDTO);
+    @Override
+    @Transactional
+    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
+    public Pet createPet(@Valid PetCreateDTO petDTO) {
+        log.debug("Request to create Pet : {}", petDTO);
 
-    Pet pet = petMapper.toEntity(petDTO);
-    pet = petRepository.save(pet);
+        Pet pet = petMapper.toEntity(petDTO);
+        pet = petRepository.save(pet);
 
-    log.info("Created Pet with ID: {}", pet.getId());
-    return pet;
-  }
+        log.info("Created Pet with ID: {}", pet.getId());
+        return pet;
+    }
 
-  @Override
-  @Transactional
-  @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
-  public Pet updatePet(Long id, @Valid PetUpdateDTO petDTO) {
-    log.debug("Request to update Pet : {}", petDTO);
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
+    public Pet updatePet(Long id, @Valid PetUpdateDTO petDTO) {
+        log.debug("Request to update Pet : {}", petDTO);
 
-    Pet existingPet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
+        Pet existingPet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
 
-    petMapper.updatePetFromDTO(petDTO, existingPet);
+        petMapper.updatePetFromDTO(petDTO, existingPet);
 
-    return petRepository.save(existingPet);
-  }
+        return petRepository.save(existingPet);
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public Optional<Pet> getPetById(Long id) {
-    log.debug("Request to get Pet : {}", id);
-    return petRepository.findById(id);
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Pet> getPetById(Long id) {
+        log.debug("Request to get Pet : {}", id);
+        return petRepository.findById(id);
+    }
 
-  /*
-   * @Override
-   *
-   * @Transactional(readOnly = true) public Page<Pet> getAllPets(Pageable pageable) {
-   * log.debug("Request to get all Pets"); return petRepository.findAll(pageable); }
-   */
+    /*
+     * @Override
+     *
+     * @Transactional(readOnly = true) public Page<Pet> getAllPets(Pageable pageable) {
+     * log.debug("Request to get all Pets"); return petRepository.findAll(pageable); }
+     */
 
-  @Override
-  @Transactional(readOnly = true)
-  public List<PetSummaryDTO> getAllPets(Pageable pageable) {
-    return petRepository.findAll(pageable).stream()
-        .map(
-            pet ->
-                new PetSummaryDTO(
-                    pet.getId(),
-                    pet.getName(),
-                    pet.getType(),
-                    pet.getBreed(),
-                    pet.getBirthDate(),
-                    pet.getOwner().getFirstName() + " " + pet.getOwner().getLastName()))
-        .toList();
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public List<PetSummaryDTO> getAllPets(Pageable pageable) {
+        return petRepository.findAll(pageable).stream()
+                .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
+                        pet.getBirthDate(), pet.getOwner().getFirstName() + " " + pet.getOwner().getLastName()))
+                .toList();
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public Page<Pet> getPetsByOwnerId(Long ownerId, Pageable pageable) {
-    log.debug("Request to get Pets by Owner ID: {}", ownerId);
-    return petRepository.findByOwnerId(ownerId, pageable);
-  }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Pet> getPetsByOwnerId(Long ownerId, Pageable pageable) {
+        log.debug("Request to get Pets by Owner ID: {}", ownerId);
+        return petRepository.findByOwnerId(ownerId, pageable);
+    }
 
-  @Override
-  @Transactional
-  // @PreAuthorize("hasRole('ADMIN')")
-  public void delete(Long id) {
-    log.debug("Request to delete Pet : {}", id);
-    petRepository.deleteById(id);
-    log.info("Deleted Pet ID: {}", id);
+    @Override
+    @Transactional
+    // @PreAuthorize("hasRole('ADMIN')")
+    public void delete(Long id) {
+        log.debug("Request to delete Pet : {}", id);
+        petRepository.deleteById(id);
+        log.info("Deleted Pet ID: {}", id);
 
-    log.debug("Request to delete Pet via FormService : {}", id);
+        log.debug("Request to delete Pet via FormService : {}", id);
 
-    Pet pet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
+        Pet pet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
 
-    pet.setActive(false);
-    petRepository.save(pet);
+        pet.setActive(false);
+        petRepository.save(pet);
 
-    log.info("Pet deactivated via FormService, ID: {}", id);
-  }
+        log.info("Pet deactivated via FormService, ID: {}", id);
+    }
 
-  @Override
-  @Nullable
-  public PetCreateDTO save(PetCreateDTO dto) {
-    try {
-      Pet pet = petMapper.toEntity(dto);
-      Pet savedPet = petRepository.save(pet);
-      PetCreateDTO result = petMapper.toCreateDTO(savedPet); // necesitas este método
-      log.info("Pet created successfully with ID: {}", savedPet.getId());
-      return result;
-    } catch (Exception e) {
-      log.error("Error creating Pet: {}", e.getMessage());
-      throw e;
+    @Override
+    @Nullable
+    public PetCreateDTO save(PetCreateDTO dto) {
+        try {
+            Pet pet = petMapper.toEntity(dto);
+            Pet savedPet = petRepository.save(pet);
+            PetCreateDTO result = petMapper.toCreateDTO(savedPet); 
+            log.info("Pet created successfully with ID: {}", savedPet.getId());
+            return result;
+        } catch (Exception e) {
+            log.error("Error creating Pet: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, List<String>> getPetTypeAndBreeds() {
+        Map<String, List<String>> map = new HashMap<>();
+        for (PetType type : PetType.values()) {
+            map.put(type.name(), type.getBreeds());
+        }
+        return map;
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getBreedsByType(PetType petType) {
+        return petType.getBreeds();
+
     }
   }
 
@@ -138,16 +151,10 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     for (PetType type : PetType.values()) {
       map.put(type.name(), type.getBreeds());
     }
-    return map;
-  }
 
-  @Transactional(readOnly = true)
-  public List<String> getBreedsByType(PetType petType) {
-    return petType.getBreeds();
-  }
-
-  @Transactional(readOnly = true)
-  public List<String> getAllPetTypes() {
-    return Arrays.stream(PetType.values()).map(Enum::name).toList();
-  }
+    @Transactional(readOnly = true)
+    public List<Consultation> getConsultationsByPetId(Long petId) {
+        log.debug("Request to get consultations for Pet: {}", petId);
+        return consultationRepository.findByPetIdAndActiveTrue(petId);
+    }
 }

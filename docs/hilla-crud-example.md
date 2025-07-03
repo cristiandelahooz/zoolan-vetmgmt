@@ -1,3 +1,4 @@
+```typescript
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import { Button, DatePicker, Grid, GridColumn, TextField } from '@vaadin/react-components'
 import { Notification } from '@vaadin/react-components/Notification'
@@ -93,3 +94,4 @@ export default function TaskListView() {
     </main>
   )
 }
+```
