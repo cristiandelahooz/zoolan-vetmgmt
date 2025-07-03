@@ -1,24 +1,22 @@
-package com.zoolandia.app.features.medicalHistory.domain;
+package com.zoolandia.app.features.medicalhistory.domain;
 
 import com.zoolandia.app.features.consultation.domain.Consultation;
 import com.zoolandia.app.features.pet.domain.Pet;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@Table(name = "medical_history")
-@SuperBuilder
+@Table(name = "medical_histories")
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"consultations"})
+@ToString(exclude = {"consultations"})
 public class MedicalHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +26,52 @@ public class MedicalHistory {
     @JoinColumn(name = "pet_id", unique = true)
     private Pet pet;
 
-    @OneToMany(mappedBy = "medicalHistory", cascade = CascadeType.ALL)
-    private Set<Consultation> consultations = new HashSet<>();
+    @OneToMany(mappedBy = "medicalHistory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Consultation> consultations = new ArrayList<>();
+
+    @Column(columnDefinition = "TEXT")
+    private String allergies;
+
+    @Column(columnDefinition = "TEXT")
+    private String medications;
+
+    @Column(columnDefinition = "TEXT")
+    private String vaccinations;
+
+    @Column(columnDefinition = "TEXT")
+    private String surgeries;
+
+    @Column(columnDefinition = "TEXT")
+    private String chronicConditions;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @Builder.Default
+    private boolean active = true;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    public void addConsultation(Consultation consultation) {
+        consultations.add(consultation);
+        consultation.setMedicalHistory(this);
+        updateLastModified();
+    }
+
+    private void updateLastModified() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
