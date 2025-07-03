@@ -4,6 +4,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
+import com.vaadin.hilla.crud.filter.Filter;
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.mapper.PetMapper;
@@ -82,7 +83,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Override
     @Transactional(readOnly = true)
     public List<PetSummaryDTO> getAllPets(Pageable pageable) {
-        return petRepository.findAll(pageable).stream()
+        return petRepository.findAllActive(pageable).stream()
                 .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
                         pet.getBirthDate(),
                         pet.getOwners().isEmpty()
@@ -189,6 +190,17 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<Pet> findSimilarPetsByName(String name) {
         log.debug("Searching for pets with name containing: {}", name);
         return petRepository.findSimilarPetsByName(name);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Pet> list(Pageable pageable, @Nullable Filter filter) {
+        // Siempre filtrar solo mascotas activas, independientemente del filtro aplicado
+        Page<Pet> page = petRepository.findAllActive(pageable);
+        List<Pet> content = page.getContent();
+
+        // Asegurar que nunca retornemos null
+        return content != null ? content : Collections.emptyList();
     }
 
 }
