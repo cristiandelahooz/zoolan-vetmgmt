@@ -28,9 +28,4 @@ public class CreateConsultationDTO {
     private Long petId;
     @NotNull(message = "Veterinarian ID is required")
     private Long veterinarianId;
-
-    @NotNull(message = "Created at timestamp is required")
-    private LocalDateTime createdAt;
-    @NotNull(message = "Updated at timestamp is required")
-    private LocalDateTime updatedAt;
 }
