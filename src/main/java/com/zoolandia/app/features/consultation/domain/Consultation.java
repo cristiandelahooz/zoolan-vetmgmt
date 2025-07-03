@@ -1,87 +1,67 @@
 package com.zoolandia.app.features.consultation.domain;
 
 import com.zoolandia.app.features.employee.domain.Employee;
-import com.zoolandia.app.features.medicalHistory.domain.MedicalHistory;
+import com.zoolandia.app.features.medicalhistory.domain.MedicalHistory;
 import com.zoolandia.app.features.pet.domain.Pet;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-@Table(name = "consultation")
-@SuperBuilder
+@Table(name = "consultations")
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"medicalHistory"})
+@ToString(exclude = {"medicalHistory"})
 public class Consultation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "consultation_id")
     private Long id;
 
-    @Column(name = "notes")
-    @NotNull
-    @Lob
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String notes;
 
-    @Column(name = "diagnosis")
-    @NotNull
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String diagnosis;
 
-    @Column(name = "treatment")
-    @Nullable
+    @Column(columnDefinition = "TEXT")
     private String treatment;
 
-    @Column(name = "prescription")
-    @Nullable
+    @Column(columnDefinition = "TEXT")
     private String prescription;
 
-    @Column(name = "consultation_date")
-    @NotNull(message = "Consultation date is required")
+    @Column(nullable = false)
     private LocalDateTime consultationDate;
 
     @ManyToOne
-    @JoinColumn(name = "pet_id")
-    @NotNull(message = "Pet is required")
+    @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
 
     @ManyToOne
-    @JoinColumn(name = "veterinarian_id")
-    @NotNull(message = "Veterinarian is required")
+    @JoinColumn(name = "veterinarian_id", nullable = false)
     private Employee veterinarian;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Builder.Default
-    private boolean active = true;
 
     @ManyToOne
     @JoinColumn(name = "medical_history_id")
     private MedicalHistory medicalHistory;
 
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public static class AuditListener {
-        @PrePersist
-        public void prePersist(Consultation c) {
-            LocalDateTime now = LocalDateTime.now();
-            c.createdAt = now;
-            c.updatedAt = now;
-        }
+    @Builder.Default
+    private boolean active = true;
 
-        @PreUpdate
-        public void preUpdate(Consultation c) {
-            c.updatedAt = LocalDateTime.now();
-        }
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
