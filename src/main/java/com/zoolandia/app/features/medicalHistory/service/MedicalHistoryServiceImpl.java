@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @Transactional
 @Slf4j
@@ -34,14 +37,37 @@ public class MedicalHistoryServiceImpl extends ListRepositoryService<MedicalHist
     public MedicalHistory findByPetId(Long petId) {
         return medicalHistoryRepository.findByPetId(petId)
                 .orElseGet(() -> {
-                    // Crear un historial médico vacío para la mascota
                     MedicalHistory newHistory = new MedicalHistory();
-                    // Solo establece el petId sin guardar aún
                     Pet pet = new Pet();
                     pet.setId(petId);
                     newHistory.setPet(pet);
                     return newHistory;
                 });
+    }
+
+    @Override
+    public MedicalHistory getOrCreateMedicalHistory(Pet pet) {
+        return findOrCreateByPet(pet);
+    }
+
+    @Override
+    public MedicalHistory updateMedicalHistory(MedicalHistory medicalHistory) {
+        return medicalHistoryRepository.save(medicalHistory);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicalHistory> getConsultationsByPetId(Long petId) {
+        log.debug("Request to get medical history with consultations for Pet: {}", petId);
+
+        Optional<MedicalHistory> medicalHistory = medicalHistoryRepository.findByPetId(petId);
+        if (medicalHistory.isPresent()) {
+            // Force load consultations
+            MedicalHistory history = medicalHistory.get();
+            history.getConsultations().size(); // Force lazy loading
+            return List.of(history);
+        }
+        return List.of();
     }
 
 }
