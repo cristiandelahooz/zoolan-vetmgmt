@@ -20,9 +20,16 @@ export const ROUTES = {
   PET_EDIT: '/pets/edit',
   PET_MERGE: '/pets/merge',
   PET_VIEW: '/pets/view',
+
+  //Employee routes
   EMPLOYEES: '/employees',
   EMPLOYEE_EDIT: '/employees/edit',
   EMPLOYEE_NEW: '/employees/new',
+
+  //waiting room routes
+  WAITING_ROOM: '/waitingroom',
+  WAITING_ROOM_NEW: '/waitingroom/new',
+  WAITING_ROOM_LIVE: '/waitingroom/live',
 } as const
 
 // Type for route values
