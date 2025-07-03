@@ -1,7 +1,8 @@
 package com.zoolandia.app.features.consultation.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zoolandia.app.features.employee.domain.Employee;
-import com.zoolandia.app.features.medicalhistory.domain.MedicalHistory;
+import com.zoolandia.app.features.medicalHistory.domain.MedicalHistory;
 import com.zoolandia.app.features.pet.domain.Pet;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,6 +47,7 @@ public class Consultation {
 
     @ManyToOne
     @JoinColumn(name = "medical_history_id")
+    @JsonIgnore
     private MedicalHistory medicalHistory;
 
     private LocalDateTime createdAt;
