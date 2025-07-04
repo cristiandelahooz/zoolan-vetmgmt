@@ -8,7 +8,7 @@ import { Controller, useForm } from 'react-hook-form'
 interface EditAppointmentModalProps {
   appointment: AppointmentResponseDTO | null
   isOpen: boolean
-  onClose: () => void
+  onClose: (isSuccess: boolean) => void
 }
 
 export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppointmentModalProps) {
@@ -21,26 +21,23 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
   } = useForm<AppointmentUpdateDTO>({
     defaultValues: appointment
       ? {
-          ...appointment,
-          appointmentDateTime: appointment.appointmentDateTime
-            ? new Date(appointment.appointmentDateTime).toISOString().substring(0, 16)
-            : '',
-          start: appointment.start ? new Date(appointment.start).toISOString().substring(0, 16) : '',
-          end: appointment.end ? new Date(appointment.end).toISOString().substring(0, 16) : '',
+          startAppointmentDate: appointment.startAppointmentDate,
+          endAppointmentDate: appointment.endAppointmentDate,
+          // Add other fields from AppointmentResponseDTO to AppointmentUpdateDTO
         }
       : {},
   })
   const { updateAppointment } = useAppointments()
 
   const onSubmit = async (data: AppointmentUpdateDTO) => {
-    if (appointment) {
-      try {
-        await updateAppointment(appointment.id as number, data)
-        onClose()
-        reset()
-      } catch (error) {
-        console.error('Failed to update appointment:', error)
-      }
+    if (!appointment?.eventId) return;
+    try {
+      await updateAppointment(appointment.eventId, data)
+      onClose(true)
+      reset()
+    } catch (error) {
+      console.error('Failed to update appointment:', error)
+      onClose(false)
     }
   }
 
@@ -50,10 +47,10 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
     <Dialog
       headerTitle="Edit Appointment"
       opened={isOpen}
-      onOpenedChanged={({ detail }) => !detail.value && onClose()}
+      onOpenedChanged={({ detail }) => !detail.value && onClose(false)}
       footer={
         <div className="flex gap-s">
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={() => onClose(false)}>Cancel</Button>
           <Button theme="primary" onClick={handleSubmit(onSubmit)}>
             Save Changes
           </Button>
@@ -62,9 +59,10 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
     >
       <form className="flex flex-col gap-m">
         <DateTimePicker
-          label="Appointment Date Time"
-          {...register('appointmentDateTime', { required: 'Appointment date is required' })}
-          error-text={errors.appointmentDateTime?.message}
+          label="Appointment Start Time"
+          {...(register('startAppointmentDate', { required: 'Start time is required' }) as any)}
+          invalid={!!errors.startAppointmentDate}
+          errorMessage={errors.startAppointmentDate?.message}
         />
         <Controller
           name="clientId"
@@ -80,14 +78,10 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
           )}
         />
         <DateTimePicker
-          label="Start Time"
-          {...register('start', { required: 'Start time is required' })}
-          error-text={errors.start?.message}
-        />
-        <DateTimePicker
-          label="End Time"
-          {...register('end', { required: 'End time is required' })}
-          error-text={errors.end?.message}
+          label="Appointment End Time"
+          {...(register('endAppointmentDate', { required: 'End time is required' }) as any)}
+          invalid={!!errors.endAppointmentDate}
+          errorMessage={errors.endAppointmentDate?.message}
         />
         {/* Add more fields as necessary for your AppointmentUpdateDTO */}
       </form>
