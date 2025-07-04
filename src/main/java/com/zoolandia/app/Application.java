@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import java.time.Clock;
 
 @SpringBootApplication
-@Theme("default")
+@Theme("zoolan-vetmgmt")
 public class Application implements AppShellConfigurator {
 
     @Bean
