@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -170,8 +171,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
-        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETED
-                || waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
+        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETED || waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
             throw new IllegalStateException("No se puede cancelar una entrada ya completada o cancelada");
         }
 
@@ -179,8 +179,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.setCompletedAt(LocalDateTime.now());
 
         String currentNotes = waitingRoom.getNotes();
-        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + "Cancelado el " + LocalDateTime.now()
-                + ": " + reason;
+        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + "Cancelado el " + LocalDateTime.now() + ": " + reason;
         waitingRoom.setNotes(newNotes);
 
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -219,8 +218,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
         String currentNotes = waitingRoom.getNotes();
-        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + LocalDateTime.now() + " - "
-                + additionalNotes;
+        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + LocalDateTime.now() + " - " + additionalNotes;
 
         waitingRoom.setNotes(newNotes);
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -240,7 +238,10 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     @Transactional(readOnly = true)
     public Page<WaitingRoom> getTodayHistory(Pageable pageable) {
         log.debug("Request to get today's waiting room history");
-        return waitingRoomRepository.findTodayHistory(pageable);
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        return waitingRoomRepository.findTodayHistory(startOfDay, endOfDay, pageable);
     }
 
     @Override
@@ -258,7 +259,10 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     @Override
     @Transactional(readOnly = true)
     public long getTodayCount() {
-        Page<WaitingRoom> todayEntries = waitingRoomRepository.findTodayHistory(Pageable.unpaged());
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        Page<WaitingRoom> todayEntries = waitingRoomRepository.findTodayHistory(startOfDay, endOfDay, Pageable.unpaged());
         return todayEntries.getTotalElements();
     }
 
@@ -298,8 +302,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
     private double calculateAverageWaitTime() {
         try {
-            List<WaitingRoom> completedToday = getTodayHistory(Pageable.unpaged()).getContent().stream().filter(
-                    wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED && wr.getConsultationStartedAt() != null)
+            List<WaitingRoom> completedToday = getTodayHistory(Pageable.unpaged()).getContent().stream()
+                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED && wr.getConsultationStartedAt() != null)
                     .toList();
 
             if (completedToday.isEmpty()) {

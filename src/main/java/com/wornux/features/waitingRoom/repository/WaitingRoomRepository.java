@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -33,7 +34,11 @@ public interface WaitingRoomRepository extends JpaRepository<WaitingRoom, Long>,
             + "AND wr.status = 'WAITING'")
     List<WaitingRoom> findWaitingByClientAndPet(@Param("clientId") Long clientId, @Param("petId") Long petId);
 
-    @Query("SELECT wr FROM WaitingRoom wr " + "JOIN FETCH wr.client c " + "JOIN FETCH wr.pet p "
-            + "WHERE DATE(wr.arrivalTime) = CURRENT_DATE " + "ORDER BY wr.arrivalTime DESC")
-    Page<WaitingRoom> findTodayHistory(Pageable pageable);
+
+    @Query("SELECT wr FROM WaitingRoom wr " +
+           "WHERE wr.arrivalTime >= :startOfDay AND wr.arrivalTime < :endOfDay " + 
+           "ORDER BY wr.arrivalTime DESC")
+    Page<WaitingRoom> findTodayHistory(@Param("startOfDay") LocalDateTime startOfDay, 
+                                      @Param("endOfDay") LocalDateTime endOfDay, 
+                                      Pageable pageable);
 }
