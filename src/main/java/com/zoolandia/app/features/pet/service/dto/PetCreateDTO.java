@@ -1,7 +1,7 @@
 package com.zoolandia.app.features.pet.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zoolandia.app.features.pet.domain.Gender;
+import com.zoolandia.app.dto.Gender;
 import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.validation.ValidPetBreedDTO;
 import jakarta.validation.constraints.*;
