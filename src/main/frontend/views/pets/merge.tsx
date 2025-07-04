@@ -1,3 +1,4 @@
+import type Pet from '@/generated/com/wornux/features/pet/domain/Pet'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import {
   Button,
@@ -9,7 +10,6 @@ import {
   TextField,
   VerticalLayout,
 } from '@vaadin/react-components'
-import type Pet from 'Frontend/generated/com/zoolandia/app/features/pet/domain/Pet'
 import { PetServiceImpl } from 'Frontend/generated/endpoints'
 import React, { useState } from 'react'
 
@@ -126,7 +126,14 @@ export default function PetMergeView() {
           </div>
         ))
       ) : (
-        <span style={{ fontStyle: 'italic', color: '#666' }}>Sin dueños</span>
+        <span
+          style={{
+            fontStyle: 'italic',
+            color: '#666',
+          }}
+        >
+          Sin dueños
+        </span>
       )}
     </div>
   )
@@ -289,8 +296,8 @@ export default function PetMergeView() {
           )}
 
           <div className="p-3 bg-blue-50 border border-blue-200 rounded">
-            <strong>📝 Resultado:</strong> La mascota "{selectedPets.keepPet?.name || ''}" tendrá todos los dueños de
-            ambas mascotas.
+            <strong>Resultado:</strong> La mascota "{selectedPets.keepPet?.name || ''}" tendrá todos los dueños de ambas
+            mascotas.
           </div>
 
           <HorizontalLayout theme="spacing" className="mt-4" style={{ justifyContent: 'flex-end' }}>

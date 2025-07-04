@@ -1,20 +1,23 @@
 export const ROUTES = {
+  // Main application routes
+  HOME: '/',
+  APPOINTMENTS: '/appointments',
+
   // Client routes
   CLIENTS: '/clients',
   CLIENT_NEW: '/clients/new',
-  CLIENT_EDIT: '/clients/edit',
-  CLIENT_VIEW: '/clients/view',
 
   // Other feature routes
+  CLIENT_EDIT: '/clients/edit',
+  CLIENT_VIEW: '/clients/view',
   DASHBOARD: '/dashboard',
   SETTINGS: '/settings',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
 
   // General routes
-  HOME: '/',
+  LOGIN: '/login',
 
   // Pet routes
+  LOGOUT: '/logout',
   PETS: '/pets',
   PET_NEW: '/pets/new',
   PET_EDIT: '/pets/edit',
@@ -24,12 +27,15 @@ export const ROUTES = {
   //Employee routes
   EMPLOYEES: '/employees',
   EMPLOYEE_EDIT: '/employees/edit',
-  EMPLOYEE_NEW: '/employees/new',
 
+  EMPLOYEE_NEW: '/employees/new',
   //waiting room routes
   WAITING_ROOM: '/waitingroom',
   WAITING_ROOM_NEW: '/waitingroom/new',
   WAITING_ROOM_LIVE: '/waitingroom/live',
+
+  CONSULTATIONS: '/consultations',
+  CONSULTATION_NEW: '/consultations/new',
 } as const
 
 // Type for route values

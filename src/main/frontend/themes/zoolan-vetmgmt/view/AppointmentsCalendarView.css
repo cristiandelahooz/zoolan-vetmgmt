@@ -1,0 +1,14 @@
+.appointment-event {
+  font-size: 12px;
+  line-height: 1.2;
+}
+.fc-event {
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+.fc-event-title {
+  font-weight: 500;
+}
+.fc-daygrid-event {
+  margin: 1px 0;
+}

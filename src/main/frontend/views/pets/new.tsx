@@ -1,3 +1,5 @@
+import { PetServiceImpl } from '@/generated/endpoints'
+import { usePetFormStore } from '@/stores/petAutoFormStore'
 import { AutoForm, type AutoFormLayoutRendererProps } from '@vaadin/hilla-react-crud'
 import {
   HorizontalLayout,
@@ -12,11 +14,9 @@ import {
   type TextFieldChangeEvent,
   VerticalLayout,
 } from '@vaadin/react-components'
-import PetCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/pet/service/dto/PetCreateDTOModel'
-import { PetServiceImpl } from 'Frontend/generated/endpoints'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { usePetFormStore } from '../../stores/petAutoFormStore'
+import PetCreateDTOModel from '@/generated/com/wornux/features/pet/service/dto/PetCreateDTOModel'
 import { SelectOwnerDialog, type SelectedClient } from './_SelectOwnerDialog'
 
 export default function PetEntryFormView() {

@@ -1,13 +1,13 @@
-import { TextField, type TextFieldProps } from '@vaadin/react-components'
 import {
   CLIENT_FIELDS,
   type FieldOptions,
-  getFieldsToEnableByField,
   type IdentificationDocuments,
+  getFieldsToEnableByField,
   isValidDominicanCedula,
   isValidPassport,
   isValidRnc,
-} from 'Frontend/lib/constants/client-field-config'
+} from '@/lib/constants/client-field-config'
+import { TextField, type TextFieldProps } from '@vaadin/react-components'
 import { create } from 'zustand'
 
 interface ClientFormState {

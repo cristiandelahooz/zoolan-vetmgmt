@@ -1,13 +1,13 @@
+import type ClientCreateDTO from '@/generated/com/wornux/features/client/service/dto/ClientCreateDTO'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import type { AutoFormLayoutRendererProps, SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
-import type ClientCreateDTO from 'Frontend/generated/com/zoolandia/app/features/client/service/dto/ClientCreateDTO'
 
+import ClientCreateDTOModel from '@/generated/com/wornux/features/client/service/dto/ClientCreateDTOModel'
+import { ClientServiceImpl } from '@/generated/endpoints'
+import { ROUTES } from '@/lib/constants/routes'
+import { useClientFormStore } from '@/stores/useClientAutoFormStore'
 import { AutoForm } from '@vaadin/hilla-react-crud'
 import { HorizontalLayout, Notification, VerticalLayout } from '@vaadin/react-components'
-import ClientCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/client/service/dto/ClientCreateDTOModel'
-import { ClientServiceImpl } from 'Frontend/generated/endpoints'
-import { ROUTES } from 'Frontend/lib/constants/routes'
-import { useClientFormStore } from 'Frontend/stores/useClientAutoFormStore'
 import { useNavigate } from 'react-router'
 
 export const config: ViewConfig = {

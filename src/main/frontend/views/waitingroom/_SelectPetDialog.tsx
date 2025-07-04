@@ -1,6 +1,6 @@
+import PetModel from '@/generated/com/wornux/features/pet/domain/PetModel'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
 import { Button, Dialog, TextField } from '@vaadin/react-components'
-import PetModel from 'Frontend/generated/com/zoolandia/app/features/pet/domain/PetModel'
 import { PetServiceImpl } from 'Frontend/generated/endpoints'
 import { useEffect, useState } from 'react'
 

@@ -3,6 +3,10 @@
   "license": "UNLICENSED",
   "type": "module",
   "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.17",
+    "@fullcalendar/interaction": "^6.1.17",
+    "@fullcalendar/react": "^6.1.17",
+    "@fullcalendar/timegrid": "^6.1.17",
     "@polymer/polymer": "3.5.2",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@vaadin/bundles": "24.7.7",
@@ -29,13 +33,16 @@
     "date-fns": "2.29.3",
     "lit": "3.3.0",
     "lucide-react": "^0.513.0",
+    "path": "^0.12.7",
     "postcss": "^8.5.4",
     "proj4": "2.15.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-hook-form": "^7.59.0",
     "react-router": "7.5.2",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^3.4.17",
+    "url": "^0.11.4",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
@@ -132,7 +139,7 @@
       "workbox-core": "7.3.0",
       "workbox-precaching": "7.3.0"
     },
-    "hash": "fe3c89362f4586f3b4edd93ec98659a242aa7091a3beaecef356e0b852b79b18"
+    "hash": "73ce9c5f619df41e858426d4f96c2ea2146e526f678fcbb715bde03efff32979"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -168,6 +175,13 @@
     "clsx": "$clsx",
     "lucide-react": "$lucide-react",
     "tailwind-merge": "$tailwind-merge",
-    "zustand": "$zustand"
+    "zustand": "$zustand",
+    "@fullcalendar/daygrid": "$@fullcalendar/daygrid",
+    "@fullcalendar/interaction": "$@fullcalendar/interaction",
+    "@fullcalendar/react": "$@fullcalendar/react",
+    "@fullcalendar/timegrid": "$@fullcalendar/timegrid",
+    "react-hook-form": "$react-hook-form",
+    "url": "$url",
+    "path": "$path"
   }
 }

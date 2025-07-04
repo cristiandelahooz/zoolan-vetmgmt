@@ -1,3 +1,8 @@
+import type Client from '@/generated/com/wornux/features/client/domain/Client'
+import type Pet from '@/generated/com/wornux/features/pet/domain/Pet'
+import Priority from '@/generated/com/wornux/features/waitingRoom/domain/Priority'
+import type WaitingRoom from '@/generated/com/wornux/features/waitingRoom/domain/WaitingRoom'
+import WaitingRoomStatus from '@/generated/com/wornux/features/waitingRoom/domain/WaitingRoomStatus'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import {
   Button,
@@ -11,11 +16,6 @@ import {
   VerticalLayout,
 } from '@vaadin/react-components'
 import type Sort from 'Frontend/generated/com/vaadin/hilla/mappedtypes/Sort'
-import type Client from 'Frontend/generated/com/zoolandia/app/features/client/domain/Client'
-import type Pet from 'Frontend/generated/com/zoolandia/app/features/pet/domain/Pet'
-import Priority from 'Frontend/generated/com/zoolandia/app/features/waitingRoom/domain/Priority'
-import type WaitingRoom from 'Frontend/generated/com/zoolandia/app/features/waitingRoom/domain/WaitingRoom'
-import WaitingRoomStatus from 'Frontend/generated/com/zoolandia/app/features/waitingRoom/domain/WaitingRoomStatus'
 import { ClientServiceImpl, PetServiceImpl, WaitingRoomServiceImpl } from 'Frontend/generated/endpoints'
 import { useEffect, useState } from 'react'
 

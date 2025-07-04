@@ -1,3 +1,5 @@
+import type WaitingRoomCreateDTO from '@/generated/com/wornux/features/waitingRoom/service/dto/WaitingRoomCreateDTO'
+import WaitingRoomCreateDTOModel from '@/generated/com/wornux/features/waitingRoom/service/dto/WaitingRoomCreateDTOModel'
 import { AutoForm, type AutoFormLayoutRendererProps } from '@vaadin/hilla-react-crud'
 import type { SubmitErrorEvent } from '@vaadin/hilla-react-crud'
 import {
@@ -9,8 +11,6 @@ import {
   TextField,
   VerticalLayout,
 } from '@vaadin/react-components'
-import type WaitingRoomCreateDTO from 'Frontend/generated/com/zoolandia/app/features/waitingRoom/service/dto/WaitingRoomCreateDTO'
-import WaitingRoomCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/waitingRoom/service/dto/WaitingRoomCreateDTOModel'
 import { WaitingRoomServiceImpl } from 'Frontend/generated/endpoints'
 import { useState } from 'react'
 import { SelectOwnerDialog, type SelectedClient } from '../pets/_SelectOwnerDialog'

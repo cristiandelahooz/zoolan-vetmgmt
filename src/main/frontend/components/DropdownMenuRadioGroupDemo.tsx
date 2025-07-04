@@ -1,4 +1,3 @@
-import { Button } from '@vaadin/react-components'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +6,8 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from 'Frontend/components/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@vaadin/react-components'
 import * as React from 'react'
 
 export function DropdownMenuRadioGroupDemo() {

@@ -1,8 +1,7 @@
-import { AutoForm, AutoGrid } from '@vaadin/hilla-react-crud'
-import EmployeeModel from 'Frontend/generated/com/zoolandia/app/features/employee/domain/EmployeeModel'
-import { EmployeeServiceImpl } from 'Frontend/generated/endpoints'
-import EmployeeCreateDTOModel from 'Frontend/generated/com/zoolandia/app/features/employee/service/dto/EmployeeCreateDTOModel'
-import { AUTO_GRID_EMPLOYEE_FIELD_OPTIONS } from 'Frontend/lib/constants/employee-field-config'
+import EmployeeCreateDTOModel from '@/generated/com/wornux/features/employee/service/dto/EmployeeCreateDTOModel'
+import { EmployeeServiceImpl } from '@/generated/endpoints'
+import { AUTO_GRID_EMPLOYEE_FIELD_OPTIONS } from '@/lib/constants/employee-field-config'
+import { AutoGrid } from '@vaadin/hilla-react-crud'
 
 export default function EmployeesView() {
   return (
