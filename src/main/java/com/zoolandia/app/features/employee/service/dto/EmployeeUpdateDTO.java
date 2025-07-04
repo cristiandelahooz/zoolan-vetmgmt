@@ -1,7 +1,7 @@
 package com.zoolandia.app.features.employee.service.dto;
 
 import com.zoolandia.app.features.employee.domain.EmployeeRole;
-import com.zoolandia.app.features.user.domain.Gender;
+import com.zoolandia.app.dto.Gender;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
