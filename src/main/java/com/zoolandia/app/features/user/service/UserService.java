@@ -1,6 +1,6 @@
 package com.zoolandia.app.features.user.service;
 
-import com.zoolandia.app.features.user.domain.Gender;
+import com.zoolandia.app.dto.Gender;
 import com.zoolandia.app.features.user.domain.SystemRole;
 import com.zoolandia.app.features.user.domain.User;
 import jakarta.validation.constraints.Email;
