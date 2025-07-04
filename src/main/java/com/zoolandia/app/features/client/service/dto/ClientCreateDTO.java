@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zoolandia.app.features.client.domain.ClientRating;
 import com.zoolandia.app.features.client.domain.PreferredContactMethod;
 import com.zoolandia.app.features.client.domain.ReferenceSource;
-import com.zoolandia.app.features.user.domain.Gender;
+import com.zoolandia.app.dto.Gender;
 import jakarta.validation.constraints.*;
 import org.jspecify.annotations.Nullable;
 
