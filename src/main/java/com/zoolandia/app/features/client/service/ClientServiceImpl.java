@@ -32,6 +32,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
+@Transactional
 // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository>
         implements ClientService, FormService<ClientCreateDTO, Long> {
@@ -255,7 +256,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         log.info("Hard deleted Client ID: {}", id);
     }
 
-    private void validateUniqueIdentificationForUpdate(Long id, String cedula, String passport, String rnc) {
+    @Transactional(readOnly = true)
+    public void validateUniqueIdentificationForUpdate(Long id, String cedula, String passport, String rnc) {
         if (!cedula.trim().isEmpty()) {
             clientRepository.findByCedula(cedula).ifPresent(client -> {
                 if (!client.getId().equals(id)) {
@@ -322,19 +324,22 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         }
     }
 
-    private void validateCedulaUniqueness(String cedula) {
+    @Transactional(readOnly = true)
+    public void validateCedulaUniqueness(String cedula) {
         if (clientRepository.existsByCedula(cedula)) {
             throw new DuplicateIdentificationException("cedula", cedula);
         }
     }
 
-    private void validatePassportUniqueness(String passport) {
+    @Transactional(readOnly = true)
+    public void validatePassportUniqueness(String passport) {
         if (clientRepository.existsByPassport(passport)) {
             throw new DuplicateIdentificationException("passport", passport);
         }
     }
 
-    private void validateRncUniqueness(String rnc) {
+    @Transactional(readOnly = true)
+    public void validateRncUniqueness(String rnc) {
         if (clientRepository.existsByRnc(rnc)) {
             throw new DuplicateIdentificationException("rnc", rnc);
         }
