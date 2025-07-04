@@ -10,7 +10,6 @@ import com.zoolandia.app.features.appointments.dtos.AppointmentUpdateDTO;
 import com.zoolandia.app.features.appointments.mapper.AppointmentMapper;
 import com.zoolandia.app.features.appointments.repository.AppointmentRepository;
 import com.zoolandia.app.features.appointments.exceptions.AppointmentNotFoundException;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,7 +29,6 @@ import java.util.List;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
-
     private final AppointmentMapper appointmentMapper;
 
     @Override
@@ -185,7 +183,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private Appointment findAppointmentById(Long id) {
         return appointmentRepository.findById(id)
-
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with ID: " + id));
     }
 }
