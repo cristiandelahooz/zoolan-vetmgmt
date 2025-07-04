@@ -5,9 +5,8 @@ import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.medicalHistory.domain.MedicalHistory;
 import com.zoolandia.app.features.pet.validation.ValidPetBreed;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
+import lombok.*;
 
 
 @Builder
@@ -20,25 +19,25 @@ import java.time.LocalDate;
 @EqualsAndHashCode(exclude = {"medicalHistory"})
 @ToString(exclude = {"medicalHistory"})
 public class Pet {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    @Enumerated(EnumType.STRING)
-    private PetType type;
+  @Enumerated(EnumType.STRING)
+  private PetType type;
 
-    private String breed;
+  private String breed;
 
-    private LocalDate birthDate;
+  private LocalDate birthDate;
 
-    @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Client owner;
+  @ManyToOne
+  @JoinColumn(name = "client_id")
+  private Client owner;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+  @Enumerated(EnumType.STRING)
+  private Gender gender;
 
     @OneToOne(mappedBy = "pet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -56,5 +55,4 @@ public class Pet {
                     .build();
         }
     }
-
 }

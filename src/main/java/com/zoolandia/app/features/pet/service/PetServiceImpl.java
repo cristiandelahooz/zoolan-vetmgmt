@@ -6,26 +6,26 @@ import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.zoolandia.app.features.consultation.domain.Consultation;
 import com.zoolandia.app.features.consultation.repository.ConsultationRepository;
+import com.zoolandia.app.features.pet.domain.Pet;
+
 import com.zoolandia.app.features.pet.domain.PetType;
 import com.zoolandia.app.features.pet.mapper.PetMapper;
 import com.zoolandia.app.features.pet.repository.PetRepository;
-import com.zoolandia.app.features.pet.domain.Pet;
 import com.zoolandia.app.features.pet.service.dto.PetCreateDTO;
 import com.zoolandia.app.features.pet.service.dto.PetSummaryDTO;
 import com.zoolandia.app.features.pet.service.dto.PetUpdateDTO;
 import com.zoolandia.app.features.pet.service.exception.PetNotFoundException;
 import jakarta.validation.Valid;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.jspecify.annotations.Nullable;
-
-import java.util.*;
 
 @Slf4j
 @Service
@@ -120,7 +120,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         try {
             Pet pet = petMapper.toEntity(dto);
             Pet savedPet = petRepository.save(pet);
-            PetCreateDTO result = petMapper.toCreateDTO(savedPet); // necesitas este método
+            PetCreateDTO result = petMapper.toCreateDTO(savedPet); 
             log.info("Pet created successfully with ID: {}", savedPet.getId());
             return result;
         } catch (Exception e) {
@@ -141,11 +141,15 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Transactional(readOnly = true)
     public List<String> getBreedsByType(PetType petType) {
         return petType.getBreeds();
-    }
 
-    @Transactional(readOnly = true)
-    public List<String> getAllPetTypes() {
-        return Arrays.stream(PetType.values()).map(Enum::name).toList();
+    }
+  }
+
+  @Transactional(readOnly = true)
+  public Map<String, List<String>> getPetTypeAndBreeds() {
+    Map<String, List<String>> map = new HashMap<>();
+    for (PetType type : PetType.values()) {
+      map.put(type.name(), type.getBreeds());
     }
 
     @Transactional(readOnly = true)
@@ -153,5 +157,4 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         log.debug("Request to get consultations for Pet: {}", petId);
         return consultationRepository.findByPetIdAndActiveTrue(petId);
     }
-
 }
