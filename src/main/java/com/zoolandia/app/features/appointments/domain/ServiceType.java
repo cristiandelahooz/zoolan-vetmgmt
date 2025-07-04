@@ -1,6 +1,11 @@
 
 package com.zoolandia.app.features.appointments.domain;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum ServiceType {
     // Servicios clínicos
     CONSULTA_GENERAL("Consulta General"),
@@ -30,14 +35,6 @@ public enum ServiceType {
     CONSULTA_COMPORTAMIENTO("Consulta de Comportamiento");
     
     private final String displayName;
-    
-    ServiceType(String displayName) {
-        this.displayName = displayName;
-    }
-    
-    public String getDisplayName() {
-        return displayName;
-    }
     
     public boolean isClinical() {
         return this == CONSULTA_GENERAL || this == CONSULTA_ESPECIALIZADA || 
