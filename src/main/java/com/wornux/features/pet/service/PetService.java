@@ -1,6 +1,7 @@
 package com.wornux.features.pet.service;
 
 import com.vaadin.hilla.BrowserCallable;
+import com.wornux.features.consultation.domain.Consultation;
 import com.wornux.features.pet.domain.Pet;
 import com.wornux.features.pet.service.dto.PetCreateDTO;
 import com.wornux.features.pet.service.dto.PetSummaryDTO;
@@ -26,8 +27,7 @@ public interface PetService {
     /**
      * Creates a new Pet.
      *
-     * @param petDTO
-     *            the DTO containing pet data
+     * @param petDTO the DTO containing pet data
      * @return the created Pet entity
      */
     Pet createPet(@Valid PetCreateDTO petDTO);
@@ -35,10 +35,8 @@ public interface PetService {
     /**
      * Updates an existing Pet.
      *
-     * @param id
-     *            the ID of the pet to update
-     * @param petDTO
-     *            the DTO containing updated data
+     * @param id     the ID of the pet to update
+     * @param petDTO the DTO containing updated data
      * @return the updated Pet entity
      */
     Pet updatePet(Long id, @Valid PetUpdateDTO petDTO);
@@ -46,8 +44,7 @@ public interface PetService {
     /**
      * Retrieves a Pet by ID.
      *
-     * @param id
-     *            the ID of the pet
+     * @param id the ID of the pet
      * @return the Pet entity if found
      */
     Optional<Pet> getPetById(Long id);
@@ -55,8 +52,7 @@ public interface PetService {
     /**
      * Retrieves all Pets with pagination.
      *
-     * @param pageable
-     *            pagination information
+     * @param pageable pagination information
      * @return paginated list of Pets
      */
     List<PetSummaryDTO> getAllPets(Pageable pageable);
@@ -64,10 +60,8 @@ public interface PetService {
     /**
      * Retrieves Pets by owner ID.
      *
-     * @param ownerId
-     *            the ID of the client who owns the pets
-     * @param pageable
-     *            pagination information
+     * @param ownerId  the ID of the client who owns the pets
+     * @param pageable pagination information
      * @return paginated list of Pets belonging to the given owner
      */
     Page<Pet> getPetsByOwnerId(Long ownerId, Pageable pageable);
@@ -75,8 +69,9 @@ public interface PetService {
     /**
      * Permanently deletes a Pet.
      *
-     * @param id
-     *            the ID of the pet to delete
+     * @param id the ID of the pet to delete
      */
     void delete(Long id);
+
+    List<Consultation> getConsultationsByPetId(Long petId);
 }

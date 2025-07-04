@@ -1,12 +1,15 @@
 package com.wornux.features.pet.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wornux.dto.Gender;
 import com.wornux.features.client.domain.Client;
+import com.wornux.features.medicalHistory.domain.MedicalHistory;
 import com.wornux.features.pet.validation.ValidPetBreed;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.time.LocalDate;
+
+import lombok.*;
 
 @Builder
 @Entity
@@ -15,6 +18,8 @@ import java.time.LocalDate;
 @ValidPetBreed
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = { "medicalHistory" })
+@ToString(exclude = { "medicalHistory" })
 public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +41,16 @@ public class Pet {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @OneToOne(mappedBy = "pet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private MedicalHistory medicalHistory;
+
     @Builder.Default
     private boolean active = true;
+
+    @PostPersist
+    private void createMedicalHistory() {
+        this.medicalHistory = MedicalHistory.builder().pet(this).notes("Historial médico creado automáticamente")
+                .build();
+    }
 }

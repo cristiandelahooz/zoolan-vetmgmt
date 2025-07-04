@@ -26,6 +26,12 @@ export const ROUTES = {
   EMPLOYEE_EDIT: '/employees/edit',
 
   EMPLOYEE_NEW: '/employees/new',
+
+  CONSULTATIONS: '/consultations',
+  CONSULTATION_NEW: '/consultations/new',
+  CONSULTATION_EDIT: '/consultations/edit',
+  CONSULTATION_VIEW: '/consultations/view',
+
 } as const
 
 // Type for route values
