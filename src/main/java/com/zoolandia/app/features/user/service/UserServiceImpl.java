@@ -2,6 +2,7 @@ package com.zoolandia.app.features.user.service;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.zoolandia.app.dto.Gender;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
