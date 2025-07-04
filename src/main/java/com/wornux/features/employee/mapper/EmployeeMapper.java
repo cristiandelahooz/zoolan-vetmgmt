@@ -32,16 +32,8 @@ public interface EmployeeMapper {
 
     @AfterMapping
     default void validateEmployeeData(@MappingTarget Employee employee) {
-        if (employee.getSalary() != null && employee.getSalary() < 0) {
+        if (employee.getSalary() < 0) {
             throw new IllegalArgumentException("Salary cannot be negative");
-        }
-
-        if (employee.getHireDate() == null) {
-            employee.setHireDate(java.time.LocalDate.now());
-        }
-
-        if (employee.getEmployeeRole() != null && employee.getSystemRole() == null) {
-            employee.setSystemRole(employee.getEmployeeRole().getSystemRole());
         }
     }
 

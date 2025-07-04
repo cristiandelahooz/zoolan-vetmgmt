@@ -82,7 +82,6 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
      * @Transactional(readOnly = true) public Page<Pet> getAllPets(Pageable pageable) {
      * log.debug("Request to get all Pets"); return petRepository.findAll(pageable); }
      */
-
     @Override
     @Transactional(readOnly = true)
     public List<PetSummaryDTO> getAllPets(Pageable pageable) {
@@ -143,15 +142,6 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Transactional(readOnly = true)
     public List<String> getBreedsByType(PetType petType) {
         return petType.getBreeds();
-
-    }
-
-    @Transactional(readOnly = true)
-    public Map<String, List<String>> getPetTypeAndBreeds() {
-        Map<String, List<String>> map = new HashMap<>();
-        for (PetType type : PetType.values()) {
-            map.put(type.name(), type.getBreeds());
-        }
     }
 
     @Transactional(readOnly = true)

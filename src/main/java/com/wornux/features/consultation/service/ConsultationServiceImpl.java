@@ -9,17 +9,17 @@ import com.wornux.features.consultation.mapper.ConsultationMapper;
 import com.wornux.features.consultation.repository.ConsultationRepository;
 import com.wornux.features.consultation.service.dto.CreateConsultationDTO;
 import com.wornux.features.consultation.service.dto.UpdateConsultationDTO;
-import com.zoolandia.app.features.employee.domain.Employee;
-import com.zoolandia.app.features.employee.repository.EmployeeRepository;
-import com.zoolandia.app.features.employee.service.EmployeeService;
-import com.zoolandia.app.features.employee.service.exception.EmployeeNotFoundException;
 import com.wornux.features.medicalHistory.domain.MedicalHistory;
 import com.wornux.features.medicalHistory.service.MedicalHistoryService;
-import com.zoolandia.app.features.pet.domain.Pet;
-import com.zoolandia.app.features.pet.repository.PetRepository;
-import com.zoolandia.app.features.pet.service.PetService;
+import com.wornux.features.employee.domain.Employee;
+import com.wornux.features.employee.repository.EmployeeRepository;
+import com.wornux.features.employee.service.EmployeeService;
+import com.wornux.features.employee.service.exception.EmployeeNotFoundException;
+import com.wornux.features.pet.domain.Pet;
+import com.wornux.features.pet.repository.PetRepository;
+import com.wornux.features.pet.service.PetService;
 
-import com.zoolandia.app.features.pet.service.exception.PetNotFoundException;
+import com.wornux.features.pet.service.exception.PetNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -38,7 +38,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
-public class ConsultationServiceImpl extends ListRepositoryService<Consultation, Long, ConsultationRepository> implements ConsultationService, FormService<CreateConsultationDTO, Long> {
+public class ConsultationServiceImpl extends ListRepositoryService<Consultation, Long, ConsultationRepository>
+        implements ConsultationService, FormService<CreateConsultationDTO, Long> {
     private final ConsultationRepository consultationRepository;
     private final PetService petService;
     private final EmployeeService employeeService;
@@ -46,7 +47,6 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
     private final PetRepository petRepository;
     private final ConsultationMapper consultationMapper;
     private final EmployeeRepository employeeRepository;
-
 
     @Override
     public CreateConsultationDTO save(CreateConsultationDTO item) {
@@ -94,13 +94,13 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
         return savedConsultation;
     }
 
-
-
     /**
      * Updates the medical history with the information from the consultation.
      *
-     * @param medicalHistory The medical history to update.
-     * @param consultation   The consultation containing the new information.
+     * @param medicalHistory
+     *         The medical history to update.
+     * @param consultation
+     *         The consultation containing the new information.
      */
     private void updateMedicalHistoryFromConsultation(MedicalHistory medicalHistory, Consultation consultation) {
         // Update medical history notes with consultation information
@@ -111,12 +111,12 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
                 consultation.getDiagnosis() != null ? consultation.getDiagnosis() : "No especificado",
                 consultation.getTreatment() != null ? consultation.getTreatment() : "No especificado",
                 consultation.getPrescription() != null ? consultation.getPrescription() : "No especificado",
-                consultation.getNotes() != null ? consultation.getNotes() : "No especificado"
-        );
+                consultation.getNotes() != null ? consultation.getNotes() : "No especificado");
 
         medicalHistory.setNotes(currentNotes + consultationInfo);
         medicalHistory.addConsultation(consultation);
     }
+
     @Override
     public Consultation update(Long id, UpdateConsultationDTO updateDTO) {
         log.debug("Request to update Consultation : {}", updateDTO);
@@ -125,8 +125,8 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
 
         Pet pet = petService.getPetById(updateDTO.getPetId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet not found with id: " + updateDTO.getPetId()));
-        Employee veterinarian = employeeService.getEmployeeById(updateDTO.getVeterinarianId())
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + updateDTO.getVeterinarianId()));
+        Employee veterinarian = employeeService.getEmployeeById(updateDTO.getVeterinarianId()).orElseThrow(
+                () -> new EntityNotFoundException("Employee not found with id: " + updateDTO.getVeterinarianId()));
 
         consultation.setNotes(updateDTO.getNotes());
         consultation.setDiagnosis(updateDTO.getDiagnosis());
@@ -144,6 +144,7 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
 
         return consultationRepository.save(consultation);
     }
+
     @Override
     public Consultation partialUpdate(Long id, UpdateConsultationDTO updateDTO) {
         log.debug("Request to partially update Consultation : {}", updateDTO);
@@ -182,8 +183,8 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
         }
 
         if (updateDTO.getVeterinarianId() != null) {
-            Employee veterinarian = employeeService.getEmployeeById(updateDTO.getVeterinarianId())
-                    .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + updateDTO.getVeterinarianId()));
+            Employee veterinarian = employeeService.getEmployeeById(updateDTO.getVeterinarianId()).orElseThrow(
+                    () -> new EntityNotFoundException("Employee not found with id: " + updateDTO.getVeterinarianId()));
             consultation.setVeterinarian(veterinarian);
         }
 
@@ -227,7 +228,5 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
         log.debug("Request to get all active Consultations");
         return consultationRepository.findByActiveTrue(pageable);
     }
-
-
 
 }

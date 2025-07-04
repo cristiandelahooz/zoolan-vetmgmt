@@ -1,16 +1,36 @@
-import { AutoForm, AutoFormLayoutRendererProps } from '@vaadin/hilla-react-crud'
-import { AutoGrid } from "@vaadin/hilla-react-crud";
-import { ConsultationServiceImpl, PetServiceImpl } from 'Frontend/generated/endpoints'
-import CreateConsultationDTOModel from "Frontend/generated/com/zoolandia/app/features/consultation/service/dto/CreateConsultationDTOModel"
-import { useNavigate } from 'react-router'
-import { HorizontalLayout, Notification, VerticalLayout, Grid, GridColumn, TextField, Button, Dialog } from '@vaadin/react-components'
-import type CreateConsultationDTO from "Frontend/generated/com/zoolandia/app/features/consultation/service/dto/CreateConsultationDTO"
-import { SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
-import { useSignal } from '@vaadin/hilla-react-signals'
-import { useState } from 'react'
-import PetModel from "Frontend/generated/com/zoolandia/app/features/pet/domain/PetModel";
-import { SelectVeterinarianDialog, SelectedVeterinarian } from './_SelectVeterinarianDialog';
+import {
+    AutoForm,
+    type AutoFormLayoutRendererProps
+} from '@vaadin/hilla-react-crud'
+import {AutoGrid} from "@vaadin/hilla-react-crud";
+import {
+    ConsultationServiceImpl,
+    PetServiceImpl
+} from 'Frontend/generated/endpoints'
+import CreateConsultationDTOModel
+    from "Frontend/generated/com/wornux/features/consultation/service/dto/CreateConsultationDTOModel"
+import {useNavigate} from 'react-router'
+import {
+    HorizontalLayout,
+    Notification,
+    VerticalLayout,
+    Grid,
+    GridColumn,
+    TextField,
+    Button,
+    Dialog
+} from '@vaadin/react-components'
+import type {SubmitErrorEvent} from '@vaadin/hilla-react-crud/'
+import {useSignal} from '@vaadin/hilla-react-signals'
+import {useState} from 'react'
+import PetModel from "@/generated/com/wornux/features/pet/domain/PetModel";
+import {
+    SelectVeterinarianDialog,
+    type SelectedVeterinarian
+} from './_SelectVeterinarianDialog';
 import {ROUTES} from "Frontend/lib/constants/routes";
+import type CreateConsultationDTO
+    from "@/generated/com/wornux/features/consultation/service/dto/CreateConsultationDTO";
 
 const createPetListService = () => ({
     list: PetServiceImpl.list,
@@ -40,14 +60,11 @@ const createSelectedPetFromGridItem = (item: any): SelectedPet => ({
     ownerName: `${item.owner.firstName} ${item.owner.lastName}`
 });
 
-const formatPetDisplayName = (pet: SelectedPet): string =>
-    `${pet.name} (${pet.type} - ${pet.breed})`;
+const formatPetDisplayName = (pet: SelectedPet): string => `${pet.name} (${pet.type} - ${pet.breed})`;
 
 const formatVeterinarianDisplayName = (veterinarian: SelectedVeterinarian): string => {
     const baseDisplayName = `Dr. ${veterinarian.firstName} ${veterinarian.lastName}`;
-    return veterinarian.specialization
-        ? `${baseDisplayName} - ${veterinarian.specialization}`
-        : baseDisplayName;
+    return veterinarian.specialization ? `${baseDisplayName} - ${veterinarian.specialization}` : baseDisplayName;
 };
 
 const formatConsultationDateTime = (dateString: string): string => {
@@ -65,7 +82,11 @@ const formatConsultationDateTime = (dateString: string): string => {
     }
 };
 
-export function SelectPetDialog({ isOpen, onDialogClose, onPetSelect }: SelectPetDialogProps) {
+export function SelectPetDialog({
+                                    isOpen,
+                                    onDialogClose,
+                                    onPetSelect
+                                }: SelectPetDialogProps) {
     const [currentSelectedPet, setCurrentSelectedPet] = useState<any>(null);
     const petListService = createPetListService();
 
@@ -87,31 +108,35 @@ export function SelectPetDialog({ isOpen, onDialogClose, onPetSelect }: SelectPe
         setCurrentSelectedPet(null);
     };
 
-    const handlePetRowSelection = ({ detail }: any): void => {
+    const handlePetRowSelection = ({detail}: any): void => {
         if (detail.value) {
             setCurrentSelectedPet(detail.value);
         }
     };
 
     const petGridColumnOptions = {
-        name: { header: 'Nombre' },
-        type: { header: 'Tipo' },
-        breed: { header: 'Raza' },
-        'owner.firstName': { header: 'Propietario' },
-        'owner.lastName': { header: 'Apellido' }
+        name: {header: 'Nombre'},
+        type: {header: 'Tipo'},
+        breed: {header: 'Raza'},
+        'owner.firstName': {header: 'Propietario'},
+        'owner.lastName': {header: 'Apellido'}
     };
 
     const visiblePetColumns = ['name', 'type', 'breed', 'owner.firstName', 'owner.lastName'];
 
-    const selectedPetDisplayValue = currentSelectedPet
-        ? formatPetDisplayName(createSelectedPetFromGridItem(currentSelectedPet))
-        : '';
+    const selectedPetDisplayValue = currentSelectedPet ? formatPetDisplayName(createSelectedPetFromGridItem(currentSelectedPet)) : '';
 
     const isPetSelectionConfirmationDisabled = !currentSelectedPet;
 
-    return (
-        <Dialog opened={isOpen} onOpenedChanged={({ detail }) => !detail.value && handleDialogClose()}>
-            <div style={{ padding: '1rem', width: '800px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    return (<Dialog opened={isOpen}
+                    onOpenedChanged={({detail}) => !detail.value && handleDialogClose()}>
+            <div style={{
+                padding: '1rem',
+                width: '800px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+            }}>
                 <h3>Seleccionar Mascota</h3>
 
                 <AutoGrid
@@ -120,7 +145,7 @@ export function SelectPetDialog({ isOpen, onDialogClose, onPetSelect }: SelectPe
                     columnOptions={petGridColumnOptions}
                     visibleColumns={visiblePetColumns}
                     onActiveItemChanged={handlePetRowSelection}
-                    style={{ height: '400px' }}
+                    style={{height: '400px'}}
                 />
 
                 <TextField
@@ -129,7 +154,11 @@ export function SelectPetDialog({ isOpen, onDialogClose, onPetSelect }: SelectPe
                     readonly
                 />
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '0.5rem'
+                }}>
                     <Button theme="tertiary" onClick={handleDialogClose}>
                         Cancelar
                     </Button>
@@ -142,18 +171,16 @@ export function SelectPetDialog({ isOpen, onDialogClose, onPetSelect }: SelectPe
                     </Button>
                 </div>
             </div>
-        </Dialog>
-    );
+        </Dialog>);
 }
 
-function ConsultationLayoutRenderer({ children }: AutoFormLayoutRendererProps<CreateConsultationDTOModel>) {
-    return (
-        <VerticalLayout style={{ alignItems: 'stretch' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+function ConsultationLayoutRenderer({children}: AutoFormLayoutRendererProps<CreateConsultationDTOModel>) {
+    return (<VerticalLayout style={{alignItems: 'stretch'}}>
+            <div
+                style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                 {children}
             </div>
-        </VerticalLayout>
-    );
+        </VerticalLayout>);
 }
 
 export default function NewConsultationView() {
@@ -209,7 +236,9 @@ export default function NewConsultationView() {
         setConsultationFormKey(prev => prev + 1);
     };
 
-    const handleConsultationSubmitSuccess = ({ item }: { item: CreateConsultationDTO }): void => {
+    const handleConsultationSubmitSuccess = ({item}: {
+        item: CreateConsultationDTO
+    }): void => {
         showSuccessNotification('Consulta creada exitosamente');
         if (selectedPetId) {
             loadPetConsultationHistory(selectedPetId);
@@ -223,95 +252,85 @@ export default function NewConsultationView() {
     };
 
     const showSuccessNotification = (message: string): void => {
-        Notification.show(message, { theme: 'success' });
+        Notification.show(message, {theme: 'success'});
     };
 
     const showErrorNotification = (message: string): void => {
-        Notification.show(message, { theme: 'error' });
+        Notification.show(message, {theme: 'error'});
     };
 
     const createInitialConsultationData = (): Partial<CreateConsultationDTO> | undefined => {
         if (!selectedPetId || !selectedVeterinarianId) return undefined;
 
         return {
-            petId: selectedPetId,
-            veterinarianId: selectedVeterinarianId
+            petId: selectedPetId, veterinarianId: selectedVeterinarianId
         };
     };
 
     const consultationFormFieldOptions = {
         petId: {
-            renderer: () => (
-                <TextField
+            renderer: () => (<TextField
                     label="Mascota"
                     value={selectedPetDisplayName}
                     readonly
                     onClick={() => setIsPetDialogOpen(true)}
                     placeholder="Haz click para seleccionar una mascota"
-                    style={{ cursor: 'pointer', width: '100%' }}
-                />
-            ),
-        },
-        veterinarianId: {
-            renderer: () => (
-                <TextField
+                    style={{cursor: 'pointer', width: '100%'}}
+                />),
+        }, veterinarianId: {
+            renderer: () => (<TextField
                     label="Veterinario"
                     value={selectedVeterinarianDisplayName}
                     readonly
                     onClick={() => setIsVeterinarianDialogOpen(true)}
                     placeholder="Haz click para seleccionar un veterinario"
-                    style={{ cursor: 'pointer', width: '100%' }}
-                />
-            ),
+                    style={{cursor: 'pointer', width: '100%'}}
+                />),
         },
     };
 
-    const consultationGridColumnDefinitions = [
-        {
-            path: 'consultationDate',
-            header: 'Fecha',
-            renderer: ({ item }: any) => formatConsultationDateTime(item.consultationDate)
-        },
-        { path: 'diagnosis', header: 'Diagnóstico' },
-        { path: 'treatment', header: 'Tratamiento' },
-        { path: 'notes', header: 'Notas' }
-    ];
+    const consultationGridColumnDefinitions = [{
+        path: 'consultationDate',
+        header: 'Fecha',
+        renderer: ({item}: any) => formatConsultationDateTime(item.consultationDate)
+    }, {path: 'diagnosis', header: 'Diagnóstico'}, {
+        path: 'treatment',
+        header: 'Tratamiento'
+    }, {path: 'notes', header: 'Notas'}];
 
     const renderConsultationHistorySection = (): JSX.Element => {
         if (!selectedPetId) return <></>;
 
-        return (
-            <VerticalLayout style={{ flex: '1', minWidth: '300px' }}>
+        return (<VerticalLayout style={{flex: '1', minWidth: '300px'}}>
                 <h4><strong>Historial de Consultas:</strong></h4>
-                {isConsultationHistoryLoading.value ? (
-                    <div>Cargando historial...</div>
-                ) : petConsultationHistory.length === 0 ? (
-                    <div style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+                {isConsultationHistoryLoading.value ? (<div>Cargando
+                        historial...</div>) : petConsultationHistory.length === 0 ? (
+                    <div style={{
+                        padding: '1rem',
+                        textAlign: 'center',
+                        color: '#666'
+                    }}>
                         No hay consultas disponibles para esta mascota
-                    </div>
-                ) : (
-                    <Grid items={petConsultationHistory} style={{ height: '400px' }}>
+                    </div>) : (<Grid items={petConsultationHistory}
+                                     style={{height: '400px'}}>
                         {consultationGridColumnDefinitions.map((column, index) => (
                             <GridColumn
                                 key={index}
                                 path={column.path}
                                 header={column.header}
                                 renderer={column.renderer}
-                            />
-                        ))}
-                    </Grid>
-                )}
-            </VerticalLayout>
-        );
+                            />))}
+                    </Grid>)}
+            </VerticalLayout>);
     };
 
-    return (
-        <>
+    return (<>
             <main className="w-full h-full flex flex-col box-border gap-s p-m">
                 <h2>Nueva Consulta</h2>
 
-                <HorizontalLayout style={{ alignItems: 'flex-start', gap: '2rem' }}>
-                    <VerticalLayout style={{ flex: '1', minWidth: '400px' }}>
+                <HorizontalLayout
+                    style={{alignItems: 'flex-start', gap: '2rem'}}>
+                    <VerticalLayout style={{flex: '1', minWidth: '400px'}}>
                         <AutoForm
                             key={consultationFormKey}
                             service={ConsultationServiceImpl}
@@ -339,6 +358,5 @@ export default function NewConsultationView() {
                 onDialogClose={() => setIsVeterinarianDialogOpen(false)}
                 onVeterinarianSelect={handleVeterinarianSelection}
             />
-        </>
-    );
+        </>);
 }

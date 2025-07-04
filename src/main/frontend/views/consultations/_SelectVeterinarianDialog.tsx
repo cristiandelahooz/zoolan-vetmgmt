@@ -2,7 +2,7 @@ import { AutoGrid } from "@vaadin/hilla-react-crud";
 import { Dialog, TextField, Button } from '@vaadin/react-components';
 import { useState } from 'react';
 import { EmployeeServiceImpl } from 'Frontend/generated/endpoints';
-import EmployeeModel from "Frontend/generated/com/zoolandia/app/features/employee/domain/EmployeeModel";
+import EmployeeModel from "@/generated/com/wornux/features/employee/domain/EmployeeModel";
 
 export interface SelectedVeterinarian {
     id: number;

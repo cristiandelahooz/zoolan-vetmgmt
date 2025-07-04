@@ -5,7 +5,7 @@ import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.features.medicalHistory.domain.MedicalHistory;
 import com.wornux.features.medicalHistory.repository.MedicalHistoryRepository;
-import com.zoolandia.app.features.pet.domain.Pet;
+import com.wornux.features.pet.domain.Pet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

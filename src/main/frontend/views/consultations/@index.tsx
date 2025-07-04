@@ -1,6 +1,6 @@
 import { AutoGrid } from '@vaadin/hilla-react-crud';
             import { ConsultationServiceImpl } from 'Frontend/generated/endpoints';
-            import ConsultationModel from 'Frontend/generated/com/zoolandia/app/features/consultation/domain/ConsultationModel';
+            import ConsultationModel from '@/generated/com/wornux/features/consultation/domain/ConsultationModel';
 
             export default function ConsultationsView() {
                 return (

@@ -1,9 +1,9 @@
 package com.wornux.features.consultation.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zoolandia.app.features.employee.domain.Employee;
+import com.wornux.features.employee.domain.Employee;
 import com.wornux.features.medicalHistory.domain.MedicalHistory;
-import com.zoolandia.app.features.pet.domain.Pet;
+import com.wornux.features.pet.domain.Pet;
 import jakarta.persistence.*;
 import lombok.*;
 

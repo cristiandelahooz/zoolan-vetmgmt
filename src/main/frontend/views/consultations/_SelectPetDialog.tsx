@@ -2,8 +2,8 @@ import { AutoGrid } from '@vaadin/hilla-react-crud'
 import { Button, Dialog, TextField } from '@vaadin/react-components'
 import { useState } from 'react'
 import { PetServiceImpl } from 'Frontend/generated/endpoints'
-import PetModel from 'Frontend/generated/com/zoolandia/app/features/pet/domain/PetModel'
-import PetType from "Frontend/generated/com/zoolandia/app/features/pet/domain/PetType"
+import type PetType from "@/generated/com/wornux/features/pet/domain/PetType";
+import PetModel from '@/generated/com/wornux/features/pet/domain/PetModel';
 
 export interface SelectedPet {
     id: number

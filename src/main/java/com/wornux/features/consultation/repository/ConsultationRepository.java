@@ -1,9 +1,9 @@
 package com.wornux.features.consultation.repository;
 
-import com.zoolandia.app.common.entity.AbstractRepository;
+import com.wornux.common.entity.AbstractRepository;
 import com.wornux.features.consultation.domain.Consultation;
-import com.zoolandia.app.features.employee.domain.Employee;
-import com.zoolandia.app.features.pet.domain.Pet;
+import com.wornux.features.employee.domain.Employee;
+import com.wornux.features.pet.domain.Pet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

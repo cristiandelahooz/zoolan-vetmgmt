@@ -1,6 +1,6 @@
 package com.wornux.features.medicalHistory.repository;
 
-import com.zoolandia.app.common.entity.AbstractRepository;
+import com.wornux.common.entity.AbstractRepository;
 import com.wornux.features.medicalHistory.domain.MedicalHistory;
 import org.springframework.stereotype.Repository;
 

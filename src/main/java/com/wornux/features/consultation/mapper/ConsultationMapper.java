@@ -2,10 +2,10 @@ package com.wornux.features.consultation.mapper;
 
 import com.wornux.features.consultation.domain.Consultation;
 import com.wornux.features.consultation.service.dto.CreateConsultationDTO;
-import com.zoolandia.app.features.employee.domain.Employee;
-import com.zoolandia.app.features.employee.service.EmployeeService;
-import com.zoolandia.app.features.pet.domain.Pet;
-import com.zoolandia.app.features.pet.service.PetService;
+import com.wornux.features.employee.domain.Employee;
+import com.wornux.features.employee.service.EmployeeService;
+import com.wornux.features.pet.domain.Pet;
+import com.wornux.features.pet.service.PetService;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,7 +41,6 @@ public abstract class ConsultationMapper {
     @Mapping(target = "updatedAt", ignore = true)
     public abstract void partialUpdate(@MappingTarget Consultation entity, CreateConsultationDTO dto);
 
-    // Métodos que extraen el valor del Optional
     protected Pet petFromId(Long id) {
         if (id == null) {
             return null;

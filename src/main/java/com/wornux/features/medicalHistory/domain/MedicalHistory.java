@@ -2,7 +2,7 @@ package com.wornux.features.medicalHistory.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wornux.features.consultation.domain.Consultation;
-import com.zoolandia.app.features.pet.domain.Pet;
+import com.wornux.features.pet.domain.Pet;
 import jakarta.persistence.*;
 import lombok.*;
 
