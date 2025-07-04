@@ -35,15 +35,15 @@ public abstract class AppointmentMapper {
     @Mapping(target = "assignedEmployee", source = "assignedEmployeeId", qualifiedByName = "mapEmployee")
     public abstract void updateAppointmentFromDTO(AppointmentUpdateDTO dto, @MappingTarget Appointment appointment);
 
-    @Mapping(target = "clientId", source = "client.id")
+    @Mapping(target = "eventId", source = "appointment.id")
+    @Mapping(target = "appointmentTitle", expression = "java(appointment.getAppointmentTitle())")
     @Mapping(target = "clientName", expression = "java(appointment.getClientDisplayName())")
-    @Mapping(target = "clientPhone", expression = "java(appointment.getClientContactPhone())")
-    @Mapping(target = "petId", source = "pet.id")
+    @Mapping(target = "clientContactPhone", expression = "java(appointment.getClientContactPhone())")
     @Mapping(target = "petName", source = "pet.name")
-    @Mapping(target = "assignedEmployeeId", source = "assignedEmployee.id")
     @Mapping(target = "assignedEmployeeName", expression = "java(appointment.getEmployeeDisplayName())")
-    @Mapping(target = "endDateTime", expression = "java(appointment.getEndDateTime())")
-    @Mapping(target = "displayName", expression = "java(appointment.getClientDisplayName())")
+    @Mapping(target = "startAppointmentDate", expression = "java(appointment.getStartAppointmentDate())")
+    @Mapping(target = "completed", expression = "java(appointment.isCompleted())")
+    @Mapping(target = "cancelled", expression = "java(appointment.isCancelled())")
     @Mapping(target = "hasRegisteredClient", expression = "java(appointment.hasRegisteredClient())")
     @Mapping(target = "requiresVeterinarian", expression = "java(appointment.requiresVeterinarian())")
     public abstract AppointmentResponseDTO toResponseDTO(Appointment appointment);
