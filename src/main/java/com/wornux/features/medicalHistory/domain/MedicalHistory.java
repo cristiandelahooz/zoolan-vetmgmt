@@ -16,8 +16,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"consultations", "pet"})
-@ToString(exclude = {"consultations", "pet"})
+@EqualsAndHashCode(exclude = { "consultations", "pet" })
+@ToString(exclude = { "consultations", "pet" })
 public class MedicalHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

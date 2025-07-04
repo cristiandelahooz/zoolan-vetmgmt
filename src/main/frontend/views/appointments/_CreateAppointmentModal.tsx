@@ -1,58 +1,58 @@
-import type AppointmentCreateDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentCreateDTO';
-import { AppointmentServiceImpl } from '@/generated/endpoints';
-import {
-  Button,
-  ComboBox,
-  DateTimePicker,
-  Dialog,
-  TextArea,
-  TextField,
-} from '@vaadin/react-components';
-import { useForm, Controller } from 'react-hook-form';
-import { SelectClientDialog, type SelectedClient } from '@/views/clients/_SelectClientDialog';
-import { useEffect, useState } from 'react';
-import { usePets } from '@/stores/usePets';
-import { useEmployees } from '@/stores/useEmployees';
-import ServiceType from '@/generated/com/wornux/features/appointments/domain/ServiceType';
-import AppointmentStatus from '@/generated/com/wornux/features/appointments/domain/AppointmentStatus';
+import type AppointmentCreateDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentCreateDTO'
+import { AppointmentServiceImpl } from '@/generated/endpoints'
+import { Button, ComboBox, DateTimePicker, Dialog, TextArea, TextField } from '@vaadin/react-components'
+import { useForm, Controller } from 'react-hook-form'
+import { SelectClientDialog, type SelectedClient } from '@/views/clients/_SelectClientDialog'
+import { useEffect, useState } from 'react'
+import { usePets } from '@/stores/usePets'
+import { useEmployees } from '@/stores/useEmployees'
+import ServiceType from '@/generated/com/wornux/features/appointments/domain/ServiceType'
+import AppointmentStatus from '@/generated/com/wornux/features/appointments/domain/AppointmentStatus'
 
 interface CreateAppointmentModalProps {
-  isOpen: boolean;
-  onClose: (isSuccess: boolean) => void;
-  selectedDate: Date | null;
+  isOpen: boolean
+  onClose: (isSuccess: boolean) => void
+  selectedDate: Date | null
 }
 
 export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: CreateAppointmentModalProps) {
-  const { register, handleSubmit, reset, control, setValue, formState: { errors } } = useForm<AppointmentCreateDTO>();
-  const [isClientSelectorOpen, setIsClientSelectorOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<SelectedClient | null>(null);
-  const { pets, fetchPets } = usePets();
-  const { employees } = useEmployees();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<AppointmentCreateDTO>()
+  const [isClientSelectorOpen, setIsClientSelectorOpen] = useState(false)
+  const [selectedClient, setSelectedClient] = useState<SelectedClient | null>(null)
+  const { pets, fetchPets } = usePets()
+  const { employees } = useEmployees()
 
   useEffect(() => {
     if (selectedClient?.id) {
-      fetchPets(selectedClient.id);
+      fetchPets(selectedClient.id)
     }
-  }, [selectedClient, fetchPets]);
+  }, [selectedClient, fetchPets])
 
   const onSubmit = async (data: AppointmentCreateDTO) => {
     try {
-      await AppointmentServiceImpl.createAppointment(data);
-      onClose(true);
-      reset();
+      await AppointmentServiceImpl.createAppointment(data)
+      onClose(true)
+      reset()
     } catch (error) {
-      console.error('Failed to create appointment:', error);
-      onClose(false);
+      console.error('Failed to create appointment:', error)
+      onClose(false)
     }
-  };
+  }
 
   const handleClientSelection = (client: SelectedClient) => {
-    setSelectedClient(client);
-    setValue('clientId', client.id);
-    setIsClientSelectorOpen(false);
-  };
+    setSelectedClient(client)
+    setValue('clientId', client.id)
+    setIsClientSelectorOpen(false)
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <>
@@ -112,14 +112,8 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Create
               />
             )}
           />
-          <TextField
-            label="Reason"
-            {...register('reason')}
-          />
-          <TextArea
-            label="Notes"
-            {...register('notes')}
-          />
+          <TextField label="Reason" {...register('reason')} />
+          <TextArea label="Notes" {...register('notes')} />
           <div className="flex gap-s items-end">
             <TextField
               label="Selected Client"
@@ -163,5 +157,5 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Create
         onSelect={handleClientSelection}
       />
     </>
-  );
+  )
 }

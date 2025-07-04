@@ -164,7 +164,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         Pet removePet = petRepository.findById(removePetId).orElseThrow(() -> new PetNotFoundException(removePetId));
 
         if (!keepPet.getName().equalsIgnoreCase(removePet.getName())
-            || !keepPet.getType().equals(removePet.getType())) {
+                || !keepPet.getType().equals(removePet.getType())) {
             throw new IllegalArgumentException("Las mascotas no parecen ser la misma (nombre o tipo diferentes)");
         }
 
@@ -199,5 +199,3 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     }
 
 }
-
-

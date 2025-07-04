@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-
 import java.util.List;
 
 @BrowserCallable
@@ -22,7 +21,8 @@ public interface ConsultationService {
     /**
      * Create a new consultation
      *
-     * @param createDTO the consultation data
+     * @param createDTO
+     *            the consultation data
      * @return the created consultation
      */
     Consultation create(CreateConsultationDTO createDTO);
@@ -30,8 +30,10 @@ public interface ConsultationService {
     /**
      * Update an existing consultation
      *
-     * @param id the id of the consultation to update
-     * @param updateDTO the updated consultation data
+     * @param id
+     *            the id of the consultation to update
+     * @param updateDTO
+     *            the updated consultation data
      * @return the updated consultation
      */
     Consultation update(Long id, UpdateConsultationDTO updateDTO);
@@ -39,8 +41,10 @@ public interface ConsultationService {
     /**
      * Partially update a consultation
      *
-     * @param id the id of the consultation to update
-     * @param updateDTO the consultation fields to update
+     * @param id
+     *            the id of the consultation to update
+     * @param updateDTO
+     *            the consultation fields to update
      * @return the updated consultation
      */
     Consultation partialUpdate(Long id, UpdateConsultationDTO updateDTO);
@@ -48,7 +52,8 @@ public interface ConsultationService {
     /**
      * Get a consultation by id
      *
-     * @param id the consultation id
+     * @param id
+     *            the consultation id
      * @return the found consultation
      */
     Consultation findById(Long id);
@@ -56,7 +61,8 @@ public interface ConsultationService {
     /**
      * Get all consultations with pagination
      *
-     * @param pageable pagination information
+     * @param pageable
+     *            pagination information
      * @return page of consultations
      */
     Page<Consultation> findAll(Pageable pageable);
@@ -64,7 +70,8 @@ public interface ConsultationService {
     /**
      * Get all consultations for a specific pet
      *
-     * @param petId the pet id
+     * @param petId
+     *            the pet id
      * @return list of consultations
      */
     List<Consultation> findByPetId(Long petId);
@@ -72,7 +79,8 @@ public interface ConsultationService {
     /**
      * Get all consultations for a specific veterinarian
      *
-     * @param veterinarianId the veterinarian id
+     * @param veterinarianId
+     *            the veterinarian id
      * @return list of consultations
      */
     List<Consultation> findByVeterinarianId(Long veterinarianId);
@@ -80,7 +88,8 @@ public interface ConsultationService {
     /**
      * Delete a consultation
      *
-     * @param id the consultation id to delete
+     * @param id
+     *            the consultation id to delete
      */
     void delete(Long id);
 

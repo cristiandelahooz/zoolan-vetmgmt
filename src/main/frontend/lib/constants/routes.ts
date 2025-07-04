@@ -32,7 +32,6 @@ export const ROUTES = {
   CONSULTATION_NEW: '/consultations/new',
   CONSULTATION_EDIT: '/consultations/edit',
   CONSULTATION_VIEW: '/consultations/view',
-
 } as const
 
 // Type for route values

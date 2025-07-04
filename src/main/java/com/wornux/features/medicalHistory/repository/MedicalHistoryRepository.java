@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface MedicalHistoryRepository extends AbstractRepository<MedicalHistory, Long> {
     Optional<MedicalHistory> findByPetId(Long petId);
+
     MedicalHistory save(MedicalHistory medicalHistory);
 }

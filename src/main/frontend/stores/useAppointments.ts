@@ -1,5 +1,5 @@
 import type AppointmentResponseDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentResponseDTO'
-import { AppointmentServiceImpl } from '@/generated/endpoints';
+import { AppointmentServiceImpl } from '@/generated/endpoints'
 import { useCallback, useEffect, useState } from 'react'
 
 export function useAppointments() {
@@ -10,7 +10,7 @@ export function useAppointments() {
   const fetchAppointments = useCallback(async (start?: string, end?: string) => {
     setLoading(true)
     try {
-      const fetchedAppointments = await AppointmentServiceImpl.getCalendarEvents(start, end) || []
+      const fetchedAppointments = (await AppointmentServiceImpl.getCalendarEvents(start, end)) || []
       setAppointments(fetchedAppointments.filter((a): a is AppointmentResponseDTO => a !== undefined && a !== null))
     } catch (e: any) {
       setError(e.message)
@@ -42,13 +42,13 @@ export function useAppointments() {
 
   const deleteAppointment = async (id: number) => {
     try {
-      await AppointmentServiceImpl.deleteAppointment(id);
-      refetch();
+      await AppointmentServiceImpl.deleteAppointment(id)
+      refetch()
     } catch (e) {
-      console.error('Failed to delete appointment:', e);
-      throw e;
+      console.error('Failed to delete appointment:', e)
+      throw e
     }
-  };
+  }
 
-  return { appointments, loading, error, refetch, updateAppointment, deleteAppointment };
+  return { appointments, loading, error, refetch, updateAppointment, deleteAppointment }
 }

@@ -1,9 +1,9 @@
-import { Notification } from '@vaadin/react-components';
+import { Notification } from '@vaadin/react-components'
 
 interface NotificationProps {
-  message: string;
-  isOpen: boolean;
-  onClose: () => void;
+  message: string
+  isOpen: boolean
+  onClose: () => void
 }
 
 export function AppNotification({ message, isOpen, onClose }: NotificationProps) {
@@ -17,5 +17,5 @@ export function AppNotification({ message, isOpen, onClose }: NotificationProps)
     >
       {message}
     </Notification>
-  );
+  )
 }

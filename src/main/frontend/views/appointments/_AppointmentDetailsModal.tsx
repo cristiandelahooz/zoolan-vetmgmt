@@ -11,9 +11,9 @@ interface AppointmentDetailsModalProps {
 export function AppointmentDetailsModal({ appointment, isOpen, onClose, onEdit }: AppointmentDetailsModalProps) {
   const handleDelete = async () => {
     if (appointment) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   if (!isOpen || !appointment) return null
 

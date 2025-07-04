@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"medicalHistory"})
-@ToString(exclude = {"medicalHistory"})
+@EqualsAndHashCode(exclude = { "medicalHistory" })
+@ToString(exclude = { "medicalHistory" })
 public class Consultation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

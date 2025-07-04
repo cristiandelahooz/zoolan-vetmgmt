@@ -14,9 +14,12 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface MedicalHistoryService {
     MedicalHistory findOrCreateByPet(Pet pet);
+
     MedicalHistory findByPetId(Long petId);
 
     MedicalHistory getOrCreateMedicalHistory(Pet pet);
+
     MedicalHistory updateMedicalHistory(MedicalHistory medicalHistory);
+
     List<MedicalHistory> getConsultationsByPetId(Long petId);
 }

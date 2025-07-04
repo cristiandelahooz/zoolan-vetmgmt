@@ -30,7 +30,7 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
   const { updateAppointment } = useAppointments()
 
   const onSubmit = async (data: AppointmentUpdateDTO) => {
-    if (!appointment?.eventId) return;
+    if (!appointment?.eventId) return
     try {
       await updateAppointment(appointment.eventId, data)
       onClose(true)

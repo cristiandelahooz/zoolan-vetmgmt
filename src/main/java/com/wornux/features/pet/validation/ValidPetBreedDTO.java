@@ -6,12 +6,12 @@ import java.lang.annotation.*;
 
 @Documented
 @Constraint(validatedBy = PetBreedDTOValidator.class)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPetBreedDTO {
-  String message() default "The breed is not valid for the selected pet type";
+    String message() default "The breed is not valid for the selected pet type";
 
-  Class<?>[] groups() default {};
+    Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 }

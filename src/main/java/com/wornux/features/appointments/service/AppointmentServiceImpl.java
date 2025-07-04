@@ -108,8 +108,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional(readOnly = true)
     public List<AppointmentResponseDTO> getAppointmentsByEmployee(Long employeeId, LocalDateTime start,
             LocalDateTime end) {
-        List<Appointment> appointments = appointmentRepository.findByAssignedEmployeeIdAndStartAppointmentDateBetween(
-                employeeId, start, end);
+        List<Appointment> appointments = appointmentRepository
+                .findByAssignedEmployeeIdAndStartAppointmentDateBetween(employeeId, start, end);
         return appointments.stream().map(appointmentMapper::toResponseDTO).toList();
     }
 

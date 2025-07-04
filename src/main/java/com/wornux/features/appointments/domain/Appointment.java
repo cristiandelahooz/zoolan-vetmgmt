@@ -134,6 +134,7 @@ public class Appointment {
         }
         return null;
     }
+
     public String getEmployeeDisplayName() {
         if (assignedEmployee != null) {
             return assignedEmployee.getFirstName() + " " + assignedEmployee.getLastName();
@@ -144,9 +145,8 @@ public class Appointment {
     @AssertTrue(message = "Debe proporcionar información de cliente registrado o datos de cliente invitado")
     private boolean isValidClientInfo() {
         boolean hasRegisteredClient = client != null;
-        boolean hasGuestInfo = guestClientInfo != null &&
-                guestClientInfo.getName() != null &&
-                !guestClientInfo.getName().trim().isEmpty();
+        boolean hasGuestInfo = guestClientInfo != null && guestClientInfo.getName() != null
+                && !guestClientInfo.getName().trim().isEmpty();
 
         return hasRegisteredClient || hasGuestInfo;
     }

@@ -150,4 +150,3 @@ public class DataSeeder implements CommandLineRunner {
         clientService.createClient(clientDTO);
     }
 }
-

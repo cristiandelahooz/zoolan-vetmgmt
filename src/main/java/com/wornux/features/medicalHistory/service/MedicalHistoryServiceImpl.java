@@ -20,29 +20,28 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
-public class MedicalHistoryServiceImpl extends ListRepositoryService<MedicalHistory, Long, MedicalHistoryRepository> implements  MedicalHistoryService {
+public class MedicalHistoryServiceImpl extends ListRepositoryService<MedicalHistory, Long, MedicalHistoryRepository>
+        implements MedicalHistoryService {
     private final MedicalHistoryRepository medicalHistoryRepository;
 
     @Override
     public MedicalHistory findOrCreateByPet(Pet pet) {
-        return medicalHistoryRepository.findByPetId(pet.getId())
-                .orElseGet(() -> {
-                    MedicalHistory newHistory = new MedicalHistory();
-                    newHistory.setPet(pet);
-                    return medicalHistoryRepository.save(newHistory);
-                });
+        return medicalHistoryRepository.findByPetId(pet.getId()).orElseGet(() -> {
+            MedicalHistory newHistory = new MedicalHistory();
+            newHistory.setPet(pet);
+            return medicalHistoryRepository.save(newHistory);
+        });
     }
 
     @Override
     public MedicalHistory findByPetId(Long petId) {
-        return medicalHistoryRepository.findByPetId(petId)
-                .orElseGet(() -> {
-                    MedicalHistory newHistory = new MedicalHistory();
-                    Pet pet = new Pet();
-                    pet.setId(petId);
-                    newHistory.setPet(pet);
-                    return newHistory;
-                });
+        return medicalHistoryRepository.findByPetId(petId).orElseGet(() -> {
+            MedicalHistory newHistory = new MedicalHistory();
+            Pet pet = new Pet();
+            pet.setId(petId);
+            newHistory.setPet(pet);
+            return newHistory;
+        });
     }
 
     @Override
