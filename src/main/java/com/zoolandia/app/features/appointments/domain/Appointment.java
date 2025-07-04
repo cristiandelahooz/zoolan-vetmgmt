@@ -1,5 +1,6 @@
 package com.zoolandia.app.features.appointments.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.employee.domain.Employee;
 import com.zoolandia.app.features.pet.domain.Pet;
@@ -14,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import java.time.LocalDateTime;
 
 import static com.zoolandia.app.common.constants.AppointmentConstants.*;
+import static com.zoolandia.app.common.constants.ValidationConstants.DATE_PATTERN;
 
 @Entity
 @Table(name = "appointments")
@@ -27,16 +29,17 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "appointment_date", nullable = false)
-    @NotNull(message = "La fecha y hora de la cita es obligatoria")
-    @Future(message = "La fecha de la cita debe ser en el futuro")
-    private LocalDateTime appointmentDateTime;
+    @Column(name = "start_appointment_date", nullable = false)
+    @NotNull(message = "La fecha y hora de inicio es obligatoria")
+    @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
+    private LocalDateTime startAppointmentDate;
 
-    @Column(name = "duration_minutes", nullable = false)
-    @Min(value = MIN_APPOINTMENT_DURATION_MINUTES, message = "La duración mínima es {value} minutos")
-    @Max(value = MAX_APPOINTMENT_DURATION_MINUTES, message = "La duración máxima es {value} minutos")
-    @Builder.Default
-    private Integer durationMinutes = DEFAULT_APPOINTMENT_DURATION_MINUTES;
+    @Column(name = "end_appointment_date", nullable = false)
+    @NotNull(message = "La fecha y hora de cierre es obligatoria")
+    @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
+    private LocalDateTime endAppointmentDate;
 
     @Column(name = "service_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -94,8 +97,8 @@ public class Appointment {
     @Nullable
     private String updatedBy;
 
-    public LocalDateTime getEndDateTime() {
-        return appointmentDateTime.plusMinutes(durationMinutes);
+    public String getAppointmentTitle() {
+        return serviceType.getDisplayName() + " - " + getClientDisplayName();
     }
 
     public boolean isCompleted() {
