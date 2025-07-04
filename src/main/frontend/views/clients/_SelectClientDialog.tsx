@@ -51,6 +51,12 @@ export function SelectClientDialog({ open, onClose, onSelect }: Readonly<SelectC
               setSelectedClient(null)
             }
           }}
+          columnOptions={{
+            firstName: { header: 'Nombre' },
+            lastName: { header: 'Apellido' },
+            cedula: { header: 'Cédula' },
+            phoneNumber: { header: 'Teléfono' },
+          }}
           visibleColumns={['firstName', 'lastName', 'cedula', 'email', 'phoneNumber']}
         />
       </div>
