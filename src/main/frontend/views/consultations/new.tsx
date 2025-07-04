@@ -10,6 +10,7 @@ import { useSignal } from '@vaadin/hilla-react-signals'
 import { useState } from 'react'
 import PetModel from "Frontend/generated/com/zoolandia/app/features/pet/domain/PetModel";
 import { SelectVeterinarianDialog, SelectedVeterinarian } from './_SelectVeterinarianDialog';
+import {ROUTES} from "Frontend/lib/constants/routes";
 
 const createPetListService = () => ({
     list: PetServiceImpl.list,
@@ -213,7 +214,7 @@ export default function NewConsultationView() {
         if (selectedPetId) {
             loadPetConsultationHistory(selectedPetId);
         }
-        navigate('/consultations');
+        navigate(ROUTES.CONSULTATIONS);
     };
 
     const handleConsultationSubmitError = (error: SubmitErrorEvent): void => {
