@@ -1,5 +1,8 @@
 package com.zoolandia.app.bootstrap;
 
+import com.zoolandia.app.features.appointments.domain.ServiceType;
+import com.zoolandia.app.features.appointments.dtos.AppointmentCreateDTO;
+import com.zoolandia.app.features.appointments.service.AppointmentService;
 import com.zoolandia.app.features.client.domain.ClientRating;
 import com.zoolandia.app.features.client.domain.PreferredContactMethod;
 import com.zoolandia.app.features.client.domain.ReferenceSource;
@@ -16,6 +19,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static com.zoolandia.app.dto.Gender.*;
 
@@ -26,13 +30,27 @@ public class DataSeeder implements CommandLineRunner {
     private final ClientService clientService;
     private final EmployeeService employeeService;
     private final PetService petService;
+    private final AppointmentService appointmentService;
 
     @Override
     public void run(String... args) throws Exception {
         populateClients();
         populateEmployees();
         populatePets();
+        populateAppointments();
     }
+
+    private void populateAppointments() {
+        AppointmentCreateDTO appointmentDTO = new AppointmentCreateDTO();
+        appointmentDTO.setPetId(1L);
+        appointmentDTO.setClientId(1L);
+        appointmentDTO.setAssignedEmployeeId(2L);
+        appointmentDTO.setStartAppointmentDate(LocalDateTime.of(2025, 7, 4, 10, 0));
+        appointmentDTO.setEndAppointmentDate(LocalDateTime.of(2025, 7, 4, 11, 0));
+        appointmentDTO.setServiceType(ServiceType.DESPARASITACION);
+        appointmentService.createAppointment(appointmentDTO);
+    }
+
     private void populatePets() {
         PetCreateDTO petDTO = new PetCreateDTO();
         petDTO.setName("Max");
@@ -41,7 +59,7 @@ public class DataSeeder implements CommandLineRunner {
         petDTO.setBirthDate(LocalDate.of(2020, 6, 15));
         petDTO.setOwnerId(1L);
         petDTO.setGender(MALE);
-       petService.createPet(petDTO);
+        petService.createPet(petDTO);
     }
 
     private void populateEmployees() {
