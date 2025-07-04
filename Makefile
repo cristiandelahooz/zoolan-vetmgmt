@@ -16,7 +16,7 @@ DOCKER_COMPOSE_FILE := compose.yml
 
 help:
 	@echo ""
-	@echo "${GREEN}Zoolan Vet Management - Makefile Help${NC}"
+	@echo "${GREEN}Wornux Vet Management - Makefile Help${NC}"
 	@echo "${GREEN}------------------------------------${NC}"
 	@echo ""
 	@echo "${YELLOW}General Commands:${NC}"
