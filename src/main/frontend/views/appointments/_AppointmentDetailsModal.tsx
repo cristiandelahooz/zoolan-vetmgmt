@@ -45,7 +45,7 @@ export function AppointmentDetailsModal({ appointment, isOpen, onClose, onEdit }
           <strong>Status:</strong> {appointment.status}
         </p>
         <p>
-          <strong>Fecha:</strong> {new Date(appointment.appointmentDateTime as string).toLocaleString()}
+          <strong>Fecha:</strong> {new Date(appointment.startAppointmentDate as string).toLocaleString()}
         </p>
         {/* Display more appointment details as needed */}
       </div>
