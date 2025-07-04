@@ -129,8 +129,8 @@ export default function WaitingRoomView() {
         }
         const filter = undefined
         const allPets = await PetServiceImpl.list(pageable, filter)
-        const validPets = (allPets || []).filter((pet: Pet) =>
-          pet.owners?.some((owner: Client) => owner.id === clientId),
+        const validPets = (allPets || []).filter((pet): pet is Pet =>
+            pet !== undefined && pet.owners?.some((owner: Client) => owner.id === clientId)
         )
         setPets(validPets)
       } catch (altError) {
