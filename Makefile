@@ -1,15 +1,18 @@
-\
 .PHONY: help run build clean test format db-up db-down db-shell db-logs
 
 # ANSI Color Codes
-GREEN = \033[0;32m
-YELLOW = \033[0;33m
-BLUE = \033[0;34m
-NC = \033[0m # No Color
+GREEN := \033[0;32m
+YELLOW := \033[0;33m
+BLUE := \033[0;34m
+NC := \033[0m # No Color
 
 # Project Variables
-MAVEN_CMD = ./mvnw
-DOCKER_COMPOSE_FILE = compose.yml
+ifeq ($(OS),Windows_NT)
+	MAVEN_CMD := .\mvnw.cmd
+else
+	MAVEN_CMD := ./mvnw
+endif
+DOCKER_COMPOSE_FILE := compose.yml
 
 help:
 	@echo ""
@@ -41,6 +44,11 @@ build:
 clean:
 	@echo "${BLUE}Cleaning project build artifacts...${NC}"
 	$(MAVEN_CMD) clean
+
+restart: clean
+	  @echo "${BLUE}Restarting the application...${NC}"
+	  $(MAVEN_CMD) spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true"
+	  @echo "${BLUE}Application restarted successfully!${NC}"
 
 test:
 	@echo "${BLUE}Running tests...${NC}"
