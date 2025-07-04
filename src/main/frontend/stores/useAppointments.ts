@@ -3,15 +3,15 @@ import { AppointmentServiceImpl } from '@/generated/endpoints';
 import { useCallback, useEffect, useState } from 'react'
 
 export function useAppointments() {
-  const [appointments, setAppointments] = useState<(AppointmentResponseDTO | undefined)[]>([])
+  const [appointments, setAppointments] = useState<(AppointmentResponseDTO | null)[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchAppointments = useCallback(async (start?: string, end?: string) => {
     setLoading(true)
     try {
-      const fetchedAppointments:(AppointmentResponseDTO | undefined)[] = await AppointmentServiceImpl.getCalendarEvents(start, end) || []
-      setAppointments(fetchedAppointments)
+      const fetchedAppointments = await AppointmentServiceImpl.getCalendarEvents(start, end) || []
+      setAppointments(fetchedAppointments.filter((a): a is AppointmentResponseDTO => a !== undefined && a !== null))
     } catch (e: any) {
       setError(e.message)
     } finally {
