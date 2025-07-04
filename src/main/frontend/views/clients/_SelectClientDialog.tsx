@@ -13,7 +13,7 @@ interface SelectClientDialogProps {
   onSelect: (client: SelectedClient) => void
 }
 
-export function SelectClientDialog({ open, onClose, onSelect }: SelectClientDialogProps) {
+export function SelectClientDialog({ open, onClose, onSelect }: Readonly<SelectClientDialogProps>) {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
 
   return (
