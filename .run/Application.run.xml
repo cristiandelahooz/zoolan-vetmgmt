@@ -3,7 +3,7 @@
     <option name="ALTERNATIVE_JRE_PATH" value="jbr-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <module name="zoolan-vetmgmt" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.zoolandia.app.Application" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.wornux.Application" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

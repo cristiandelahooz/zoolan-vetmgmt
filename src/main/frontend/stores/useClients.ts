@@ -1,5 +1,5 @@
 import { ClientServiceImpl } from '@/generated/endpoints'
-import type Client from '@/generated/com/zoolandia/app/features/client/domain/Client'
+import type Client from '@/generated/com/wornux/features/client/domain/Client'
 import { useEffect, useState } from 'react'
 import type Pageable from '@/generated/com/vaadin/hilla/mappedtypes/Pageable'
 

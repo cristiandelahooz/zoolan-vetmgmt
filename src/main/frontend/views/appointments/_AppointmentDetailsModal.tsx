@@ -1,5 +1,4 @@
-import type AppointmentResponseDTO from '@/generated/com/zoolandia/app/features/appointments/dtos/AppointmentResponseDTO'
-import { useAppointments } from '@/stores/useAppointments'
+import type AppointmentResponseDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentResponseDTO'
 import { Button, Dialog } from '@vaadin/react-components'
 
 interface AppointmentDetailsModalProps {

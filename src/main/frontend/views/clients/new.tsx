@@ -1,8 +1,8 @@
-import type ClientCreateDTO from '@/generated/com/zoolandia/app/features/client/service/dto/ClientCreateDTO'
+import type ClientCreateDTO from '@/generated/com/wornux/features/client/service/dto/ClientCreateDTO'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import type { AutoFormLayoutRendererProps, SubmitErrorEvent } from '@vaadin/hilla-react-crud/'
 
-import ClientCreateDTOModel from '@/generated/com/zoolandia/app/features/client/service/dto/ClientCreateDTOModel'
+import ClientCreateDTOModel from '@/generated/com/wornux/features/client/service/dto/ClientCreateDTOModel'
 import { ClientServiceImpl } from '@/generated/endpoints'
 import { ROUTES } from '@/lib/constants/routes'
 import { useClientFormStore } from '@/stores/useClientAutoFormStore'

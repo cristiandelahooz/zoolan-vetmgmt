@@ -1,4 +1,4 @@
-import type AppointmentCreateDTO from '@/generated/com/zoolandia/app/features/appointments/dtos/AppointmentCreateDTO';
+import type AppointmentCreateDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentCreateDTO';
 import { AppointmentServiceImpl } from '@/generated/endpoints';
 import {
   Button,
@@ -13,8 +13,8 @@ import { SelectClientDialog, type SelectedClient } from '@/views/clients/_Select
 import { useEffect, useState } from 'react';
 import { usePets } from '@/stores/usePets';
 import { useEmployees } from '@/stores/useEmployees';
-import ServiceType from '@/generated/com/zoolandia/app/features/appointments/domain/ServiceType';
-import AppointmentStatus from '@/generated/com/zoolandia/app/features/appointments/domain/AppointmentStatus';
+import ServiceType from '@/generated/com/wornux/features/appointments/domain/ServiceType';
+import AppointmentStatus from '@/generated/com/wornux/features/appointments/domain/AppointmentStatus';
 
 interface CreateAppointmentModalProps {
   isOpen: boolean;

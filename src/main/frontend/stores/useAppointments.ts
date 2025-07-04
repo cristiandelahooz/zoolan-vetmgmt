@@ -1,4 +1,4 @@
-import type AppointmentResponseDTO from '@/generated/com/zoolandia/app/features/appointments/dtos/AppointmentResponseDTO'
+import type AppointmentResponseDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentResponseDTO'
 import { AppointmentServiceImpl } from '@/generated/endpoints';
 import { useCallback, useEffect, useState } from 'react'
 

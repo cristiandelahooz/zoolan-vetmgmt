@@ -1,5 +1,5 @@
 import { PetServiceImpl } from '@/generated/endpoints';
-import type Pet from '@/generated/com/zoolandia/app/features/pet/domain/Pet';
+import type Pet from '@/generated/com/wornux/features/pet/domain/Pet';
 import { useCallback, useState } from 'react';
 import type Pageable from 'Frontend/generated/com/vaadin/hilla/mappedtypes/Pageable';
 import type Sort from 'Frontend/generated/com/vaadin/hilla/mappedtypes/Sort';

@@ -1,6 +1,6 @@
 import { ClientComboBox } from '@/components/ui/ClientComboBox'
-import type AppointmentResponseDTO from '@/generated/com/zoolandia/app/features/appointments/dtos/AppointmentResponseDTO'
-import type AppointmentUpdateDTO from '@/generated/com/zoolandia/app/features/appointments/dtos/AppointmentUpdateDTO'
+import type AppointmentResponseDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentResponseDTO'
+import type AppointmentUpdateDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentUpdateDTO'
 import { useAppointments } from '@/stores/useAppointments'
 import { Button, Dialog, TextField, DateTimePicker } from '@vaadin/react-components'
 import { Controller, useForm } from 'react-hook-form'

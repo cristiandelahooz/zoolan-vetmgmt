@@ -2,7 +2,7 @@ import { PetServiceImpl } from '@/generated/endpoints'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
 import type React from 'react'
-import PetModel from '../../generated/com/zoolandia/app/features/pet/domain/PetModel'
+import PetModel from '@/generated/com/wornux/features/pet/domain/PetModel'
 
 const OwnerRenderer: React.FC<{ item: PetModel }> = ({ item }) => (
   <span>{item.owner ? `${item.owner.firstName} ${item.owner.lastName}` : ''}</span>

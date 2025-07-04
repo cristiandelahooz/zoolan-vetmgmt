@@ -1,4 +1,4 @@
-import ClientModel from '@/generated/com/zoolandia/app/features/client/domain/ClientModel'
+import ClientModel from '@/generated/com/wornux/features/client/domain/ClientModel'
 import { ClientServiceImpl } from '@/generated/endpoints'
 import { AUTO_GRID_CLIENT_COLUMN_OPTIONS } from '@/lib/constants/client-field-config'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
