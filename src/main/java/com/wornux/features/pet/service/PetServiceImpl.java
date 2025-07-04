@@ -25,7 +25,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,21 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     private final PetRepository petRepository;
     private final PetMapper petMapper;
     private final ConsultationRepository consultationRepository;
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Pet> list(Pageable pageable, @Nullable Filter filter) {
+        log.debug("Request to list active Pets with pageable: {} and filter: {}", pageable, filter);
+
+        // Create a pageable with proper sorting if not provided
+        if (pageable == null) {
+            pageable = PageRequest.of(0, 50, Sort.by("name").ascending());
+        }
+
+        // Return only the content of the page (List<Pet>) instead of Page<Pet>
+        Page<Pet> page = petRepository.findByActiveTrueOrderByNameAsc(pageable);
+        return page.getContent();
+    }
 
     @Override
     @Transactional
@@ -88,11 +105,11 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Override
     @Transactional(readOnly = true)
     public List<PetSummaryDTO> getAllPets(Pageable pageable) {
-        return petRepository.findAllActive(pageable).stream()
+        return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
                 .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
                         pet.getBirthDate(),
                         pet.getOwners().isEmpty()
-                                ? "Sin dueño"
+                                ? "Sin dueÃ±o"
                                 : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
                 .toList();
     }
@@ -108,17 +125,12 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     // @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
         log.debug("Request to delete Pet : {}", id);
-        petRepository.deleteById(id);
-        log.info("Deleted Pet ID: {}", id);
-
-        log.debug("Request to delete Pet via FormService : {}", id);
 
         Pet pet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
-
         pet.setActive(false);
         petRepository.save(pet);
 
-        log.info("Pet deactivated via FormService, ID: {}", id);
+        log.info("Pet deactivated, ID: {}", id);
     }
 
     @Override
@@ -174,7 +186,6 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
                 .filter(owner -> !existingOwnerIds.contains(owner.getId())).toList();
 
         keepPet.getOwners().addAll(newOwners);
-
         removePet.setActive(false);
 
         petRepository.save(keepPet);
@@ -190,12 +201,4 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         log.debug("Searching for pets with name containing: {}", name);
         return petRepository.findSimilarPetsByName(name);
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Pet> list(Pageable pageable, @Nullable Filter filter) {
-        Page<Pet> page = petRepository.findAllActive(pageable);
-        return page.getContent();
-    }
-
 }
