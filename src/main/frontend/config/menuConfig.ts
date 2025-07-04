@@ -45,6 +45,11 @@ export const menuConfig: MenuItemConfig[] = [
         title: 'Registrar',
         icon: 'lumo:edit',
       },
+      {
+        path: ROUTES.PET_MERGE,
+        title: 'Fusionar',
+        icon: 'lumo:edit',
+      },
     ],
   },
   {

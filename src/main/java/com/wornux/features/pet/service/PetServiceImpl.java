@@ -4,6 +4,8 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
+import com.vaadin.hilla.crud.filter.Filter;
+import com.wornux.features.client.domain.Client;
 import com.wornux.features.consultation.domain.Consultation;
 import com.wornux.features.consultation.repository.ConsultationRepository;
 import com.wornux.features.pet.domain.Pet;
@@ -28,14 +30,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @Validated
 @RequiredArgsConstructor
 @BrowserCallable
-@AnonymousAllowed
 @Transactional
+@AnonymousAllowed
 public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetRepository>
         implements PetService, FormService<PetCreateDTO, Long> {
 
@@ -85,9 +88,12 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Override
     @Transactional(readOnly = true)
     public List<PetSummaryDTO> getAllPets(Pageable pageable) {
-        return petRepository.findAll(pageable).stream()
+        return petRepository.findAllActive(pageable).stream()
                 .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
-                        pet.getBirthDate(), pet.getOwner().getFirstName() + " " + pet.getOwner().getLastName()))
+                        pet.getBirthDate(),
+                        pet.getOwners().isEmpty()
+                                ? "Sin dueño"
+                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
                 .toList();
     }
 
@@ -149,4 +155,49 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         log.debug("Request to get consultations for Pet: {}", petId);
         return consultationRepository.findByPetIdAndActiveTrue(petId);
     }
+
+    @Transactional
+    public Pet mergePets(Long keepPetId, Long removePetId) {
+        log.debug("Request to merge pets: keep={}, remove={}", keepPetId, removePetId);
+
+        Pet keepPet = petRepository.findById(keepPetId).orElseThrow(() -> new PetNotFoundException(keepPetId));
+        Pet removePet = petRepository.findById(removePetId).orElseThrow(() -> new PetNotFoundException(removePetId));
+
+        if (!keepPet.getName().equalsIgnoreCase(removePet.getName())
+            || !keepPet.getType().equals(removePet.getType())) {
+            throw new IllegalArgumentException("Las mascotas no parecen ser la misma (nombre o tipo diferentes)");
+        }
+
+        Set<Long> existingOwnerIds = keepPet.getOwners().stream().map(Client::getId).collect(Collectors.toSet());
+
+        List<Client> newOwners = removePet.getOwners().stream()
+                .filter(owner -> !existingOwnerIds.contains(owner.getId())).toList();
+
+        keepPet.getOwners().addAll(newOwners);
+
+        removePet.setActive(false);
+
+        petRepository.save(keepPet);
+        petRepository.save(removePet);
+
+        log.info("Merged pets: {} total owners now associated with pet ID {}", keepPet.getOwners().size(), keepPetId);
+
+        return keepPet;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Pet> findSimilarPetsByName(String name) {
+        log.debug("Searching for pets with name containing: {}", name);
+        return petRepository.findSimilarPetsByName(name);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Pet> list(Pageable pageable, @Nullable Filter filter) {
+        Page<Pet> page = petRepository.findAllActive(pageable);
+        return page.getContent();
+    }
+
 }
+
+

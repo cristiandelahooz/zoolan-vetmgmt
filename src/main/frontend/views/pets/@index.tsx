@@ -1,7 +1,7 @@
-import { PetServiceImpl } from '@/generated/endpoints'
+import React from 'react'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
-import type React from 'react'
+import { PetServiceImpl } from '@/generated/endpoints'
 import PetModel from '@/generated/com/wornux/features/pet/domain/PetModel'
 
 const OwnerRenderer: React.FC<{ item: PetModel }> = ({ item }) => (
