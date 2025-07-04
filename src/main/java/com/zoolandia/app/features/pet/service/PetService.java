@@ -59,7 +59,6 @@ public interface PetService {
      *            pagination information
      * @return paginated list of Pets
      */
-    //Page<Pet> getAllPets(Pageable pageable);
     List<PetSummaryDTO> getAllPets(Pageable pageable);
 
     /**
