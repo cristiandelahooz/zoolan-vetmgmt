@@ -1,5 +1,6 @@
 package com.zoolandia.app.features.pet.domain;
 
+import com.zoolandia.app.dto.Gender;
 import com.zoolandia.app.features.client.domain.Client;
 import com.zoolandia.app.features.pet.validation.ValidPetBreed;
 import jakarta.persistence.*;
