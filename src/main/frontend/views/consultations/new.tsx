@@ -18,14 +18,39 @@ import { useSignal } from '@vaadin/hilla-react-signals'
 import { useState } from 'react'
 import PetModel from '@/generated/com/wornux/features/pet/domain/PetModel'
 import { SelectVeterinarianDialog, type SelectedVeterinarian } from './_SelectVeterinarianDialog'
-import { ROUTES } from 'Frontend/lib/constants/routes'
+import { ROUTES } from '@/lib/constants/routes'
 import type CreateConsultationDTO from '@/generated/com/wornux/features/consultation/service/dto/CreateConsultationDTO'
+import type Pet from '@/generated/com/wornux/features/pet/domain/Pet'
 
 const createPetListService = () => ({
-  list: PetServiceImpl.list,
-  save: PetServiceImpl.save,
-  delete: PetServiceImpl.delete,
+  list: async (pageable?: any, filter?: any) => {
+    try {
+      const result = await PetServiceImpl.list(pageable, filter)
+      return (result || []).filter((pet): pet is Pet => pet !== undefined)
+    } catch (error) {
+      console.error('Error loading pets:', error)
+      return []
+    }
+  },
+  save: async (item: any) => {
+    try {
+      const result = await PetServiceImpl.save(item)
+      return result || item
+    } catch (error) {
+      console.error('Error saving pet:', error)
+      throw error
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      return await PetServiceImpl.delete(id)
+    } catch (error) {
+      console.error('Error deleting pet:', error)
+      throw error
+    }
+  }
 })
+
 
 export interface SelectedPet {
   id: number
@@ -46,8 +71,10 @@ const createSelectedPetFromGridItem = (item: any): SelectedPet => ({
   name: item.name,
   type: item.type,
   breed: item.breed,
-  ownerName: `${item.owner.firstName} ${item.owner.lastName}`,
-})
+  ownerName: item.owners && item.owners.length > 0
+      ? `${item.owners[0].firstName} ${item.owners[0].lastName}`
+      : 'Sin propietario'
+});
 
 const formatPetDisplayName = (pet: SelectedPet): string => `${pet.name} (${pet.type} - ${pet.breed})`
 
@@ -72,90 +99,84 @@ const formatConsultationDateTime = (dateString: string): string => {
 }
 
 export function SelectPetDialog({ isOpen, onDialogClose, onPetSelect }: SelectPetDialogProps) {
-  const [currentSelectedPet, setCurrentSelectedPet] = useState<any>(null)
-  const petListService = createPetListService()
+  const [currentSelectedPet, setCurrentSelectedPet] = useState<any>(null);
+  const petListService = createPetListService();
 
   const handlePetSelection = (): void => {
-    if (!currentSelectedPet) return
+    if (!currentSelectedPet) return;
 
-    const selectedPet = createSelectedPetFromGridItem(currentSelectedPet)
-    onPetSelect(selectedPet)
-    onDialogClose()
-    resetSelectedPet()
-  }
+    const selectedPet = createSelectedPetFromGridItem(currentSelectedPet);
+    onPetSelect(selectedPet);
+    onDialogClose();
+    resetSelectedPet();
+  };
 
   const handleDialogClose = (): void => {
-    onDialogClose()
-    resetSelectedPet()
-  }
+    onDialogClose();
+    resetSelectedPet();
+  };
 
   const resetSelectedPet = (): void => {
-    setCurrentSelectedPet(null)
-  }
+    setCurrentSelectedPet(null);
+  };
 
   const handlePetRowSelection = ({ detail }: any): void => {
     if (detail.value) {
-      setCurrentSelectedPet(detail.value)
+      setCurrentSelectedPet(detail.value);
     }
-  }
+  };
 
   const petGridColumnOptions = {
     name: { header: 'Nombre' },
     type: { header: 'Tipo' },
     breed: { header: 'Raza' },
-    'owner.firstName': { header: 'Propietario' },
-    'owner.lastName': { header: 'Apellido' },
-  }
+    'owners.0.firstName': { header: 'Propietario' },
+    'owners.0.lastName': { header: 'Apellido' }
+  };
 
-  const visiblePetColumns = ['name', 'type', 'breed', 'owner.firstName', 'owner.lastName']
+  const visiblePetColumns = ['name', 'type', 'breed', 'owners.0.firstName', 'owners.0.lastName'];
 
   const selectedPetDisplayValue = currentSelectedPet
-    ? formatPetDisplayName(createSelectedPetFromGridItem(currentSelectedPet))
-    : ''
+      ? formatPetDisplayName(createSelectedPetFromGridItem(currentSelectedPet))
+      : '';
 
-  const isPetSelectionConfirmationDisabled = !currentSelectedPet
+  const isPetSelectionConfirmationDisabled = !currentSelectedPet;
 
   return (
-    <Dialog opened={isOpen} onOpenedChanged={({ detail }) => !detail.value && handleDialogClose()}>
-      <div
-        style={{
-          padding: '1rem',
-          width: '800px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-        }}
-      >
-        <h3>Seleccionar Mascota</h3>
+      <Dialog opened={isOpen} onOpenedChanged={({ detail }) => !detail.value && handleDialogClose()}>
+        <div style={{ padding: '1rem', width: '800px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h3>Seleccionar Mascota</h3>
 
-        <AutoGrid
-          service={petListService}
-          model={PetModel}
-          columnOptions={petGridColumnOptions}
-          visibleColumns={visiblePetColumns}
-          onActiveItemChanged={handlePetRowSelection}
-          style={{ height: '400px' }}
-        />
+          <AutoGrid
+              service={petListService}
+              model={PetModel}
+              columnOptions={petGridColumnOptions}
+              visibleColumns={visiblePetColumns}
+              onActiveItemChanged={handlePetRowSelection}
+              style={{ height: '400px' }}
+          />
 
-        <TextField label="Mascota seleccionada" value={selectedPetDisplayValue} readonly />
+          <TextField
+              label="Mascota seleccionada"
+              value={selectedPetDisplayValue}
+              readonly
+          />
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '0.5rem',
-          }}
-        >
-          <Button theme="tertiary" onClick={handleDialogClose}>
-            Cancelar
-          </Button>
-          <Button theme="primary" onClick={handlePetSelection} disabled={isPetSelectionConfirmationDisabled}>
-            Seleccionar
-          </Button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <Button theme="tertiary" onClick={handleDialogClose}>
+              Cancelar
+            </Button>
+            <Button
+                theme="primary"
+                onClick={handlePetSelection}
+                disabled={isPetSelectionConfirmationDisabled}
+            >
+              Seleccionar
+            </Button>
+          </div>
         </div>
-      </div>
-    </Dialog>
-  )
+      </Dialog>
+  );
 }
 
 function ConsultationLayoutRenderer({ children }: AutoFormLayoutRendererProps<CreateConsultationDTOModel>) {
@@ -284,15 +305,24 @@ export default function NewConsultationView() {
     {
       path: 'consultationDate',
       header: 'Fecha',
-      renderer: ({ item }: any) => formatConsultationDateTime(item.consultationDate),
+      renderer: ({ item }: { item: any }) => formatConsultationDateTime(item.consultationDate)
     },
     { path: 'diagnosis', header: 'Diagnóstico' },
+    { path: 'treatment', header: 'Tratamiento' },
+    { path: 'prescription', header: 'Prescripción' },
     {
-      path: 'treatment',
-      header: 'Tratamiento',
+      path: 'veterinarian.firstName',
+      header: 'Veterinario',
+      renderer: ({ item }: { item: any }) =>
+          item.veterinarian ? `${item.veterinarian.firstName} ${item.veterinarian.lastName}` : 'No asignado'
     },
-    { path: 'notes', header: 'Notas' },
-  ]
+    {
+      path: 'pet.name',
+      header: 'Mascota',
+      renderer: ({ item }: { item: any }) =>
+          item.pet ? `${item.pet.name} (${item.pet.type})` : 'No asignado'
+    }
+  ];
 
   const renderConsultationHistorySection = (): JSX.Element => {
     if (!selectedPetId) return <></>
