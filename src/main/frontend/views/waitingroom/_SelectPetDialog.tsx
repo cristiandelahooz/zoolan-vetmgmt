@@ -1,7 +1,7 @@
-import PetModel from '@/generated/com/wornux/features/pet/domain/PetModel'
+import PetModel from '@/generated/com/wornux/data/entity/PetModel'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
 import { Button, Dialog, TextField } from '@vaadin/react-components'
-import { PetServiceImpl } from 'Frontend/generated/endpoints'
+import { PetServiceImpl } from '@/generated/endpoints'
 import { useEffect, useState } from 'react'
 
 export interface SelectedPet {
@@ -18,7 +18,7 @@ type SelectPetDialogType = {
   onSelect: (pet: SelectedPet) => void
 }
 
-export function SelectPetDialog({ open, ownerId, onClose, onSelect }: SelectPetDialogType) {
+export function SelectPetDialog({ open, ownerId, onClose, onSelect }: Readonly<SelectPetDialogType>) {
   const [selectedPet, setSelectedPet] = useState<any>(null)
   const [pets, setPets] = useState<any[]>([])
   const [loading, setLoading] = useState(false)

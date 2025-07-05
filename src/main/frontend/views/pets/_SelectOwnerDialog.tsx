@@ -1,4 +1,4 @@
-import ClientModel from '@/generated/com/wornux/features/client/domain/ClientModel'
+import ClientModel from '@/generated/com/wornux/data/entity/ClientModel'
 import { ClientServiceImpl } from '@/generated/endpoints'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
 import { Button, Dialog, TextField } from '@vaadin/react-components'

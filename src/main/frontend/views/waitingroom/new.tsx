@@ -1,7 +1,7 @@
-import type WaitingRoomCreateDTO from '@/generated/com/wornux/features/waitingRoom/service/dto/WaitingRoomCreateDTO'
-import WaitingRoomCreateDTOModel from '@/generated/com/wornux/features/waitingRoom/service/dto/WaitingRoomCreateDTOModel'
-import { AutoForm, type AutoFormLayoutRendererProps } from '@vaadin/hilla-react-crud'
-import type { SubmitErrorEvent } from '@vaadin/hilla-react-crud'
+import type WaitingRoomCreateDTO from '@/generated/com/wornux/dto/request/WaitingRoomCreateRequestDto'
+import WaitingRoomCreateDTOModel from '@/generated/com/wornux/dto/request/WaitingRoomCreateRequestDtoModel'
+import { WaitingRoomServiceImpl } from '@/generated/endpoints'
+import { AutoForm, type AutoFormLayoutRendererProps, type SubmitErrorEvent } from '@vaadin/hilla-react-crud'
 import {
   HorizontalLayout,
   IntegerField,
@@ -11,7 +11,6 @@ import {
   TextField,
   VerticalLayout,
 } from '@vaadin/react-components'
-import { WaitingRoomServiceImpl } from 'Frontend/generated/endpoints'
 import { useState } from 'react'
 import { SelectOwnerDialog, type SelectedClient } from '../pets/_SelectOwnerDialog'
 import { SelectPetDialog, type SelectedPet } from './_SelectPetDialog'
@@ -241,7 +240,13 @@ export default function WaitingRoomNewView() {
 
   return (
     <>
-      <VerticalLayout theme="spacing" style={{ padding: 'var(--lumo-space-l)', maxWidth: '600px' }}>
+      <VerticalLayout
+        theme="spacing"
+        style={{
+          padding: 'var(--lumo-space-l)',
+          maxWidth: '600px',
+        }}
+      >
         <h2>Registrar paciente en sala de espera</h2>
         <AutoForm
           service={WaitingRoomServiceImpl}

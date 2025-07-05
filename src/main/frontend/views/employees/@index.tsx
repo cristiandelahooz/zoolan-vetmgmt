@@ -1,4 +1,4 @@
-import EmployeeCreateDTOModel from '@/generated/com/wornux/features/employee/service/dto/EmployeeCreateDTOModel'
+import EmployeeCreateDTOModel from '@/generated/com/wornux/dto/request/EmployeeCreateRequestDtoModel'
 import { EmployeeServiceImpl } from '@/generated/endpoints'
 import { AUTO_GRID_EMPLOYEE_FIELD_OPTIONS } from '@/lib/constants/employee-field-config'
 import { AutoGrid } from '@vaadin/hilla-react-crud'

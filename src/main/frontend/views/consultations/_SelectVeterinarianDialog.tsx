@@ -1,8 +1,8 @@
 import { AutoGrid } from '@vaadin/hilla-react-crud'
 import { Dialog, TextField, Button } from '@vaadin/react-components'
 import { useState } from 'react'
-import { EmployeeServiceImpl } from 'Frontend/generated/endpoints'
-import EmployeeModel from '@/generated/com/wornux/features/employee/domain/EmployeeModel'
+import { EmployeeServiceImpl } from '@/generated/endpoints'
+import EmployeeModel from '@/generated/com/wornux/data/entity/EmployeeModel'
 
 export interface SelectedVeterinarian {
   id: number

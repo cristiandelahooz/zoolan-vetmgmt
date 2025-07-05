@@ -1,4 +1,4 @@
-import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponse'
+import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
 import { Button, Dialog } from '@vaadin/react-components'
 
 interface AppointmentDetailsModalProps {

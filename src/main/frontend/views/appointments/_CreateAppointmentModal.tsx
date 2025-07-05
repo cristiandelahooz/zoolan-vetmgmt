@@ -1,6 +1,6 @@
 import ServiceType from '@/generated/com/wornux/data/enums/ServiceType'
-import type AppointmentCreateDTO from '@/generated/com/wornux/dto/request/AppointmentCreateRequest'
-import AppointmentStatus from '@/generated/com/wornux/features/appointments/domain/AppointmentStatus'
+import type AppointmentCreateDTO from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto'
+import AppointmentStatus from '@/generated/com/wornux/data/enums/AppointmentStatus'
 import { AppointmentServiceImpl } from '@/generated/endpoints'
 import { useEmployees } from '@/stores/useEmployees'
 import { usePets } from '@/stores/usePets'

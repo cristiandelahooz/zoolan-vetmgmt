@@ -1,8 +1,8 @@
+import type Pageable from '@/generated/com/vaadin/hilla/mappedtypes/Pageable'
+import type Sort from '@/generated/com/vaadin/hilla/mappedtypes/Sort'
+import type Employee from '@/generated/com/wornux/data/entity/Employee'
 import { EmployeeServiceImpl } from '@/generated/endpoints'
-import type Employee from '@/generated/com/wornux/features/employee/domain/Employee'
 import { useEffect, useState } from 'react'
-import type Pageable from 'Frontend/generated/com/vaadin/hilla/mappedtypes/Pageable'
-import type Sort from 'Frontend/generated/com/vaadin/hilla/mappedtypes/Sort'
 
 const unpagedPageable: Pageable = { pageNumber: 0, pageSize: 2000, sort: { orders: [] } as Sort }
 

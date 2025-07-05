@@ -16,7 +16,7 @@ import {
 } from '@vaadin/react-components'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import PetCreateDTOModel from '@/generated/com/wornux/features/pet/service/dto/PetCreateDTOModel'
+import PetCreateDTOModel from '@/generated/com/wornux/dto/request/PetCreateRequestDtoModel'
 import { SelectOwnerDialog, type SelectedClient } from './_SelectOwnerDialog'
 
 export default function PetEntryFormView() {

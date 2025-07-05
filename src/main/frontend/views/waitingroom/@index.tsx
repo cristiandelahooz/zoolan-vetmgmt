@@ -1,9 +1,9 @@
-import Priority from '@/generated/com/wornux/features/waitingRoom/domain/Priority'
-import WaitingRoomModel from '@/generated/com/wornux/features/waitingRoom/domain/WaitingRoomModel'
-import WaitingRoomStatus from '@/generated/com/wornux/features/waitingRoom/domain/WaitingRoomStatus'
+import Priority from '@/generated/com/wornux/data/enums/Priority'
+import WaitingRoomModel from '@/generated/com/wornux/data/entity/WaitingRoomModel'
+import WaitingRoomStatus from '@/generated/com/wornux/data/enums/WaitingRoomStatus'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
-import { WaitingRoomServiceImpl } from 'Frontend/generated/endpoints'
+import { WaitingRoomServiceImpl } from '@/generated/endpoints'
 import type React from 'react'
 import { useEffect, useRef } from 'react'
 
@@ -102,8 +102,8 @@ const WaitTimeRenderer: React.FC<{ item: WaitingRoomModel }> = ({ item }) => {
   }
 
   try {
-    const arrival = new Date(arrivalTime as string)
-    const endTime = consultationStarted ? new Date(consultationStarted as string) : new Date()
+    const arrival = new Date(arrivalTime)
+    const endTime = consultationStarted ? new Date(consultationStarted) : new Date()
     const diffMins = Math.floor((endTime.getTime() - arrival.getTime()) / (1000 * 60))
 
     if (diffMins < 60) {

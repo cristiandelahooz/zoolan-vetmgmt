@@ -1,4 +1,4 @@
-import type Pet from '@/generated/com/wornux/features/pet/domain/Pet'
+import type Pet from '@/generated/com/wornux/data/entity/Pet'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import {
   Button,
@@ -10,7 +10,7 @@ import {
   TextField,
   VerticalLayout,
 } from '@vaadin/react-components'
-import { PetServiceImpl } from 'Frontend/generated/endpoints'
+import { PetServiceImpl } from '@/generated/endpoints'
 import React, { useState } from 'react'
 
 export const config: ViewConfig = {

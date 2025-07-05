@@ -1,8 +1,10 @@
-import type Client from '@/generated/com/wornux/features/client/domain/Client'
-import type Pet from '@/generated/com/wornux/features/pet/domain/Pet'
-import Priority from '@/generated/com/wornux/features/waitingRoom/domain/Priority'
-import type WaitingRoom from '@/generated/com/wornux/features/waitingRoom/domain/WaitingRoom'
-import WaitingRoomStatus from '@/generated/com/wornux/features/waitingRoom/domain/WaitingRoomStatus'
+import type Sort from '@/generated/com/vaadin/hilla/mappedtypes/Sort'
+import type Client from '@/generated/com/wornux/data/entity/Client'
+import type Pet from '@/generated/com/wornux/data/entity/Pet'
+import type WaitingRoom from '@/generated/com/wornux/data/entity/WaitingRoom'
+import Priority from '@/generated/com/wornux/data/enums/Priority'
+import WaitingRoomStatus from '@/generated/com/wornux/data/enums/WaitingRoomStatus'
+import { ClientServiceImpl, PetServiceImpl, WaitingRoomServiceImpl } from '@/generated/endpoints'
 import type { ViewConfig } from '@vaadin/hilla-file-router/types.js'
 import {
   Button,
@@ -15,8 +17,6 @@ import {
   TextField,
   VerticalLayout,
 } from '@vaadin/react-components'
-import type Sort from 'Frontend/generated/com/vaadin/hilla/mappedtypes/Sort'
-import { ClientServiceImpl, PetServiceImpl, WaitingRoomServiceImpl } from 'Frontend/generated/endpoints'
 import { useEffect, useState } from 'react'
 
 export const config: ViewConfig = {
@@ -28,14 +28,12 @@ export default function WaitingRoomView() {
   const [waitingList, setWaitingList] = useState<WaitingRoom[]>([])
   const [stats, setStats] = useState({ waiting: 0, inConsultation: 0, todayTotal: 0 })
   const [loading, setLoading] = useState(true)
-
   const [addDialogOpen, setAddDialogOpen] = useState(false)
-  const [clients, setClients] = useState<Client[]>([])
-  const [pets, setPets] = useState<Pet[]>([])
+  const [clients, setClients] = useState<(Client | undefined)[]>([])
+  const [pets, setPets] = useState<Pet[] | undefined>([])
   const [selectedClientId, setSelectedClientId] = useState<string>('')
   const [selectedPetId, setSelectedPetId] = useState<string>('')
   const [reasonForVisit, setReasonForVisit] = useState('')
-  //const [priority, setPriority] = useState('1')
   const [priority, setPriority] = useState<Priority>(Priority.NORMAL)
   const [notes, setNotes] = useState('')
 
@@ -129,9 +127,7 @@ export default function WaitingRoomView() {
         }
         const filter = undefined
         const allPets = await PetServiceImpl.list(pageable, filter)
-        const validPets = (allPets || []).filter((pet): pet is Pet =>
-            pet !== undefined && pet.owners?.some((owner: Client) => owner.id === clientId)
-        )
+        const validPets = allPets?.filter((pet): pet is Pet => pet?.id === clientId)
         setPets(validPets)
       } catch (altError) {
         console.error('Error cargando todas las mascotas:', altError)
@@ -265,13 +261,13 @@ export default function WaitingRoomView() {
   }
 
   const clientItems = clients.map((client) => ({
-    label: `${client.firstName} ${client.lastName} - ${client.cedula || client.passport || client.rnc || 'Sin documento'}`,
-    value: client.id?.toString() || '',
+    label: `${client?.firstName} ${client?.lastName} - ${client?.cedula || client?.passport || client?.rnc || 'Sin documento'}`,
+    value: client?.id?.toString() ?? '',
   }))
 
-  const petItems = pets.map((pet) => ({
+  const petItems = pets?.map((pet) => ({
     label: `${pet.name} (${pet.type}${pet.breed ? ` - ${pet.breed}` : ''})`,
-    value: pet.id?.toString() || '',
+    value: pet.id?.toString() ?? '',
   }))
 
   const priorityItems = [

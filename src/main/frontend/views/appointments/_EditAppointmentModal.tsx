@@ -1,8 +1,7 @@
-import { ClientComboBox } from '@/components/ui/ClientComboBox'
-import type AppointmentResponseDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentResponseDTO'
-import type AppointmentUpdateDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentUpdateDTO'
+import type AppointmentUpdateDTO from '@/generated/com/wornux/dto/request/AppointmentUpdateRequestDto'
+import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
 import { useAppointments } from '@/stores/useAppointments'
-import { Button, Dialog, TextField, DateTimePicker } from '@vaadin/react-components'
+import { Button, DateTimePicker, Dialog } from '@vaadin/react-components'
 import { Controller, useForm } from 'react-hook-form'
 
 interface EditAppointmentModalProps {
@@ -63,19 +62,6 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: EditAppoi
           {...(register('startAppointmentDate', { required: 'Start time is required' }) as any)}
           invalid={!!errors.startAppointmentDate}
           errorMessage={errors.startAppointmentDate?.message}
-        />
-        <Controller
-          name="clientId"
-          control={control}
-          rules={{ required: 'Client is required' }}
-          render={({ field }) => (
-            <ClientComboBox
-              label="Client"
-              value={field.value?.toString()}
-              onChange={field.onChange}
-              error={errors.clientId?.message}
-            />
-          )}
         />
         <DateTimePicker
           label="Appointment End Time"

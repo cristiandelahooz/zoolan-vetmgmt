@@ -1,8 +1,8 @@
+import type Pageable from '@/generated/com/vaadin/hilla/mappedtypes/Pageable'
+import type Sort from '@/generated/com/vaadin/hilla/mappedtypes/Sort'
+import type Pet from '@/generated/com/wornux/data/entity/Pet'
 import { PetServiceImpl } from '@/generated/endpoints'
-import type Pet from '@/generated/com/wornux/features/pet/domain/Pet'
 import { useCallback, useState } from 'react'
-import type Pageable from 'Frontend/generated/com/vaadin/hilla/mappedtypes/Pageable'
-import type Sort from 'Frontend/generated/com/vaadin/hilla/mappedtypes/Sort'
 
 const unpagedPageable: Pageable = { pageNumber: 0, pageSize: 2000, sort: { orders: [] } as Sort }
 
