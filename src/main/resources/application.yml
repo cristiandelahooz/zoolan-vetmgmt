@@ -44,3 +44,23 @@ vaadin:
   allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux
   bun:
     enable: true
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  flyway:
+    enabled: false
+    locations: [ classpath:db/migration/prod, classpath:db/migration/dev ] #, filesystem:./sql
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  devtools:
+    restart:
+      enabled: true  # Set to enable hot deployment
+      additional-paths: src/main/java # restart directory
+      quiet-period: 1s
+      poll-interval: 2s
+      log-condition-evaluation-delta: false
