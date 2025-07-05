@@ -1,4 +1,4 @@
-.PHONY: help run build clean test format db-up db-down db-shell db-logs
+.PHONY: help run build package clean restart test format db-up db-down db-clean db-shell db-logs
 
 # ANSI Color Codes
 GREEN := \033[0;32m
@@ -13,6 +13,7 @@ else
 	MAVEN_CMD := ./mvnw
 endif
 DOCKER_COMPOSE_FILE := compose.yml
+PROJECT_NAME := wornux-vet
 
 help:
 	@echo ""
@@ -24,17 +25,19 @@ help:
 	@echo "  ${BLUE}make build${NC}      : Builds the entire project (frontend and backend)."
 	@echo "  ${BLUE}make package${NC}    : Builds the project and packages it into a JAR file."
 	@echo "  ${BLUE}make clean${NC}      : Cleans the project build artifacts."
+	@echo "  ${BLUE}make restart${NC}    : Cleans project and database, then restarts the application."
 	@echo "  ${BLUE}make test${NC}       : Runs all unit and integration tests."
 	@echo "  ${BLUE}make format${NC}     : Applies code formatting using Spotless (Java) and Biome (TypeScript)."
 	@echo ""
 	@echo "${YELLOW}Database (PostgreSQL) Commands:${NC}"
 	@echo "  ${BLUE}make db-up${NC}      : Starts the PostgreSQL container."
 	@echo "  ${BLUE}make db-down${NC}    : Stops and removes the PostgreSQL container."
+	@echo "  ${BLUE}make db-clean${NC}   : Cleans PostgreSQL container volumes."
 	@echo "  ${BLUE}make db-shell${NC}   : Connects to the PostgreSQL container's shell."
 	@echo "  ${BLUE}make db-logs${NC}    : Views the PostgreSQL container logs."
 	@echo ""
 
-run:
+run: db-up
 	@echo "${BLUE}Running Spring Boot application with Hilla frontend (hotswap enabled)...${NC}"
 	$(MAVEN_CMD) spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true"
 
@@ -50,10 +53,10 @@ clean:
 	@echo "${BLUE}Cleaning project build artifacts...${NC}"
 	$(MAVEN_CMD) clean
 
-restart: clean
-	  @echo "${BLUE}Restarting the application...${NC}"
-	  $(MAVEN_CMD) spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true"
-	  @echo "${BLUE}Application restarted successfully!${NC}"
+restart: clean db-clean db-up
+	@echo "${BLUE}Restarting the application...${NC}"
+	$(MAVEN_CMD) spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true"
+	@echo "${BLUE}Application restarted successfully!${NC}"
 
 test:
 	@echo "${BLUE}Running tests...${NC}"
@@ -70,6 +73,10 @@ db-up:
 db-down:
 	@echo "${BLUE}Stopping and removing PostgreSQL container...${NC}"
 	docker-compose -f $(DOCKER_COMPOSE_FILE) down
+
+db-clean:
+	@echo "${BLUE}Cleaning PostgreSQL container volumes...${NC}"
+	docker-compose -f $(DOCKER_COMPOSE_FILE) down -v
 
 db-shell:
 	@echo "${BLUE}Connecting to PostgreSQL container shell...${NC}"
