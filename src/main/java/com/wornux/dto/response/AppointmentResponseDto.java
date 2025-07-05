@@ -18,10 +18,8 @@ public class AppointmentResponseDto {
 
     private String appointmentTitle;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime startAppointmentDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime endAppointmentDate;
 
     private ServiceType serviceType;

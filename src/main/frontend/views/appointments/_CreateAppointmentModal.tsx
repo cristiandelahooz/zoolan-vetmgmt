@@ -1,6 +1,6 @@
+import AppointmentStatus from '@/generated/com/wornux/data/enums/AppointmentStatus'
 import ServiceType from '@/generated/com/wornux/data/enums/ServiceType'
 import type AppointmentCreateDTO from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto'
-import AppointmentStatus from '@/generated/com/wornux/data/enums/AppointmentStatus'
 import { AppointmentServiceImpl } from '@/generated/endpoints'
 import { useEmployees } from '@/stores/useEmployees'
 import { usePets } from '@/stores/usePets'
@@ -70,18 +70,40 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
         }
       >
         <form className="flex flex-col gap-m">
-          <DateTimePicker
-            label="Appointment Start Time"
-            defaultValue={selectedDate?.toISOString().substring(0, 16)}
-            {...(register('startAppointmentDate', { required: 'Start time is required' }) as any)}
-            invalid={!!errors.startAppointmentDate}
-            errorMessage={errors.startAppointmentDate?.message}
+          <Controller
+            name="startAppointmentDate"
+            control={control}
+            rules={{ required: 'Start time is required' }}
+            render={({ field }) => (
+              <DateTimePicker
+                label="Appointment Start Time"
+                value={field.value}
+                onChange={(e) => {
+                  // Ensure the value is an ISO string before passing to react-hook-form
+                  const date = e.target.value ? new Date(e.target.value) : null
+                  field.onChange(date ? date.toISOString() : '')
+                }}
+                invalid={!!errors.startAppointmentDate}
+                errorMessage={errors.startAppointmentDate?.message}
+              />
+            )}
           />
-          <DateTimePicker
-            label="Appointment End Time"
-            {...(register('endAppointmentDate', { required: 'End time is required' }) as any)}
-            invalid={!!errors.endAppointmentDate}
-            errorMessage={errors.endAppointmentDate?.message}
+          <Controller
+            name="endAppointmentDate"
+            control={control}
+            rules={{ required: 'End time is required' }}
+            render={({ field }) => (
+              <DateTimePicker
+                label="Appointment End Time"
+                value={field.value}
+                onChange={(e) => {
+                  const date = e.target.value ? new Date(e.target.value) : null
+                  field.onChange(date ? date.toISOString() : '')
+                }}
+                invalid={!!errors.endAppointmentDate}
+                errorMessage={errors.endAppointmentDate?.message}
+              />
+            )}
           />
           <Controller
             name="serviceType"

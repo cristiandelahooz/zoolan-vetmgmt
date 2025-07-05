@@ -47,7 +47,7 @@ const useCalendarState = () => {
 }
 
 const useCalendarHandlers = (
-  appointments: (AppointmentResponseDTO | null)[],
+  appointments: (AppointmentResponseDTO | undefined)[],
   updateAppointment: Function,
   refetch: Function,
   state: ReturnType<typeof useCalendarState>,
@@ -139,7 +139,7 @@ const useCalendarHandlers = (
   }
 }
 
-const mapAppointmentsToEvents = (appointments: (AppointmentResponseDTO | null)[]) => {
+const mapAppointmentsToEvents = (appointments: (AppointmentResponseDTO | undefined)[]) => {
   return appointments
     .filter((a) => a !== undefined && a !== null)
     .map((a) => ({

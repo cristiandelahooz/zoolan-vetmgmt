@@ -26,12 +26,10 @@ public class AppointmentCreateRequestDto {
 
     @NotNull(message = "La fecha y hora de inicio es obligatoria")
     @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime startAppointmentDate;
 
     @NotNull(message = "La fecha y hora de cierre es obligatoria")
     @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime endAppointmentDate;
 
     @NotNull(message = "El tipo de servicio es obligatorio")

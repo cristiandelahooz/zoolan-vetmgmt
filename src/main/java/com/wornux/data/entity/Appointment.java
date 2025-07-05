@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.jspecify.annotations.Nullable;
@@ -22,6 +23,7 @@ import com.wornux.data.enums.AppointmentStatus;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class Appointment {
 
     @Id
@@ -31,13 +33,11 @@ public class Appointment {
     @Column(name = "start_appointment_date", nullable = false)
     @NotNull(message = "La fecha y hora de inicio es obligatoria")
     @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime startAppointmentDate;
 
     @Column(name = "end_appointment_date", nullable = false)
     @NotNull(message = "La fecha y hora de cierre es obligatoria")
     @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime endAppointmentDate;
 
     @Column(name = "service_type", nullable = false)
@@ -147,6 +147,7 @@ public class Appointment {
         boolean hasGuestInfo = guestClientInfo != null && guestClientInfo.getName() != null
                 && !guestClientInfo.getName().trim().isEmpty();
 
+        log.info("Validating client info: hasRegisteredClient={}, hasGuestInfo={}", hasRegisteredClient, hasGuestInfo);
         return hasRegisteredClient || hasGuestInfo;
     }
 

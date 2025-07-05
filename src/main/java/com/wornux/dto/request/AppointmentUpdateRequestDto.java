@@ -21,12 +21,10 @@ public class AppointmentUpdateRequestDto {
 
     @Nullable
     @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime startAppointmentDate;
 
     @Nullable
     @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime endAppointmentDate;
 
     @Nullable

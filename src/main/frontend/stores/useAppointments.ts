@@ -3,15 +3,16 @@ import { AppointmentServiceImpl } from '@/generated/endpoints'
 import { useCallback, useEffect, useState } from 'react'
 
 export function useAppointments() {
-  const [appointments, setAppointments] = useState<(AppointmentResponseDTO | null)[]>([])
+  const [appointments, setAppointments] = useState<(AppointmentResponseDTO | undefined)[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchAppointments = useCallback(async (start?: string, end?: string) => {
     setLoading(true)
     try {
-      const fetchedAppointments = (await AppointmentServiceImpl.getCalendarEvents(start, end)) || []
-      setAppointments(fetchedAppointments.filter((a): a is AppointmentResponseDTO => a !== undefined && a !== null))
+      const fetchedAppointments: (AppointmentResponseDTO | undefined)[] =
+        (await AppointmentServiceImpl.getAppointmentsByDateRange(start, end)) || []
+      setAppointments(fetchedAppointments)
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -20,7 +21,14 @@ export function useAppointments() {
   }, [])
 
   useEffect(() => {
-    fetchAppointments()
+    const today = new Date()
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+
+    const initialStart = firstDayOfMonth.toISOString()
+    const initialEnd = lastDayOfMonth.toISOString()
+
+    fetchAppointments(initialStart, initialEnd)
   }, [fetchAppointments])
 
   const refetch = useCallback(

@@ -41,7 +41,4 @@ public interface AppointmentService {
     void cancelAppointment(Long id, String reason);
 
     void deleteAppointment(Long id);
-
-    // Para FullCalendar
-    List<AppointmentResponseDto> getCalendarEvents(LocalDateTime start, LocalDateTime end);
 }

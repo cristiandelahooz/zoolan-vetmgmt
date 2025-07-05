@@ -183,12 +183,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         log.info("Deleted appointment with ID: {}", id);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<AppointmentResponseDto> getCalendarEvents(LocalDateTime start, LocalDateTime end) {
-        return getAppointmentsByDateRange(start, end);
-    }
-
     private Appointment findAppointmentById(Long id) {
         return appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with ID: " + id));
