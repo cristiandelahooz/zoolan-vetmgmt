@@ -19,21 +19,21 @@ class ArchitectureTest {
     // TODO Add your own rules and remove those that don't apply to your project
 
     @Test
-    void domain_model_should_not_depend_on_application_services() {
-        noClasses().that().resideInAPackage(BASE_PACKAGE + "..domain..").should().dependOnClassesThat()
+    void data_model_should_not_depend_on_application_services() {
+        noClasses().that().resideInAPackage(BASE_PACKAGE + "..data..").should().dependOnClassesThat()
                 .resideInAPackage(BASE_PACKAGE + "..service..").check(importedClasses);
     }
 
     @Test
-    void domain_model_should_not_depend_on_the_user_interface() {
-        noClasses().that().resideInAPackage(BASE_PACKAGE + "..domain..").should().dependOnClassesThat()
+    void data_model_should_not_depend_on_the_user_interface() {
+        noClasses().that().resideInAPackage(BASE_PACKAGE + "..data..").should().dependOnClassesThat()
                 .resideInAnyPackage(BASE_PACKAGE + "..ui..").check(importedClasses);
     }
 
     @Test
-    void repositories_should_only_be_used_by_application_services_and_other_domain_classes() {
+    void repositories_should_only_be_used_by_application_services_and_other_data_classes() {
         classes().that().areAssignableTo(Repository.class).should().onlyHaveDependentClassesThat()
-                .resideInAnyPackage(BASE_PACKAGE + "..domain..", BASE_PACKAGE + "..service..").check(importedClasses);
+                .resideInAnyPackage(BASE_PACKAGE + "..data..", BASE_PACKAGE + "..service..").check(importedClasses);
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.wornux.service;
+package com.wornux.service.interfaces;
 
 import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.SystemRole;

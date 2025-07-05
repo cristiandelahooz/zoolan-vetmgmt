@@ -1,4 +1,4 @@
-package com.wornux.service;
+package com.wornux.service.interfaces;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Consultation;

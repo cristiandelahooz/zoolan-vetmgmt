@@ -17,7 +17,8 @@ import com.wornux.data.enums.SystemRole;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @SuperBuilder
 public class User {

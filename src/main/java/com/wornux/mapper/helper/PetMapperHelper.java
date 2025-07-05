@@ -1,10 +1,11 @@
 package com.wornux.mapper.helper;
 
 import com.wornux.data.entity.Client;
-import com.wornux.service.ClientService;
+import com.wornux.service.interfaces.ClientService;
 import com.wornux.exception.OwnerNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PetMapperHelper {
 
+    @Lazy
     private final ClientService clientService;
 
     @Named("mapOwnerAsList")

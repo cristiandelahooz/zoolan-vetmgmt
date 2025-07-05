@@ -4,19 +4,19 @@ import static com.wornux.data.enums.Gender.*;
 
 import com.wornux.data.enums.ServiceType;
 import com.wornux.dto.request.*;
-import com.wornux.service.AppointmentService;
+import com.wornux.service.interfaces.AppointmentService;
 import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
-import com.wornux.service.ClientService;
-import com.wornux.service.ConsultationService;
+import com.wornux.service.interfaces.ClientService;
+import com.wornux.service.interfaces.ConsultationService;
 import com.wornux.dto.request.CreateConsultationRequestDto;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.enums.EmployeeRole;
-import com.wornux.service.EmployeeService;
+import com.wornux.service.interfaces.EmployeeService;
 import com.wornux.data.entity.Pet;
 import com.wornux.data.enums.PetType;
-import com.wornux.service.PetService;
+import com.wornux.service.interfaces.PetService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,74 +45,79 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void populateConsultations(Employee createdEmployee, Pet createdPet) {
-        CreateConsultationRequestDto consultationDTO = new CreateConsultationRequestDto();
-        consultationDTO.setNotes("Consulta de rutina. Mascota en buen estado general.");
-        consultationDTO.setDiagnosis("Examen físico normal");
-        consultationDTO.setTreatment("Continuar con dieta balanceada y ejercicio regular");
-        consultationDTO.setPrescription("Vitaminas multiples - 1 tableta diaria por 30 días");
-        consultationDTO.setConsultationDate(LocalDateTime.now());
-        consultationDTO.setPetId(createdPet.getId());
-        consultationDTO.setVeterinarianId(createdEmployee.getId());
+        CreateConsultationRequestDto consultationDTO = CreateConsultationRequestDto.builder()
+                .notes("Consulta de rutina. Mascota en buen estado general.")
+                .diagnosis("Examen físico normal")
+                .treatment("Continuar con dieta balanceada y ejercicio regular")
+                .prescription("Vitaminas multiples - 1 tableta diaria por 30 días")
+                .consultationDate(LocalDateTime.now())
+                .petId(createdPet.getId())
+                .veterinarianId(createdEmployee.getId())
+                .build();
 
         consultationService.create(consultationDTO);
 
-        CreateConsultationRequestDto anotherConsultationDTO = new CreateConsultationRequestDto();
-        anotherConsultationDTO.setNotes("Consulta de rutina. Mascota en buen estado general.");
-        anotherConsultationDTO.setDiagnosis("Examen físico anormal");
-        anotherConsultationDTO.setTreatment("Continuar con dieta balanceada y ejercicio regular");
-        anotherConsultationDTO.setPrescription("Vitaminas multiples - 2 tableta diaria por 30 días");
-        anotherConsultationDTO.setConsultationDate(LocalDateTime.now());
-        anotherConsultationDTO.setPetId(createdPet.getId());
-        anotherConsultationDTO.setVeterinarianId(createdEmployee.getId());
+        CreateConsultationRequestDto anotherConsultationDTO = CreateConsultationRequestDto.builder()
+                .notes("Consulta de rutina. Mascota en buen estado general.")
+                .diagnosis("Examen físico anormal")
+                .treatment("Continuar con dieta balanceada y ejercicio regular")
+                .prescription("Vitaminas multiples - 2 tableta diaria por 30 días")
+                .consultationDate(LocalDateTime.now())
+                .petId(createdPet.getId())
+                .veterinarianId(createdEmployee.getId())
+                .build();
 
         consultationService.create(anotherConsultationDTO);
     }
 
     private void populateAppointments() {
-        AppointmentCreateRequestDto appointmentDTO = new AppointmentCreateRequestDto();
-        appointmentDTO.setPetId(1L);
-        appointmentDTO.setClientId(1L);
-        appointmentDTO.setAssignedEmployeeId(2L);
-        appointmentDTO.setStartAppointmentDate(LocalDateTime.now().plusDays(1));
-        appointmentDTO.setEndAppointmentDate(LocalDateTime.now().plusDays(1).plusHours(1));
-        appointmentDTO.setServiceType(ServiceType.CONSULTA_GENERAL);
+        AppointmentCreateRequestDto appointmentDTO = AppointmentCreateRequestDto.builder()
+                .petId(1L)
+                .clientId(1L)
+                .assignedEmployeeId(2L)
+                .startAppointmentDate(LocalDateTime.now().plusDays(1))
+                .endAppointmentDate(LocalDateTime.now().plusDays(1).plusHours(1))
+                .serviceType(ServiceType.CONSULTA_GENERAL)
+                .build();
         appointmentService.createAppointment(appointmentDTO);
     }
 
     private Pet populatePets() {
-        PetCreateRequestDto petDTO = new PetCreateRequestDto();
-        petDTO.setName("Max");
-        petDTO.setBreed("Labrador Retriever");
-        petDTO.setType(PetType.DOG);
-        petDTO.setBirthDate(LocalDate.of(2020, 6, 15));
-        petDTO.setOwnerId(1L);
-        petDTO.setGender(MALE);
+        PetCreateRequestDto petDTO = PetCreateRequestDto.builder()
+                .name("Max")
+                .breed("Labrador Retriever")
+                .type(PetType.DOG)
+                .birthDate(LocalDate.of(2020, 6, 15))
+                .ownerId(1L)
+                .gender(MALE)
+                .build();
         return petService.createPet(petDTO);
     }
 
     private Employee populateEmployees() {
-        EmployeeCreateRequestDto employeeDTO = new EmployeeCreateRequestDto();
-        employeeDTO.setUsername("drgarcia");
-        employeeDTO.setPassword("password123");
-        employeeDTO.setFirstName("Ana");
-        employeeDTO.setLastName("García");
-        employeeDTO.setEmail("ana.garcia@zoolandia.com");
-        employeeDTO.setPhoneNumber("8093456789");
-        employeeDTO.setBirthDate(LocalDate.of(1990, 8, 25));
-        employeeDTO.setGender(FEMALE);
-        employeeDTO.setNationality("Dominicana");
-        employeeDTO.setProvince("Santo Domingo");
-        employeeDTO.setMunicipality("Santo Domingo Norte");
-        employeeDTO.setSector("Villa Mella");
-        employeeDTO.setStreetAddress("Av. Charles de Gaulle #456");
-        employeeDTO.setEmployeeRole(EmployeeRole.VETERINARIAN);
-        employeeDTO.setSalary(120000.0);
-        employeeDTO.setHireDate(LocalDate.of(2023, 1, 15));
-        employeeDTO.setAvailable(true);
-        employeeDTO.setActive(true);
-        employeeDTO.setWorkSchedule("Lunes a Viernes 8:00 AM - 5:00 PM");
-        employeeDTO.setEmergencyContactName("Luis García");
-        employeeDTO.setEmergencyContactPhone("8094567890");
+        EmployeeCreateRequestDto employeeDTO = EmployeeCreateRequestDto.builder()
+                .username("drgarcia")
+                .password("password123")
+                .firstName("Ana")
+                .lastName("García")
+                .email("ana.garcia@zoolandia.com")
+                .phoneNumber("8093456789")
+                .birthDate(LocalDate.of(1990, 8, 25))
+                .gender(FEMALE)
+                .nationality("Dominicana")
+                .province("Santo Domingo")
+                .municipality("Santo Domingo Norte")
+                .sector("Villa Mella")
+                .streetAddress("Av. Charles de Gaulle #456")
+                .employeeRole(EmployeeRole.VETERINARIAN)
+                .salary(120000.0)
+                .hireDate(LocalDate.of(2023, 1, 15))
+                .available(true)
+                .active(true)
+                .workSchedule("Lunes a Viernes 8:00 AM - 5:00 PM")
+                .emergencyContactName("Luis García")
+                .emergencyContactPhone("8094567890")
+                .build();
 
         return employeeService.createEmployee(employeeDTO);
     }

@@ -1,4 +1,4 @@
-package com.wornux.service;
+package com.wornux.service.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -17,6 +17,8 @@ import com.wornux.data.repository.PetRepository;
 import com.wornux.dto.response.PetSummaryResponseDto;
 import com.wornux.dto.request.PetUpdateRequestDto;
 import com.wornux.exception.PetNotFoundException;
+import com.wornux.service.interfaces.PetService;
+import com.wornux.service.interfaces.ClientService;
 import jakarta.validation.Valid;
 
 import java.util.*;
@@ -45,6 +47,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     private final PetRepository petRepository;
     private final PetMapper petMapper;
     private final ConsultationRepository consultationRepository;
+    private final ClientService clientService;
 
     @Override
     @Transactional(readOnly = true)

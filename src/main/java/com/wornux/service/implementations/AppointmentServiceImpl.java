@@ -1,4 +1,4 @@
-package com.wornux.service;
+package com.wornux.service.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -10,6 +10,10 @@ import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.mapper.AppointmentMapper;
 import com.wornux.data.repository.AppointmentRepository;
 import com.wornux.exception.AppointmentNotFoundException;
+import com.wornux.service.interfaces.AppointmentService;
+import com.wornux.service.interfaces.ClientService;
+import com.wornux.service.interfaces.PetService;
+import com.wornux.service.interfaces.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,13 +27,17 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @BrowserCallable
-@AnonymousAllowed
 @Transactional
 @Slf4j
+//TODO: remove this annotation to restrict access to authenticated users only
+@AnonymousAllowed
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
+    private final ClientService clientService;
+    private final PetService petService;
+    private final EmployeeService employeeService;
 
     @Override
     @Transactional

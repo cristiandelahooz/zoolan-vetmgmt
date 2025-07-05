@@ -2,7 +2,6 @@ package com.wornux.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wornux.data.enums.Gender;
-import com.wornux.validation.ValidPetBreed;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -16,7 +15,6 @@ import com.wornux.data.enums.PetType;
 @Entity
 @Table(name = "pets")
 @Data
-@ValidPetBreed
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = { "medicalHistory" })

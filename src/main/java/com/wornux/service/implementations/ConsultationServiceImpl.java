@@ -1,4 +1,4 @@
-package com.wornux.service;
+package com.wornux.service.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -17,6 +17,10 @@ import com.wornux.data.entity.Pet;
 import com.wornux.data.repository.PetRepository;
 
 import com.wornux.exception.PetNotFoundException;
+import com.wornux.service.interfaces.ConsultationService;
+import com.wornux.service.interfaces.EmployeeService;
+import com.wornux.service.interfaces.MedicalHistoryService;
+import com.wornux.service.interfaces.PetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

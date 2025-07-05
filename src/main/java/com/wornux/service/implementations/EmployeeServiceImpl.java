@@ -1,4 +1,4 @@
-package com.wornux.service;
+package com.wornux.service.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -11,6 +11,7 @@ import com.wornux.dto.request.EmployeeCreateRequestDto;
 import com.wornux.dto.request.EmployeeUpdateRequestDto;
 import com.wornux.exception.*;
 import com.wornux.mapper.EmployeeMapper;
+import com.wornux.service.interfaces.EmployeeService;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;

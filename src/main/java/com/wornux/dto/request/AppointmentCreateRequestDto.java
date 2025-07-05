@@ -6,7 +6,10 @@ import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.data.enums.ServiceType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -16,6 +19,9 @@ import static com.wornux.constants.AppointmentConstants.*;
 import static com.wornux.constants.ValidationConstants.DATE_PATTERN;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AppointmentCreateRequestDto {
 
     @NotNull(message = "La fecha y hora de inicio es obligatoria")

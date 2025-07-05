@@ -1,4 +1,4 @@
-package com.wornux.service;
+package com.wornux.service.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -13,6 +13,7 @@ import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.data.repository.WaitingRoomRepository;
 import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import com.wornux.exception.WaitingRoomNotFoundException;
+import com.wornux.service.interfaces.WaitingRoomService;
 import org.jspecify.annotations.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
+@Transactional
 // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, Long, WaitingRoomRepository>
         implements WaitingRoomService, FormService<WaitingRoomCreateRequestDto, Long> {
@@ -46,7 +48,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     private final PetRepository petRepository;
 
     @Override
-    @Transactional
     public @Nullable WaitingRoomCreateRequestDto save(WaitingRoomCreateRequestDto dto) {
         try {
             log.debug("Request to save WaitingRoom via FormService: {}", dto);
@@ -67,7 +68,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    @Transactional
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Priority priority,
             String notes) {
@@ -144,7 +144,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    @Transactional
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
     public WaitingRoom moveToConsultation(Long waitingRoomId) {
         log.debug("Request to move to consultation: {}", waitingRoomId);
@@ -165,7 +164,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    @Transactional
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
     public WaitingRoom completeConsultation(Long waitingRoomId) {
         log.debug("Request to complete consultation: {}", waitingRoomId);
@@ -186,7 +184,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    @Transactional
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public WaitingRoom cancelEntry(Long waitingRoomId, String reason) {
         log.debug("Request to cancel entry: {}", waitingRoomId);
@@ -214,7 +211,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    @Transactional
     public WaitingRoom updatePriority(Long waitingRoomId, Priority newPriority) {
         log.debug("Request to update priority: {} to {}", waitingRoomId, newPriority);
 
@@ -355,7 +351,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    @Transactional
     public WaitingRoom save(WaitingRoom waitingRoom) {
         log.debug("Request to save WaitingRoom: {}", waitingRoom);
 
@@ -386,7 +381,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
         log.debug("Request to delete WaitingRoom: {}", id);
 

@@ -1,5 +1,5 @@
 import { AppNotification } from '@/components/ui/Notification'
-import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponse'
+import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
 import { useAppointments } from '@/stores/useAppointments'
 import type { DatesSetArg, EventClickArg, EventContentArg, EventDropArg } from '@fullcalendar/core/index.js'
 import dayGridPlugin from '@fullcalendar/daygrid'

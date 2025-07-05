@@ -48,6 +48,7 @@ public class Consultation {
     @ManyToOne
     @JoinColumn(name = "medical_history_id")
     @JsonIgnore
+    @Setter
     private MedicalHistory medicalHistory;
 
     private LocalDateTime createdAt;

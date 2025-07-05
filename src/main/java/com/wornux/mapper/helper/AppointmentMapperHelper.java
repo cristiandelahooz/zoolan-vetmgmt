@@ -1,23 +1,27 @@
-
 package com.wornux.mapper.helper;
 
 import com.wornux.data.entity.Client;
-import com.wornux.service.ClientService;
+import com.wornux.service.interfaces.ClientService;
 import com.wornux.data.entity.Employee;
-import com.wornux.service.EmployeeService;
+import com.wornux.service.interfaces.EmployeeService;
 import com.wornux.data.entity.Pet;
-import com.wornux.service.PetService;
+import com.wornux.service.interfaces.PetService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class AppointmentMapperHelper {
 
+    @Lazy
     private final ClientService clientService;
+    @Lazy
     private final PetService petService;
+    @Lazy
     private final EmployeeService employeeService;
+    private static final String NOT_FOUND_MESSAGE = " not found";
 
     @Named("mapClient")
     public Client mapClient(Long clientId) {
@@ -25,7 +29,7 @@ public class AppointmentMapperHelper {
             return null;
         }
         return clientService.getClientById(clientId)
-                .orElseThrow(() -> new IllegalArgumentException("Client with ID " + clientId + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Client with ID " + clientId + NOT_FOUND_MESSAGE));
     }
 
     @Named("mapPet")
@@ -34,7 +38,7 @@ public class AppointmentMapperHelper {
             return null;
         }
         return petService.getPetById(petId)
-                .orElseThrow(() -> new IllegalArgumentException("Pet with ID " + petId + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Pet with ID " + petId + NOT_FOUND_MESSAGE));
     }
 
     @Named("mapEmployee")
@@ -43,6 +47,6 @@ public class AppointmentMapperHelper {
             return null;
         }
         return employeeService.getEmployeeById(employeeId)
-                .orElseThrow(() -> new IllegalArgumentException("Employee with ID " + employeeId + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Employee with ID " + employeeId + NOT_FOUND_MESSAGE));
     }
 }

@@ -15,7 +15,6 @@ import static com.wornux.constants.AppointmentConstants.*;
 import static com.wornux.constants.ValidationConstants.DATE_PATTERN;
 import com.wornux.data.enums.ServiceType;
 import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.dto.AppointmentClientInfoDto;
 
 @Entity
 @Table(name = "appointments")
@@ -79,7 +78,7 @@ public class Appointment {
     @Embedded
     @Valid
     @Nullable
-    private AppointmentClientInfoDto guestClientInfo;
+    private AppointmentClientInfo guestClientInfo;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -118,7 +117,7 @@ public class Appointment {
     }
 
     public String getClientDisplayName() {
-        if (hasRegisteredClient()) {
+        if (client != null) {
             return client.getFirstName() + " " + client.getLastName();
         } else if (guestClientInfo != null && guestClientInfo.getName() != null) {
             return guestClientInfo.getName();

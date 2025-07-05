@@ -3,14 +3,21 @@ package com.wornux.dto.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.PetType;
-import com.wornux.validation.ValidPetBreedDTO;
+import com.wornux.validation.petsbreed.PetBreedValidatable;
+import com.wornux.validation.petsbreed.ValidPetBreed;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@ValidPetBreedDTO
-public class PetCreateRequestDto {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ValidPetBreed
+public class PetCreateRequestDto implements PetBreedValidatable {
 
     @NotBlank(message = "El nombre de la mascota es requerido")
     @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")

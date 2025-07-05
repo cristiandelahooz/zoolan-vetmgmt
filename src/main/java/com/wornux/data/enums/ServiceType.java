@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ServiceType {
-    // Servicios clínicos
     CONSULTA_GENERAL("Consulta General"),
     CONSULTA_ESPECIALIZADA("Consulta Especializada"),
     VACUNACION("Vacunación"),

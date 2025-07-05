@@ -1,4 +1,4 @@
-package com.wornux.service;
+package com.wornux.service.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -13,6 +13,7 @@ import com.wornux.dto.request.ClientUpdateRequestDto;
 import com.wornux.exception.ClientNotFoundException;
 import com.wornux.exception.DuplicateIdentificationException;
 import com.wornux.mapper.ClientMapper;
+import com.wornux.service.interfaces.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
