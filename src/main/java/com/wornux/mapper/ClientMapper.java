@@ -25,7 +25,7 @@ public interface ClientMapper {
 
     @AfterMapping
     default void validateIdentification(@MappingTarget Client client) {
-        if (client.getCedula() == null && client.getPassport() == null) {
+        if (client.getCedula() == null && client.getPassport() == null && client.getRnc() == null) {
             throw new InvalidIdentificationException();
         }
     }
