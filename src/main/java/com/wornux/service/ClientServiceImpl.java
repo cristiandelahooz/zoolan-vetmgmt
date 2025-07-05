@@ -5,11 +5,11 @@ import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.constants.ValidationConstants;
-import com.wornux.domain.Client;
-import com.wornux.domain.ClientRating;
-import com.wornux.repository.ClientRepository;
-import com.wornux.dto.ClientCreateDTO;
-import com.wornux.dto.ClientUpdateDTO;
+import com.wornux.data.entity.Client;
+import com.wornux.data.enums.ClientRating;
+import com.wornux.data.repository.ClientRepository;
+import com.wornux.dto.request.ClientCreateRequestDto;
+import com.wornux.dto.request.ClientUpdateRequestDto;
 import com.wornux.exception.ClientNotFoundException;
 import com.wornux.exception.DuplicateIdentificationException;
 import com.wornux.mapper.ClientMapper;
@@ -35,7 +35,7 @@ import java.util.Optional;
 @Transactional
 // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository>
-        implements ClientService, FormService<ClientCreateDTO, Long> {
+        implements ClientService, FormService<ClientCreateRequestDto, Long> {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
@@ -43,12 +43,12 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     @Override
     @Transactional
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public Client createClient(@Valid ClientCreateDTO clientDTO) {
-        log.debug("Request to create Client : {}", clientDTO);
+    public Client createClient(@Valid ClientCreateRequestDto clientRequest) {
+        log.debug("Request to create Client : {}", clientRequest);
 
-        validateUniqueIdentification(clientDTO.cedula(), clientDTO.passport(), clientDTO.rnc());
+        validateUniqueIdentification(clientRequest.cedula(), clientRequest.passport(), clientRequest.rnc());
 
-        Client client = clientMapper.toEntity(clientDTO);
+        Client client = clientMapper.toEntity(clientRequest);
         client = clientRepository.save(client);
 
         log.info("Created Client with ID: {}", client.getId());
@@ -60,7 +60,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
      */
     @Override
     @Transactional
-    public @Nullable ClientCreateDTO save(ClientCreateDTO value) {
+    public @Nullable ClientCreateRequestDto save(ClientCreateRequestDto value) {
         try {
             log.debug("Request to save Client via FormService: {}", value);
 
@@ -69,7 +69,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
             Client client = clientMapper.toEntity(value);
             client = clientRepository.save(client);
 
-            ClientCreateDTO result = clientMapper.toDTO(client);
+            ClientCreateRequestDto result = clientMapper.toDTO(client);
             log.info("Client saved successfully via FormService with ID: {}", client.getId());
             return result;
         } catch (Exception e) {
@@ -98,14 +98,14 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public Client updateClient(Long id, @Valid ClientUpdateDTO clientDTO) {
-        log.debug("Request to update Client : {}", clientDTO);
+    public Client updateClient(Long id, @Valid ClientUpdateRequestDto clientRequest) {
+        log.debug("Request to update Client : {}", clientRequest);
 
         Client existingClient = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-        validateUniqueIdentificationForUpdate(id, clientDTO.getCedula(), clientDTO.getPassport(), clientDTO.getRnc());
+        validateUniqueIdentificationForUpdate(id, clientRequest.getCedula(), clientRequest.getPassport(), clientRequest.getRnc());
 
-        clientMapper.updateClientFromDTO(clientDTO, existingClient);
+        clientMapper.updateClientFromDTO(clientRequest, existingClient);
 
         return clientRepository.save(existingClient);
     }
@@ -294,7 +294,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
         if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
             throw new IllegalArgumentException("Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT
-                    + " documento de identificación permitido");
+                                               + " documento de identificación permitido");
         }
         return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
     }

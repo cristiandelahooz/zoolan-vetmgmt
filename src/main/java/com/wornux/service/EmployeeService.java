@@ -1,10 +1,10 @@
 package com.wornux.service;
 
 import com.vaadin.hilla.BrowserCallable;
-import com.wornux.domain.Employee;
-import com.wornux.domain.EmployeeRole;
-import com.wornux.dto.EmployeeCreateDTO;
-import com.wornux.dto.EmployeeUpdateDTO;
+import com.wornux.data.entity.Employee;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.dto.request.EmployeeCreateRequestDto;
+import com.wornux.dto.request.EmployeeUpdateRequestDto;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +33,7 @@ public interface EmployeeService {
      * @return the created Employee entity
      */
     @PreAuthorize("hasRole('ADMIN')")
-    Employee createEmployee(@Valid EmployeeCreateDTO employeeDTO);
+    Employee createEmployee(@Valid EmployeeCreateRequestDto employeeDTO);
 
     /**
      * Updates an existing Employee.
@@ -45,7 +45,7 @@ public interface EmployeeService {
      * @return the updated Employee entity
      */
     @PreAuthorize("hasRole('ADMIN')")
-    Employee updateEmployee(Long id, @Valid EmployeeUpdateDTO employeeDTO);
+    Employee updateEmployee(Long id, @Valid EmployeeUpdateRequestDto employeeDTO);
 
     /**
      * Retrieves an Employee by ID.

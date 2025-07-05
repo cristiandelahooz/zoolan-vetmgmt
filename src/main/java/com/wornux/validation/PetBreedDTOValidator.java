@@ -1,13 +1,13 @@
 package com.wornux.validation;
 
-import com.wornux.dto.PetCreateDTO;
+import com.wornux.dto.request.PetCreateRequestDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class PetBreedDTOValidator implements ConstraintValidator<ValidPetBreedDTO, PetCreateDTO> {
+public class PetBreedDTOValidator implements ConstraintValidator<ValidPetBreedDTO, PetCreateRequestDto> {
 
     @Override
-    public boolean isValid(PetCreateDTO dto, ConstraintValidatorContext context) {
+    public boolean isValid(PetCreateRequestDto dto, ConstraintValidatorContext context) {
         if (dto == null || dto.getType() == null || dto.getBreed() == null) {
             return true;
         }

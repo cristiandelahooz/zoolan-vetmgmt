@@ -4,14 +4,14 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
-import com.wornux.domain.Client;
-import com.wornux.repository.ClientRepository;
-import com.wornux.domain.Pet;
-import com.wornux.repository.PetRepository;
-import com.wornux.domain.WaitingRoom;
-import com.wornux.domain.WaitingRoomStatus;
-import com.wornux.repository.WaitingRoomRepository;
-import com.wornux.dto.WaitingRoomCreateDTO;
+import com.wornux.data.entity.Client;
+import com.wornux.data.repository.ClientRepository;
+import com.wornux.data.entity.Pet;
+import com.wornux.data.repository.PetRepository;
+import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.WaitingRoomStatus;
+import com.wornux.data.repository.WaitingRoomRepository;
+import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import com.wornux.exception.WaitingRoomNotFoundException;
 import org.jspecify.annotations.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import com.wornux.domain.Priority;
+import com.wornux.data.enums.Priority;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -39,7 +39,7 @@ import java.util.Optional;
 @AnonymousAllowed
 // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, Long, WaitingRoomRepository>
-        implements WaitingRoomService, FormService<WaitingRoomCreateDTO, Long> {
+        implements WaitingRoomService, FormService<WaitingRoomCreateRequestDto, Long> {
 
     private final WaitingRoomRepository waitingRoomRepository;
     private final ClientRepository clientRepository;
@@ -47,14 +47,14 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
     @Override
     @Transactional
-    public @Nullable WaitingRoomCreateDTO save(WaitingRoomCreateDTO dto) {
+    public @Nullable WaitingRoomCreateRequestDto save(WaitingRoomCreateRequestDto dto) {
         try {
             log.debug("Request to save WaitingRoom via FormService: {}", dto);
 
             WaitingRoom saved = addToWaitingRoom(dto.clientId(), dto.petId(), dto.reasonForVisit(), dto.priority(),
                     dto.notes());
 
-            WaitingRoomCreateDTO result = new WaitingRoomCreateDTO(saved.getClient().getId(), saved.getPet().getId(),
+            WaitingRoomCreateRequestDto result = new WaitingRoomCreateRequestDto(saved.getClient().getId(), saved.getPet().getId(),
                     saved.getReasonForVisit(), saved.getPriority(), saved.getNotes());
 
             log.info("WaitingRoom saved successfully via FormService with ID: {}", saved.getId());

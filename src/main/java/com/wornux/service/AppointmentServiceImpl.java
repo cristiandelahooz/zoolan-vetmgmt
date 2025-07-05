@@ -2,13 +2,13 @@ package com.wornux.service;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import com.wornux.domain.Appointment;
-import com.wornux.domain.AppointmentStatus;
-import com.wornux.dto.AppointmentCreateDTO;
-import com.wornux.dto.AppointmentResponseDTO;
-import com.wornux.dto.AppointmentUpdateDTO;
+import com.wornux.data.entity.Appointment;
+import com.wornux.data.enums.AppointmentStatus;
+import com.wornux.dto.request.AppointmentCreateRequestDto;
+import com.wornux.dto.response.AppointmentResponseDto;
+import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.mapper.AppointmentMapper;
-import com.wornux.repository.AppointmentRepository;
+import com.wornux.data.repository.AppointmentRepository;
 import com.wornux.exception.AppointmentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +33,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public AppointmentResponseDTO createAppointment(AppointmentCreateDTO createDTO) {
-        log.debug("Creating appointment for {}", createDTO.getAppointmentDateTime());
+    public AppointmentResponseDto createAppointment(AppointmentCreateRequestDto createRequest) {
+        log.debug("Creating appointment for {}", createRequest.getAppointmentDateTime());
 
-        Appointment appointment = appointmentMapper.toEntity(createDTO);
+        Appointment appointment = appointmentMapper.toEntity(createRequest);
         appointment = appointmentRepository.save(appointment);
 
         log.info("Created appointment with ID: {}", appointment.getId());
@@ -45,12 +45,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public AppointmentResponseDTO updateAppointment(Long id, AppointmentUpdateDTO updateDTO) {
+    public AppointmentResponseDto updateAppointment(Long id, AppointmentUpdateRequestDto updateRequest) {
         log.debug("Updating appointment with ID: {}", id);
 
         Appointment appointment = findAppointmentById(id);
 
-        appointmentMapper.updateAppointmentFromDTO(updateDTO, appointment);
+        appointmentMapper.updateAppointmentFromDTO(updateRequest, appointment);
         appointment = appointmentRepository.save(appointment);
 
         log.info("Updated appointment with ID: {}", id);
@@ -59,54 +59,54 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public AppointmentResponseDTO getAppointmentById(Long id) {
+    public AppointmentResponseDto getAppointmentById(Long id) {
         Appointment appointment = findAppointmentById(id);
         return appointmentMapper.toResponseDTO(appointment);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getAllAppointments() {
+    public List<AppointmentResponseDto> getAllAppointments() {
         return appointmentRepository.findAll().stream().map(appointmentMapper::toResponseDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AppointmentResponseDTO> getAllAppointments(Pageable pageable) {
+    public Page<AppointmentResponseDto> getAllAppointments(Pageable pageable) {
         return appointmentRepository.findAll(pageable).map(appointmentMapper::toResponseDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getAppointmentsByDateRange(LocalDateTime start, LocalDateTime end) {
+    public List<AppointmentResponseDto> getAppointmentsByDateRange(LocalDateTime start, LocalDateTime end) {
         List<Appointment> appointments = appointmentRepository.findByStartAppointmentDateBetween(start, end);
         return appointments.stream().map(appointmentMapper::toResponseDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getAppointmentsByDate(LocalDateTime date) {
+    public List<AppointmentResponseDto> getAppointmentsByDate(LocalDateTime date) {
         List<Appointment> appointments = appointmentRepository.findByAppointmentDate(date);
         return appointments.stream().map(appointmentMapper::toResponseDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getAppointmentsByClient(Long clientId) {
+    public List<AppointmentResponseDto> getAppointmentsByClient(Long clientId) {
         List<Appointment> appointments = appointmentRepository.findByClientIdOrderByStartAppointmentDateDesc(clientId);
         return appointments.stream().map(appointmentMapper::toResponseDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getAppointmentsByPet(Long petId) {
+    public List<AppointmentResponseDto> getAppointmentsByPet(Long petId) {
         List<Appointment> appointments = appointmentRepository.findByPetIdOrderByStartAppointmentDateDesc(petId);
         return appointments.stream().map(appointmentMapper::toResponseDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getAppointmentsByEmployee(Long employeeId, LocalDateTime start,
+    public List<AppointmentResponseDto> getAppointmentsByEmployee(Long employeeId, LocalDateTime start,
             LocalDateTime end) {
         List<Appointment> appointments = appointmentRepository
                 .findByAssignedEmployeeIdAndStartAppointmentDateBetween(employeeId, start, end);
@@ -115,7 +115,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getTodayAppointments() {
+    public List<AppointmentResponseDto> getTodayAppointments() {
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime startOfDay = today.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
@@ -125,7 +125,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getUpcomingAppointments() {
+    public List<AppointmentResponseDto> getUpcomingAppointments() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime tomorrow = now.plusDays(1);
 
@@ -135,7 +135,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public AppointmentResponseDTO changeAppointmentStatus(Long id, AppointmentStatus newStatus) {
+    public AppointmentResponseDto changeAppointmentStatus(Long id, AppointmentStatus newStatus) {
         log.debug("Changing status of appointment {} to {}", id, newStatus);
 
         Appointment appointment = findAppointmentById(id);
@@ -177,7 +177,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AppointmentResponseDTO> getCalendarEvents(LocalDateTime start, LocalDateTime end) {
+    public List<AppointmentResponseDto> getCalendarEvents(LocalDateTime start, LocalDateTime end) {
         return getAppointmentsByDateRange(start, end);
     }
 

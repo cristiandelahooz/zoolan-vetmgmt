@@ -1,4 +1,4 @@
-import type AppointmentResponseDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentResponseDTO'
+import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponse'
 import { Button, Dialog } from '@vaadin/react-components'
 
 interface AppointmentDetailsModalProps {
@@ -8,7 +8,12 @@ interface AppointmentDetailsModalProps {
   onEdit: (appointment: AppointmentResponseDTO) => void
 }
 
-export function AppointmentDetailsModal({ appointment, isOpen, onClose, onEdit }: AppointmentDetailsModalProps) {
+export function AppointmentDetailsModal({
+  appointment,
+  isOpen,
+  onClose,
+  onEdit,
+}: Readonly<AppointmentDetailsModalProps>) {
   const handleDelete = async () => {
     if (appointment) {
       onClose()

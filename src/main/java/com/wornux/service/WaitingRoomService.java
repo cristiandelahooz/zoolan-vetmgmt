@@ -1,8 +1,8 @@
 package com.wornux.service;
 
 import com.vaadin.hilla.BrowserCallable;
-import com.wornux.domain.Priority;
-import com.wornux.domain.WaitingRoom;
+import com.wornux.data.enums.Priority;
+import com.wornux.data.entity.WaitingRoom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;

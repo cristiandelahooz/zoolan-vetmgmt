@@ -4,11 +4,11 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
-import com.wornux.domain.Employee;
-import com.wornux.domain.EmployeeRole;
-import com.wornux.repository.EmployeeRepository;
-import com.wornux.dto.EmployeeCreateDTO;
-import com.wornux.dto.EmployeeUpdateDTO;
+import com.wornux.data.entity.Employee;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.repository.EmployeeRepository;
+import com.wornux.dto.request.EmployeeCreateRequestDto;
+import com.wornux.dto.request.EmployeeUpdateRequestDto;
 import com.wornux.exception.*;
 import com.wornux.mapper.EmployeeMapper;
 import jakarta.validation.Valid;
@@ -34,14 +34,14 @@ import java.util.stream.Collectors;
 @BrowserCallable
 @AnonymousAllowed
 public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, EmployeeRepository>
-        implements EmployeeService, FormService<EmployeeCreateDTO, Long> {
+        implements EmployeeService, FormService<EmployeeCreateRequestDto, Long> {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Employee createEmployee(@Valid EmployeeCreateDTO employeeDTO) {
+    public Employee createEmployee(@Valid EmployeeCreateRequestDto employeeDTO) {
         log.debug("Creating new employee with username: {}", employeeDTO.getUsername());
 
         if (employeeRepository.existsByUsername(employeeDTO.getUsername())) {
@@ -60,7 +60,7 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     }
 
     @Override
-    public Employee updateEmployee(Long id, @Valid EmployeeUpdateDTO employeeDTO) {
+    public Employee updateEmployee(Long id, @Valid EmployeeUpdateRequestDto employeeDTO) {
         log.debug("Updating employee with ID: {}", id);
 
         Employee existingEmployee = employeeRepository.findById(id)
@@ -323,10 +323,7 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         employeeRepository.save(employee);
     }
 
-    private boolean canHandleEmergencies(EmployeeRole role) {
-        return role == EmployeeRole.VETERINARIAN || role == EmployeeRole.LAB_TECHNICIAN;
-    }
-
+    //TODO: Implement logic to check if the employee has active assignments
     private boolean hasActiveAssignments(Employee employee) {
         return false;
     }
@@ -336,7 +333,7 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
      */
     @Override
     @Transactional
-    public @org.springframework.lang.Nullable EmployeeCreateDTO save(EmployeeCreateDTO value) {
+    public EmployeeCreateRequestDto save(EmployeeCreateRequestDto value) {
         try {
             log.debug("Request to save Employee via FormService: {}", value);
 
@@ -348,7 +345,7 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
             employee.setPassword(passwordEncoder.encode(value.getPassword()));
             employee = employeeRepository.save(employee);
 
-            EmployeeCreateDTO result = employeeMapper.toDTO(employee);
+            EmployeeCreateRequestDto result = employeeMapper.toDTO(employee);
             log.info("Employee saved successfully via FormService with ID: {}", employee.getId());
             return result;
         } catch (Exception e) {

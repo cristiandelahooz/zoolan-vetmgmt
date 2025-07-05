@@ -2,10 +2,10 @@
 package com.wornux.service;
 
 import com.vaadin.hilla.BrowserCallable;
-import com.wornux.domain.Client;
-import com.wornux.domain.ClientRating;
-import com.wornux.dto.ClientCreateDTO;
-import com.wornux.dto.ClientUpdateDTO;
+import com.wornux.data.entity.Client;
+import com.wornux.data.enums.ClientRating;
+import com.wornux.dto.request.ClientCreateRequestDto;
+import com.wornux.dto.request.ClientUpdateRequestDto;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,22 +26,22 @@ public interface ClientService {
     /**
      * Creates a new Client.
      *
-     * @param clientDTO
+     * @param clientRequest
      *            the DTO containing the client data
      * @return the created Client entity
      */
-    Client createClient(@Valid ClientCreateDTO clientDTO);
+    Client createClient(@Valid ClientCreateRequestDto clientRequest);
 
     /**
      * Updates an existing Client.
      *
      * @param id
      *            the ID of the client to update
-     * @param clientDTO
+     * @param clientRequest
      *            the DTO containing the updated client data
      * @return the updated Client entity
      */
-    Client updateClient(Long id, @Valid ClientUpdateDTO clientDTO);
+    Client updateClient(Long id, @Valid ClientUpdateRequestDto clientRequest);
 
     /**
      * Retrieves a Client by ID.

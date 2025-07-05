@@ -1,13 +1,13 @@
-import type AppointmentCreateDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentCreateDTO'
-import { AppointmentServiceImpl } from '@/generated/endpoints'
-import { Button, ComboBox, DateTimePicker, Dialog, TextArea, TextField } from '@vaadin/react-components'
-import { useForm, Controller } from 'react-hook-form'
-import { SelectClientDialog, type SelectedClient } from '@/views/clients/_SelectClientDialog'
-import { useEffect, useState } from 'react'
-import { usePets } from '@/stores/usePets'
-import { useEmployees } from '@/stores/useEmployees'
-import ServiceType from '@/generated/com/wornux/features/appointments/domain/ServiceType'
+import ServiceType from '@/generated/com/wornux/data/enums/ServiceType'
+import type AppointmentCreateDTO from '@/generated/com/wornux/dto/request/AppointmentCreateRequest'
 import AppointmentStatus from '@/generated/com/wornux/features/appointments/domain/AppointmentStatus'
+import { AppointmentServiceImpl } from '@/generated/endpoints'
+import { useEmployees } from '@/stores/useEmployees'
+import { usePets } from '@/stores/usePets'
+import { SelectClientDialog, type SelectedClient } from '@/views/clients/_SelectClientDialog'
+import { Button, ComboBox, DateTimePicker, Dialog, TextArea, TextField } from '@vaadin/react-components'
+import { useEffect, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 
 interface CreateAppointmentModalProps {
   isOpen: boolean
@@ -15,7 +15,7 @@ interface CreateAppointmentModalProps {
   selectedDate: Date | null
 }
 
-export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: CreateAppointmentModalProps) {
+export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readonly<CreateAppointmentModalProps>) {
   const {
     register,
     handleSubmit,

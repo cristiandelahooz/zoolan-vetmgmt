@@ -1,10 +1,11 @@
 package com.wornux.mapper;
 
-import com.wornux.domain.Appointment;
-import com.wornux.dto.AppointmentCreateDTO;
-import com.wornux.dto.AppointmentResponseDTO;
-import com.wornux.dto.AppointmentUpdateDTO;
+import com.wornux.data.entity.Appointment;
+import com.wornux.dto.request.AppointmentCreateRequestDto;
+import com.wornux.dto.request.AppointmentUpdateRequestDto;
+import com.wornux.dto.response.AppointmentResponseDto;
 import org.mapstruct.*;
+import com.wornux.mapper.helper.AppointmentMapperHelper;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = AppointmentMapperHelper.class)
 public interface AppointmentMapper {
@@ -16,13 +17,13 @@ public interface AppointmentMapper {
     @Mapping(target = "client", source = "clientId", qualifiedByName = "mapClient")
     @Mapping(target = "pet", source = "petId", qualifiedByName = "mapPet")
     @Mapping(target = "assignedEmployee", source = "assignedEmployeeId", qualifiedByName = "mapEmployee")
-    Appointment toEntity(AppointmentCreateDTO dto);
+    Appointment toEntity(AppointmentCreateRequestDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "client", source = "clientId", qualifiedByName = "mapClient")
     @Mapping(target = "pet", source = "petId", qualifiedByName = "mapPet")
     @Mapping(target = "assignedEmployee", source = "assignedEmployeeId", qualifiedByName = "mapEmployee")
-    void updateAppointmentFromDTO(AppointmentUpdateDTO dto, @MappingTarget Appointment appointment);
+    void updateAppointmentFromDTO(AppointmentUpdateRequestDto dto, @MappingTarget Appointment appointment);
 
     @Mapping(target = "eventId", source = "appointment.id")
     @Mapping(target = "appointmentTitle", expression = "java(appointment.getAppointmentTitle())")
@@ -35,5 +36,5 @@ public interface AppointmentMapper {
     @Mapping(target = "cancelled", expression = "java(appointment.isCancelled())")
     @Mapping(target = "hasRegisteredClient", expression = "java(appointment.hasRegisteredClient())")
     @Mapping(target = "requiresVeterinarian", expression = "java(appointment.requiresVeterinarian())")
-    AppointmentResponseDTO toResponseDTO(Appointment appointment);
+    AppointmentResponseDto toResponseDTO(Appointment appointment);
 }

@@ -1,5 +1,5 @@
 import { AppNotification } from '@/components/ui/Notification'
-import type AppointmentResponseDTO from '@/generated/com/wornux/features/appointments/dtos/AppointmentResponseDTO'
+import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponse'
 import { useAppointments } from '@/stores/useAppointments'
 import type { DatesSetArg, EventClickArg, EventContentArg, EventDropArg } from '@fullcalendar/core/index.js'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -97,6 +97,7 @@ const useCalendarHandlers = (
       refetch()
       state.showNotification('Appointment rescheduled successfully.')
     } catch (e) {
+      console.log(`Error rescheduling appointment: ${e}`)
       dropInfo.revert()
       state.showNotification('Failed to reschedule appointment.')
     }

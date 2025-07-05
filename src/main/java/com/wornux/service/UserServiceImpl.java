@@ -2,10 +2,10 @@ package com.wornux.service;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.wornux.dto.Gender;
-import com.wornux.domain.SystemRole;
-import com.wornux.domain.User;
-import com.wornux.repository.UserRepository;
+import com.wornux.data.enums.Gender;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.data.entity.User;
+import com.wornux.data.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;

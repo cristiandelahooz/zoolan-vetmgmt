@@ -1,8 +1,8 @@
 package com.wornux.service;
 
 import com.vaadin.hilla.BrowserCallable;
-import com.wornux.domain.MedicalHistory;
-import com.wornux.domain.Pet;
+import com.wornux.data.entity.MedicalHistory;
+import com.wornux.data.entity.Pet;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;

@@ -1,8 +1,8 @@
 package com.wornux.mapper;
 
-import com.wornux.domain.Client;
-import com.wornux.dto.ClientCreateDTO;
-import com.wornux.dto.ClientUpdateDTO;
+import com.wornux.data.entity.Client;
+import com.wornux.dto.request.ClientCreateRequestDto;
+import com.wornux.dto.request.ClientUpdateRequestDto;
 import com.wornux.exception.InvalidIdentificationException;
 import org.mapstruct.*;
 
@@ -15,10 +15,13 @@ public interface ClientMapper {
     @Mapping(target = "currentBalance", constant = "0.0")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Client toEntity(ClientCreateDTO dto);
+    Client toEntity(ClientCreateRequestDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateClientFromDTO(ClientUpdateDTO dto, @MappingTarget Client client);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateClientFromDTO(ClientUpdateRequestDto dto, @MappingTarget Client client);
 
     @AfterMapping
     default void validateIdentification(@MappingTarget Client client) {
@@ -27,5 +30,5 @@ public interface ClientMapper {
         }
     }
 
-    ClientCreateDTO toDTO(Client client);
+    ClientCreateRequestDto toDTO(Client client);
 }

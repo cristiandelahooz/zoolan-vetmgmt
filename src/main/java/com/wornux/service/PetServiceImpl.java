@@ -5,17 +5,17 @@ import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.vaadin.hilla.crud.filter.Filter;
-import com.wornux.domain.Client;
-import com.wornux.domain.Consultation;
-import com.wornux.repository.ConsultationRepository;
-import com.wornux.domain.Pet;
+import com.wornux.data.entity.Client;
+import com.wornux.data.entity.Consultation;
+import com.wornux.data.repository.ConsultationRepository;
+import com.wornux.data.entity.Pet;
 
-import com.wornux.domain.PetType;
+import com.wornux.data.enums.PetType;
+import com.wornux.dto.request.PetCreateRequestDto;
 import com.wornux.mapper.PetMapper;
-import com.wornux.repository.PetRepository;
-import com.wornux.dto.PetCreateDTO;
-import com.wornux.dto.PetSummaryDTO;
-import com.wornux.dto.PetUpdateDTO;
+import com.wornux.data.repository.PetRepository;
+import com.wornux.dto.response.PetSummaryResponseDto;
+import com.wornux.dto.request.PetUpdateRequestDto;
 import com.wornux.exception.PetNotFoundException;
 import jakarta.validation.Valid;
 
@@ -25,9 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +40,7 @@ import java.util.stream.Collectors;
 @Transactional
 @AnonymousAllowed
 public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetRepository>
-        implements PetService, FormService<PetCreateDTO, Long> {
+        implements PetService, FormService<PetCreateRequestDto, Long> {
 
     private final PetRepository petRepository;
     private final PetMapper petMapper;
@@ -53,12 +51,6 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<Pet> list(Pageable pageable, @Nullable Filter filter) {
         log.debug("Request to list active Pets with pageable: {} and filter: {}", pageable, filter);
 
-        // Create a pageable with proper sorting if not provided
-        if (pageable == null) {
-            pageable = PageRequest.of(0, 50, Sort.by("name").ascending());
-        }
-
-        // Return only the content of the page (List<Pet>) instead of Page<Pet>
         Page<Pet> page = petRepository.findByActiveTrueOrderByNameAsc(pageable);
         return page.getContent();
     }
@@ -66,7 +58,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Override
     @Transactional
     //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
-    public Pet createPet(@Valid PetCreateDTO petDTO) {
+    public Pet createPet(@Valid PetCreateRequestDto petDTO) {
         log.debug("Request to create Pet : {}", petDTO);
 
         Pet pet = petMapper.toEntity(petDTO);
@@ -79,7 +71,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
-    public Pet updatePet(Long id, @Valid PetUpdateDTO petDTO) {
+    public Pet updatePet(Long id, @Valid PetUpdateRequestDto petDTO) {
         log.debug("Request to update Pet : {}", petDTO);
 
         Pet existingPet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
@@ -104,9 +96,9 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
      */
     @Override
     @Transactional(readOnly = true)
-    public List<PetSummaryDTO> getAllPets(Pageable pageable) {
+    public List<PetSummaryResponseDto> getAllPets(Pageable pageable) {
         return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
-                .map(pet -> new PetSummaryDTO(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
+                .map(pet -> new PetSummaryResponseDto(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
                         pet.getBirthDate(),
                         pet.getOwners().isEmpty()
                                 ? "Sin dueÃ±o"
@@ -135,11 +127,11 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
     @Override
     @Nullable
-    public PetCreateDTO save(PetCreateDTO dto) {
+    public PetCreateRequestDto save(PetCreateRequestDto dto) {
         try {
             Pet pet = petMapper.toEntity(dto);
             Pet savedPet = petRepository.save(pet);
-            PetCreateDTO result = petMapper.toCreateDTO(savedPet);
+            PetCreateRequestDto result = petMapper.toCreateDTO(savedPet);
             log.info("Pet created successfully with ID: {}", savedPet.getId());
             return result;
         } catch (Exception e) {

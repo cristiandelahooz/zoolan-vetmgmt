@@ -1,8 +1,8 @@
 package com.wornux.service;
 
-import com.wornux.dto.Gender;
-import com.wornux.domain.SystemRole;
-import com.wornux.domain.User;
+import com.wornux.data.enums.Gender;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.data.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -1,8 +1,8 @@
 package com.wornux.mapper;
 
-import com.wornux.domain.Employee;
-import com.wornux.dto.EmployeeCreateDTO;
-import com.wornux.dto.EmployeeUpdateDTO;
+import com.wornux.data.entity.Employee;
+import com.wornux.dto.request.EmployeeCreateRequestDto;
+import com.wornux.dto.request.EmployeeUpdateRequestDto;
 
 import org.mapstruct.*;
 
@@ -20,7 +20,7 @@ public interface EmployeeMapper {
     @Mapping(target = "systemRole", expression = "java(dto.getEmployeeRole().getSystemRole())")
     @Mapping(target = "emergencyContactName", source = "emergencyContactName")
     @Mapping(target = "emergencyContactPhone", source = "emergencyContactPhone")
-    Employee toEntity(EmployeeCreateDTO dto);
+    Employee toEntity(EmployeeCreateRequestDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "employeeRole", source = "employeeRole")
@@ -28,7 +28,7 @@ public interface EmployeeMapper {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "emergencyContactName", source = "emergencyContactName")
     @Mapping(target = "emergencyContactPhone", source = "emergencyContactPhone")
-    void partialUpdate(@MappingTarget Employee employee, EmployeeUpdateDTO dto);
+    void partialUpdate(@MappingTarget Employee employee, EmployeeUpdateRequestDto dto);
 
     @AfterMapping
     default void validateEmployeeData(@MappingTarget Employee employee) {
@@ -37,5 +37,5 @@ public interface EmployeeMapper {
         }
     }
 
-    EmployeeCreateDTO toDTO(Employee employee);
+    EmployeeCreateRequestDto toDTO(Employee employee);
 }

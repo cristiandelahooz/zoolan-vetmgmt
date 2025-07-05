@@ -1,6 +1,6 @@
 package com.wornux.validation;
 
-import com.wornux.domain.Pet;
+import com.wornux.data.entity.Pet;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

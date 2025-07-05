@@ -1,11 +1,11 @@
 package com.wornux.service;
 
 import com.vaadin.hilla.BrowserCallable;
-import com.wornux.domain.Consultation;
-import com.wornux.domain.Pet;
-import com.wornux.dto.PetCreateDTO;
-import com.wornux.dto.PetSummaryDTO;
-import com.wornux.dto.PetUpdateDTO;
+import com.wornux.data.entity.Consultation;
+import com.wornux.data.entity.Pet;
+import com.wornux.dto.request.PetCreateRequestDto;
+import com.wornux.dto.response.PetSummaryResponseDto;
+import com.wornux.dto.request.PetUpdateRequestDto;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +31,7 @@ public interface PetService {
      *            the DTO containing pet data
      * @return the created Pet entity
      */
-    Pet createPet(@Valid PetCreateDTO petDTO);
+    Pet createPet(@Valid PetCreateRequestDto petDTO);
 
     /**
      * Updates an existing Pet.
@@ -42,7 +42,7 @@ public interface PetService {
      *            the DTO containing updated data
      * @return the updated Pet entity
      */
-    Pet updatePet(Long id, @Valid PetUpdateDTO petDTO);
+    Pet updatePet(Long id, @Valid PetUpdateRequestDto petDTO);
 
     /**
      * Retrieves a Pet by ID.
@@ -60,7 +60,7 @@ public interface PetService {
      *            pagination information
      * @return paginated list of Pets
      */
-    List<PetSummaryDTO> getAllPets(Pageable pageable);
+    List<PetSummaryResponseDto> getAllPets(Pageable pageable);
 
     /**
      * Retrieves Pets by owner ID.

@@ -1,25 +1,22 @@
 package com.wornux.bootstrap;
 
-import static com.wornux.dto.Gender.*;
+import static com.wornux.data.enums.Gender.*;
 
-import com.wornux.domain.ServiceType;
-import com.wornux.dto.AppointmentCreateDTO;
+import com.wornux.data.enums.ServiceType;
+import com.wornux.dto.request.*;
 import com.wornux.service.AppointmentService;
-import com.wornux.domain.ClientRating;
-import com.wornux.domain.PreferredContactMethod;
-import com.wornux.domain.ReferenceSource;
+import com.wornux.data.enums.ClientRating;
+import com.wornux.data.enums.PreferredContactMethod;
+import com.wornux.data.enums.ReferenceSource;
 import com.wornux.service.ClientService;
-import com.wornux.dto.ClientCreateDTO;
 import com.wornux.service.ConsultationService;
-import com.wornux.dto.CreateConsultationDTO;
-import com.wornux.domain.Employee;
-import com.wornux.domain.EmployeeRole;
+import com.wornux.dto.request.CreateConsultationRequestDto;
+import com.wornux.data.entity.Employee;
+import com.wornux.data.enums.EmployeeRole;
 import com.wornux.service.EmployeeService;
-import com.wornux.dto.EmployeeCreateDTO;
-import com.wornux.domain.Pet;
-import com.wornux.domain.PetType;
+import com.wornux.data.entity.Pet;
+import com.wornux.data.enums.PetType;
 import com.wornux.service.PetService;
-import com.wornux.dto.PetCreateDTO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,7 +45,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void populateConsultations(Employee createdEmployee, Pet createdPet) {
-        CreateConsultationDTO consultationDTO = new CreateConsultationDTO();
+        CreateConsultationRequestDto consultationDTO = new CreateConsultationRequestDto();
         consultationDTO.setNotes("Consulta de rutina. Mascota en buen estado general.");
         consultationDTO.setDiagnosis("Examen físico normal");
         consultationDTO.setTreatment("Continuar con dieta balanceada y ejercicio regular");
@@ -59,7 +56,7 @@ public class DataSeeder implements CommandLineRunner {
 
         consultationService.create(consultationDTO);
 
-        CreateConsultationDTO anotherConsultationDTO = new CreateConsultationDTO();
+        CreateConsultationRequestDto anotherConsultationDTO = new CreateConsultationRequestDto();
         anotherConsultationDTO.setNotes("Consulta de rutina. Mascota en buen estado general.");
         anotherConsultationDTO.setDiagnosis("Examen físico anormal");
         anotherConsultationDTO.setTreatment("Continuar con dieta balanceada y ejercicio regular");
@@ -72,7 +69,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void populateAppointments() {
-        AppointmentCreateDTO appointmentDTO = new AppointmentCreateDTO();
+        AppointmentCreateRequestDto appointmentDTO = new AppointmentCreateRequestDto();
         appointmentDTO.setPetId(1L);
         appointmentDTO.setClientId(1L);
         appointmentDTO.setAssignedEmployeeId(2L);
@@ -83,7 +80,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private Pet populatePets() {
-        PetCreateDTO petDTO = new PetCreateDTO();
+        PetCreateRequestDto petDTO = new PetCreateRequestDto();
         petDTO.setName("Max");
         petDTO.setBreed("Labrador Retriever");
         petDTO.setType(PetType.DOG);
@@ -94,7 +91,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private Employee populateEmployees() {
-        EmployeeCreateDTO employeeDTO = new EmployeeCreateDTO();
+        EmployeeCreateRequestDto employeeDTO = new EmployeeCreateRequestDto();
         employeeDTO.setUsername("drgarcia");
         employeeDTO.setPassword("password123");
         employeeDTO.setFirstName("Ana");
@@ -142,7 +139,7 @@ public class DataSeeder implements CommandLineRunner {
         String address = "Calle Principal #123";
         String referencePoints = "Cerca del parque central";
 
-        ClientCreateDTO clientDTO = new ClientCreateDTO(email, firstName, lastName, phoneNumber, birthDate, MALE,
+        ClientCreateRequestDto clientDTO = new ClientCreateRequestDto(email, firstName, lastName, phoneNumber, birthDate, MALE,
                 nationality, cedula, null, null, null, contactMethod, emergencyName, emergencyPhone, rating,
                 creditLimit, paymentTerms, notes, referenceSource, province, municipality, sector, address,
                 referencePoints);

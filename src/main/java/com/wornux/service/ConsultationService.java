@@ -1,9 +1,9 @@
 package com.wornux.service;
 
 import com.vaadin.hilla.BrowserCallable;
-import com.wornux.domain.Consultation;
-import com.wornux.dto.CreateConsultationDTO;
-import com.wornux.dto.UpdateConsultationDTO;
+import com.wornux.data.entity.Consultation;
+import com.wornux.dto.request.CreateConsultationRequestDto;
+import com.wornux.dto.request.UpdateConsultationRequestDto;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +25,7 @@ public interface ConsultationService {
      *            the consultation data
      * @return the created consultation
      */
-    Consultation create(CreateConsultationDTO createDTO);
+    Consultation create(CreateConsultationRequestDto createDTO);
 
     /**
      * Update an existing consultation
@@ -36,7 +36,7 @@ public interface ConsultationService {
      *            the updated consultation data
      * @return the updated consultation
      */
-    Consultation update(Long id, UpdateConsultationDTO updateDTO);
+    Consultation update(Long id, UpdateConsultationRequestDto updateDTO);
 
     /**
      * Partially update a consultation
@@ -47,7 +47,7 @@ public interface ConsultationService {
      *            the consultation fields to update
      * @return the updated consultation
      */
-    Consultation partialUpdate(Long id, UpdateConsultationDTO updateDTO);
+    Consultation partialUpdate(Long id, UpdateConsultationRequestDto updateDTO);
 
     /**
      * Get a consultation by id

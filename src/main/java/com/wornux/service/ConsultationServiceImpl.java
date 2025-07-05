@@ -4,20 +4,17 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
-import com.wornux.domain.Consultation;
+import com.wornux.data.entity.Consultation;
+import com.wornux.dto.request.CreateConsultationRequestDto;
+import com.wornux.dto.request.UpdateConsultationRequestDto;
 import com.wornux.mapper.ConsultationMapper;
-import com.wornux.repository.ConsultationRepository;
-import com.wornux.dto.CreateConsultationDTO;
-import com.wornux.dto.UpdateConsultationDTO;
-import com.wornux.domain.MedicalHistory;
-import com.wornux.service.MedicalHistoryService;
-import com.wornux.domain.Employee;
-import com.wornux.repository.EmployeeRepository;
-import com.wornux.service.EmployeeService;
+import com.wornux.data.repository.ConsultationRepository;
+import com.wornux.data.entity.MedicalHistory;
+import com.wornux.data.entity.Employee;
+import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.exception.EmployeeNotFoundException;
-import com.wornux.domain.Pet;
-import com.wornux.repository.PetRepository;
-import com.wornux.service.PetService;
+import com.wornux.data.entity.Pet;
+import com.wornux.data.repository.PetRepository;
 
 import com.wornux.exception.PetNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +36,7 @@ import java.util.List;
 @BrowserCallable
 @AnonymousAllowed
 public class ConsultationServiceImpl extends ListRepositoryService<Consultation, Long, ConsultationRepository>
-        implements ConsultationService, FormService<CreateConsultationDTO, Long> {
+        implements ConsultationService, FormService<CreateConsultationRequestDto, Long> {
     private final ConsultationRepository consultationRepository;
     private final PetService petService;
     private final EmployeeService employeeService;
@@ -49,14 +46,14 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
     private final EmployeeRepository employeeRepository;
 
     @Override
-    public CreateConsultationDTO save(CreateConsultationDTO item) {
+    public CreateConsultationRequestDto save(CreateConsultationRequestDto item) {
         log.debug("Request to save Consultation : {}", item);
 
         // Create the consultation entity
         Consultation savedConsultation = create(item);
 
         // Convert back to DTO for return
-        CreateConsultationDTO result = new CreateConsultationDTO();
+        CreateConsultationRequestDto result = new CreateConsultationRequestDto();
         result.setPetId(savedConsultation.getPet().getId());
         result.setVeterinarianId(savedConsultation.getVeterinarian().getId());
         result.setNotes(savedConsultation.getNotes());
@@ -69,7 +66,7 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
     }
 
     @Override
-    public Consultation create(CreateConsultationDTO createDTO) {
+    public Consultation create(CreateConsultationRequestDto createDTO) {
         log.debug("Request to create Consultation : {}", createDTO);
 
         Pet pet = petRepository.findById(createDTO.getPetId())
@@ -118,7 +115,7 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
     }
 
     @Override
-    public Consultation update(Long id, UpdateConsultationDTO updateDTO) {
+    public Consultation update(Long id, UpdateConsultationRequestDto updateDTO) {
         log.debug("Request to update Consultation : {}", updateDTO);
 
         Consultation consultation = findById(id);
@@ -146,7 +143,7 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
     }
 
     @Override
-    public Consultation partialUpdate(Long id, UpdateConsultationDTO updateDTO) {
+    public Consultation partialUpdate(Long id, UpdateConsultationRequestDto updateDTO) {
         log.debug("Request to partially update Consultation : {}", updateDTO);
 
         Consultation consultation = findById(id);
