@@ -22,6 +22,7 @@ help:
 	@echo "${YELLOW}General Commands:${NC}"
 	@echo "  ${BLUE}make run${NC}        : Runs the Spring Boot application with Hilla frontend in development mode (with hotswap)."
 	@echo "  ${BLUE}make build${NC}      : Builds the entire project (frontend and backend)."
+	@echo "  ${BLUE}make package${NC}    : Builds the project and packages it into a JAR file."
 	@echo "  ${BLUE}make clean${NC}      : Cleans the project build artifacts."
 	@echo "  ${BLUE}make test${NC}       : Runs all unit and integration tests."
 	@echo "  ${BLUE}make format${NC}     : Applies code formatting using Spotless (Java) and Biome (TypeScript)."
@@ -40,6 +41,10 @@ run:
 build:
 	@echo "${BLUE}Building the project...${NC}"
 	$(MAVEN_CMD) clean install -Pproduction
+
+package:
+	@echo "${BLUE}Packaging the project into a JAR file...${NC}"
+	$(MAVEN_CMD) clean package
 
 clean:
 	@echo "${BLUE}Cleaning project build artifacts...${NC}"
