@@ -1,4 +1,4 @@
-import type AppointmentCreateRequestDto from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto';
+import type AppointmentCreateRequestDto from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto'
 import { AppNotification } from '@/components/ui/Notification'
 import type AppointmentUpdateRequestDto from '@/generated/com/wornux/dto/request/AppointmentUpdateRequestDto'
 import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
@@ -51,7 +51,10 @@ const useCalendarState = () => {
 const useCalendarHandlers = (
   appointments: (AppointmentResponseDTO | undefined)[],
   createAppointment: (appointment: AppointmentCreateRequestDto) => Promise<void>,
-  updateAppointment: (id: number, appointment: AppointmentUpdateRequestDto) => Promise<AppointmentResponseDTO | undefined>,
+  updateAppointment: (
+    id: number,
+    appointment: AppointmentUpdateRequestDto,
+  ) => Promise<AppointmentResponseDTO | undefined>,
   refetch: (start: string, end: string) => void,
   state: ReturnType<typeof useCalendarState>,
 ) => {

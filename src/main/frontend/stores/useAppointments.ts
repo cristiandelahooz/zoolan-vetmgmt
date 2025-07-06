@@ -54,7 +54,7 @@ export function useAppointments() {
     try {
       const updatedAppointment = await AppointmentServiceImpl.updateAppointment(id, appointment)
       setAppointments((prev) => prev.map((a) => (a?.eventId === id ? updatedAppointment : a)))
-      return updatedAppointment;
+      return updatedAppointment
     } catch (e) {
       console.error('Failed to update appointment:', e)
       throw e

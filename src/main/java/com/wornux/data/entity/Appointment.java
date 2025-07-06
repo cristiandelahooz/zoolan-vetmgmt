@@ -145,8 +145,8 @@ public class Appointment {
     @AssertTrue(message = "Debe proporcionar información de cliente registrado o datos de cliente invitado")
     private boolean isValidClientInfo() {
         boolean hasRegisteredClient = client != null;
-        boolean hasGuestInfo = guestClientInfo != null && guestClientInfo.getName() != null && !guestClientInfo.getName()
-                .trim().isEmpty();
+        boolean hasGuestInfo = guestClientInfo != null && guestClientInfo.getName() != null
+                && !guestClientInfo.getName().trim().isEmpty();
 
         log.info("Validating client info: hasRegisteredClient={}, hasGuestInfo={}", hasRegisteredClient, hasGuestInfo);
         return hasRegisteredClient || hasGuestInfo;

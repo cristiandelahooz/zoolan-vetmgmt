@@ -1,4 +1,4 @@
-import { useAppointments } from '@/stores/useAppointments';
+import { useAppointments } from '@/stores/useAppointments'
 import AppointmentStatus from '@/generated/com/wornux/data/enums/AppointmentStatus'
 import ServiceType from '@/generated/com/wornux/data/enums/ServiceType'
 import type AppointmentCreateDTO from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto'
