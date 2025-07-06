@@ -1,8 +1,8 @@
 import type { Validator } from '@vaadin/hilla-lit-form'
 import type { FieldDirectiveResult } from '@vaadin/hilla-react-form'
+import { PasswordField } from '@vaadin/react-components'
 import type { PasswordFieldProps } from '@vaadin/react-components/PasswordField.js'
 import type { CSSProperties } from 'react'
-import { PasswordField } from '@vaadin/react-components'
 
 export type FieldOptions = {
   id?: string
@@ -73,14 +73,14 @@ export const getFieldsToEnableByField = (field: keyof IdentificationDocuments): 
 }
 
 export const CLIENT_FIELDS: Array<[key: string, label: string, options?: Partial<FieldOptions>]> = [
-  ['username', 'Nombre de Usuario'],
   [
-    'password',
-    'Contraseña',
+    'username',
+    'Nombre de Usuario',
     {
-      renderer: ({ field }: { field: PasswordFieldProps }) => <PasswordField {...field} />,
+      disabled: true,
     },
   ],
+  ['password', 'Contraseña'],
   ['email', 'Correo Electrónico'],
   ['firstName', 'Nombre'],
   ['lastName', 'Apellido'],

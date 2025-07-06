@@ -11,7 +11,12 @@ export const config: ViewConfig = {
 export default function ClientsView() {
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
-      <AutoGrid service={ClientServiceImpl} model={ClientModel} columnOptions={AUTO_GRID_CLIENT_COLUMN_OPTIONS} />
+      <AutoGrid
+        service={ClientServiceImpl}
+        model={ClientModel}
+        hiddenColumns={['username']}
+        columnOptions={AUTO_GRID_CLIENT_COLUMN_OPTIONS}
+      />
     </main>
   )
 }
