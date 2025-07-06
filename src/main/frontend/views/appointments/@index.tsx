@@ -1,19 +1,17 @@
-import {AppNotification} from '@/components/ui/Notification'
-import type AppointmentResponseDTO
-    from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
-import {useAppointments} from '@/stores/useAppointments'
-import type {
-    DatesSetArg, EventClickArg, EventContentArg, EventDropArg
-} from '@fullcalendar/core/index.js'
+import { AppNotification } from '@/components/ui/Notification'
+import type AppointmentUpdateRequestDto from '@/generated/com/wornux/dto/request/AppointmentUpdateRequestDto'
+import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
+import { useAppointments } from '@/stores/useAppointments'
+import type { DatesSetArg, EventClickArg, EventContentArg, EventDropArg } from '@fullcalendar/core/index.js'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin, {type DateClickArg} from '@fullcalendar/interaction'
+import interactionPlugin, { type DateClickArg } from '@fullcalendar/interaction'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import {Button} from '@vaadin/react-components'
-import {useCallback, useMemo, useRef, useState} from 'react'
-import {AppointmentDetailsModal} from './_AppointmentDetailsModal'
-import {CreateAppointmentModal} from './_CreateAppointmentModal'
-import {EditAppointmentModal} from './_EditAppointmentModal'
+import { Button } from '@vaadin/react-components'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { AppointmentDetailsModal } from './_AppointmentDetailsModal'
+import { CreateAppointmentModal } from './_CreateAppointmentModal'
+import { EditAppointmentModal } from './_EditAppointmentModal'
 import '@/themes/zoolan-vetmgmt/view/AppointmentsCalendarView.css'
 
 interface DateRange {
@@ -51,8 +49,8 @@ const useCalendarState = () => {
 
 const useCalendarHandlers = (
   appointments: (AppointmentResponseDTO | undefined)[],
-  updateAppointment: Function,
-  refetch: Function,
+  updateAppointment: (id: number, appointment: AppointmentUpdateRequestDto) => Promise<void>,
+  refetch: (start: string, end: string) => void,
   state: ReturnType<typeof useCalendarState>,
 ) => {
   const currentDateRange = useRef<DateRange | null>(null)
@@ -88,7 +86,7 @@ const useCalendarHandlers = (
 
   const handleEventDrop = async (dropInfo: EventDropArg) => {
     const { event } = dropInfo
-    if (!event.start) {
+    if (!event.start || !currentDateRange.current) {
       dropInfo.revert()
       return
     }
@@ -97,7 +95,7 @@ const useCalendarHandlers = (
         startAppointmentDate: event.start.toISOString(),
         endAppointmentDate: event.end ? event.end.toISOString() : event.start.toISOString(),
       })
-      refetch()
+      refetch(currentDateRange.current.start, currentDateRange.current.end)
       state.showNotification('Appointment rescheduled successfully.')
     } catch (e) {
       console.log(`Error rescheduling appointment: ${e}`)
@@ -108,16 +106,16 @@ const useCalendarHandlers = (
 
   const handleCreateModalClose = (isSuccess: boolean) => {
     state.setIsCreateModalOpen(false)
-    if (isSuccess) {
-      refetch()
+    if (isSuccess && currentDateRange.current) {
+      refetch(currentDateRange.current.start, currentDateRange.current.end)
       state.showNotification('Appointment created successfully.')
     }
   }
 
   const handleEditModalClose = (isSuccess: boolean) => {
     state.setIsEditModalOpen(false)
-    if (isSuccess) {
-      refetch()
+    if (isSuccess && currentDateRange.current) {
+      refetch(currentDateRange.current.start, currentDateRange.current.end)
       state.showNotification('Appointment updated successfully.')
     }
   }
@@ -159,7 +157,7 @@ const mapAppointmentsToEvents = (appointments: (AppointmentResponseDTO | undefin
 
 const renderEventContent = (eventInfo: EventContentArg) => (
   <div className="appointment-event p-xs">
-    <div className="event-time font-semibold text-xs">{eventInfo.timeText}</div>
+    <div className="event-time font-semibold text-xs">{eventInfo.event.title}</div>
     <div className="event-title text-sm">{eventInfo.event.extendedProps.serviceType}</div>
     <div className="event-pet text-xs opacity-90">{eventInfo.event.extendedProps.petName}</div>
   </div>

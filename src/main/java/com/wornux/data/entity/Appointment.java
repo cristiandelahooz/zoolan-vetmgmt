@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 
 import static com.wornux.constants.AppointmentConstants.*;
 import static com.wornux.constants.ValidationConstants.DATE_PATTERN;
+
 import com.wornux.data.enums.ServiceType;
 import com.wornux.data.enums.AppointmentStatus;
 
@@ -97,7 +98,7 @@ public class Appointment {
     private String updatedBy;
 
     public String getAppointmentTitle() {
-        return serviceType.getDisplayName() + " - " + getClientDisplayName();
+        return getClientDisplayName() + " - " + serviceType.getDisplayName();
     }
 
     public boolean isCompleted() {
@@ -144,8 +145,8 @@ public class Appointment {
     @AssertTrue(message = "Debe proporcionar información de cliente registrado o datos de cliente invitado")
     private boolean isValidClientInfo() {
         boolean hasRegisteredClient = client != null;
-        boolean hasGuestInfo = guestClientInfo != null && guestClientInfo.getName() != null
-                && !guestClientInfo.getName().trim().isEmpty();
+        boolean hasGuestInfo = guestClientInfo != null && guestClientInfo.getName() != null && !guestClientInfo.getName()
+                .trim().isEmpty();
 
         log.info("Validating client info: hasRegisteredClient={}, hasGuestInfo={}", hasRegisteredClient, hasGuestInfo);
         return hasRegisteredClient || hasGuestInfo;

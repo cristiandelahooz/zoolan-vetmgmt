@@ -1,3 +1,4 @@
+import type AppointmentUpdateRequestDto from '@/generated/com/wornux/dto/request/AppointmentUpdateRequestDto'
 import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
 import { AppointmentServiceImpl } from '@/generated/endpoints'
 import { useCallback, useEffect, useState } from 'react'
@@ -7,7 +8,7 @@ export function useAppointments() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchAppointments = useCallback(async (start?: string, end?: string) => {
+  const fetchAppointments = useCallback(async (start: string, end: string) => {
     setLoading(true)
     try {
       const fetchedAppointments: (AppointmentResponseDTO | undefined)[] =
@@ -32,16 +33,15 @@ export function useAppointments() {
   }, [fetchAppointments])
 
   const refetch = useCallback(
-    (start?: string, end?: string) => {
+    (start: string, end: string) => {
       fetchAppointments(start, end)
     },
     [fetchAppointments],
   )
 
-  const updateAppointment = async (id: number, appointment: any) => {
+  const updateAppointment = async (id: number, appointment: AppointmentUpdateRequestDto) => {
     try {
       await AppointmentServiceImpl.updateAppointment(id, appointment)
-      refetch()
     } catch (e) {
       console.error('Failed to update appointment:', e)
       throw e
@@ -51,7 +51,6 @@ export function useAppointments() {
   const deleteAppointment = async (id: number) => {
     try {
       await AppointmentServiceImpl.deleteAppointment(id)
-      refetch()
     } catch (e) {
       console.error('Failed to delete appointment:', e)
       throw e
