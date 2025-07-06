@@ -55,8 +55,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
             WaitingRoom saved = addToWaitingRoom(dto.clientId(), dto.petId(), dto.reasonForVisit(), dto.priority(),
                     dto.notes());
 
-            WaitingRoomCreateRequestDto result = new WaitingRoomCreateRequestDto(saved.getClient().getId(), saved.getPet().getId(),
-                    saved.getReasonForVisit(), saved.getPriority(), saved.getNotes());
+            WaitingRoomCreateRequestDto result = new WaitingRoomCreateRequestDto(saved.getClient().getId(),
+                    saved.getPet().getId(), saved.getReasonForVisit(), saved.getPriority(), saved.getNotes());
 
             log.info("WaitingRoom saved successfully via FormService with ID: {}", saved.getId());
             return result;
@@ -192,7 +192,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
         if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETED
-            || waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
+                || waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
             throw new IllegalStateException("No se puede cancelar una entrada ya completada o cancelada");
         }
 
@@ -201,7 +201,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         String currentNotes = waitingRoom.getNotes();
         String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + "Cancelado el " + LocalDateTime.now()
-                          + ": " + reason;
+                + ": " + reason;
         waitingRoom.setNotes(newNotes);
 
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -239,7 +239,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         String currentNotes = waitingRoom.getNotes();
         String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + LocalDateTime.now() + " - "
-                          + additionalNotes;
+                + additionalNotes;
 
         waitingRoom.setNotes(newNotes);
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -331,7 +331,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
             List<WaitingRoom> completedToday = waitingRoomRepository
                     .findTodayHistory(startOfDay, endOfDay, Pageable.unpaged()).getContent().stream()
                     .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED
-                                  && wr.getConsultationStartedAt() != null)
+                            && wr.getConsultationStartedAt() != null)
                     .toList();
 
             if (completedToday.isEmpty()) {

@@ -4,8 +4,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
- * Generic validator for pet breed compatibility.
- * Works with any class that implements PetBreedValidatable.
+ * Generic validator for pet breed compatibility. Works with any class that implements PetBreedValidatable.
  */
 public class PetBreedValidator implements ConstraintValidator<ValidPetBreed, PetBreedValidatable> {
 
@@ -14,11 +13,7 @@ public class PetBreedValidator implements ConstraintValidator<ValidPetBreed, Pet
         if (validatable == null) {
             return true;
         }
-        
-        return PetBreedValidationHelper.isValidBreedForType(
-            validatable.getType(), 
-            validatable.getBreed(), 
-            context
-        );
+
+        return PetBreedValidationHelper.isValidBreedForType(validatable.getType(), validatable.getBreed(), context);
     }
 }

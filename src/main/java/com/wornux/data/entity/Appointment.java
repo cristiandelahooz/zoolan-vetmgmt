@@ -154,7 +154,7 @@ public class Appointment {
     @AssertTrue(message = "Si se especifica una mascota, debe tener un cliente registrado asociado")
     private boolean isValidPetClientRelation() {
         if (pet != null) {
-            return client != null && pet.getOwners().contains( client);
+            return client != null && pet.getOwners().contains(client);
         }
         return true;
     }

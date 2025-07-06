@@ -1,6 +1,5 @@
 package com.wornux.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.AppointmentClientInfo;
 import com.wornux.data.enums.AppointmentStatus;
@@ -13,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 import java.time.LocalDateTime;
 
 import static com.wornux.constants.AppointmentConstants.*;
-import static com.wornux.constants.ValidationConstants.DATE_PATTERN;
 
 @Data
 @BrowserCallable

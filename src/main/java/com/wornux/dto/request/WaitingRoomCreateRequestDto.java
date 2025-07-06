@@ -6,11 +6,11 @@ import org.jspecify.annotations.Nullable;
 
 public record WaitingRoomCreateRequestDto(@NotNull(message = "El cliente es requerido") Long clientId,
 
-                                          @NotNull(message = "La mascota es requerida") Long petId,
+        @NotNull(message = "La mascota es requerida") Long petId,
 
-                                          @NotNull(message = "La razón de la visita es requerida") String reasonForVisit,
+        @NotNull(message = "La razón de la visita es requerida") String reasonForVisit,
 
-                                          @NotNull(message = "La prioridad es requerida") Priority priority,
+        @NotNull(message = "La prioridad es requerida") Priority priority,
 
-                                          @Nullable String notes) {
+        @Nullable String notes) {
 }

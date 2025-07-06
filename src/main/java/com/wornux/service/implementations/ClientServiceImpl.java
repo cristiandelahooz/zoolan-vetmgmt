@@ -104,7 +104,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
         Client existingClient = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-        validateUniqueIdentificationForUpdate(id, clientRequest.getCedula(), clientRequest.getPassport(), clientRequest.getRnc());
+        validateUniqueIdentificationForUpdate(id, clientRequest.getCedula(), clientRequest.getPassport(),
+                clientRequest.getRnc());
 
         clientMapper.updateClientFromDTO(clientRequest, existingClient);
 
@@ -295,7 +296,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
         if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
             throw new IllegalArgumentException("Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT
-                                               + " documento de identificación permitido");
+                    + " documento de identificación permitido");
         }
         return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
     }

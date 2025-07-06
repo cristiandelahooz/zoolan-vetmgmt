@@ -1,6 +1,5 @@
 package com.wornux.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.entity.AppointmentClientInfo;
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.data.enums.ServiceType;
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static com.wornux.constants.AppointmentConstants.*;
-import static com.wornux.constants.ValidationConstants.DATE_PATTERN;
 
 @Data
 @Builder

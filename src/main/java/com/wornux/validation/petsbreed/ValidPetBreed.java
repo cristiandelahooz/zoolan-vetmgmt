@@ -5,8 +5,8 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * Validates that a breed is valid for the selected pet type.
- * Can be applied to any class that implements PetBreedValidatable.
+ * Validates that a breed is valid for the selected pet type. Can be applied to any class that implements
+ * PetBreedValidatable.
  */
 @Documented
 @Constraint(validatedBy = PetBreedValidator.class)

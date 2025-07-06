@@ -14,7 +14,6 @@ import java.util.List;
 @Repository
 public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificationExecutor<Pet> {
 
-
     @Query("SELECT p FROM Pet p JOIN p.owners o WHERE o.id = :ownerId AND p.active = true")
     Page<Pet> findByOwnerId(@Param("ownerId") Long ownerId, Pageable pageable);
 
