@@ -25,6 +25,7 @@ public interface AppointmentMapper {
     Appointment toEntity(AppointmentCreateRequestDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", source = "dto.eventId")
     @Mapping(target = "client", source = "dto.clientId", qualifiedByName = "mapClient")
     @Mapping(target = "pet", source = "dto.petId", qualifiedByName = "mapPet")
     @Mapping(target = "assignedEmployee", source = "dto.assignedEmployeeId", qualifiedByName = "mapEmployee")

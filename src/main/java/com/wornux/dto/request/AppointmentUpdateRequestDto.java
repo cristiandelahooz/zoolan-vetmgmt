@@ -17,6 +17,9 @@ import static com.wornux.constants.AppointmentConstants.*;
 @BrowserCallable
 public class AppointmentUpdateRequestDto {
 
+    @NotNull(message = "El ID del evento es obligatorio")
+    private Long eventId;
+
     @Nullable
     @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
     private LocalDateTime startAppointmentDate;
