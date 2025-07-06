@@ -1,3 +1,4 @@
+import type AppointmentCreateRequestDto from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto'
 import type AppointmentUpdateRequestDto from '@/generated/com/wornux/dto/request/AppointmentUpdateRequestDto'
 import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
 import { AppointmentServiceImpl } from '@/generated/endpoints'
@@ -39,9 +40,21 @@ export function useAppointments() {
     [fetchAppointments],
   )
 
+  const createAppointment = async (appointment: AppointmentCreateRequestDto) => {
+    try {
+      const newAppointment = await AppointmentServiceImpl.createAppointment(appointment)
+      setAppointments((prev) => [...prev, newAppointment])
+    } catch (e) {
+      console.error('Failed to create appointment:', e)
+      throw e
+    }
+  }
+
   const updateAppointment = async (id: number, appointment: AppointmentUpdateRequestDto) => {
     try {
-      await AppointmentServiceImpl.updateAppointment(id, appointment)
+      const updatedAppointment = await AppointmentServiceImpl.updateAppointment(id, appointment)
+      setAppointments((prev) => prev.map((a) => (a?.eventId === id ? updatedAppointment : a)))
+      return updatedAppointment;
     } catch (e) {
       console.error('Failed to update appointment:', e)
       throw e
@@ -51,11 +64,12 @@ export function useAppointments() {
   const deleteAppointment = async (id: number) => {
     try {
       await AppointmentServiceImpl.deleteAppointment(id)
+      setAppointments((prev) => prev.filter((a) => a?.eventId !== id))
     } catch (e) {
       console.error('Failed to delete appointment:', e)
       throw e
     }
   }
 
-  return { appointments, loading, error, refetch, updateAppointment, deleteAppointment }
+  return { appointments, loading, error, refetch, createAppointment, updateAppointment, deleteAppointment }
 }

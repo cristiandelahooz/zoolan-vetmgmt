@@ -1,7 +1,7 @@
+import { useAppointments } from '@/stores/useAppointments';
 import AppointmentStatus from '@/generated/com/wornux/data/enums/AppointmentStatus'
 import ServiceType from '@/generated/com/wornux/data/enums/ServiceType'
 import type AppointmentCreateDTO from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto'
-import { AppointmentServiceImpl } from '@/generated/endpoints'
 import { useEmployees } from '@/stores/useEmployees'
 import { usePets } from '@/stores/usePets'
 import { SelectClientDialog, type SelectedClient } from '@/views/clients/_SelectClientDialog'
@@ -28,6 +28,7 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
   const [selectedClient, setSelectedClient] = useState<SelectedClient | null>(null)
   const { pets, fetchPets } = usePets()
   const { employees } = useEmployees()
+  const { createAppointment } = useAppointments()
 
   useEffect(() => {
     if (selectedClient?.id) {
@@ -37,7 +38,7 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
 
   const onSubmit = async (data: AppointmentCreateDTO) => {
     try {
-      await AppointmentServiceImpl.createAppointment(data)
+      await createAppointment(data)
       onClose(true)
       reset()
     } catch (error) {

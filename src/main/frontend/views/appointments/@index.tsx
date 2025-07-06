@@ -1,3 +1,4 @@
+import type AppointmentCreateRequestDto from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto';
 import { AppNotification } from '@/components/ui/Notification'
 import type AppointmentUpdateRequestDto from '@/generated/com/wornux/dto/request/AppointmentUpdateRequestDto'
 import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
@@ -49,7 +50,8 @@ const useCalendarState = () => {
 
 const useCalendarHandlers = (
   appointments: (AppointmentResponseDTO | undefined)[],
-  updateAppointment: (id: number, appointment: AppointmentUpdateRequestDto) => Promise<void>,
+  createAppointment: (appointment: AppointmentCreateRequestDto) => Promise<void>,
+  updateAppointment: (id: number, appointment: AppointmentUpdateRequestDto) => Promise<AppointmentResponseDTO | undefined>,
   refetch: (start: string, end: string) => void,
   state: ReturnType<typeof useCalendarState>,
 ) => {
@@ -86,7 +88,7 @@ const useCalendarHandlers = (
 
   const handleEventDrop = async (dropInfo: EventDropArg) => {
     const { event } = dropInfo
-    if (!event.start || !currentDateRange.current) {
+    if (!event.start) {
       dropInfo.revert()
       return
     }
@@ -95,27 +97,24 @@ const useCalendarHandlers = (
         startAppointmentDate: event.start.toISOString(),
         endAppointmentDate: event.end ? event.end.toISOString() : event.start.toISOString(),
       })
-      refetch(currentDateRange.current.start, currentDateRange.current.end)
       state.showNotification('Appointment rescheduled successfully.')
-    } catch (e) {
-      console.log(`Error rescheduling appointment: ${e}`)
+    } catch (e: any) {
+      console.error(`Error rescheduling appointment: ${e}`)
       dropInfo.revert()
-      state.showNotification('Failed to reschedule appointment.')
+      state.showNotification(`Failed to reschedule appointment: ${e.message}`)
     }
   }
 
   const handleCreateModalClose = (isSuccess: boolean) => {
     state.setIsCreateModalOpen(false)
-    if (isSuccess && currentDateRange.current) {
-      refetch(currentDateRange.current.start, currentDateRange.current.end)
+    if (isSuccess) {
       state.showNotification('Appointment created successfully.')
     }
   }
 
   const handleEditModalClose = (isSuccess: boolean) => {
     state.setIsEditModalOpen(false)
-    if (isSuccess && currentDateRange.current) {
-      refetch(currentDateRange.current.start, currentDateRange.current.end)
+    if (isSuccess) {
       state.showNotification('Appointment updated successfully.')
     }
   }
@@ -144,21 +143,21 @@ const mapAppointmentsToEvents = (appointments: (AppointmentResponseDTO | undefin
   return appointments
     .filter((a) => a !== undefined && a !== null)
     .map((a) => ({
-      id: String(a.eventId),
-      title: a.appointmentTitle,
-      start: a.startAppointmentDate,
-      end: a.endAppointmentDate,
+      id: String(a!.eventId),
+      title: a!.appointmentTitle,
+      start: a!.startAppointmentDate,
+      end: a!.endAppointmentDate,
       extendedProps: {
-        serviceType: a.serviceType,
-        petName: a.petName,
+        serviceType: a!.serviceType,
+        petName: a!.petName,
       },
     }))
 }
 
 const renderEventContent = (eventInfo: EventContentArg) => (
   <div className="appointment-event p-xs">
-    <div className="event-time font-semibold text-xs">{eventInfo.event.title}</div>
-    <div className="event-title text-sm">{eventInfo.event.extendedProps.serviceType}</div>
+    <div className="event-time font-semibold text-xs">{eventInfo.timeText}</div>
+    <div className="event-title text-sm">{eventInfo.event.title}</div>
     <div className="event-pet text-xs opacity-90">{eventInfo.event.extendedProps.petName}</div>
   </div>
 )
@@ -166,9 +165,9 @@ const renderEventContent = (eventInfo: EventContentArg) => (
 export default function AppointmentsCalendarView() {
   const calendarRef = useRef<FullCalendar>(null)
   const [weekendsVisible, setWeekendsVisible] = useState(true)
-  const { appointments, loading, error, updateAppointment, refetch } = useAppointments()
+  const { appointments, loading, error, createAppointment, updateAppointment, refetch } = useAppointments()
   const state = useCalendarState()
-  const handlers = useCalendarHandlers(appointments, updateAppointment, refetch, state)
+  const handlers = useCalendarHandlers(appointments, createAppointment, updateAppointment, refetch, state)
 
   const calendarEvents = useMemo(() => mapAppointmentsToEvents(appointments), [appointments])
 
