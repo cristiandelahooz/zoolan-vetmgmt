@@ -1,18 +1,47 @@
 import AppointmentStatus from '@/generated/com/wornux/data/enums/AppointmentStatus'
 import ServiceType from '@/generated/com/wornux/data/enums/ServiceType'
 import type AppointmentUpdateDTO from '@/generated/com/wornux/dto/request/AppointmentUpdateRequestDto'
+import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
 import { useAppointments } from '@/stores/useAppointments'
-import { useEmployees } from '@/stores/useEmployees'
-import { usePets } from '@/stores/usePets'
 import { SelectClientDialog, type SelectedClient } from '@/views/clients/_SelectClientDialog'
+import { SelectPetDialog, type SelectedPet } from '@/views/consultations/_SelectPetDialog'
 import { Button, ComboBox, DateTimePicker, Dialog, TextArea, TextField } from '@vaadin/react-components'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 interface EditAppointmentModalProps {
-  appointment: AppointmentUpdateDTO | null
+  appointment: AppointmentResponseDTO | null
   isOpen: boolean
   onClose: (isSuccess: boolean) => void
+}
+
+const mapAppointmentToFormData = (appointment: AppointmentResponseDTO | null) => {
+  if (!appointment) return {}
+
+  return {
+    startAppointmentDate: appointment.startAppointmentDate,
+    endAppointmentDate: appointment.endAppointmentDate,
+    serviceType: appointment.serviceType,
+    status: appointment.status,
+    reason: appointment.reason,
+    notes: appointment.notes,
+    guestClientInfo: appointment.guestClientInfo,
+  }
+}
+
+const transformDateForField = (value: string | null) => {
+  const date = value ? new Date(value) : null
+  return date ? date.toISOString() : ''
+}
+
+const parseClientName = (clientName: string | null | undefined): SelectedClient | null => {
+  if (!clientName) return null
+  return { firstName: clientName, lastName: '' }
+}
+
+const parsePetName = (petName: string | null | undefined, breed: string | undefined): SelectedPet | null => {
+  if (!petName) return null
+  return { name: petName, breed: breed }
 }
 
 export function EditAppointmentModal({ appointment, isOpen, onClose }: Readonly<EditAppointmentModalProps>) {
@@ -23,40 +52,22 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: Readonly<
     setValue,
     formState: { errors },
   } = useForm<AppointmentUpdateDTO>({
-    defaultValues: appointment
-      ? {
-          startAppointmentDate: appointment.startAppointmentDate,
-          endAppointmentDate: appointment.endAppointmentDate,
-          serviceType: appointment.serviceType,
-          status: appointment.status,
-          reason: appointment.reason,
-          notes: appointment.notes,
-          clientId: appointment.clientId ?? undefined,
-          petId: appointment.petId,
-          assignedEmployeeId: appointment.assignedEmployeeId,
-          guestClientInfo: appointment.guestClientInfo,
-        }
-      : {},
+    defaultValues: mapAppointmentToFormData(appointment),
   })
+
   const [isClientSelectorOpen, setIsClientSelectorOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<SelectedClient | null>(null)
-  const { pets, fetchPets } = usePets()
-  const { employees } = useEmployees()
+  const [isPetSelectorOpen, setIsPetSelectorOpen] = useState(false)
+  const [selectedPet, setSelectedPet] = useState<SelectedPet | null>(null)
   const { updateAppointment } = useAppointments()
 
   useEffect(() => {
-    if (appointment?.clientId) {
-      // Assuming you have a way to fetch client details by ID
-      // For now, we'll just set a placeholder selectedClient
-      setSelectedClient({ id: appointment.clientId })
+    if (appointment) {
+      reset(mapAppointmentToFormData(appointment))
+      setSelectedClient(parseClientName(appointment.clientName))
+      setSelectedPet(parsePetName(appointment.petName, appointment.petBreed))
     }
-  }, [appointment])
-
-  useEffect(() => {
-    if (selectedClient?.id) {
-      fetchPets(selectedClient.id)
-    }
-  }, [selectedClient, fetchPets])
+  }, [appointment, reset])
 
   const onSubmit = async (data: AppointmentUpdateDTO) => {
     if (!appointment?.eventId) return
@@ -74,6 +85,12 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: Readonly<
     setSelectedClient(client)
     setValue('clientId', client.id)
     setIsClientSelectorOpen(false)
+  }
+
+  const handlePetSelection = (pet: SelectedPet) => {
+    setSelectedPet(pet)
+    setValue('petId', pet.id)
+    setIsPetSelectorOpen(false)
   }
 
   if (!isOpen) return null
@@ -102,10 +119,7 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: Readonly<
               <DateTimePicker
                 label="Appointment Start Time"
                 value={field.value}
-                onChange={(e) => {
-                  const date = e.target.value ? new Date(e.target.value) : null
-                  field.onChange(date ? date.toISOString() : '')
-                }}
+                onChange={(e) => field.onChange(transformDateForField(e.target.value))}
                 invalid={!!errors.startAppointmentDate}
                 errorMessage={errors.startAppointmentDate?.message}
               />
@@ -119,10 +133,7 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: Readonly<
               <DateTimePicker
                 label="Appointment End Time"
                 value={field.value}
-                onChange={(e) => {
-                  const date = e.target.value ? new Date(e.target.value) : null
-                  field.onChange(date ? date.toISOString() : '')
-                }}
+                onChange={(e) => field.onChange(transformDateForField(e.target.value))}
                 invalid={!!errors.endAppointmentDate}
                 errorMessage={errors.endAppointmentDate?.message}
               />
@@ -167,39 +178,21 @@ export function EditAppointmentModal({ appointment, isOpen, onClose }: Readonly<
             />
             <Button onClick={() => setIsClientSelectorOpen(true)}>Select Client</Button>
           </div>
-          <Controller
-            name="petId"
-            control={control}
-            render={({ field }) => (
-              <ComboBox
-                label="Pet"
-                items={pets}
-                itemLabelPath="name"
-                itemValuePath="id"
-                {...(field as any)}
-                disabled={!selectedClient}
-              />
-            )}
-          />
-          <Controller
-            name="assignedEmployeeId"
-            control={control}
-            render={({ field }) => (
-              <ComboBox
-                label="Assign to Employee"
-                items={employees}
-                itemLabelPath="fullName"
-                itemValuePath="id"
-                {...(field as any)}
-              />
-            )}
-          />
+          <div className="flex gap-s items-end">
+            <TextField label="Pet" readonly value={selectedPet ? `${selectedPet.name} (${selectedPet.breed})` : ''} />
+            <Button onClick={() => setIsPetSelectorOpen(true)}>Select Pet</Button>
+          </div>
         </form>
       </Dialog>
       <SelectClientDialog
         open={isClientSelectorOpen}
         onClose={() => setIsClientSelectorOpen(false)}
         onSelect={handleClientSelection}
+      />
+      <SelectPetDialog
+        open={isPetSelectorOpen}
+        onClose={() => setIsPetSelectorOpen(false)}
+        onSelect={handlePetSelection}
       />
     </>
   )

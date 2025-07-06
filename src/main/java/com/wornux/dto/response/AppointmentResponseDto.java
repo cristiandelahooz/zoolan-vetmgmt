@@ -42,6 +42,9 @@ public class AppointmentResponseDto {
     private String petName;
 
     @Nullable
+    private String petBreed;
+
+    @Nullable
     private String assignedEmployeeName;
 
     @Nullable

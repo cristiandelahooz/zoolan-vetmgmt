@@ -1,18 +1,11 @@
+import type Pet from '@/generated/com/wornux/data/entity/Pet'
+import PetModel from '@/generated/com/wornux/data/entity/PetModel'
+import { PetServiceImpl } from '@/generated/endpoints'
 import { AutoGrid } from '@vaadin/hilla-react-crud'
 import { Button, Dialog, TextField } from '@vaadin/react-components'
 import { useState } from 'react'
-import { PetServiceImpl } from '@/generated/endpoints'
-import type Pet from '@/generated/com/wornux/data/entity/Pet'
-import type PetType from '@/generated/com/wornux/data/enums/PetType'
-import PetModel from '@/generated/com/wornux/data/entity/PetModel'
 
-export interface SelectedPet {
-  id: number
-  name: string
-  type: PetType
-  breed: string
-  ownerName: string
-}
+export type SelectedPet = Pick<Pet, 'id' | 'name' | 'type' | 'breed' | 'owners'>
 
 interface SelectPetDialogProps {
   open: boolean
@@ -48,7 +41,7 @@ const createPetListService = () => ({
   },
 })
 
-export function SelectPetDialog({ open, onClose, onSelect }: SelectPetDialogProps) {
+export function SelectPetDialog({ open, onClose, onSelect }: Readonly<SelectPetDialogProps>) {
   const [selectedPet, setSelectedPet] = useState<any>(null)
   const petListService = createPetListService()
 

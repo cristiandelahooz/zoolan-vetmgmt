@@ -36,6 +36,7 @@ public interface AppointmentMapper {
     @Mapping(target = "clientName", expression = "java(appointment.getClientDisplayName())")
     @Mapping(target = "clientContactPhone", expression = "java(appointment.getClientContactPhone())")
     @Mapping(target = "petName", source = "pet.name")
+    @Mapping(target = "petBreed", source = "pet.breed")
     @Mapping(target = "assignedEmployeeName", expression = "java(appointment.getEmployeeDisplayName())")
     @Mapping(target = "startAppointmentDate", expression = "java(appointment.getStartAppointmentDate())")
     @Mapping(target = "completed", expression = "java(appointment.isCompleted())")
