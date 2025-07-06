@@ -1,16 +1,19 @@
-import { AppNotification } from '@/components/ui/Notification'
-import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
-import { useAppointments } from '@/stores/useAppointments'
-import type { DatesSetArg, EventClickArg, EventContentArg, EventDropArg } from '@fullcalendar/core/index.js'
+import {AppNotification} from '@/components/ui/Notification'
+import type AppointmentResponseDTO
+    from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
+import {useAppointments} from '@/stores/useAppointments'
+import type {
+    DatesSetArg, EventClickArg, EventContentArg, EventDropArg
+} from '@fullcalendar/core/index.js'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin, { type DateClickArg } from '@fullcalendar/interaction'
+import interactionPlugin, {type DateClickArg} from '@fullcalendar/interaction'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
-import { Button } from '@vaadin/react-components'
-import { useCallback, useMemo, useRef, useState } from 'react'
-import { AppointmentDetailsModal } from './_AppointmentDetailsModal'
-import { CreateAppointmentModal } from './_CreateAppointmentModal'
-import { EditAppointmentModal } from './_EditAppointmentModal'
+import {Button} from '@vaadin/react-components'
+import {useCallback, useMemo, useRef, useState} from 'react'
+import {AppointmentDetailsModal} from './_AppointmentDetailsModal'
+import {CreateAppointmentModal} from './_CreateAppointmentModal'
+import {EditAppointmentModal} from './_EditAppointmentModal'
 import '@/themes/zoolan-vetmgmt/view/AppointmentsCalendarView.css'
 
 interface DateRange {
@@ -164,7 +167,7 @@ const renderEventContent = (eventInfo: EventContentArg) => (
 
 export default function AppointmentsCalendarView() {
   const calendarRef = useRef<FullCalendar>(null)
-  const [weekendsVisible, setWeekendsVisible] = useState(false)
+  const [weekendsVisible, setWeekendsVisible] = useState(true)
   const { appointments, loading, error, updateAppointment, refetch } = useAppointments()
   const state = useCalendarState()
   const handlers = useCalendarHandlers(appointments, updateAppointment, refetch, state)
@@ -198,7 +201,6 @@ export default function AppointmentsCalendarView() {
         eventDrop={handlers.handleEventDrop}
         events={calendarEvents}
         eventContent={renderEventContent}
-        height="auto"
         locale="es"
         firstDay={1}
         slotMinTime="08:00:00"

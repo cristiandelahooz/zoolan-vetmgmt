@@ -61,7 +61,7 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
         opened={isOpen}
         onOpenedChanged={({ detail }) => !detail.value && onClose(false)}
         footer={
-          <div className="flex gap-s">
+          <div className="flex gap-s backdrop-blur-md">
             <Button onClick={() => onClose(false)}>Cancel</Button>
             <Button theme="primary" onClick={handleSubmit(onSubmit)}>
               Create
