@@ -1,5 +1,4 @@
-
-package com.wornux.dto;
+package com.wornux.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -11,7 +10,7 @@ import static com.wornux.constants.AppointmentConstants.*;
 import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 
 @Data
-public class AppointmentClientInfoDto {
+public class AppointmentClientInfoRequestDto {
 
     @Size(max = MAX_GUEST_CLIENT_NAME_LENGTH, message = "El nombre del cliente no puede exceder {max} caracteres")
     @Nullable
