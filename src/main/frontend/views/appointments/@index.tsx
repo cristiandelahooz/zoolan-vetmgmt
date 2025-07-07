@@ -1,5 +1,5 @@
-import type AppointmentCreateRequestDto from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto'
 import { AppNotification } from '@/components/ui/Notification'
+import type AppointmentCreateRequestDto from '@/generated/com/wornux/dto/request/AppointmentCreateRequestDto'
 import type AppointmentUpdateRequestDto from '@/generated/com/wornux/dto/request/AppointmentUpdateRequestDto'
 import type AppointmentResponseDTO from '@/generated/com/wornux/dto/response/AppointmentResponseDto'
 import { useAppointments } from '@/stores/useAppointments'
@@ -22,6 +22,7 @@ interface DateRange {
 
 const useCalendarState = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -146,13 +147,13 @@ const mapAppointmentsToEvents = (appointments: (AppointmentResponseDTO | undefin
   return appointments
     .filter((a) => a !== undefined && a !== null)
     .map((a) => ({
-      id: String(a!.eventId),
-      title: a!.appointmentTitle,
-      start: a!.startAppointmentDate,
-      end: a!.endAppointmentDate,
+      id: String(a?.eventId),
+      title: a?.appointmentTitle,
+      start: a?.startAppointmentDate,
+      end: a?.endAppointmentDate,
       extendedProps: {
-        serviceType: a!.serviceType,
-        petName: a!.petName,
+        serviceType: a?.serviceType,
+        petName: a?.petName,
       },
     }))
 }
@@ -181,7 +182,7 @@ export default function AppointmentsCalendarView() {
     <div className="appointments-calendar p-m">
       <div className="calendar-header mb-m flex justify-between items-center">
         <h2 className="text-xl font-bold">Calendario de Citas</h2>
-        <Button onClick={() => setWeekendsVisible(!weekendsVisible)}>
+        <Button autofocus theme="primary contrast" onClick={() => setWeekendsVisible(!weekendsVisible)}>
           {weekendsVisible ? 'Hide Weekends' : 'Show Weekends'}
         </Button>
       </div>

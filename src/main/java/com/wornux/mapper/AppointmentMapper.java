@@ -1,9 +1,5 @@
 package com.wornux.mapper;
 
-import com.wornux.data.entity.Client;
-import com.wornux.data.entity.Pet;
-import com.wornux.data.entity.Employee;
-
 import com.wornux.data.entity.Appointment;
 import com.wornux.dto.request.AppointmentCreateRequestDto;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
@@ -25,7 +21,6 @@ public interface AppointmentMapper {
     Appointment toEntity(AppointmentCreateRequestDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", source = "dto.eventId")
     @Mapping(target = "client", source = "dto.clientId", qualifiedByName = "mapClient")
     @Mapping(target = "pet", source = "dto.petId", qualifiedByName = "mapPet")
     @Mapping(target = "assignedEmployee", source = "dto.assignedEmployeeId", qualifiedByName = "mapEmployee")
