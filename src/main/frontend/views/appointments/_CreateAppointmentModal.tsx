@@ -41,6 +41,7 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
     reset({
       startAppointmentDate: startDateTime,
       endAppointmentDate: endDateTime,
+      serviceType: ServiceType.CONSULTA_GENERAL,
     })
   }, [selectedDate, reset])
   const [isClientSelectorOpen, setIsClientSelectorOpen] = useState(false)
@@ -181,12 +182,18 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
       </Dialog>
       <SelectClientDialog
         open={isClientSelectorOpen}
-        onClose={() => setIsClientSelectorOpen(false)}
+        onClose={() => {
+          setIsClientSelectorOpen(false)
+          setSelectedClient(null)
+        }}
         onSelect={handleClientSelection}
       />
       <SelectPetDialog
         open={isPetSelectorOpen}
-        onClose={() => setIsPetSelectorOpen(false)}
+        onClose={() => {
+          setIsPetSelectorOpen(false)
+          setSelectedPet(null)
+        }}
         onSelect={handlePetSelection}
       />
     </>
