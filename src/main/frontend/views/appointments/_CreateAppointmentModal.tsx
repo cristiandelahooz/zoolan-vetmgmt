@@ -15,6 +15,8 @@ interface CreateAppointmentModalProps {
 }
 
 export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readonly<CreateAppointmentModalProps>) {
+  const ONE_HOUR_IN_MILLIS = 60 * 60 * 1000
+
   const {
     register,
     handleSubmit,
@@ -24,15 +26,21 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
     formState: { errors },
   } = useForm<AppointmentCreateDTO>({
     defaultValues: {
-      startAppointmentDate: selectedDate ? selectedDate.toISOString() : '',
-      endAppointmentDate: selectedDate ? new Date(selectedDate.getTime() + 60 * 60 * 1000).toISOString() : '',
+      startAppointmentDate: selectedDate ? selectedDate.toISOString().slice(0, 16) : '',
+      endAppointmentDate: selectedDate
+        ? new Date(selectedDate.getTime() + ONE_HOUR_IN_MILLIS).toISOString().slice(0, 16)
+        : '',
     },
   })
 
   useEffect(() => {
+    const startDateTime = selectedDate ? selectedDate.toISOString().slice(0, 16) : ''
+    const endDateTime = selectedDate
+      ? new Date(selectedDate.getTime() + ONE_HOUR_IN_MILLIS).toISOString().slice(0, 16)
+      : ''
     reset({
-      startAppointmentDate: selectedDate ? selectedDate.toISOString() : '',
-      endAppointmentDate: selectedDate ? new Date(selectedDate.getTime() + 60 * 60 * 1000).toISOString() : '',
+      startAppointmentDate: startDateTime,
+      endAppointmentDate: endDateTime,
     })
   }, [selectedDate, reset])
   const [isClientSelectorOpen, setIsClientSelectorOpen] = useState(false)
@@ -87,15 +95,16 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
             rules={{ required: 'Start time is required' }}
             render={({ field }) => (
               <DateTimePicker
+                key={selectedDate?.getTime() || 'initial'}
                 label="Appointment Start Time"
                 value={field.value}
                 onChange={(e) => {
-                  // Ensure the value is an ISO string before passing to react-hook-form
                   const date = e.target.value ? new Date(e.target.value) : null
                   field.onChange(date ? date.toISOString() : '')
                 }}
                 invalid={!!errors.startAppointmentDate}
                 errorMessage={errors.startAppointmentDate?.message}
+                date-readonly="true"
               />
             )}
           />
@@ -105,6 +114,7 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
             rules={{ required: 'End time is required' }}
             render={({ field }) => (
               <DateTimePicker
+                key={selectedDate?.getTime() || 'initial'}
                 label="Appointment End Time"
                 value={field.value}
                 onChange={(e) => {
@@ -113,6 +123,7 @@ export function CreateAppointmentModal({ isOpen, onClose, selectedDate }: Readon
                 }}
                 invalid={!!errors.endAppointmentDate}
                 errorMessage={errors.endAppointmentDate?.message}
+                date-readonly="true"
               />
             )}
           />
