@@ -39,6 +39,7 @@ help:
 
 run: db-up
 	@echo "${BLUE}Running Spring Boot application with Hilla frontend (hotswap enabled)...${NC}"
+	@trap 'echo "${YELLOW}Stopping containers...${NC}"; $(MAKE) db-down' INT; \
 	$(MAVEN_CMD) spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true"
 
 build:
