@@ -16,7 +16,7 @@ import {
 import { useSignal } from '@vaadin/hilla-react-signals'
 import { useState } from 'react'
 import PetModel from '@/generated/com/wornux/data/entity/PetModel'
-import { SelectVeterinarianDialog, type SelectedVeterinarian } from './_SelectVeterinarianDialog'
+import { SelectVeterinarianDialog, type SelectedVeterinarian } from '../veterinarians/_SelectVeterinarianDialog'
 import { ROUTES } from '@/lib/constants/routes'
 import type CreateConsultationDTO from '@/generated/com/wornux/dto/request/CreateConsultationRequestDto'
 import type Pet from '@/generated/com/wornux/data/entity/Pet'
