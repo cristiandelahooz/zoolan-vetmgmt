@@ -169,13 +169,12 @@ const renderEventContent = (eventInfo: EventContentArg) => (
 export default function AppointmentsCalendarView() {
   const calendarRef = useRef<FullCalendar>(null)
   const [weekendsVisible, setWeekendsVisible] = useState(true)
-  const { appointments, loading, error, createAppointment, updateAppointment, refetch } = useAppointments()
+  const { appointments, error, createAppointment, updateAppointment, refetch } = useAppointments()
   const state = useCalendarState()
   const handlers = useCalendarHandlers(appointments, createAppointment, updateAppointment, refetch, state)
 
   const calendarEvents = useMemo(() => mapAppointmentsToEvents(appointments), [appointments])
 
-  if (loading) return <div>Loading appointments...</div>
   if (error) return <div>Error loading appointments: {error}</div>
 
   return (
