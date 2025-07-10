@@ -13,7 +13,7 @@ import {
 } from '@vaadin/react-components'
 import { useState } from 'react'
 import { SelectOwnerDialog, type SelectedClient } from '../pets/_SelectOwnerDialog'
-import { SelectPetDialog, type SelectedPet } from './_SelectPetDialog'
+import { SelectPetDialog, type SelectedPet } from '../pets/_SelectPetByOwnerDialog'
 
 export default function WaitingRoomNewView() {
   const [ownerDialogOpen, setOwnerDialogOpen] = useState(false)
