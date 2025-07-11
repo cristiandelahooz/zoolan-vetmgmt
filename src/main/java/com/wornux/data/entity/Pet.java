@@ -11,14 +11,15 @@ import java.util.List;
 import lombok.*;
 import com.wornux.data.enums.PetType;
 
-@Builder
-@Entity
-@Table(name = "pets")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode(exclude = { "medicalHistory" })
 @ToString(exclude = { "medicalHistory" })
+@Entity
+@Table(name = "pets")
 public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
