@@ -11,16 +11,16 @@ import org.jspecify.annotations.Nullable;
 import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@ToString
+@EqualsAndHashCode
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "suppliers")
-@Getter
-@Setter
-@Data
-@NoArgsConstructor
-@RequiredArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
 public class Supplier {
 
     @Id
