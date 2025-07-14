@@ -36,6 +36,7 @@ public class Pet {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "pet_owners", joinColumns = @JoinColumn(name = "pet_id"), inverseJoinColumns = @JoinColumn(name = "client_id"))
+    @Builder.Default
     private List<Client> owners = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
