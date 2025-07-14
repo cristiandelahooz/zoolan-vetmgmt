@@ -38,6 +38,10 @@ public class Product {
     @Min(0)
     private int stock;
 
+    @Min(0)
+    @Builder.Default
+    private int reorderLevel = 5;
+
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
