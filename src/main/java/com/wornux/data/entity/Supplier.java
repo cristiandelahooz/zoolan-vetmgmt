@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.Nullable;
+import java.util.List;
+import java.util.ArrayList;
+
 
 import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
@@ -68,5 +71,12 @@ public class Supplier {
     @Column(name = "active")
     @Builder.Default
     private boolean active = true;
+
+    @OneToMany(mappedBy = "supplier", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private List<Product> products = new ArrayList<>();
+
 
 }
