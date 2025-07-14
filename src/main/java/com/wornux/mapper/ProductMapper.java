@@ -4,30 +4,25 @@ import com.wornux.data.entity.Product;
 import com.wornux.data.entity.Supplier;
 import com.wornux.dto.request.ProductCreateRequestDto;
 import com.wornux.dto.request.ProductUpdateRequestDto;
+import org.mapstruct.*;
 import org.springframework.stereotype.Component;
 
-@Component
-public class ProductMapper {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface ProductMapper {
 
-    public Product toEntity(ProductCreateRequestDto dto, Supplier supplier) {
-        return Product.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .stock(dto.getStock())
-                .supplier(supplier)
-                .category(dto.getCategory())
-                .build(); // active = true by default
-    }
+    @Mapping(target = "supplier", source = "supplier")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", constant = "true")
 
-    public void updateProductFromDTO(ProductUpdateRequestDto dto, Product product, Supplier supplier) {
-        if (dto.getName() != null) product.setName(dto.getName());
-        if (dto.getDescription() != null) product.setDescription(dto.getDescription());
-        if (dto.getPrice() != null) product.setPrice(dto.getPrice());
-        if (dto.getStock() != null) product.setStock(dto.getStock());
-        if (dto.getSupplierId() != null) product.setSupplier(supplier);
-        if (dto.getCategory() != null) product.setCategory(dto.getCategory());
+    Product toEntity(ProductCreateRequestDto dto, Supplier supplier);
 
-    }
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "supplier", source = "supplier")
+    void updateProductFromDTO(ProductUpdateRequestDto dto, @MappingTarget Product product, Supplier supplier);
+
+    @Mapping(target = "supplierId", source = "supplier.id")
+    ProductCreateRequestDto toDTO(Product product);
+
 }
 
