@@ -70,6 +70,26 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     }
 
     @Override
+    public Product update(Long id, ProductUpdateRequestDto dto) {
+        log.debug("Updating Product ID: {}", id);
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        Supplier supplier = null;
+        if (dto.getSupplierId() != null) {
+            supplier = supplierRepository.findById(dto.getSupplierId())
+                    .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
+        }
+
+        productMapper.updateProductFromDTO(dto, product, supplier);
+        Product updatedProduct = productRepository.save(product);
+
+        log.info("Product updated with ID: {}", updatedProduct.getId());
+        return updatedProduct;
+    }
+
+    @Override
     public void delete(Long id) {
         log.debug("Deactivating Product ID: {}", id);
 
@@ -105,5 +125,12 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
         return productRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Product> getLowStockProducts() {
+        log.debug("Retrieving products with low stock");
+        return productRepository.findLowStockProducts();
     }
 }

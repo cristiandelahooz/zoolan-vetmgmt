@@ -3,6 +3,7 @@ package com.wornux.service.interfaces;
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Product;
 import com.wornux.dto.request.ProductCreateRequestDto;
+import com.wornux.dto.request.ProductUpdateRequestDto;
 import jakarta.validation.Valid;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,16 @@ public interface ProductService {
      * @param id ID of the Product to delete.
      */
     void delete(Long id);
+
+    /**
+     * Updates an existing Product.
+     *
+     * @param id ID of the Product to update.
+     * @param dto Product update DTO.
+     * @return Updated Product entity.
+     */
+    Product update(Long id, @Valid ProductUpdateRequestDto dto);
+
 
     /**
      * Retrieves a Product by its ID.
@@ -72,4 +83,11 @@ public interface ProductService {
      * @return List of Products.
      */
     List<Product> getProductsByName(String name);
+
+    /**
+     * Lists Products with low stock levels.
+     *
+     * @return List of Products with stock <= reorderLevel.
+     */
+    List<Product> getLowStockProducts();
 }
