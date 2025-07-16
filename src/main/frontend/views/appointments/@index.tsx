@@ -113,6 +113,10 @@ const useCalendarHandlers = (
     state.setIsCreateModalOpen(false)
     if (isSuccess) {
       state.showNotification('Appointment created successfully.')
+      // Refetch appointments for the current date range after successful creation
+      if (currentDateRange.current) {
+        refetch(currentDateRange.current.start, currentDateRange.current.end)
+      }
     }
   }
 
