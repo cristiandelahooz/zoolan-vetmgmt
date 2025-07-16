@@ -102,6 +102,7 @@ const useCalendarHandlers = (
         endAppointmentDate: event.end ? event.end.toISOString() : event.start.toISOString(),
       })
       state.showNotification('Appointment rescheduled successfully.')
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (e: any) {
       console.error(`Error rescheduling appointment: ${e}`)
       dropInfo.revert()
