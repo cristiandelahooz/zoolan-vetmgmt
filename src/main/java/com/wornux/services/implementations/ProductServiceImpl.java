@@ -144,4 +144,5 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     public long getCount(Specification<Product> specification) {
         return productRepository.count(specification);
     }
+
 }

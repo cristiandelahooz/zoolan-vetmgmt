@@ -193,4 +193,6 @@ public interface ClientService {
      *         the ID of the client to delete
      */
     void deleteClient(Long id);
+
+    void archive(Client client);
 }

@@ -1,6 +1,5 @@
 package com.wornux.data.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -14,7 +13,6 @@ import org.jspecify.annotations.Nullable;
 import java.time.LocalDateTime;
 
 import static com.wornux.constants.AppointmentConstants.*;
-import static com.wornux.constants.ValidationConstants.DATE_PATTERN;
 
 import com.wornux.data.enums.ServiceType;
 import com.wornux.data.enums.AppointmentStatus;

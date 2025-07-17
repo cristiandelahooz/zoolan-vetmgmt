@@ -354,4 +354,13 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         log.debug("Request to get all active Clients");
         return clientRepository.findAllByActiveTrue();
     }
+
+    @Override
+    @Transactional
+    public void archive(Client client) {
+
+        clientRepository.save(client);
+
+        log.info("Archived Client ID: {}", client.getId());
+    }
 }

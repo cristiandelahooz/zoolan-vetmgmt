@@ -11,7 +11,6 @@ import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.report.pdf.JasperReportFactory;
 import com.wornux.utils.GridUtils;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -34,9 +33,6 @@ import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamRegistration;
-import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -44,8 +40,8 @@ import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
@@ -68,22 +64,25 @@ public class InvoiceView extends Div {
     private final Grid<Invoice> grid = GridUtils.createBasicGrid(Invoice.class);
 
     private final TextField docNum = new TextField("Enter invoice #");
-    private final MultiSelectComboBox<Client> client = new MultiSelectComboBox<>("All customers");
+    private final MultiSelectComboBox<Client> customer = new MultiSelectComboBox<>("All customers");
     private final MultiSelectComboBox<InvoiceStatus> status = new MultiSelectComboBox<>("All status");
     private final DatePicker fromPeriod = new DatePicker("From");
     private final DatePicker toPeriod = new DatePicker("To");
     private final Span quantity = new Span();
-    private final Button create = new Button(LineAwesomeIcon.ROCKET_SOLID.create());
     private final JasperReportFactory reportFactory;
 
     private final BoardCards boardCards = new BoardCards();
+    private final Button create = new Button();
 
     private final transient InvoiceService service;
+    private final InvoiceForm invoiceForm;
 
-    public InvoiceView(InvoiceService service, ClientService clientService, ProductService productService,
-            AuditService auditService, JasperReportFactory reportFactory) {
+    public InvoiceView(InvoiceService service, @Qualifier("clientServiceImpl") ClientService customerService,
+            ProductService productService, AuditService auditService, JasperReportFactory reportFactory) {
         this.reportFactory = reportFactory;
         this.service = service;
+
+        invoiceForm = new InvoiceForm(service, customerService, productService, auditService);
 
         createGrid(service, createFilterSpecification());
 
@@ -91,12 +90,18 @@ public class InvoiceView extends Div {
         gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL,
                 LumoUtility.Height.FULL);
 
-        add(createTitle(), createBoardCards(), createFilter(), gridLayout);
+        add(createTitle(), createBoardCards(), createFilter(), gridLayout, invoiceForm);
         addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
         setSizeFull();
 
-        List<Client> allCustomerByDisabledIsFalse = clientService.getAllActiveClients();
-        client.setItems(comboBoxItemFilter(c -> c.getFirstName() + " " + c.getStreetAddress(), String::contains),
+        create.addClickListener(event -> {
+            invoiceForm.open();
+        });
+
+        invoiceForm.setCallable(this::refreshAll);
+
+        List<Client> allCustomerByDisabledIsFalse = customerService.getAllActiveClients();
+        customer.setItems(comboBoxItemFilter(c -> c.getFirstName() + " " + c.getStreetAddress(), String::contains),
                 allCustomerByDisabledIsFalse);
 
         recreateBoardCards();
@@ -131,6 +136,14 @@ public class InvoiceView extends Div {
         GridUtils.addComponentColumn(grid, this::renderActions, "Actions").setFlexGrow(0)
                 .setTextAlign(ColumnTextAlign.CENTER);
 
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            if (event.getValue() != null) {
+                invoiceForm.edit(event.getValue());
+            } else {
+                invoiceForm.close();
+            }
+        });
+
     }
 
     public Specification<Invoice> createFilterSpecification() {
@@ -156,13 +169,17 @@ public class InvoiceView extends Div {
     }
 
     private Predicate createCustomerPredicate(Root<Invoice> root, CriteriaBuilder builder) {
-        return createPredicateForSelectedItems(Optional.ofNullable(client.getSelectedItems()),
+        return createPredicateForSelectedItems(Optional.ofNullable(customer.getSelectedItems()),
                 items -> root.get("client").in(items), builder);
     }
 
     private Predicate createStatusPredicate(Root<Invoice> root, CriteriaBuilder builder) {
         return createPredicateForSelectedItems(Optional.ofNullable(status.getSelectedItems()),
                 items -> root.get("status").in(items), builder);
+    }
+
+    private Predicate createDatePredicate(Root<Invoice> root, CriteriaBuilder builder, LocalDate from, LocalDate to) {
+        return builder.between(root.get("issuedDate"), from, to);
     }
 
     private void refreshAll() {
@@ -187,7 +204,7 @@ public class InvoiceView extends Div {
         quantity.setHeight(1.2F, Unit.REM);
         quantity.setText("Invoices (%s)".formatted(service.getCount(createFilterSpecification())));
 
-        client.setItemLabelGenerator(p -> "%s (%s)".formatted(p.getFirstName(), p.getEmail()));
+        customer.setItemLabelGenerator(p -> "%s (%s)".formatted(p.getFirstName(), p.getEmail()));
 
         status.setItems(InvoiceStatus.values());
         status.setItemLabelGenerator(InvoiceStatus::getDisplay);
@@ -210,14 +227,14 @@ public class InvoiceView extends Div {
         Span periodDiv = new Span("-");
         periodDiv.setVisible(false);
 
-        Set.of(client, status).forEach(c -> {
+        Set.of(customer, status).forEach(c -> {
             c.setWidthFull();
             c.setClearButtonVisible(true);
             c.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
             c.addValueChangeListener(e -> refreshAll());
         });
 
-        HorizontalLayout toolbar = new HorizontalLayout(docNum, client, status, fromPeriod, periodDiv, toPeriod,
+        HorizontalLayout toolbar = new HorizontalLayout(docNum, customer, status, fromPeriod, periodDiv, toPeriod,
                 quantity);
         toolbar.setSpacing(false);
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -265,12 +282,6 @@ public class InvoiceView extends Div {
 
         reportService.put("INVOICE_ID", invoice.getCode());
         reportService.put("LOGO", resourceAsStream);
-
-        InputStream inputStream = reportService.execute();
-        final StreamResource resource = new StreamResource("%s.pdf".formatted(fileName), () -> inputStream);
-        final StreamRegistration registration = VaadinSession.getCurrent().getResourceRegistry()
-                .registerResource(resource);
-        UI.getCurrent().getPage().open(registration.getResourceUri().toString(), "_blank");
     }
 
     private Div createBoardCards() {
@@ -344,6 +355,9 @@ public class InvoiceView extends Div {
 
         Button edit = new Button("Edit");
         edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.addClickListener(event -> {
+            invoiceForm.edit(item);
+        });
 
         Button duplicate = new Button("Duplicate");
         duplicate.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);

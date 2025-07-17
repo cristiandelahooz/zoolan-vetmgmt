@@ -28,7 +28,7 @@ public interface ProductService {
      *         Product creation DTO.
      * @return Saved ProductCreateRequestDto (or response DTO).
      */
-    ProductCreateRequestDto save(@Valid ProductCreateRequestDto dto);
+    ProductCreateRequestDto save(ProductCreateRequestDto dto);
 
     /**
      * Deactivates (soft delete) a Product.

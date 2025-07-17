@@ -31,7 +31,6 @@ import static com.wornux.utils.PredicateUtils.predicateUnaccentLike;
 @Slf4j
 @Uses(Icon.class)
 @Route(value = "products")
-@RolesAllowed({ "ADMIN" })
 @PageTitle("Products & Services Management")
 public class ProductServiceView extends Div {
     private final Button create = new Button("Create", LineAwesomeIcon.ROCKET_SOLID.create());
@@ -132,9 +131,8 @@ public class ProductServiceView extends Div {
     private Div createTitle() {
         Breadcrumb breadcrumb = new Breadcrumb();
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        //        breadcrumb.add(new BreadcrumbItem("Home", HomeView.class),
-        //                new BreadcrumbItem("Transactions", ProductServiceView.class),
-        //                new BreadcrumbItem("Products & Services", ProductServiceView.class));
+        breadcrumb.add(new BreadcrumbItem("Transactions", ProductServiceView.class),
+                new BreadcrumbItem("Products & Services", ProductServiceView.class));
 
         Div headerLayout = getDiv(breadcrumb);
 
