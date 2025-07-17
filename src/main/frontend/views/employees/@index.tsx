@@ -9,6 +9,7 @@ export default function EmployeesView() {
       <AutoGrid
         service={EmployeeServiceImpl}
         model={EmployeeCreateDTOModel}
+        hiddenColumns={['password']}
         columnOptions={AUTO_GRID_EMPLOYEE_FIELD_OPTIONS}
       />
     </main>
