@@ -5,6 +5,7 @@ import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = { "consultations", "pet" })
 @ToString(exclude = { "consultations", "pet" })
+@Audited(withModifiedFlag = true)
 public class MedicalHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

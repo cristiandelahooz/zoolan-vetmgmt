@@ -1,11 +1,11 @@
 package com.wornux.mapper.helper;
 
 import com.wornux.data.entity.Client;
-import com.wornux.service.interfaces.ClientService;
+import com.wornux.services.interfaces.ClientService;
 import com.wornux.data.entity.Employee;
-import com.wornux.service.interfaces.EmployeeService;
+import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.data.entity.Pet;
-import com.wornux.service.interfaces.PetService;
+import com.wornux.services.interfaces.PetService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
 import org.springframework.context.annotation.Lazy;
@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AppointmentMapperHelper {
 
+    private static final String NOT_FOUND_MESSAGE = " not found";
     @Lazy
     private final ClientService clientService;
     @Lazy
     private final PetService petService;
     @Lazy
     private final EmployeeService employeeService;
-    private static final String NOT_FOUND_MESSAGE = " not found";
 
     @Named("mapClient")
     public Client mapClient(Long clientId) {

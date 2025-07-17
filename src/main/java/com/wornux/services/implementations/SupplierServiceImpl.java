@@ -1,4 +1,4 @@
-package com.wornux.service.implementations;
+package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -10,12 +10,11 @@ import com.wornux.data.repository.SupplierRepository;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.dto.request.UpdateSupplierRequestDto;
 import com.wornux.mapper.SupplierMapper;
-import com.wornux.service.interfaces.SupplierService;
+import com.wornux.services.interfaces.SupplierService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

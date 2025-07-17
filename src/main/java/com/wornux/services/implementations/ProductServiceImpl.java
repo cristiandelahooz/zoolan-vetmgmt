@@ -1,4 +1,4 @@
-package com.wornux.service.implementations;
+package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -14,18 +14,17 @@ import com.wornux.dto.request.ProductUpdateRequestDto;
 import com.wornux.exception.ProductNotFoundException;
 import com.wornux.exception.SupplierNotFoundException;
 import com.wornux.mapper.ProductMapper;
-import com.wornux.service.interfaces.ProductService;
-import jakarta.validation.Valid;
+import com.wornux.services.interfaces.ProductService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import com.wornux.data.enums.ProductCategory;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +39,7 @@ import java.util.Optional;
 public class ProductServiceImpl extends ListRepositoryService<Product, Long, ProductRepository>
         implements ProductService, FormService<ProductCreateRequestDto, Long> {
 
+    @Getter
     private final ProductRepository productRepository;
     private final SupplierRepository supplierRepository;
     private final ProductMapper productMapper;
@@ -73,8 +73,7 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     public Product update(Long id, ProductUpdateRequestDto dto) {
         log.debug("Updating Product ID: {}", id);
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
         Supplier supplier = null;
         if (dto.getSupplierId() != null) {
@@ -93,8 +92,7 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     public void delete(Long id) {
         log.debug("Deactivating Product ID: {}", id);
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setActive(false);
         productRepository.save(product);
@@ -122,9 +120,16 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
         return productRepository.findBySupplierId(supplierId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Product update(Product product) {
+        log.debug("Updating Product: {}", product);
+        return productRepository.save(product);
+    }
+
     @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findAllByActiveIsTrue();
     }
 
     @Override
@@ -132,5 +137,11 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     public List<Product> getLowStockProducts() {
         log.debug("Retrieving products with low stock");
         return productRepository.findLowStockProducts();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getCount(Specification<Product> specification) {
+        return productRepository.count(specification);
     }
 }

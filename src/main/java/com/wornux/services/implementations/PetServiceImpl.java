@@ -1,4 +1,4 @@
-package com.wornux.service.implementations;
+package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -17,8 +17,8 @@ import com.wornux.data.repository.PetRepository;
 import com.wornux.dto.response.PetSummaryResponseDto;
 import com.wornux.dto.request.PetUpdateRequestDto;
 import com.wornux.exception.PetNotFoundException;
-import com.wornux.service.interfaces.PetService;
-import com.wornux.service.interfaces.ClientService;
+import com.wornux.services.interfaces.PetService;
+import com.wornux.services.interfaces.ClientService;
 import jakarta.validation.Valid;
 
 import java.util.*;
@@ -32,6 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -102,10 +103,9 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<PetSummaryResponseDto> getAllPets(Pageable pageable) {
         return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
                 .map(pet -> new PetSummaryResponseDto(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
-                        pet.getBirthDate(),
-                        pet.getOwners().isEmpty()
-                                ? "Sin dueÃ±o"
-                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
+                        pet.getBirthDate(), pet.getOwners().isEmpty() ? "Sin dueÃ±o" : pet.getOwners().get(0)
+                                                                                               .getFirstName() + " " + pet.getOwners()
+                                                                                               .get(0).getLastName()))
                 .toList();
     }
 
@@ -170,8 +170,8 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         Pet keepPet = petRepository.findById(keepPetId).orElseThrow(() -> new PetNotFoundException(keepPetId));
         Pet removePet = petRepository.findById(removePetId).orElseThrow(() -> new PetNotFoundException(removePetId));
 
-        if (!keepPet.getName().equalsIgnoreCase(removePet.getName())
-                || !keepPet.getType().equals(removePet.getType())) {
+        if (!keepPet.getName().equalsIgnoreCase(removePet.getName()) || !keepPet.getType()
+                .equals(removePet.getType())) {
             throw new IllegalArgumentException("Las mascotas no parecen ser la misma (nombre o tipo diferentes)");
         }
 

@@ -1,4 +1,4 @@
-package com.wornux.service.implementations;
+package com.wornux.services.implementations;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -6,7 +6,7 @@ import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.SystemRole;
 import com.wornux.data.entity.User;
 import com.wornux.data.repository.UserRepository;
-import com.wornux.service.interfaces.UserService;
+import com.wornux.services.interfaces.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;

@@ -6,7 +6,7 @@ import com.wornux.data.enums.ProductCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
-
+import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
 
@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@Audited(withModifiedFlag = true)
 public class Product {
 
     @Id

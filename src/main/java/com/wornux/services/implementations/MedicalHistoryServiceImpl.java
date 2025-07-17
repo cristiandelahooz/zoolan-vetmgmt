@@ -1,4 +1,4 @@
-package com.wornux.service.implementations;
+package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -6,7 +6,7 @@ import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.data.entity.MedicalHistory;
 import com.wornux.data.repository.MedicalHistoryRepository;
 import com.wornux.data.entity.Pet;
-import com.wornux.service.interfaces.MedicalHistoryService;
+import com.wornux.services.interfaces.MedicalHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
