@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * @author me@fredpena.dev
- * @created 27/03/2025  - 12:51
+ * @created 27/03/2025 - 12:51
  */
 public final class GridUtils {
 
@@ -42,7 +42,7 @@ public final class GridUtils {
     public static <T> void configureGrid(Grid<T> grid, Specification<T> specification,
             JpaSpecificationExecutor<T> repository) {
         grid.setItems(query -> repository.findAll(specification,
-                        PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
+                PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
                 .stream());
     }
 

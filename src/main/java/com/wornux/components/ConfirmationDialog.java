@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 /**
  * @author me@fredpena.dev
- * @created 15/11/2024  - 13:22
+ * @created 15/11/2024 - 13:22
  */
 public final class ConfirmationDialog {
 

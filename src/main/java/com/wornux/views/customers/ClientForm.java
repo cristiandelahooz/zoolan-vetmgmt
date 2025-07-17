@@ -113,8 +113,8 @@ public class ClientForm extends Div {
                 .onConfirm(event -> {
                     service.archive(element);
                     NotificationUtils.success(
-                            "<<<%s>>> has been archived in the following location Settings > Archived customers".formatted(
-                                    element.getFirstName()));
+                            "<<<%s>>> has been archived in the following location Settings > Archived customers"
+                                    .formatted(element.getFirstName()));
 
                     Optional.ofNullable(callable).ifPresent(Runnable::run);
 

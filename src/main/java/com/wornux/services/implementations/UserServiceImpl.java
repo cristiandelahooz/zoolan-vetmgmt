@@ -69,9 +69,8 @@ public class UserServiceImpl implements UserService {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        if (!currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) && !user.getUsername()
-                .equals(currentUser.getName())) {
+        if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+                && !user.getUsername().equals(currentUser.getName())) {
             throw new SecurityException("You can only update your own profile");
         }
 
@@ -115,9 +114,9 @@ public class UserServiceImpl implements UserService {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId);
 
-        if (user.isPresent() && !currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) && !user.get().getUsername()
-                .equals(currentUser.getName())) {
+        if (user.isPresent()
+                && !currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+                && !user.get().getUsername().equals(currentUser.getName())) {
             return Optional.empty();
         }
 
@@ -161,9 +160,8 @@ public class UserServiceImpl implements UserService {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        if (!currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) && !user.getUsername()
-                .equals(currentUser.getName())) {
+        if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+                && !user.getUsername().equals(currentUser.getName())) {
             throw new SecurityException("You can only change your own password");
         }
 
@@ -182,9 +180,8 @@ public class UserServiceImpl implements UserService {
         var currentUser = SecurityContextHolder.getContext().getAuthentication();
         var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        if (!currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) && !user.getUsername()
-                .equals(currentUser.getName())) {
+        if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+                && !user.getUsername().equals(currentUser.getName())) {
             throw new SecurityException("You can only update your own profile picture");
         }
 

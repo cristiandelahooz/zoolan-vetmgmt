@@ -99,9 +99,9 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
      * Updates the medical history with the information from the consultation.
      *
      * @param medicalHistory
-     *         The medical history to update.
+     *            The medical history to update.
      * @param consultation
-     *         The consultation containing the new information.
+     *            The consultation containing the new information.
      */
     private void updateMedicalHistoryFromConsultation(MedicalHistory medicalHistory, Consultation consultation) {
         // Update medical history notes with consultation information

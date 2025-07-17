@@ -103,9 +103,10 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<PetSummaryResponseDto> getAllPets(Pageable pageable) {
         return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
                 .map(pet -> new PetSummaryResponseDto(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
-                        pet.getBirthDate(), pet.getOwners().isEmpty() ? "Sin dueÃ±o" : pet.getOwners().get(0)
-                                                                                               .getFirstName() + " " + pet.getOwners()
-                                                                                               .get(0).getLastName()))
+                        pet.getBirthDate(),
+                        pet.getOwners().isEmpty()
+                                ? "Sin dueÃ±o"
+                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
                 .toList();
     }
 
@@ -170,8 +171,8 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         Pet keepPet = petRepository.findById(keepPetId).orElseThrow(() -> new PetNotFoundException(keepPetId));
         Pet removePet = petRepository.findById(removePetId).orElseThrow(() -> new PetNotFoundException(removePetId));
 
-        if (!keepPet.getName().equalsIgnoreCase(removePet.getName()) || !keepPet.getType()
-                .equals(removePet.getType())) {
+        if (!keepPet.getName().equalsIgnoreCase(removePet.getName())
+                || !keepPet.getType().equals(removePet.getType())) {
             throw new IllegalArgumentException("Las mascotas no parecen ser la misma (nombre o tipo diferentes)");
         }
 

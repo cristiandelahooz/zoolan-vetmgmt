@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 /**
  * @author me@fredpena.dev
- * @created 23/12/2024  - 13:51
+ * @created 23/12/2024 - 13:51
  */
 @Getter
 public class DateRange {

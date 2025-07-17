@@ -14,7 +14,7 @@ import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_CONTENT;
 
 /**
  * @author me@fredpena.dev
- * @created 09/02/2025  - 17:03
+ * @created 09/02/2025 - 17:03
  */
 public class Sidebar extends Section implements HasEnabled, HasTheme {
 

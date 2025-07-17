@@ -297,8 +297,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         int documentCount = countNonEmptyDocuments(cedula, passport, rnc);
 
         if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
-            throw new IllegalArgumentException(
-                    "Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT + " documento de identificación permitido");
+            throw new IllegalArgumentException("Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT
+                    + " documento de identificación permitido");
         }
         return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
     }

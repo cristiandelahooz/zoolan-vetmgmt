@@ -190,14 +190,16 @@ public class InvoiceForm extends Div {
                 .setHeader("Products & services").setAutoWidth(true);
         gridProductService.addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getDescription).orElse(""))
                 .setHeader("Description").setAutoWidth(true);
-        gridProductService.addColumn(
-                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getQuantity()).orElse(0.0)))
+        gridProductService
+                .addColumn(c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getQuantity()).orElse(0.0)))
                 .setHeader("Quantity").setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
-        gridProductService.addColumn(
-                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getPrice()).orElse(BigDecimal.ZERO)))
+        gridProductService
+                .addColumn(c -> new DecimalFormat("#,##0.00")
+                        .format(Optional.ofNullable(c.getPrice()).orElse(BigDecimal.ZERO)))
                 .setHeader("Price").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
-        gridProductService.addColumn(
-                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getAmount()).orElse(BigDecimal.ZERO)))
+        gridProductService
+                .addColumn(c -> new DecimalFormat("#,##0.00")
+                        .format(Optional.ofNullable(c.getAmount()).orElse(BigDecimal.ZERO)))
                 .setHeader("Amount").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
         gridProductService.getDataProvider().addDataProviderListener(event -> calculateTotal());
         gridProductService.addItemDoubleClickListener(event -> {
@@ -277,14 +279,13 @@ public class InvoiceForm extends Div {
 
         binderLine.forField(fieldProduct).asRequired("This field cannot be null").bind("product");
 
-        binderLine.forField(fieldPrice).asRequired("This field cannot be null")
-                .bind(invoiceProduct -> Optional.ofNullable(invoiceProduct.getPrice()).orElse(BigDecimal.ZERO)
-                                .doubleValue(),
-                        (invoiceProduct, aDouble) -> invoiceProduct.setPrice(BigDecimal.valueOf(aDouble)));
+        binderLine.forField(fieldPrice).asRequired("This field cannot be null").bind(
+                invoiceProduct -> Optional.ofNullable(invoiceProduct.getPrice()).orElse(BigDecimal.ZERO).doubleValue(),
+                (invoiceProduct, aDouble) -> invoiceProduct.setPrice(BigDecimal.valueOf(aDouble)));
 
-        binderLine.forField(fieldQty).asRequired("This field cannot be null")
-                .bind(invoiceProduct -> Optional.ofNullable(invoiceProduct.getQuantity()).orElse(1.0),
-                        InvoiceProduct::setQuantity);
+        binderLine.forField(fieldQty).asRequired("This field cannot be null").bind(
+                invoiceProduct -> Optional.ofNullable(invoiceProduct.getQuantity()).orElse(1.0),
+                InvoiceProduct::setQuantity);
 
         add.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
         add.addClickListener(event -> {

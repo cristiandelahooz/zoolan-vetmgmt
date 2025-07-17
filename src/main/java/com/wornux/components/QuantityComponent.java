@@ -6,7 +6,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 /**
  * @author me@fredpena.dev
- * @created 15/04/2025  - 23:34
+ * @created 15/04/2025 - 23:34
  */
 public class QuantityComponent extends Span {
 

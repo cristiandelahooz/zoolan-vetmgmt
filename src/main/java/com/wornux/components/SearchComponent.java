@@ -7,7 +7,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 /**
  * @author me@fredpena.dev
- * @created 15/04/2025  - 23:32
+ * @created 15/04/2025 - 23:32
  */
 public class SearchComponent extends TextField {
 

@@ -191,7 +191,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
-        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETED || waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
+        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETED
+                || waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
             throw new IllegalStateException("No se puede cancelar una entrada ya completada o cancelada");
         }
 
@@ -199,7 +200,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.setCompletedAt(LocalDateTime.now());
 
         String currentNotes = waitingRoom.getNotes();
-        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + "Cancelado el " + LocalDateTime.now() + ": " + reason;
+        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + "Cancelado el " + LocalDateTime.now()
+                + ": " + reason;
         waitingRoom.setNotes(newNotes);
 
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -236,7 +238,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
         String currentNotes = waitingRoom.getNotes();
-        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + LocalDateTime.now() + " - " + additionalNotes;
+        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + LocalDateTime.now() + " - "
+                + additionalNotes;
 
         waitingRoom.setNotes(newNotes);
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -325,9 +328,10 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
             LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
             LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-            List<WaitingRoom> completedToday = waitingRoomRepository.findTodayHistory(startOfDay, endOfDay,
-                            Pageable.unpaged()).getContent().stream()
-                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED && wr.getConsultationStartedAt() != null)
+            List<WaitingRoom> completedToday = waitingRoomRepository
+                    .findTodayHistory(startOfDay, endOfDay, Pageable.unpaged()).getContent().stream()
+                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED
+                            && wr.getConsultationStartedAt() != null)
                     .toList();
 
             if (completedToday.isEmpty()) {
@@ -352,8 +356,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         if (waitingRoom.getId() == null) {
             if (waitingRoom.getClient() != null && waitingRoom.getPet() != null) {
-                List<WaitingRoom> existing = waitingRoomRepository.findWaitingByClientAndPet(
-                        waitingRoom.getClient().getId(), waitingRoom.getPet().getId());
+                List<WaitingRoom> existing = waitingRoomRepository
+                        .findWaitingByClientAndPet(waitingRoom.getClient().getId(), waitingRoom.getPet().getId());
                 if (!existing.isEmpty()) {
                     throw new IllegalStateException("El cliente y mascota ya están en la sala de espera");
                 }

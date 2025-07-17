@@ -13,7 +13,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
  * @author me@fredpena.dev
- * @created 14/02/2025  - 19:23
+ * @created 14/02/2025 - 19:23
  */
 public class Tag extends Span {
 

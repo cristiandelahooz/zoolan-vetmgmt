@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 /**
  * @author me@fredpena.dev
- * @created 02/12/2024  - 15:29
+ * @created 02/12/2024 - 15:29
  */
 public class ConfirmationDialogBuilder {
 

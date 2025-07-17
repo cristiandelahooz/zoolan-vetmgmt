@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 /**
  * @author me@fredpena.dev
- * @created 17/11/2024  - 20:16
+ * @created 17/11/2024 - 20:16
  */
 public final class Broadcaster {
 

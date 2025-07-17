@@ -30,7 +30,6 @@ import static com.wornux.utils.PredicateUtils.predicateUnaccentLike;
 
 @Slf4j
 @Uses(Icon.class)
-@Route(value = "products")
 @PageTitle("Products & Services Management")
 public class ProductServiceView extends Div {
     private final Button create = new Button("Create", LineAwesomeIcon.ROCKET_SOLID.create());
@@ -85,8 +84,9 @@ public class ProductServiceView extends Div {
             Predicate predicateDescription = predicateUnaccentLike(root, builder, "description", search);
 
             final List<Predicate> orPredicates = new ArrayList<>(List.of(predicateName, predicateDescription));
-            Predicate orPredicate = orPredicates.isEmpty() ? builder.conjunction() : builder.or(
-                    orPredicates.toArray(Predicate[]::new));
+            Predicate orPredicate = orPredicates.isEmpty()
+                    ? builder.conjunction()
+                    : builder.or(orPredicates.toArray(Predicate[]::new));
 
             Predicate deleted = builder.isFalse(root.get("deleted"));
 

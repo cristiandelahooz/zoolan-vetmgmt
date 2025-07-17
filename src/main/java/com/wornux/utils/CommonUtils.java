@@ -27,7 +27,7 @@ import java.util.function.Function;
 
 /**
  * @author me@fredpena.dev
- * @created 15/11/2024  - 13:22
+ * @created 15/11/2024 - 13:22
  */
 public final class CommonUtils {
 
@@ -60,10 +60,11 @@ public final class CommonUtils {
 
     public static <T> Renderer<T> disabledRenderer(ValueProvider<T, Boolean> provider) {
         return LitRenderer.<T> of(
-                        "<vaadin-icon icon='vaadin:${item.icon}' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: ${item.color};'></vaadin-icon>")
+                "<vaadin-icon icon='vaadin:${item.icon}' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: ${item.color};'></vaadin-icon>")
                 .withProperty("icon", value -> provider.apply(value) ? "check" : "minus").withProperty("color",
-                        value -> provider.apply(
-                                value) ? "var(--lumo-primary-text-color)" : "var(--lumo-disabled-text-color)");
+                        value -> provider.apply(value)
+                                ? "var(--lumo-primary-text-color)"
+                                : "var(--lumo-disabled-text-color)");
     }
 
     public static <T> List<Long> createFilteredDisplacement(Specification<T> specification, Class<T> tClass,
