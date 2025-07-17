@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import com.wornux.data.enums.ProductCategory;
 
+import com.wornux.dto.response.ProductListDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,22 +48,30 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     @Override
     @Transactional(readOnly = true)
     public List<Product> list(Pageable pageable, @Nullable Filter filter) {
-        log.debug("Listing active Products");
-        return productRepository.findByActiveTrue();
+        log.debug("Listing active Products with pagination");
+        return productRepository.findByActiveTrue(pageable).getContent();
     }
 
     @Override
-    @Nullable
+    @Transactional(readOnly = true)
+    public List<ProductListDto> listAsDto(Pageable pageable, @Nullable Filter filter) {
+        log.debug("Listing active Products as DTOs with pagination");
+        List<Product> products = productRepository.findByActiveTrue(pageable).getContent();
+        return productMapper.toListDtoList(products);
+    }
+
+    @Override
     public ProductCreateRequestDto save(ProductCreateRequestDto dto) {
         try {
             Supplier supplier = supplierRepository.findById(dto.getSupplierId())
                     .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
 
             Product product = productMapper.toEntity(dto, supplier);
+            product.setActive(true);
             Product savedProduct = productRepository.save(product);
 
             log.info("Product created with ID: {}", savedProduct.getId());
-            return dto;  // O puedes mapear la entidad a un DTO de respuesta si prefieres
+            return productMapper.toCreateDto(savedProduct);
         } catch (Exception e) {
             log.error("Error creating Product: {}", e.getMessage());
             throw e;
