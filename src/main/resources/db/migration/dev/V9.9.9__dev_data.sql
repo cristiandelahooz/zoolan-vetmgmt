@@ -200,12 +200,12 @@ INSERT INTO employee (employee_id, employee_role, salary, hire_date, available, 
  (10, 'Eye discharge.', 'Conjunctivitis', 'Eye drops.', 'Tobramycin', '2024-07-22 10:00:00', 10, 4, 10, NOW(), NOW(), TRUE);
 
 -- -- Data for appointments table (40 rows)
-INSERT INTO appointments (id, start_appointment_date, end_appointment_date, service_type, status, reason, notes, client_id, pet_id, employee_id, created_at, updated_at, created_by, updated_by, guest_client_name, guest_client_phone, guest_client_email) VALUES
- (1, '2024-07-10 10:00:00', '2024-07-10 10:30:00', 'Check-up', 'PROGRAMADA', 'Annual check-up', 'N/A', 6, 1, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
- (2, '2024-07-11 14:00:00', '2024-07-11 14:45:00', 'Vaccination', 'PROGRAMADA', 'Booster shots', 'Needs rabies and distemper.', 7, 3, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
- (3, '2024-07-12 09:00:00', '2024-07-12 10:00:00', 'Grooming', 'PROGRAMADA', 'Full groom', 'Lion cut requested.', 8, 2, 3, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
- (4, '2024-07-15 11:00:00', '2024-07-15 11:30:00', 'Emergency', 'COMPLETADA', 'Hit by car', 'X-rays taken.', 9, 4, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
- (5, '2024-07-16 10:00:00', '2024-07-16 10:30:00', 'Check-up', 'PROGRAMADA', 'Itchy skin', 'N/A', 10, 5, 4, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL);
+--INSERT INTO appointments (id, start_appointment_date, end_appointment_date, service_type, status, reason, notes, client_id, pet_id, employee_id, created_at, updated_at, created_by, updated_by, guest_client_name, guest_client_phone, guest_client_email) VALUES
+-- (1, '2024-07-10 10:00:00', '2024-07-10 10:30:00', 'Check-up', 'PROGRAMADA', 'Annual check-up', 'N/A', 6, 1, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
+-- (2, '2024-07-11 14:00:00', '2024-07-11 14:45:00', 'Vaccination', 'PROGRAMADA', 'Booster shots', 'Needs rabies and distemper.', 7, 3, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
+-- (3, '2024-07-12 09:00:00', '2024-07-12 10:00:00', 'Grooming', 'PROGRAMADA', 'Full groom', 'Lion cut requested.', 8, 2, 3, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
+-- (4, '2024-07-15 11:00:00', '2024-07-15 11:30:00', 'Emergency', 'COMPLETADA', 'Hit by car', 'X-rays taken.', 9, 4, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
+-- (5, '2024-07-16 10:00:00', '2024-07-16 10:30:00', 'Check-up', 'PROGRAMADA', 'Itchy skin', 'N/A', 10, 5, 4, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL);
 -- (6, '2024-07-17 11:00:00', '2024-07-17 11:45:00', 'Vaccination', 'Scheduled', 'Kitten shots', 'Needs FVRCP.', 4, 7, 4, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
 -- (7, '2024-07-18 15:00:00', '2024-07-18 15:30:00', 'Consultation', 'Scheduled', 'Lethargic', 'N/A', 3, 6, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
 -- (8, '2024-07-19 09:30:00', '2024-07-19 10:30:00', 'Grooming', 'Scheduled', 'Matting removal', 'Full body shave.', 4, 8, 3, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL),
