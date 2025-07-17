@@ -1,0 +1,69 @@
+:root {
+    --alph-displacement-color: #327BC4;
+    --alph-font-weight: 800;
+    --alph-min-width: 100px;
+    --alph-max-height: 35px;
+    --alph-padding: 8px
+}
+
+.button-layout {
+    margin-top: var(--lumo-space-s);
+}
+
+
+[theme~='btn'][theme~='primary'] {
+    font-weight: var(--alph-font-weight);
+    min-width: var(--alph-min-width);
+    max-height: var(--alph-max-height);
+    padding: var(--alph-padding);
+}
+
+[theme~='btn'][theme~='primary'][theme~='save'] {
+    background-color: var(--lumo-primary-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+
+[theme~='btn'][theme~='primary'][theme~='new'] {
+    background-color: var(--lumo-primary-contrast-color);
+    color: var(--lumo-primary-text-color);
+}
+
+[theme~='btn'][theme~='primary'][theme~='delete'] {
+    background-color: var(--lumo-error-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+[theme~='btn'][theme~='primary'][theme~='print'] {
+    background-color: var(--lumo-contrast);
+    color: var(--lumo-primary-contrast-color);
+}
+
+[theme~='btn'][theme~='primary'][theme~='find'] {
+    background-color: var(--lumo-success-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+[theme~='btn'][theme~='primary'][theme~='cancel'] {
+    background-color: var(--lumo-primary-contrast-color);
+    color: var(--lumo-error-color);
+}
+
+[theme~='btn'][theme~='primary'][theme~='displacement'] {
+    background-color: var(--lumo-secondary-text-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+
+[theme~='btn'][theme~='primary'][disabled] {
+    background-color: var(--lumo-contrast-30pct);
+    color: var(--lumo-base-color);
+    pointer-events: none;
+}
+
+@media screen and (max-width: 800px) {
+    [theme~='btn'][theme~='primary'][theme~='find'] {
+        margin-inline-end: unset !important;
+
+    }
+}
