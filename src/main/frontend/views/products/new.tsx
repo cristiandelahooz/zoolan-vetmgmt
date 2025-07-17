@@ -133,7 +133,10 @@ export default function ProductsRegisterView() {
     <>
       <main className="w-full h-full flex flex-col box-border gap-s p-m">
         <AutoForm
-          service={ProductServiceImpl}
+          service={{
+            ...ProductServiceImpl,
+            save: ProductServiceImpl.createProduct,
+          }}
           model={ProductCreateRequestDtoModel}
           fieldOptions={fieldOptions}
           onSubmitSuccess={handleOnSubmitSuccess}
