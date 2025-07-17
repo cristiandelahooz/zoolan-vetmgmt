@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
 import static com.wornux.constants.AppointmentConstants.*;
