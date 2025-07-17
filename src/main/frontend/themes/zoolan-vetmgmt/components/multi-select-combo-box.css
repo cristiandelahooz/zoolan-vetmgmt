@@ -1,0 +1,19 @@
+vaadin-multi-select-combo-box-chip.pending {
+    background: var(--lumo-success-color-50pct);
+}
+
+vaadin-multi-select-combo-box-chip.in-progress {
+    background: var(--lumo-primary-color-50pct);
+}
+
+vaadin-multi-select-combo-box-chip.completed {
+    background: var(--lumo-warning-color);
+}
+
+vaadin-multi-select-combo-box-chip.cancelled {
+    background: var(--lumo-error-color-50pct);
+}
+
+vaadin-multi-select-combo-box-chip.closed {
+    background: var(--lumo-contrast-40pct);
+}
