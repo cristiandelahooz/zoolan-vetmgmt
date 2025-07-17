@@ -9,7 +9,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+
 import com.wornux.data.enums.EmployeeRole;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "employee")
@@ -19,6 +21,7 @@ import com.wornux.data.enums.EmployeeRole;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Audited(withModifiedFlag = true)
 public class Employee extends User {
 
     @Column(name = "employee_role")
