@@ -27,8 +27,8 @@ export const ROUTES = {
   //Employee routes
   EMPLOYEES: '/employees',
   EMPLOYEE_EDIT: '/employees/edit',
-
   EMPLOYEE_NEW: '/employees/new',
+
   //waiting room routes
   WAITING_ROOM: '/waitingroom',
   WAITING_ROOM_NEW: '/waitingroom/new',
@@ -36,6 +36,8 @@ export const ROUTES = {
 
   CONSULTATIONS: '/consultations',
   CONSULTATION_NEW: '/consultations/new',
+
+  INVENTORY: '/inventory',
 } as const
 
 // Type for route values
