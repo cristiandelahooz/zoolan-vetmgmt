@@ -1,4 +1,4 @@
 /**
- * Configuration classes for the application.
+ * Security configuration for the Wornux application.
  */
-package com.wornux.config;
+package com.wornux.security;

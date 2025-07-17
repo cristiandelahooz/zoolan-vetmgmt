@@ -1,4 +1,4 @@
-package com.wornux.config;
+package com.wornux.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

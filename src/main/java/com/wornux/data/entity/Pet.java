@@ -10,6 +10,7 @@ import java.util.List;
 
 import lombok.*;
 import com.wornux.data.enums.PetType;
+import org.hibernate.envers.Audited;
 
 @Getter
 @Setter
@@ -20,6 +21,7 @@ import com.wornux.data.enums.PetType;
 @ToString(exclude = { "medicalHistory" })
 @Entity
 @Table(name = "pets")
+@Audited(withModifiedFlag = true)
 public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

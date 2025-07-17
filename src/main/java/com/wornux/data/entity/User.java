@@ -5,13 +5,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wornux.data.enums.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
 import static com.wornux.constants.ValidationConstants.*;
+
 import com.wornux.data.enums.SystemRole;
 
 @Entity
@@ -21,6 +26,7 @@ import com.wornux.data.enums.SystemRole;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
+@Audited(withModifiedFlag = true)
 public class User {
 
     @Id
@@ -88,7 +94,7 @@ public class User {
 
     @Column(name = "profile_picture_url")
     @Nullable
-    protected String profilePictureUrl;
+    protected String profilePicture;
 
     @Column(name = "active")
     @Builder.Default

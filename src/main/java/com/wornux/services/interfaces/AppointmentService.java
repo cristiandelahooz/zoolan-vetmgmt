@@ -1,4 +1,4 @@
-package com.wornux.service.interfaces;
+package com.wornux.services.interfaces;
 
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.dto.request.AppointmentCreateRequestDto;

@@ -1,4 +1,4 @@
-package com.wornux.service.interfaces;
+package com.wornux.services.interfaces;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Employee;
@@ -29,7 +29,7 @@ public interface EmployeeService {
      * Creates a new Employee.
      *
      * @param employeeDTO
-     *            the DTO containing the employee data
+     *         the DTO containing the employee data
      * @return the created Employee entity
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -39,9 +39,9 @@ public interface EmployeeService {
      * Updates an existing Employee.
      *
      * @param id
-     *            the ID of the employee to update
+     *         the ID of the employee to update
      * @param employeeDTO
-     *            the DTO containing the updated employee data
+     *         the DTO containing the updated employee data
      * @return the updated Employee entity
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -51,7 +51,7 @@ public interface EmployeeService {
      * Retrieves an Employee by ID.
      *
      * @param id
-     *            the ID of the employee
+     *         the ID of the employee
      * @return the Employee entity if found
      */
     Optional<Employee> getEmployeeById(Long id);
@@ -60,7 +60,7 @@ public interface EmployeeService {
      * Retrieves an Employee by username.
      *
      * @param username
-     *            the username of the employee
+     *         the username of the employee
      * @return the Employee entity if found
      */
     Optional<Employee> getEmployeeByUsername(String username);
@@ -69,7 +69,7 @@ public interface EmployeeService {
      * Retrieves all Employees with pagination.
      *
      * @param pageable
-     *            pagination information
+     *         pagination information
      * @return paginated list of Employees
      */
     Page<Employee> getAllEmployees(Pageable pageable);
@@ -78,9 +78,9 @@ public interface EmployeeService {
      * Searches for Employees based on a search term.
      *
      * @param searchTerm
-     *            the term to search for in employee fields
+     *         the term to search for in employee fields
      * @param pageable
-     *            pagination information
+     *         pagination information
      * @return paginated list of matching Employees
      */
     Page<Employee> searchEmployees(String searchTerm, Pageable pageable);
@@ -89,9 +89,9 @@ public interface EmployeeService {
      * Retrieves Employees by role.
      *
      * @param employeeRole
-     *            the employee role to filter by
+     *         the employee role to filter by
      * @param pageable
-     *            pagination information
+     *         pagination information
      * @return paginated list of Employees with specified role
      */
     Page<Employee> getEmployeesByRole(EmployeeRole employeeRole, Pageable pageable);
@@ -107,9 +107,9 @@ public interface EmployeeService {
      * Updates an Employee's role.
      *
      * @param id
-     *            the ID of the employee
+     *         the ID of the employee
      * @param newRole
-     *            the new role to set
+     *         the new role to set
      */
     @PreAuthorize("hasRole('ADMIN')")
     void updateEmployeeRole(Long id, EmployeeRole newRole);
@@ -118,9 +118,9 @@ public interface EmployeeService {
      * Updates an Employee's salary.
      *
      * @param id
-     *            the ID of the employee
+     *         the ID of the employee
      * @param newSalary
-     *            the new salary to set
+     *         the new salary to set
      */
     @PreAuthorize("hasRole('ADMIN')")
     void updateEmployeeSalary(Long id, Double newSalary);
@@ -129,7 +129,7 @@ public interface EmployeeService {
      * Deactivates an Employee account.
      *
      * @param id
-     *            the ID of the employee to deactivate
+     *         the ID of the employee to deactivate
      */
     @PreAuthorize("hasRole('ADMIN')")
     void deactivateEmployee(Long id);
@@ -138,7 +138,7 @@ public interface EmployeeService {
      * Reactivates a previously deactivated Employee account.
      *
      * @param id
-     *            the ID of the employee to reactivate
+     *         the ID of the employee to reactivate
      */
     @PreAuthorize("hasRole('ADMIN')")
     void reactivateEmployee(Long id);
@@ -147,9 +147,9 @@ public interface EmployeeService {
      * Updates an Employee's work schedule.
      *
      * @param id
-     *            the ID of the employee
+     *         the ID of the employee
      * @param workSchedule
-     *            the new work schedule
+     *         the new work schedule
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     void updateWorkSchedule(Long id, String workSchedule);
@@ -158,9 +158,9 @@ public interface EmployeeService {
      * Sets an Employee's emergency availability status.
      *
      * @param id
-     *            the ID of the employee
+     *         the ID of the employee
      * @param available
-     *            whether the employee is available for emergencies
+     *         whether the employee is available for emergencies
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     void setEmergencyAvailability(Long id, boolean available);
@@ -169,11 +169,11 @@ public interface EmployeeService {
      * Retrieves Employees hired between specific dates.
      *
      * @param startDate
-     *            the start date
+     *         the start date
      * @param endDate
-     *            the end date
+     *         the end date
      * @param pageable
-     *            pagination information
+     *         pagination information
      * @return paginated list of Employees hired between the specified dates
      */
     Page<Employee> getEmployeesByHireDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
@@ -182,11 +182,11 @@ public interface EmployeeService {
      * Updates emergency contact information for an Employee.
      *
      * @param id
-     *            the ID of the employee
+     *         the ID of the employee
      * @param contactName
-     *            emergency contact name
+     *         emergency contact name
      * @param contactPhone
-     *            emergency contact phone number
+     *         emergency contact phone number
      */
     void updateEmergencyContact(Long id, String contactName, String contactPhone);
 
@@ -194,7 +194,7 @@ public interface EmployeeService {
      * Permanently deletes an Employee. Should only be used in specific administrative cases.
      *
      * @param id
-     *            the ID of the employee to delete
+     *         the ID of the employee to delete
      */
     @PreAuthorize("hasRole('ADMIN')")
     void deleteEmployee(Long id);

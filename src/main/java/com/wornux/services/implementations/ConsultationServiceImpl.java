@@ -1,4 +1,4 @@
-package com.wornux.service.implementations;
+package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -17,10 +17,10 @@ import com.wornux.data.entity.Pet;
 import com.wornux.data.repository.PetRepository;
 
 import com.wornux.exception.PetNotFoundException;
-import com.wornux.service.interfaces.ConsultationService;
-import com.wornux.service.interfaces.EmployeeService;
-import com.wornux.service.interfaces.MedicalHistoryService;
-import com.wornux.service.interfaces.PetService;
+import com.wornux.services.interfaces.ConsultationService;
+import com.wornux.services.interfaces.EmployeeService;
+import com.wornux.services.interfaces.MedicalHistoryService;
+import com.wornux.services.interfaces.PetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -99,9 +99,9 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
      * Updates the medical history with the information from the consultation.
      *
      * @param medicalHistory
-     *            The medical history to update.
+     *         The medical history to update.
      * @param consultation
-     *            The consultation containing the new information.
+     *         The consultation containing the new information.
      */
     private void updateMedicalHistoryFromConsultation(MedicalHistory medicalHistory, Consultation consultation) {
         // Update medical history notes with consultation information

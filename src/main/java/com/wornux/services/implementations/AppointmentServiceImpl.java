@@ -1,4 +1,4 @@
-package com.wornux.service.implementations;
+package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -10,10 +10,10 @@ import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.mapper.AppointmentMapper;
 import com.wornux.data.repository.AppointmentRepository;
 import com.wornux.exception.AppointmentNotFoundException;
-import com.wornux.service.interfaces.AppointmentService;
-import com.wornux.service.interfaces.ClientService;
-import com.wornux.service.interfaces.PetService;
-import com.wornux.service.interfaces.EmployeeService;
+import com.wornux.services.interfaces.AppointmentService;
+import com.wornux.services.interfaces.ClientService;
+import com.wornux.services.interfaces.PetService;
+import com.wornux.services.interfaces.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -116,8 +116,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional(readOnly = true)
     public List<AppointmentResponseDto> getAppointmentsByEmployee(Long employeeId, LocalDateTime start,
             LocalDateTime end) {
-        List<Appointment> appointments = appointmentRepository
-                .findByAssignedEmployeeIdAndStartAppointmentDateBetween(employeeId, start, end);
+        List<Appointment> appointments = appointmentRepository.findByAssignedEmployeeIdAndStartAppointmentDateBetween(
+                employeeId, start, end);
         return appointments.stream().map(appointmentMapper::toResponseDTO).toList();
     }
 

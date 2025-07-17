@@ -1,10 +1,11 @@
-package com.wornux.service.interfaces;
+package com.wornux.services.interfaces;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Product;
 import com.wornux.dto.request.ProductCreateRequestDto;
 import com.wornux.dto.request.ProductUpdateRequestDto;
 import jakarta.validation.Valid;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +24,8 @@ public interface ProductService {
     /**
      * Saves (creates) a new Product.
      *
-     * @param dto Product creation DTO.
+     * @param dto
+     *         Product creation DTO.
      * @return Saved ProductCreateRequestDto (or response DTO).
      */
     ProductCreateRequestDto save(@Valid ProductCreateRequestDto dto);
@@ -31,24 +33,36 @@ public interface ProductService {
     /**
      * Deactivates (soft delete) a Product.
      *
-     * @param id ID of the Product to delete.
+     * @param id
+     *         ID of the Product to delete.
      */
     void delete(Long id);
 
     /**
      * Updates an existing Product.
      *
-     * @param id ID of the Product to update.
-     * @param dto Product update DTO.
+     * @param id
+     *         ID of the Product to update.
+     * @param dto
+     *         Product update DTO.
      * @return Updated Product entity.
      */
     Product update(Long id, @Valid ProductUpdateRequestDto dto);
 
+    /**
+     * Updates an existing Product.
+     *
+     * @param product
+     *         Product entity to update.
+     * @return Updated Product entity.
+     */
+    Product update(Product product);
 
     /**
      * Retrieves a Product by its ID.
      *
-     * @param id ID of the Product.
+     * @param id
+     *         ID of the Product.
      * @return Optional Product entity.
      */
     Optional<Product> getProductById(Long id);
@@ -63,7 +77,8 @@ public interface ProductService {
     /**
      * Lists Products by supplier.
      *
-     * @param supplierId ID of the supplier.
+     * @param supplierId
+     *         ID of the supplier.
      * @return List of Products.
      */
     List<Product> getProductsBySupplier(Long supplierId);
@@ -71,7 +86,8 @@ public interface ProductService {
     /**
      * Lists Products by category.
      *
-     * @param category Product category name.
+     * @param category
+     *         Product category name.
      * @return List of Products.
      */
     List<Product> getProductsByCategory(String category);
@@ -79,7 +95,8 @@ public interface ProductService {
     /**
      * Lists Products matching a name search.
      *
-     * @param name Name search term.
+     * @param name
+     *         Name search term.
      * @return List of Products.
      */
     List<Product> getProductsByName(String name);
@@ -90,4 +107,6 @@ public interface ProductService {
      * @return List of Products with stock <= reorderLevel.
      */
     List<Product> getLowStockProducts();
+
+    long getCount(Specification<Product> spec);
 }

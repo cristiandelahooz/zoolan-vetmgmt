@@ -1,4 +1,4 @@
-package com.wornux.service.implementations;
+package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -13,10 +13,11 @@ import com.wornux.dto.request.ClientUpdateRequestDto;
 import com.wornux.exception.ClientNotFoundException;
 import com.wornux.exception.DuplicateIdentificationException;
 import com.wornux.mapper.ClientMapper;
-import com.wornux.service.interfaces.ClientService;
+import com.wornux.services.interfaces.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -295,8 +297,8 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         int documentCount = countNonEmptyDocuments(cedula, passport, rnc);
 
         if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
-            throw new IllegalArgumentException("Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT
-                    + " documento de identificación permitido");
+            throw new IllegalArgumentException(
+                    "Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT + " documento de identificación permitido");
         }
         return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
     }
@@ -345,5 +347,11 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         if (clientRepository.existsByRnc(rnc)) {
             throw new DuplicateIdentificationException("rnc", rnc);
         }
+    }
+
+    @Transactional
+    public List<Client> getAllActiveClients() {
+        log.debug("Request to get all active Clients");
+        return clientRepository.findAllByActiveTrue();
     }
 }

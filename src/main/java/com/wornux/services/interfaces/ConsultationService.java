@@ -1,4 +1,4 @@
-package com.wornux.service.interfaces;
+package com.wornux.services.interfaces;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Consultation;
@@ -22,7 +22,7 @@ public interface ConsultationService {
      * Create a new consultation
      *
      * @param createDTO
-     *            the consultation data
+     *         the consultation data
      * @return the created consultation
      */
     Consultation create(CreateConsultationRequestDto createDTO);
@@ -31,9 +31,9 @@ public interface ConsultationService {
      * Update an existing consultation
      *
      * @param id
-     *            the id of the consultation to update
+     *         the id of the consultation to update
      * @param updateDTO
-     *            the updated consultation data
+     *         the updated consultation data
      * @return the updated consultation
      */
     Consultation update(Long id, UpdateConsultationRequestDto updateDTO);
@@ -42,9 +42,9 @@ public interface ConsultationService {
      * Partially update a consultation
      *
      * @param id
-     *            the id of the consultation to update
+     *         the id of the consultation to update
      * @param updateDTO
-     *            the consultation fields to update
+     *         the consultation fields to update
      * @return the updated consultation
      */
     Consultation partialUpdate(Long id, UpdateConsultationRequestDto updateDTO);
@@ -53,7 +53,7 @@ public interface ConsultationService {
      * Get a consultation by id
      *
      * @param id
-     *            the consultation id
+     *         the consultation id
      * @return the found consultation
      */
     Consultation findById(Long id);
@@ -62,7 +62,7 @@ public interface ConsultationService {
      * Get all consultations with pagination
      *
      * @param pageable
-     *            pagination information
+     *         pagination information
      * @return page of consultations
      */
     Page<Consultation> findAll(Pageable pageable);
@@ -71,7 +71,7 @@ public interface ConsultationService {
      * Get all consultations for a specific pet
      *
      * @param petId
-     *            the pet id
+     *         the pet id
      * @return list of consultations
      */
     List<Consultation> findByPetId(Long petId);
@@ -80,7 +80,7 @@ public interface ConsultationService {
      * Get all consultations for a specific veterinarian
      *
      * @param veterinarianId
-     *            the veterinarian id
+     *         the veterinarian id
      * @return list of consultations
      */
     List<Consultation> findByVeterinarianId(Long veterinarianId);
@@ -89,7 +89,7 @@ public interface ConsultationService {
      * Delete a consultation
      *
      * @param id
-     *            the consultation id to delete
+     *         the consultation id to delete
      */
     void delete(Long id);
 

@@ -1,7 +1,7 @@
 package com.wornux.mapper.helper;
 
 import com.wornux.data.entity.Client;
-import com.wornux.service.interfaces.ClientService;
+import com.wornux.services.interfaces.ClientService;
 import com.wornux.exception.OwnerNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;

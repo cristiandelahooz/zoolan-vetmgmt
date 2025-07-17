@@ -1,4 +1,4 @@
-package com.wornux.service.interfaces;
+package com.wornux.services.interfaces;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.MedicalHistory;
