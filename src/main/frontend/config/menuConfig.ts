@@ -116,4 +116,39 @@ export const menuConfig: MenuItemConfig[] = [
       },
     ],
   },
+  {
+    path: undefined,
+    title: 'Productos',
+    icon: 'lumo:user',
+    children: [
+      {
+        path: ROUTES.PRODUCTS,
+        title: 'Listar',
+        icon: 'lumo:align-left',
+      },
+      {
+        path: ROUTES.PRODUCT_NEW,
+        title: 'Registrar',
+        icon: 'lumo:edit',
+      },
+    ],
+  },
+
+  {
+    path: undefined,
+    title: 'Suplidores',
+    icon: 'lumo:user',
+    children: [
+      {
+        path: ROUTES.SUPPLIERS,
+        title: 'Listar',
+        icon: 'lumo:align-left',
+      },
+      {
+        path: ROUTES.SUPPLIER_NEW,
+        title: 'Registrar',
+        icon: 'lumo:edit',
+      },
+    ],
+  },
 ]
