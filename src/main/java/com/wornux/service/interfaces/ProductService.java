@@ -17,7 +17,6 @@ import com.wornux.dto.response.ProductListDto;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Pageable;
 import com.vaadin.hilla.crud.filter.Filter;
 import org.jspecify.annotations.Nullable;
 
@@ -34,9 +33,9 @@ public interface ProductService {
      *
      * @param dto
      *            Product creation DTO.
-     * @return Saved ProductCreateRequestDto (or response DTO).
+     * @return Saved Product (or response DTO).
      */
-    ProductCreateRequestDto save(ProductCreateRequestDto dto);
+    ProductListDto save(ProductListDto dto);
 
     /**
      * Deactivates (soft delete) a Product.
