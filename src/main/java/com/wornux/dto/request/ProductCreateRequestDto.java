@@ -33,4 +33,5 @@ public class ProductCreateRequestDto {
 
     @NotNull(message = "La categoría del producto es obligatoria")
     private ProductCategory category;
+
 }

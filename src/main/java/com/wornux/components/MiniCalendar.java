@@ -57,7 +57,6 @@ public class MiniCalendar extends CustomField<LocalDate>
     private SerializablePredicate<LocalDate> dayEnabledProvider = null;
     private SerializableFunction<LocalDate, List<String>> dayStyleProvider = null;
 
-
     /* Constructors */
 
     public MiniCalendar() {
@@ -82,7 +81,6 @@ public class MiniCalendar extends CustomField<LocalDate>
 
         renderComponent();
     }
-
 
     /* Overrides */
 
@@ -129,7 +127,6 @@ public class MiniCalendar extends CustomField<LocalDate>
             redraw();
         }
     }
-
 
     /* Public API */
 
@@ -300,7 +297,6 @@ public class MiniCalendar extends CustomField<LocalDate>
         content.add(titleLayout);
     }
 
-
     /* Utilities */
 
     private void renderHeaderRow() {
@@ -367,8 +363,8 @@ public class MiniCalendar extends CustomField<LocalDate>
         monthSelect.getStyle().set("--vaadin-combo-box-overlay-width", "10rem")
                 .set("--vaadin-combo-box-overlay-max-height", "8rem");
 
-        monthSelect.addValueChangeListener(event -> yearMonthHolder.setValueFromClient(
-                Year.of(yearMonthHolder.getValue().getYear()).atMonth(event.getValue())));
+        monthSelect.addValueChangeListener(event -> yearMonthHolder
+                .setValueFromClient(Year.of(yearMonthHolder.getValue().getYear()).atMonth(event.getValue())));
 
         return monthSelect;
     }
@@ -390,8 +386,8 @@ public class MiniCalendar extends CustomField<LocalDate>
             var selectedYear = Year.parse(event.getDetail());
             yearSelect.setValue(selectedYear);
         });
-        yearSelect.addValueChangeListener(event -> yearMonthHolder.setValueFromClient(
-                event.getValue().atMonth(yearMonthHolder.getValue().getMonth())));
+        yearSelect.addValueChangeListener(event -> yearMonthHolder
+                .setValueFromClient(event.getValue().atMonth(yearMonthHolder.getValue().getMonth())));
 
         return yearSelect;
     }

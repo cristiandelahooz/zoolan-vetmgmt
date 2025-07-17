@@ -11,7 +11,7 @@ import jakarta.annotation.security.PermitAll;
 
 /**
  * @author me@fredpena.dev
- * @created 19/04/2025  - 01:40
+ * @created 19/04/2025 - 01:40
  */
 @Route("invoicetmp")
 @PermitAll

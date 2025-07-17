@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
@@ -32,6 +33,23 @@ public class Supplier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "supplier_id")
     protected Long id;
+
+    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
+    @Column(name = "rnc", length = 9, nullable = false, unique = true, columnDefinition = "CHAR(9)")
+    private String rnc;
+
+    @Column(name = "company_name", nullable = false)
+    private String companyName;
+
+    @Column(name = "contact_person")
+    @Nullable
+    private String contactPerson;
+
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
+    @Column(name = "contact_phone")
+    @Nullable
+    private String contactPhone;
+
     @Email(message = "Por favor, proporcione una dirección de correo electrónico válida")
     @Column(name = "contact_email", unique = true)
     @Nullable
@@ -46,20 +64,9 @@ public class Supplier {
     @NotNull(message = "El sector del suplidor es requerido")
     protected String sector;
     @Column(name = "street_address")
-    @NotNull(message = "La dirección de la calle del suplidor es requerida")
+    @NotNull(message = "La dirección de la calle del suplidor es requerido")
     protected String streetAddress;
-    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
-    @Column(name = "rnc", length = 9, nullable = false, unique = true, columnDefinition = "CHAR(9)")
-    private String rnc;
-    @Column(name = "company_name", nullable = false)
-    private String companyName;
-    @Column(name = "contact_person")
-    @Nullable
-    private String contactPerson;
-    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
-    @Column(name = "contact_phone")
-    @Nullable
-    private String contactPhone;
+
     @Column(name = "active")
     @Builder.Default
     private boolean active = true;
@@ -67,7 +74,7 @@ public class Supplier {
     @OneToMany(mappedBy = "supplier", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonBackReference
     @Builder.Default
     private List<Product> products = new ArrayList<>();
-
 }

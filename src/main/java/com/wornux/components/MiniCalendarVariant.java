@@ -4,7 +4,7 @@ import com.vaadin.flow.component.shared.ThemeVariant;
 
 /**
  * @author me@fredpena.dev
- * @created 23/12/2024  - 13:11
+ * @created 23/12/2024 - 13:11
  */
 public enum MiniCalendarVariant implements ThemeVariant {
 

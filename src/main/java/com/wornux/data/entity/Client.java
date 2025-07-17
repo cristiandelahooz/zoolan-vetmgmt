@@ -51,7 +51,8 @@ public class Client extends User {
     @Nullable
     private String emergencyContactName;
 
-    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono de emergencia válido (809, 849 o 829 seguido de 7" + " dígitos)")
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono de emergencia válido (809, 849 o 829 seguido de 7"
+            + " dígitos)")
     @Column(name = "emergency_contact_number")
     @Nullable
     private String emergencyContactNumber;

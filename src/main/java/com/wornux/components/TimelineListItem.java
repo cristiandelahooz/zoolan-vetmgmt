@@ -78,9 +78,10 @@ public class TimelineListItem extends ListItem {
     }
 
     public void setContent(String content) {
-        this.content = new Html("<span class='" + TextColor.SECONDARY + "'>" + content.replace("<b>",
-                        "<span class='" + FontWeight.SEMIBOLD + " " + TextColor.BODY + "'>")
-                .replace("</b>", "</span>") + "</span>");
+        this.content = new Html("<span class='" + TextColor.SECONDARY + "'>"
+                + content.replace("<b>", "<span class='" + FontWeight.SEMIBOLD + " " + TextColor.BODY + "'>")
+                        .replace("</b>", "</span>")
+                + "</span>");
     }
 
     public void setAvatarImage(String url) {

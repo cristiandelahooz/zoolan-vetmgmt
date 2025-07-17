@@ -2,8 +2,7 @@ package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import com.vaadin.hilla.crud.FormService;
-import com.vaadin.hilla.crud.ListRepositoryService;
+import com.vaadin.hilla.crud.CrudRepositoryService;
 import com.vaadin.hilla.crud.filter.Filter;
 import com.wornux.data.entity.Product;
 import com.wornux.data.entity.Supplier;
@@ -19,25 +18,26 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import com.wornux.data.enums.ProductCategory;
+import com.wornux.dto.response.ProductListDto;
 
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
-@Validated
 @RequiredArgsConstructor
 @BrowserCallable
 @Transactional
 @AnonymousAllowed
-public class ProductServiceImpl extends ListRepositoryService<Product, Long, ProductRepository>
-        implements ProductService, FormService<ProductCreateRequestDto, Long> {
+public class ProductServiceImpl extends CrudRepositoryService<Product, Long, ProductRepository>
+        implements ProductService {
 
     @Getter
     private final ProductRepository productRepository;
@@ -47,22 +47,43 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     @Override
     @Transactional(readOnly = true)
     public List<Product> list(Pageable pageable, @Nullable Filter filter) {
-        log.debug("Listing active Products");
-        return productRepository.findByActiveTrue();
+        log.debug("Listing active Products with pagination");
+        return productRepository.findByActiveTrue(pageable).getContent();
     }
 
     @Override
-    @Nullable
-    public ProductCreateRequestDto save(ProductCreateRequestDto dto) {
+    @Transactional(readOnly = true)
+    public List<ProductListDto> listAsDto(Pageable pageable, @Nullable Filter filter) {
+        log.debug("Listing active Products as DTOs with pagination");
+        List<Product> products = productRepository.findByActiveTrue(pageable).getContent();
+        return productMapper.toListDtoList(products);
+    }
+
+    @Override
+    public ProductListDto save(ProductListDto dto) {
+        log.debug("Saving/updating Product via AutoCrud");
+
+        if (dto.getId() != null) {
+            // Actualización - solo permite cambiar el stock
+            return updateStock(dto.getId(), dto.getStock());
+        } else {
+            // Creación - no permitida desde AutoCrud
+            throw new UnsupportedOperationException(
+                    "Creating products through AutoCrud is not supported. Use the dedicated form.");
+        }
+    }
+
+    public ProductCreateRequestDto createProduct(ProductCreateRequestDto dto) {
         try {
             Supplier supplier = supplierRepository.findById(dto.getSupplierId())
                     .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
 
             Product product = productMapper.toEntity(dto, supplier);
+            product.setActive(true);
             Product savedProduct = productRepository.save(product);
 
             log.info("Product created with ID: {}", savedProduct.getId());
-            return dto;  // O puedes mapear la entidad a un DTO de respuesta si prefieres
+            return productMapper.toCreateDto(savedProduct);
         } catch (Exception e) {
             log.error("Error creating Product: {}", e.getMessage());
             throw e;
@@ -128,8 +149,14 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     }
 
     @Transactional(readOnly = true)
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
+    @Override
     public List<Product> getAllProducts() {
-        return productRepository.findAllByActiveIsTrue();
+        log.debug("Retrieving all active products");
+        return productRepository.findByActiveTrue();
     }
 
     @Override
@@ -137,6 +164,19 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     public List<Product> getLowStockProducts() {
         log.debug("Retrieving products with low stock");
         return productRepository.findLowStockProducts();
+    }
+
+    public ProductListDto updateStock(Long productId, int newStock) {
+        log.debug("Updating stock for Product ID: {} to {}", productId, newStock);
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        product.setStock(newStock);
+        Product updatedProduct = productRepository.save(product);
+
+        log.info("Stock updated for Product ID: {}", productId);
+        return productMapper.toListDto(updatedProduct);
     }
 
     @Override

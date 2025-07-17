@@ -9,6 +9,7 @@ import com.wornux.data.entity.Supplier;
 import com.wornux.data.repository.SupplierRepository;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.dto.request.UpdateSupplierRequestDto;
+import com.wornux.dto.response.SupplierListDto;
 import com.wornux.mapper.SupplierMapper;
 import com.wornux.services.interfaces.SupplierService;
 import jakarta.validation.Valid;
@@ -28,8 +29,8 @@ import java.util.Optional;
 @Validated
 @RequiredArgsConstructor
 @BrowserCallable
-@Transactional
 @AnonymousAllowed
+@Transactional
 public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, SupplierRepository>
         implements SupplierService, FormService<SupplierCreateRequestDto, Long> {
 
@@ -39,22 +40,31 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
     @Override
     @Transactional(readOnly = true)
     public List<Supplier> list(Pageable pageable, @Nullable Filter filter) {
-        return supplierRepository.findAll();
+        log.debug("Listing active Suppliers with pagination");
+        return supplierRepository.findByActiveTrue(pageable).getContent();
     }
 
     @Override
-    public SupplierCreateRequestDto save(@Valid SupplierCreateRequestDto dto) {
+    @Transactional(readOnly = true)
+    public List<SupplierListDto> listAsDto(Pageable pageable, @Nullable Filter filter) {
+        log.debug("Listing active Suppliers as DTOs with pagination");
+        List<Supplier> suppliers = supplierRepository.findByActiveTrue(pageable).getContent();
+        return supplierMapper.toListDtoList(suppliers);
+    }
+
+    @Override
+    public SupplierCreateRequestDto save(SupplierCreateRequestDto dto) {
         Supplier supplier = supplierMapper.toEntity(dto);
         Supplier savedSupplier = supplierRepository.save(supplier);
         log.info("Supplier saved with ID: {}", savedSupplier.getId());
-        return dto;  // Puedes devolver un DTO de respuesta si lo prefieres.
+        return supplierMapper.toDto(savedSupplier);
     }
 
     @Override
     public void delete(Long id) {
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado con ID: " + id));
-        supplier.setActive(false);  // Borrado lógico.
+        supplier.setActive(false);
         supplierRepository.save(supplier);
         log.info("Supplier deactivated with ID: {}", id);
     }
@@ -70,7 +80,7 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
     }
 
     @Override
-    public Supplier update(@Valid UpdateSupplierRequestDto dto) {
+    public Supplier update(UpdateSupplierRequestDto dto) {
         Supplier existingSupplier = supplierRepository.findById(dto.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado"));
 

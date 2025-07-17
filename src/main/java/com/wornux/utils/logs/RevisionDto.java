@@ -7,7 +7,7 @@ import java.util.Date;
 
 /**
  * @author me@fredpena.dev
- * @created 05/12/2024  - 12:45
+ * @created 05/12/2024 - 12:45
  */
 @Setter
 @Getter

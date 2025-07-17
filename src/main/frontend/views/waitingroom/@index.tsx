@@ -32,13 +32,13 @@ const StatusRenderer: React.FC<{ item: WaitingRoomModel }> = ({ item }) => {
 
   switch (status) {
     case WaitingRoomStatus.WAITING:
-      return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>⏳ Esperando</span>
+      return <span style={{ color: 'rgba(245,158,11,0.68)', fontWeight: 'bold' }}> Esperando</span>
     case WaitingRoomStatus.IN_CONSULTATION:
-      return <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>🩺 En Consulta</span>
+      return <span style={{ color: '#3b82f6', fontWeight: 'bold' }}> En Consulta</span>
     case WaitingRoomStatus.COMPLETED:
-      return <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✅ Completado</span>
+      return <span style={{ color: '#16a34a', fontWeight: 'bold' }}> Completado</span>
     case WaitingRoomStatus.CANCELLED:
-      return <span style={{ color: '#dc2626', fontWeight: 'bold' }}>❌ Cancelado</span>
+      return <span style={{ color: '#dc2626', fontWeight: 'bold' }}> Cancelado</span>
     default:
       return <span>Desconocido</span>
   }
@@ -49,12 +49,12 @@ const PriorityRenderer: React.FC<{ item: WaitingRoomModel }> = ({ item }) => {
 
   switch (priority) {
     case Priority.EMERGENCY:
-      return <span style={{ color: '#dc2626', fontWeight: 'bold' }}>🚨 Emergencia</span>
+      return <span style={{ color: '#dc2626', fontWeight: 'bold' }}> Emergencia</span>
     case Priority.URGENT:
-      return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>! Urgente</span>
+      return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}> Urgente</span>
     case Priority.NORMAL:
     default:
-      return <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✅ Normal</span>
+      return <span style={{ color: '#16a34a', fontWeight: 'bold' }}> Normal</span>
   }
 }
 
