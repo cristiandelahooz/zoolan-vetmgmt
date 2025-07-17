@@ -29,8 +29,8 @@ import java.util.Optional;
 @Validated
 @RequiredArgsConstructor
 @BrowserCallable
-@Transactional
 @AnonymousAllowed
+@Transactional
 public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, SupplierRepository>
         implements SupplierService, FormService<SupplierCreateRequestDto, Long> {
 
@@ -44,18 +44,18 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
     }
 
     @Override
-    public SupplierCreateRequestDto save(@Valid SupplierCreateRequestDto dto) {
+    public SupplierCreateRequestDto save(SupplierCreateRequestDto dto) {
         Supplier supplier = supplierMapper.toEntity(dto);
         Supplier savedSupplier = supplierRepository.save(supplier);
         log.info("Supplier saved with ID: {}", savedSupplier.getId());
-        return dto;  // Puedes devolver un DTO de respuesta si lo prefieres.
+        return dto;
     }
 
     @Override
     public void delete(Long id) {
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado con ID: " + id));
-        supplier.setActive(false);  // Borrado lógico.
+        supplier.setActive(false); // Borrado lógico.
         supplierRepository.save(supplier);
         log.info("Supplier deactivated with ID: {}", id);
     }
@@ -71,7 +71,7 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
     }
 
     @Override
-    public Supplier update(@Valid UpdateSupplierRequestDto dto) {
+    public Supplier update(UpdateSupplierRequestDto dto) {
         Supplier existingSupplier = supplierRepository.findById(dto.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado"));
 
