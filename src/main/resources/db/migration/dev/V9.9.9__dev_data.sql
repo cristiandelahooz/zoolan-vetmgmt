@@ -254,3 +254,49 @@ INSERT INTO appointments (id, start_appointment_date, end_appointment_date, serv
  (8, 13, 8, '2024-07-05 11:30:00', 'IN_CONSULTATION', 'Cough', 'URGENT', 'N/A', '2024-07-05 11:35:00', NULL),
  (9, 14, 9, '2024-07-05 11:45:00', 'WAITING', 'Grooming', 'NORMAL', 'N/A', NULL, NULL),
  (10, 15, 10, '2024-07-05 12:00:00', 'WAITING', 'New pet', 'URGENT', 'N/A', NULL, NULL);
+
+
+-- Data for suppliers table (10 rows)
+INSERT INTO suppliers (supplier_id, rnc, company_name, contact_person, contact_phone, contact_email, province, municipality, sector, street_address, active) VALUES
+(1,'123456789' ,'Pets & Suppliers Co.', 'John Doe', '809-123-4567', 'johndoe@example.com', 'Santo Domingo', 'Santo Domingo Este', 'Los Mina', '123 Main St.', TRUE),
+(2,'987654321' ,'Pet Supplies Inc.', 'Jane Smith', '809-987-6543',  'janesmith@example.com', 'Santiago', 'Santiago de los Caballeros', 'Los Jardines', '456 Elm St.', TRUE),
+(3,'456789123' ,'Animal Care Supplies', 'Carlos Perez', '809-456-7890', 'carlosperez@example.com', 'La Romana', 'La Romana', 'Villa Verde', '789 Oak St.', TRUE),
+(4,'321654987' ,'Pet Food & More', 'Maria Lopez', '809-321-6543', 'marialopez@example.com', 'Puerto Plata', 'Puerto Plata', 'El Pueblito', '321 Pine St.', TRUE),
+(5,'654321789' ,'Vet Supplies Dominican', 'Luis Garcia', '809-654-3210', 'luisgarcia@example', 'San Cristobal', 'San Cristobal', 'Villa Altagracia', '654 Maple St.', TRUE);
+
+-- Data for supplier_products table (10 rows)-- Data for products table with correct attributes and ProductCategory enum
+ INSERT INTO products (product_id, name, description, active, price, stock, reorder_level, supplier_id, category) VALUES
+ (1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE, 1500.00, 100, 20, 1, 'FOOD'),
+ (2, 'High Protein Cat Food', 'Nutritious wet food for cats', TRUE, 1200.00, 200, 30, 1, 'FOOD'),
+ (3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE, 500.00, 300, 50, 2, 'FOOD'),
+ (4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 400.00, 250, 40, 2, 'FOOD'),
+ (5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin', TRUE, 800.00, 150, 25, 3, 'HYGIENE'),
+ (6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE, 700.00, 180, 30, 3, 'HYGIENE'),
+ (7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs', TRUE, 600.00, 120, 20, 4, 'ACCESSORY'),
+ (8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE, 550.00, 130, 25, 4, 'ACCESSORY'),
+ (9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 900.00, 110, 15, 5, 'ACCESSORY'),
+ (10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 300.00, 400, 60, 5, 'HYGIENE'),
+ (11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE, 2500.00, 50, 10, 1, 'MEDICINE'),
+ (12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE, 1800.00, 75, 15, 2, 'MEDICINE'),
+ (13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 1200.00, 100, 20, 3, 'MEDICINE'),
+ (14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 650.00, 200, 35, 4, 'HYGIENE'),
+ (15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 3500.00, 25, 5, 5, 'ACCESSORY');
+
+-- =================================================================================================
+--  RESET SEQUENCES TO AVOID CONFLICTS
+-- =================================================================================================
+--  NOTE: This is necessary because we are manually inserting data with specific IDs.
+--  We need to update the sequence for each table to ensure that the next auto-generated ID
+--  is greater than the highest ID we've inserted manually.
+-- =================================================================================================
+
+SELECT setval(pg_get_serial_sequence('users', 'user_id'), COALESCE((SELECT MAX(user_id) FROM users), 1), true);
+SELECT setval(pg_get_serial_sequence('employee', 'employee_id'), COALESCE((SELECT MAX(employee_id) FROM employee), 1), true);
+SELECT setval(pg_get_serial_sequence('client', 'client_id'), COALESCE((SELECT MAX(client_id) FROM client), 1), true);
+SELECT setval(pg_get_serial_sequence('pets', 'id'), COALESCE((SELECT MAX(id) FROM pets), 1), true);
+SELECT setval(pg_get_serial_sequence('medical_histories', 'id'), COALESCE((SELECT MAX(id) FROM medical_histories), 1), true);
+SELECT setval(pg_get_serial_sequence('consultations', 'id'), COALESCE((SELECT MAX(id) FROM consultations), 1), true);
+SELECT setval(pg_get_serial_sequence('appointments', 'id'), COALESCE((SELECT MAX(id) FROM appointments), 1), true);
+SELECT setval(pg_get_serial_sequence('waiting_room', 'id'), COALESCE((SELECT MAX(id) FROM waiting_room), 1), true);
+SELECT setval(pg_get_serial_sequence('suppliers', 'supplier_id'), COALESCE((SELECT MAX(supplier_id) FROM suppliers), 1), true);
+SELECT setval(pg_get_serial_sequence('products', 'product_id'), COALESCE((SELECT MAX(product_id) FROM products), 1), true);
