@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-
 import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 
