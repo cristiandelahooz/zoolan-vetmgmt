@@ -10,7 +10,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.ArrayList;
 
-
 import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 
@@ -77,6 +76,5 @@ public class Supplier {
     @EqualsAndHashCode.Exclude
     @Builder.Default
     private List<Product> products = new ArrayList<>();
-
 
 }
