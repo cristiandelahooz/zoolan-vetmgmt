@@ -4,30 +4,27 @@ import com.wornux.data.entity.Product;
 import com.wornux.data.entity.Supplier;
 import com.wornux.dto.request.ProductCreateRequestDto;
 import com.wornux.dto.request.ProductUpdateRequestDto;
-import org.springframework.stereotype.Component;
+import com.wornux.dto.response.ProductListDto;
+import org.mapstruct.*;
 
-@Component
-public class ProductMapper {
+import java.util.List;
 
-    public Product toEntity(ProductCreateRequestDto dto, Supplier supplier) {
-        return Product.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .stock(dto.getStock())
-                .supplier(supplier)
-                .category(dto.getCategory())
-                .build(); // active = true by default
-    }
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface ProductMapper {
 
-    public void updateProductFromDTO(ProductUpdateRequestDto dto, Product product, Supplier supplier) {
-        if (dto.getName() != null) product.setName(dto.getName());
-        if (dto.getDescription() != null) product.setDescription(dto.getDescription());
-        if (dto.getPrice() != null) product.setPrice(dto.getPrice());
-        if (dto.getStock() != null) product.setStock(dto.getStock());
-        if (dto.getSupplierId() != null) product.setSupplier(supplier);
-        if (dto.getCategory() != null) product.setCategory(dto.getCategory());
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "supplier", source = "supplier")
+    Product toEntity(ProductCreateRequestDto dto, Supplier supplier);
 
-    }
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "supplier", source = "supplier")
+    void partialUpdate(@MappingTarget Product product, ProductUpdateRequestDto dto, Supplier supplier);
+
+    ProductCreateRequestDto toCreateDto(Product product);
+
+    @Mapping(target = "supplierName", source = "supplier.companyName")
+    ProductListDto toListDto(Product product);
+
+    List<ProductListDto> toListDtoList(List<Product> products);
 }
-
