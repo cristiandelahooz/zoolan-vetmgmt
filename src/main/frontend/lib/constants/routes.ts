@@ -34,9 +34,21 @@ export const ROUTES = {
   WAITING_ROOM_NEW: '/waitingroom/new',
   WAITING_ROOM_LIVE: '/waitingroom/live',
 
+  //Consultations routes
   CONSULTATIONS: '/consultations',
   CONSULTATION_NEW: '/consultations/new',
 
+  //product routes
+  PRODUCTS: '/products',
+  PRODUCT_EDIT: '/products/edit',
+  PRODUCT_NEW: '/products/new',
+
+  //supplier routes
+  SUPPLIERS: '/suppliers',
+  SUPPLIER_EDIT: '/suppliers/edit',
+  SUPPLIER_NEW: '/suppliers/new',
+  
+  //inventory routes
   INVENTORY: '/inventory',
 } as const
 

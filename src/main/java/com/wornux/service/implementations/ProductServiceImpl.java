@@ -23,6 +23,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.wornux.data.enums.ProductCategory;
+import com.wornux.dto.response.ProductListDto;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +43,22 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
     private final ProductMapper productMapper;
 
     @Override
-    @Nullable
-    public Product save(ProductCreateRequestDto dto) {
+    @Transactional(readOnly = true)
+    public List<Product> list(Pageable pageable, @Nullable Filter filter) {
+        log.debug("Listing active Products with pagination");
+        return productRepository.findByActiveTrue(pageable).getContent();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductListDto> listAsDto(Pageable pageable, @Nullable Filter filter) {
+        log.debug("Listing active Products as DTOs with pagination");
+        List<Product> products = productRepository.findByActiveTrue(pageable).getContent();
+        return productMapper.toListDtoList(products);
+    }
+
+    @Override
+    public ProductCreateRequestDto save(ProductCreateRequestDto dto) {
         try {
             Supplier supplier = supplierRepository.findById(dto.getSupplierId())
                     .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
@@ -64,10 +80,11 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
                     .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
 
             Product product = productMapper.toEntity(dto, supplier);
+            product.setActive(true);
             Product savedProduct = productRepository.save(product);
 
             log.info("Product created with ID: {}", savedProduct.getId());
-            return savedProduct;
+            return productMapper.toCreateDto(savedProduct);
         } catch (Exception e) {
             log.error("Error creating Product: {}", e.getMessage());
             throw e;
