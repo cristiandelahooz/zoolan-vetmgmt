@@ -1,0 +1,19 @@
+.tab-selected-menu-item {
+    box-shadow: 0 0 0 1px var(--lumo-shade-5pct), 0 1px 1px 0 var(--lumo-shade-5pct);
+    color: var(--lumo-primary-color-50pct);
+    font-weight: 600;
+    border-radius: var(--lumo-border-radius-m);
+    transition: color .16s, background-color .16s, box-shadow 60ms, transform .2s, -webkit-backdrop-filter .2s, backdrop-filter .2s;
+    padding: var(--lumo-space-xs) var(--lumo-space-m);
+    line-height: var(--lumo-line-height-xs);
+}
+
+.tab-not-selected-menu-item {
+    font-weight: 600;
+    border-radius: var(--lumo-border-radius-m);
+    transition: color .16s, background-color .16s, box-shadow 60ms, transform .2s, -webkit-backdrop-filter .2s, backdrop-filter .2s;
+    padding: var(--lumo-space-xs) var(--lumo-space-m);
+    line-height: var(--lumo-line-height-xs);
+    color: var(--lumo-secondary-text-color);
+}
+
