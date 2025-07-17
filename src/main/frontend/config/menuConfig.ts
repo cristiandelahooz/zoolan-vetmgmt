@@ -40,6 +40,18 @@ export const menuConfig: MenuItemConfig[] = [
   },
   {
     path: undefined,
+    title: 'Transacciones',
+    icon: 'vaadin:credit-card',
+    children: [
+      {
+        path: '/invoices',
+        title: 'Facturas',
+        icon: 'lumo:align-left',
+      },
+    ],
+  },
+  {
+    path: undefined,
     title: 'Sala de Espera',
     icon: 'lumo:user',
     children: [
