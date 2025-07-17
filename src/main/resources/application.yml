@@ -50,11 +50,11 @@ spring:
     activate:
       on-profile: dev
   flyway:
-    enabled: true
+    enabled: false
     locations: [ classpath:db/migration/prod, classpath:db/migration/dev ] #, filesystem:./sql
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: false
 
   devtools:
