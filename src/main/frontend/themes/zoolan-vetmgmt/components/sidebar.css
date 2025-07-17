@@ -1,0 +1,22 @@
+.sidebar-responsive-width {
+    width: 70% !important;
+}
+
+@media (max-width: 1024px) {
+    .sidebar-responsive-width {
+        width: 100% !important;
+        max-width: none;
+    }
+}
+
+.sidebar-responsive-content {
+    padding-left: var(--lumo-space-m);
+    padding-right: var(--lumo-space-m);
+}
+
+@media (max-width: 1024px) {
+    .sidebar-responsive-content {
+        padding-left: var(--lumo-space-s);
+        padding-right: var(--lumo-space-s);
+    }
+}
