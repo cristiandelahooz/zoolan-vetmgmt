@@ -19,12 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.wornux.data.enums.ProductCategory;
 import com.wornux.dto.response.ProductListDto;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -58,23 +56,20 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
     }
 
     @Override
-    public ProductCreateRequestDto save(ProductCreateRequestDto dto) {
-        try {
-            Supplier supplier = supplierRepository.findById(dto.getSupplierId())
-                    .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
+    public ProductListDto save(ProductListDto dto) {
+        log.debug("Saving/updating Product via AutoCrud");
 
-            Product product = productMapper.toEntity(dto, supplier);
-            Product savedProduct = productRepository.save(product);
-
-            log.info("Product created with ID: {}", savedProduct.getId());
-            return savedProduct; // Retornar la entidad guardada
-        } catch (Exception e) {
-            log.error("Error creating Product: {}", e.getMessage());
-            throw e;
+        if (dto.getId() != null) {
+            // Actualización - solo permite cambiar el stock
+            return updateStock(dto.getId(), dto.getStock());
+        } else {
+            // Creación - no permitida desde AutoCrud
+            throw new UnsupportedOperationException(
+                    "Creating products through AutoCrud is not supported. Use the dedicated form.");
         }
     }
 
-    public Product createProduct(ProductCreateRequestDto dto) {
+    public ProductCreateRequestDto createProduct(ProductCreateRequestDto dto) {
         try {
             Supplier supplier = supplierRepository.findById(dto.getSupplierId())
                     .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
@@ -154,7 +149,7 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
         return productRepository.findLowStockProducts();
     }
 
-    public Product updateStock(Long productId, int newStock) {
+    public ProductListDto updateStock(Long productId, int newStock) {
         log.debug("Updating stock for Product ID: {} to {}", productId, newStock);
 
         Product product = productRepository.findById(productId)
@@ -164,6 +159,6 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
         Product updatedProduct = productRepository.save(product);
 
         log.info("Stock updated for Product ID: {}", productId);
-        return updatedProduct;
+        return productMapper.toListDto(updatedProduct);
     }
 }
