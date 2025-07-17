@@ -1,0 +1,235 @@
+<!-- Created with Jaspersoft Studio version 7.0.2.final using JasperReports Library version 7.0.2-31532122640f516c6d17238ae0e41a08113d5ac0  -->
+<jasperReport name="test1" language="java" columnCount="1" pageWidth="612" pageHeight="792" orientation="Landscape" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="32f96948-0051-4ee0-b72e-6e30a4f45bc4">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="ClimaCall DB"/>
+	<parameter name="INVOICE_ID" class="java.lang.Long">
+		<defaultValueExpression><![CDATA[1L]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LOGO" class="java.io.InputStream"/>
+	<query language="SQL"><![CDATA[select i.code as invoice_code, issued_date, i.status, subtotal, total as i_total, 
+    c."type" as c_type, email, c.hourly_rate as c_hourly_rate, c.address as address, 
+    c.name as c_name,
+    'PRODUCT' as t_r,  ps.code as p_code, ps."name" as p_name, '' as tech, 
+	ip.quantity, ip.price, 0 as tax, ip.amount, '' as pp_name, '' as pp_address
+    from invoices i
+	inner join customers c on i.customer = c.code 
+	inner join invoice_product ip on i.code  = ip.invoice 
+	inner join products_services ps on ip.product = ps.code 
+	where i.code = $P{INVOICE_ID}
+union  
+select i.code as invoice_code, issued_date, i.status, subtotal, i.total as i_total, 
+    c."type" as c_type, email, c.hourly_rate as c_hourly_rate, c.address as address, 
+    c.name as c_name,
+    'WORKORDER' as t_r, wo.code as p_code, wo.type as p_name, u."name" as tech, 
+	0 as quantity, sub_total as price, wo.tax as tax, wo.total as amount, p.name as pp_name, p.address as pp_address
+    from invoices i
+	inner join customers c on i.customer = c.code 
+	inner join invoices_work_order iwo on i.code  = iwo.invoice 
+	inner join work_orders wo on wo.code = iwo.work_order
+	inner join users u on (u.user_id = wo.technician) 
+	inner join properties p on wo.job_site = p.code
+	where i.code = $P{INVOICE_ID} ]]></query>
+	<field name="invoice_code" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="invoice_code"/>
+		<property name="com.jaspersoft.studio.field.label" value="invoice_code"/>
+	</field>
+	<field name="issued_date" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="issued_date"/>
+		<property name="com.jaspersoft.studio.field.label" value="issued_date"/>
+	</field>
+	<field name="status" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="status"/>
+		<property name="com.jaspersoft.studio.field.label" value="status"/>
+	</field>
+	<field name="subtotal" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="subtotal"/>
+		<property name="com.jaspersoft.studio.field.label" value="subtotal"/>
+	</field>
+	<field name="i_total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="i_total"/>
+		<property name="com.jaspersoft.studio.field.label" value="i_total"/>
+	</field>
+	<field name="c_type" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="c_type"/>
+		<property name="com.jaspersoft.studio.field.label" value="c_type"/>
+	</field>
+	<field name="email" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="email"/>
+		<property name="com.jaspersoft.studio.field.label" value="email"/>
+	</field>
+	<field name="c_hourly_rate" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="c_hourly_rate"/>
+		<property name="com.jaspersoft.studio.field.label" value="c_hourly_rate"/>
+	</field>
+	<field name="address" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="address"/>
+		<property name="com.jaspersoft.studio.field.label" value="address"/>
+	</field>
+	<field name="c_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="c_name"/>
+		<property name="com.jaspersoft.studio.field.label" value="c_name"/>
+	</field>
+	<field name="t_r" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="t_r"/>
+		<property name="com.jaspersoft.studio.field.label" value="t_r"/>
+	</field>
+	<field name="p_code" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="p_code"/>
+		<property name="com.jaspersoft.studio.field.label" value="p_code"/>
+	</field>
+	<field name="p_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="p_name"/>
+		<property name="com.jaspersoft.studio.field.label" value="p_name"/>
+	</field>
+	<field name="tech" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="tech"/>
+		<property name="com.jaspersoft.studio.field.label" value="tech"/>
+	</field>
+	<field name="quantity" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.name" value="quantity"/>
+		<property name="com.jaspersoft.studio.field.label" value="quantity"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="procedure_item"/>
+	</field>
+	<field name="price" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="price"/>
+		<property name="com.jaspersoft.studio.field.label" value="price"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="procedure_item"/>
+	</field>
+	<field name="tax" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="tax"/>
+		<property name="com.jaspersoft.studio.field.label" value="tax"/>
+	</field>
+	<field name="amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="amount"/>
+		<property name="com.jaspersoft.studio.field.label" value="amount"/>
+	</field>
+	<field name="pp_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="pp_name"/>
+		<property name="com.jaspersoft.studio.field.label" value="pp_name"/>
+	</field>
+	<field name="pp_address" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="pp_address"/>
+		<property name="com.jaspersoft.studio.field.label" value="pp_address"/>
+	</field>
+	<variable name="amount1" calculation="Sum" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{amount}]]></expression>
+	</variable>
+	<background splitType="Stretch"/>
+	<title height="118" splitType="Stretch">
+		<element kind="rectangle" uuid="8dc41a9c-00a4-4fe2-8660-537e4a6119be" x="-20" y="-20" width="611" height="11" backcolor="#44A9D1">
+			<pen lineColor="#44A9D1"/>
+		</element>
+		<element kind="staticText" uuid="f8e3e5dd-0a38-4267-9ede-c6283bde0c82" x="10" y="81" width="240" height="15">
+			<text><![CDATA[123 Main St, New York 10046]]></text>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="staticText" uuid="f79547c2-0dff-4d31-8179-d7fdf066c9d1" x="10" y="98" width="240" height="15">
+			<text><![CDATA[ www.your-website.com]]></text>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="image" uuid="2c41b14a-3457-4448-8f92-15990fd52d80" x="10" y="2" width="130" height="75" onErrorType="Blank">
+			<expression><![CDATA[$P{LOGO}]]></expression>
+		</element>
+	</title>
+	<pageHeader height="145" splitType="Stretch">
+		<element kind="staticText" uuid="6b2a5462-661d-4c64-ad1e-8c266b7329c9" x="0" y="10" width="100" height="30" forecolor="#12018C" fontSize="22.0" bold="true">
+			<text><![CDATA[Invoice]]></text>
+		</element>
+		<element kind="staticText" uuid="8a71c269-eeb4-45cf-b7dc-026e9721cb2d" x="0" y="78" width="100" height="15" forecolor="#12018C">
+			<text><![CDATA[Customer]]></text>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="staticText" uuid="e8fb8535-aad0-4171-a079-e9459acdc298" x="440" y="90" width="130" height="15" forecolor="#12018C" hTextAlign="Right">
+			<text><![CDATA[Invoice Number]]></text>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="textField" uuid="07cf5480-5fcf-4d91-a0cb-99025fd28282" x="0" y="93" width="180" height="14">
+			<expression><![CDATA[$F{c_name} ]]></expression>
+		</element>
+		<element kind="textField" uuid="6b239aac-cafb-47a5-a5e5-ab080d7e5b3f" x="440" y="105" width="130" height="14" hTextAlign="Right">
+			<expression><![CDATA["102-"+$F{invoice_code}]]></expression>
+		</element>
+		<element kind="line" uuid="9bd460be-50fc-49b7-9b30-f6b204c40bc3" x="0" y="135" width="580" height="1"/>
+		<element kind="textField" uuid="3a77adfb-3589-4b05-be95-625805b111cd" x="0" y="40" width="150" height="30" forecolor="#12018C" fontSize="12.0" pattern="MM/dd/yyyy" blankWhenNull="true">
+			<expression><![CDATA[$F{issued_date}]]></expression>
+		</element>
+		<element kind="textField" uuid="9d934255-755f-4da5-ae3c-f5bfe974653d" x="1" y="108" width="180" height="14">
+			<expression><![CDATA[$F{address}]]></expression>
+		</element>
+	</pageHeader>
+	<columnHeader height="30" splitType="Stretch">
+		<element kind="staticText" uuid="65acbb89-546c-4526-9c9d-cb9fd11e6377" x="270" y="0" width="100" height="30" forecolor="#12018C" backcolor="#FFFFFF" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[QUANTITY]]></text>
+			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="b268d355-5997-4377-a4cc-9b768512ad38"/>
+		</element>
+		<element kind="staticText" uuid="bd23e102-a7e2-4c4d-bca3-43b10dbc919a" mode="Opaque" x="0" y="0" width="270" height="30" forecolor="#12018C" vTextAlign="Middle">
+			<text><![CDATA[DESCRIPTION]]></text>
+			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="37b819ae-9750-4e96-b027-eeea8e09cfbd"/>
+		</element>
+		<element kind="staticText" uuid="e6df6d48-7fa1-4438-a004-28bb7dfe141f" x="370" y="0" width="100" height="30" forecolor="#12018C" backcolor="#FFFFFF" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[PRICE]]></text>
+			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5653c466-7faf-4b69-97b9-7926e58d3fcf"/>
+		</element>
+		<element kind="staticText" uuid="84806c33-5ec0-4cfe-9d50-5f4fc25a1c88" x="470" y="0" width="100" height="30" forecolor="#12018C" backcolor="#FFFFFF" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[AMOUNT]]></text>
+			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5653c466-7faf-4b69-97b9-7926e58d3fcf"/>
+		</element>
+		<element kind="staticText" uuid="48d1cfea-02ce-4567-8483-5fcd74903914" x="197" y="0" width="100" height="30">
+			<text><![CDATA[pp_address]]></text>
+			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ae819068-4823-4189-b025-4cb35f18da2c"/>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<element kind="textField" uuid="8fe4cc9c-dd4a-4ea6-b08e-6eb6103d8472" x="270" y="0" width="100" height="15" linkType="None" linkTarget="Self" hTextAlign="Right">
+				<printWhenExpression><![CDATA[!"WORKORDER".equals($F{t_r})]]></printWhenExpression>
+				<expression><![CDATA[$F{quantity}]]></expression>
+				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="b268d355-5997-4377-a4cc-9b768512ad38"/>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			</element>
+			<element kind="textField" uuid="6c8e5ef5-05b7-4d5d-9094-8f315da2a1bd" x="0" y="0" width="270" height="15">
+				<expression><![CDATA[("WORKORDER".equals($F{t_r}) ? "WORK ORDER #" +$F{p_code} + "  "  :  "") + $F{p_name}]]></expression>
+				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="37b819ae-9750-4e96-b027-eeea8e09cfbd"/>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			</element>
+			<element kind="textField" uuid="6b70764c-17f9-45f5-9613-d5b5299f0ede" x="370" y="0" width="100" height="15" pattern="#,##0.00" hTextAlign="Right">
+				<expression><![CDATA[$F{price}]]></expression>
+				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5653c466-7faf-4b69-97b9-7926e58d3fcf"/>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			</element>
+			<element kind="textField" uuid="77f37072-5996-4d12-890f-6d2915dd9ec3" x="470" y="0" width="100" height="15" pattern="#,##0.00" hTextAlign="Right">
+				<expression><![CDATA[$F{amount}]]></expression>
+				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5653c466-7faf-4b69-97b9-7926e58d3fcf"/>
+				<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			</element>
+			<element kind="textField" uuid="f2f0e05d-e67c-4e0b-b98d-d163a6f67030" x="25" y="15" width="395" height="15" forecolor="#545454" removeLineWhenBlank="true">
+				<printWhenExpression><![CDATA["WORKORDER".equals($F{t_r})]]></printWhenExpression>
+				<expression><![CDATA[$F{pp_name} + ", " +$F{pp_address}]]></expression>
+				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ae819068-4823-4189-b025-4cb35f18da2c"/>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			</element>
+		</band>
+	</detail>
+	<columnFooter height="30" splitType="Stretch"/>
+	<pageFooter height="40" splitType="Stretch"/>
+	<summary height="135" splitType="Stretch">
+		<element kind="line" uuid="64953605-cb01-496e-a1f8-3a5d38a4958d" x="2" y="25" width="583" height="1"/>
+		<element kind="textField" uuid="7bbe36f1-1bd5-49c0-8964-0cdcedae6ec1" x="500" y="50" width="70" height="20" pattern="#,##0.00" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA[$V{amount1}]]></expression>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="staticText" uuid="08d86d01-3979-4230-940e-95e60a76d51e" x="415" y="50" width="85" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[Total $]]></text>
+		</element>
+	</summary>
+</jasperReport>
