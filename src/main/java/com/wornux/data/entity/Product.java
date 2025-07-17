@@ -8,6 +8,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+
 import java.math.BigDecimal;
 
 @Builder
@@ -39,6 +40,11 @@ public class Product {
     private int stock;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @Min(0)
+    @Builder.Default
+    private int reorderLevel = 5;
+
+    @ManyToOne
     @JoinColumn(name = "supplier_id")
     @JsonManagedReference
     private Supplier supplier;

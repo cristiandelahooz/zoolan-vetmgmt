@@ -8,6 +8,8 @@ import com.wornux.dto.response.ProductListDto;
 import org.mapstruct.*;
 
 import java.util.List;
+import org.mapstruct.*;
+import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProductMapper {
@@ -27,4 +29,12 @@ public interface ProductMapper {
     ProductListDto toListDto(Product product);
 
     List<ProductListDto> toListDtoList(List<Product> products);
+  
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "supplier", source = "supplier")
+    void updateProductFromDTO(ProductUpdateRequestDto dto, @MappingTarget Product product, Supplier supplier);
+
+    @Mapping(target = "supplierId", source = "supplier.id")
+    ProductCreateRequestDto toDTO(Product product);
+
 }

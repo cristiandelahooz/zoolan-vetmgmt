@@ -30,8 +30,8 @@ import java.util.Optional;
 @Validated
 @RequiredArgsConstructor
 @BrowserCallable
-@Transactional
 @AnonymousAllowed
+@Transactional
 public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, SupplierRepository>
         implements SupplierService, FormService<SupplierCreateRequestDto, Long> {
 
@@ -81,7 +81,7 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
     }
 
     @Override
-    public Supplier update(@Valid UpdateSupplierRequestDto dto) {
+    public Supplier update(UpdateSupplierRequestDto dto) {
         Supplier existingSupplier = supplierRepository.findById(dto.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado"));
 

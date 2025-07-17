@@ -47,6 +47,9 @@ export const ROUTES = {
   SUPPLIERS: '/suppliers',
   SUPPLIER_EDIT: '/suppliers/edit',
   SUPPLIER_NEW: '/suppliers/new',
+  
+  //inventory routes
+  INVENTORY: '/inventory',
 } as const
 
 // Type for route values

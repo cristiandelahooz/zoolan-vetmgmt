@@ -6,6 +6,7 @@ import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.dto.request.UpdateSupplierRequestDto;
 import com.wornux.dto.response.SupplierListDto;
 import jakarta.validation.Valid;
+
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +27,7 @@ public interface SupplierService {
 
     SupplierCreateRequestDto save(SupplierCreateRequestDto supplierDto);
 
-    Supplier update(@Valid UpdateSupplierRequestDto supplierDto);
+    Supplier update(UpdateSupplierRequestDto supplierDto);
 
     void delete(Long id);
 

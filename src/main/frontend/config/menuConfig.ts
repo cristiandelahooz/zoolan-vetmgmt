@@ -22,6 +22,11 @@ export const menuConfig: MenuItemConfig[] = [
     icon: 'vaadin:calendar',
   },
   {
+    path: ROUTES.INVENTORY,
+    title: 'Inventario',
+    icon: 'vaadin:archives',
+  },
+  {
     path: undefined,
     title: 'Consultas',
     icon: 'vaadin:stethoscope',
