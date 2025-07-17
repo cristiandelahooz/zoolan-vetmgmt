@@ -4,6 +4,7 @@ import { SupplierServiceImpl } from '@/generated/endpoints'
 import { AutoForm, type AutoFormLayoutRendererProps, type SubmitErrorEvent } from '@vaadin/hilla-react-crud'
 import { HorizontalLayout, Notification, VerticalLayout } from '@vaadin/react-components'
 import { useNavigate } from 'react-router'
+import { AUTO_FORM_SUPPLIER_FIELD_OPTIONS } from '@/lib/constants/supplier-field-config'
 
 function GroupingLayoutRenderer({ children }: AutoFormLayoutRendererProps<SupplierCreateRequestDtoModel>) {
   const fieldsMapping = new Map<string, JSX.Element>()
@@ -72,6 +73,7 @@ export default function SuppliersRegisterView() {
         onSubmitSuccess={handleOnSubmitSuccess}
         onSubmitError={handleOnSubmitError}
         layoutRenderer={GroupingLayoutRenderer}
+        fieldOptions={AUTO_FORM_SUPPLIER_FIELD_OPTIONS}
       />
     </main>
   )
