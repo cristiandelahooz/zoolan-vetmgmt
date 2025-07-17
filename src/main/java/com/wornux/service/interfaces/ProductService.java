@@ -3,13 +3,18 @@ package com.wornux.service.interfaces;
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Product;
 import com.wornux.dto.request.ProductCreateRequestDto;
-import jakarta.validation.Valid;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import com.wornux.dto.response.ProductListDto;
+
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Pageable;
+import com.vaadin.hilla.crud.filter.Filter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service Interface for managing {@link Product} entities.
@@ -25,7 +30,7 @@ public interface ProductService {
      * @param dto Product creation DTO.
      * @return Saved ProductCreateRequestDto (or response DTO).
      */
-    ProductCreateRequestDto save(@Valid ProductCreateRequestDto dto);
+    ProductCreateRequestDto save(ProductCreateRequestDto dto);
 
     /**
      * Deactivates (soft delete) a Product.
@@ -50,12 +55,20 @@ public interface ProductService {
     List<Product> getAllProducts();
 
     /**
-     * Lists Products by supplier.
+     * Lists paginated active Products for AutoGrid (entities).
      *
-     * @param supplierId ID of the supplier.
-     * @return List of Products.
+     * @param pageable Pagination parameters.
+     * @return Paginated list of active Products.
      */
-    List<Product> getProductsBySupplier(Long supplierId);
+    List<Product> list(Pageable pageable, @Nullable Filter filter);
+
+    /**
+     * Lists paginated active Products as DTOs for frontend.
+     *
+     * @param pageable Pagination parameters.
+     * @return Paginated list of active ProductListDto.
+     */
+    List<ProductListDto> listAsDto(Pageable pageable, @Nullable Filter filter);
 
     /**
      * Lists Products by category.
