@@ -40,7 +40,7 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id")
-    @JsonManagedReference  
+    @JsonManagedReference
     private Supplier supplier;
 
     @Enumerated(EnumType.STRING)
