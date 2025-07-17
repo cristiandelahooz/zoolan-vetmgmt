@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * DTO usado para enviar información básica de un producto
- * al frontend en operaciones de listado o consulta.
+ * DTO usado para enviar información básica de un producto al frontend en operaciones de listado o consulta.
  */
 @Data
 @Builder

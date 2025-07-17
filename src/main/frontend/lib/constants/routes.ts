@@ -47,7 +47,6 @@ export const ROUTES = {
   SUPPLIERS: '/suppliers',
   SUPPLIER_EDIT: '/suppliers/edit',
   SUPPLIER_NEW: '/suppliers/new',
-
 } as const
 
 // Type for route values

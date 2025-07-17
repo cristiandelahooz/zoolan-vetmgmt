@@ -82,8 +82,7 @@ public class ProductServiceImpl extends ListRepositoryService<Product, Long, Pro
     public void delete(Long id) {
         log.debug("Deactivating Product ID: {}", id);
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setActive(false);
         productRepository.save(product);

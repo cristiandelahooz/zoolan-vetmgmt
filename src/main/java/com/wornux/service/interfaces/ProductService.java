@@ -27,7 +27,8 @@ public interface ProductService {
     /**
      * Saves (creates) a new Product.
      *
-     * @param dto Product creation DTO.
+     * @param dto
+     *            Product creation DTO.
      * @return Saved ProductCreateRequestDto (or response DTO).
      */
     ProductCreateRequestDto save(ProductCreateRequestDto dto);
@@ -35,14 +36,16 @@ public interface ProductService {
     /**
      * Deactivates (soft delete) a Product.
      *
-     * @param id ID of the Product to delete.
+     * @param id
+     *            ID of the Product to delete.
      */
     void delete(Long id);
 
     /**
      * Retrieves a Product by its ID.
      *
-     * @param id ID of the Product.
+     * @param id
+     *            ID of the Product.
      * @return Optional Product entity.
      */
     Optional<Product> getProductById(Long id);
@@ -57,7 +60,8 @@ public interface ProductService {
     /**
      * Lists paginated active Products for AutoGrid (entities).
      *
-     * @param pageable Pagination parameters.
+     * @param pageable
+     *            Pagination parameters.
      * @return Paginated list of active Products.
      */
     List<Product> list(Pageable pageable, @Nullable Filter filter);
@@ -65,7 +69,8 @@ public interface ProductService {
     /**
      * Lists paginated active Products as DTOs for frontend.
      *
-     * @param pageable Pagination parameters.
+     * @param pageable
+     *            Pagination parameters.
      * @return Paginated list of active ProductListDto.
      */
     List<ProductListDto> listAsDto(Pageable pageable, @Nullable Filter filter);
@@ -73,7 +78,8 @@ public interface ProductService {
     /**
      * Lists Products by category.
      *
-     * @param category Product category name.
+     * @param category
+     *            Product category name.
      * @return List of Products.
      */
     List<Product> getProductsByCategory(String category);
@@ -81,7 +87,8 @@ public interface ProductService {
     /**
      * Lists Products matching a name search.
      *
-     * @param name Name search term.
+     * @param name
+     *            Name search term.
      * @return List of Products.
      */
     List<Product> getProductsByName(String name);
