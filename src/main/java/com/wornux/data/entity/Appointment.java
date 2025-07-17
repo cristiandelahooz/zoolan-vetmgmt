@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ import com.wornux.data.enums.AppointmentStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 @Slf4j
+@Audited(withModifiedFlag = true)
 public class Appointment {
 
     @Id
@@ -145,8 +147,8 @@ public class Appointment {
     @AssertTrue(message = "Debe proporcionar información de cliente registrado o datos de cliente invitado")
     private boolean isValidClientInfo() {
         boolean hasRegisteredClient = client != null;
-        boolean hasGuestInfo = guestClientInfo != null && guestClientInfo.getName() != null
-                && !guestClientInfo.getName().trim().isEmpty();
+        boolean hasGuestInfo = guestClientInfo != null && guestClientInfo.getName() != null && !guestClientInfo.getName()
+                .trim().isEmpty();
 
         log.info("Validating client info: hasRegisteredClient={}, hasGuestInfo={}", hasRegisteredClient, hasGuestInfo);
         return hasRegisteredClient || hasGuestInfo;
