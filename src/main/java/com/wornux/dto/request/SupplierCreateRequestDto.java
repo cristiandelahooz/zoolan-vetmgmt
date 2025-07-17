@@ -38,5 +38,4 @@ public class SupplierCreateRequestDto {
     @NotNull(message = "La dirección de la calle del suplidor es requerida")
     private String streetAddress;
 
-    private Boolean active = true;
 }
