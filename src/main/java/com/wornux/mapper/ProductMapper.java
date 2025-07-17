@@ -25,4 +25,3 @@ public interface ProductMapper {
     ProductCreateRequestDto toDTO(Product product);
 
 }
-
