@@ -29,7 +29,7 @@ public interface ProductMapper {
     ProductListDto toListDto(Product product);
 
     List<ProductListDto> toListDtoList(List<Product> products);
-  
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "supplier", source = "supplier")
     void updateProductFromDTO(ProductUpdateRequestDto dto, @MappingTarget Product product, Supplier supplier);
