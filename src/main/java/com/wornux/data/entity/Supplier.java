@@ -22,7 +22,6 @@ import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 @AllArgsConstructor
 @SuperBuilder
 @ToString
-@EqualsAndHashCode
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "suppliers")

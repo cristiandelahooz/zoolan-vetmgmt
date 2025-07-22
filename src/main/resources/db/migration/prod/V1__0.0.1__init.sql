@@ -664,57 +664,6 @@ CREATE TABLE waiting_room_aud
     CONSTRAINT pk_waiting_room_aud PRIMARY KEY (rev, id)
 );
 
-CREATE TABLE products_log (
-                              id SERIAL PRIMARY KEY,
-                              revtype SMALLINT,
-                              active BOOLEAN,
-                              active_mod BOOLEAN,
-                              category VARCHAR(255),
-                              category_mod BOOLEAN,
-                              description TEXT,
-                              description_mod BOOLEAN,
-                              name VARCHAR(255),
-                              name_mod BOOLEAN,
-                              price NUMERIC,
-                              price_mod BOOLEAN,
-                              reorder_level INTEGER,
-                              reorder_level_mod BOOLEAN,
-                              stock INTEGER,
-                              stock_mod BOOLEAN,
-                              supplier_mod BOOLEAN,
-                              supplier_id INTEGER,
-                              rev INTEGER,
-                              product_id INTEGER
-);
-
-CREATE TABLE suppliers_log (
-                               id SERIAL PRIMARY KEY,
-                               revtype SMALLINT,
-                               rnc CHAR(9),
-                               rnc_mod BOOLEAN,
-                               company_name VARCHAR(255),
-                               company_name_mod BOOLEAN,
-                               contact_person VARCHAR(255),
-                               contact_person_mod BOOLEAN,
-                               contact_phone VARCHAR(255),
-                               contact_phone_mod BOOLEAN,
-                               contact_email VARCHAR(255),
-                               contact_email_mod BOOLEAN,
-                               province VARCHAR(255),
-                               province_mod BOOLEAN,
-                               municipality VARCHAR(255),
-                               municipality_mod BOOLEAN,
-                               sector VARCHAR(255),
-                               sector_mod BOOLEAN,
-                               street_address VARCHAR(255),
-                               street_address_mod BOOLEAN,
-                               active BOOLEAN,
-                               active_mod BOOLEAN,
-                               products_mod BOOLEAN,
-                               supplier_id INTEGER,
-                               rev INTEGER
-);
-
 ALTER TABLE client_aud
     ADD CONSTRAINT pk_client_aud PRIMARY KEY (client_id, rev);
 

@@ -1,8 +1,6 @@
 package com.wornux.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.wornux.data.entity.Consultation;
-import com.wornux.data.entity.Pet;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -13,11 +11,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "medical_histories")
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = { "consultations", "pet" })
+@Getter
+@Setter
 @ToString(exclude = { "consultations", "pet" })
 @Audited(withModifiedFlag = true)
 public class MedicalHistory {

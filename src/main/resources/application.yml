@@ -50,12 +50,16 @@ spring:
     activate:
       on-profile: dev
   flyway:
-    enabled: true
+    enabled: false
     locations: [ classpath:db/migration/prod, classpath:db/migration/dev ] #, filesystem:./sql
+  sql:
+    init:
+      mode: always
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: false
+    defer-datasource-initialization: true
 
   devtools:
     restart:
