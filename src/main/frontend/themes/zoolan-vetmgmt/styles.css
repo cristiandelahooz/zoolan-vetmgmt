@@ -19,7 +19,7 @@
 @import url('view/popover-notification-panel.css');
 
 
-html {
+:root {
     /* Light */
     /* colors */
     /* This css was inspired by the following repository*/
@@ -92,6 +92,9 @@ html {
 
     --light-background-color: #FFF;
 
+
+    --drawer-background-color: rgba(122, 131, 172, 0.4);
+    --drawer-text-color: #fff;
     --lumo-space-xxl: 48px;
 }
 
@@ -214,3 +217,8 @@ vaadin-dialog-overlay.appointment-dialog::part(content) {
         width: 100px;
     }
 }
+
+vaadin-app-layout::part(drawer) {
+    background-color: #E6F3FA;
+}
+
