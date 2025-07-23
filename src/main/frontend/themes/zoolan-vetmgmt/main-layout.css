@@ -28,7 +28,7 @@ decimal-field {
     order: -9999;
 }
 
-
+/*
 vaadin-grid,
 vaadin-upload,
 vaadin-checkbox,
@@ -47,7 +47,7 @@ vaadin-multi-select-combo-box {
     font-size: var(--lumo-font-size-s);
     --lumo-text-field-size: var(--lumo-size-s);
 }
-
+*/
 
 vaadin-menu-bar.separate-buttons::part(container) {
     gap: var(--lumo-space-xs)
@@ -140,3 +140,4 @@ vaadin-tab[active] {
 vaadin-tab[selected]:not([focus-ring]) {
     box-shadow: 0 0 0 1px var(--lumo-shade-5pct), 0 1px 1px 0 var(--lumo-shade-5pct);
 }
+
