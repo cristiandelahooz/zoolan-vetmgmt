@@ -2,7 +2,6 @@ package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import com.vaadin.open.App;
 import com.wornux.data.entity.Appointment;
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.dto.request.AppointmentCreateRequestDto;
@@ -39,7 +38,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponseDto createAppointment(AppointmentCreateRequestDto createRequest) {
         log.debug("Creating appointment for {}", createRequest.getAppointmentDateTime());
 
-        System.out.println(Appointment.serialVersionUID);
         Appointment appointment = appointmentMapper.toEntity(createRequest);
         appointment = appointmentRepository.save(appointment);
 
