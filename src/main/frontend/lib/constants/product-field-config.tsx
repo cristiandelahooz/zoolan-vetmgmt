@@ -1,5 +1,5 @@
 export const AUTO_GRID_PRODUCT_FIELD_OPTIONS = {
-  name: { header: 'Nombre' },
+  name: { header: 'Nombre del producto' },
   description: { header: 'Descripción' },
   price: { header: 'Precio' },
   category: { header: 'Categoría' },
