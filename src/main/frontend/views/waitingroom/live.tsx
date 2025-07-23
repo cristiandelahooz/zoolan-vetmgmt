@@ -389,7 +389,7 @@ export default function WaitingRoomView() {
                 <HorizontalLayout theme="spacing" className="w-full mb-m">
                   <VerticalLayout theme="spacing-xs" className="flex-1">
                     <h3 className="m-0 text-primary">
-                      👤 {entry.client?.firstName} {entry.client?.lastName}
+                       {entry.client?.firstName} {entry.client?.lastName}
                     </h3>
                     <span className="text-s text-secondary">
                       {entry.client?.cedula && `Cédula: ${entry.client.cedula}`}
@@ -434,16 +434,16 @@ export default function WaitingRoomView() {
                   {entry.status === WaitingRoomStatus.WAITING && (
                     <>
                       <Button theme="primary small" onClick={() => handleMoveToConsultation(entry.id!)}>
-                        🩺 Iniciar Consulta
+                        Iniciar Consulta
                       </Button>
                       <Button theme="error small" onClick={() => handleCancelEntry(entry.id!)}>
-                        ❌ Cancelar
+                        Cancelar
                       </Button>
                     </>
                   )}
                   {entry.status === WaitingRoomStatus.IN_CONSULTATION && (
                     <Button theme="success small" onClick={() => handleCompleteConsultation(entry.id!)}>
-                      ✅ Completar Consulta
+                      Completar Consulta
                     </Button>
                   )}
                   {(entry.status === WaitingRoomStatus.COMPLETED || entry.status === WaitingRoomStatus.CANCELLED) && (
