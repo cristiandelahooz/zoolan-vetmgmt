@@ -161,7 +161,7 @@ export default function WaitingRoomListView() {
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
         <p className="text-sm text-blue-800">
-          💡 <strong>Historial de Sala de Espera:</strong> Aquí puedes ver todas las entradas a la sala de espera,
+          <strong>Historial de Sala de Espera:</strong> Aquí puedes ver todas las entradas a la sala de espera,
           filtrar por fecha, estado, prioridad, etc.
         </p>
       </div>
