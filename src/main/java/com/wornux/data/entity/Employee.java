@@ -1,6 +1,5 @@
 package com.wornux.data.entity;
 
-import com.wornux.data.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

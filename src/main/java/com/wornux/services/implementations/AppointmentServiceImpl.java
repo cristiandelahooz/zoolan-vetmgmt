@@ -2,6 +2,7 @@ package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.open.App;
 import com.wornux.data.entity.Appointment;
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.dto.request.AppointmentCreateRequestDto;
@@ -11,9 +12,6 @@ import com.wornux.mapper.AppointmentMapper;
 import com.wornux.data.repository.AppointmentRepository;
 import com.wornux.exception.AppointmentNotFoundException;
 import com.wornux.services.interfaces.AppointmentService;
-import com.wornux.services.interfaces.ClientService;
-import com.wornux.services.interfaces.PetService;
-import com.wornux.services.interfaces.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,15 +33,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
-    private final ClientService clientService;
-    private final PetService petService;
-    private final EmployeeService employeeService;
 
     @Override
     @Transactional
     public AppointmentResponseDto createAppointment(AppointmentCreateRequestDto createRequest) {
         log.debug("Creating appointment for {}", createRequest.getAppointmentDateTime());
 
+        System.out.println(Appointment.serialVersionUID);
         Appointment appointment = appointmentMapper.toEntity(createRequest);
         appointment = appointmentRepository.save(appointment);
 
@@ -116,8 +112,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional(readOnly = true)
     public List<AppointmentResponseDto> getAppointmentsByEmployee(Long employeeId, LocalDateTime start,
             LocalDateTime end) {
-        List<Appointment> appointments = appointmentRepository
-                .findByAssignedEmployeeIdAndStartAppointmentDateBetween(employeeId, start, end);
+        List<Appointment> appointments = appointmentRepository.findByAssignedEmployeeIdAndStartAppointmentDateBetween(
+                employeeId, start, end);
         return appointments.stream().map(appointmentMapper::toResponseDTO).toList();
     }
 

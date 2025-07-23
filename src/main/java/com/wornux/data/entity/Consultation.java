@@ -1,9 +1,6 @@
 package com.wornux.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.wornux.data.entity.Employee;
-import com.wornux.data.entity.MedicalHistory;
-import com.wornux.data.entity.Pet;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -12,7 +9,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "consultations")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

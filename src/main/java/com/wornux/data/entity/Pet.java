@@ -17,7 +17,6 @@ import org.hibernate.envers.Audited;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = { "medicalHistory" })
 @ToString(exclude = { "medicalHistory" })
 @Entity
 @Table(name = "pets")

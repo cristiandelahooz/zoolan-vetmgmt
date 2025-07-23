@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 @Builder
 @Entity
 @Table(name = "products")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Audited(withModifiedFlag = true)
