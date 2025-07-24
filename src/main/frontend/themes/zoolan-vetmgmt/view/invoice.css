@@ -16,3 +16,14 @@
   font-size: var(--lumo-font-size-s);
   --lumo-text-field-size: var(--lumo-size-s);
 }
+
+#invoices-view section {
+  max-width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem;
+  box-shadow: var(--lumo-box-shadow-s);
+  margin: var(--lumo-space-s);
+  background: var(--lumo-base-color) linear-gradient(var(--lumo-tint-5pct), var(--lumo-tint-5pct));
+}
