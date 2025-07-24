@@ -224,12 +224,12 @@ export default function WaitingRoomView() {
   const getPriorityDisplay = (priority: Priority) => {
     switch (priority) {
       case Priority.EMERGENCY:
-        return { icon: '🚨', text: 'Emergencia', theme: 'badge error primary' }
+        return { icon: '', text: 'Emergencia', theme: 'badge error primary' }
       case Priority.URGENT:
-        return { icon: '!', text: 'Urgente', theme: 'badge contrast primary' }
+        return { icon: '', text: 'Urgente', theme: 'badge contrast primary' }
       case Priority.NORMAL:
       default:
-        return { icon: '✅', text: 'Normal', theme: 'badge success primary' }
+        return { icon: '', text: 'Normal', theme: 'badge success primary' }
     }
   }
 
@@ -289,7 +289,7 @@ export default function WaitingRoomView() {
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-l p-m">
-      <HorizontalLayout theme="spacing wrap" className="w-full">
+      <HorizontalLayout theme="spacing wrap" className="w-full min-w-full">
         <Card className="flex items-center gap-m p-m">
           <div
             style={{
@@ -298,9 +298,7 @@ export default function WaitingRoomView() {
               padding: 'var(--lumo-space-s)',
               borderRadius: 'var(--lumo-border-radius-m)',
             }}
-          >
-            ⏳
-          </div>
+          ></div>
           <VerticalLayout theme="spacing-xs">
             <span className="text-2xl font-bold text-primary">{stats.waiting}</span>
             <span className="text-s text-secondary">Esperando</span>
@@ -315,9 +313,7 @@ export default function WaitingRoomView() {
               padding: 'var(--lumo-space-s)',
               borderRadius: 'var(--lumo-border-radius-m)',
             }}
-          >
-            🩺
-          </div>
+          ></div>
           <VerticalLayout theme="spacing-xs">
             <span className="text-2xl font-bold text-primary">{stats.inConsultation}</span>
             <span className="text-s text-secondary">En Consulta</span>
@@ -332,9 +328,7 @@ export default function WaitingRoomView() {
               padding: 'var(--lumo-space-s)',
               borderRadius: 'var(--lumo-border-radius-m)',
             }}
-          >
-            📊
-          </div>
+          ></div>
           <VerticalLayout theme="spacing-xs">
             <span className="text-2xl font-bold text-primary">{stats.todayTotal}</span>
             <span className="text-s text-secondary">Total Hoy</span>
@@ -346,7 +340,84 @@ export default function WaitingRoomView() {
         </Button>
       </HorizontalLayout>
 
-      <VerticalLayout theme="spacing" className="flex-1 overflow-auto">
+      <Dialog
+        opened={addDialogOpen}
+        onOpenedChanged={(e) => setAddDialogOpen(e.detail.value)}
+        headerTitle="Agregar Paciente a Sala de Espera"
+        footerRenderer={() => (
+          <HorizontalLayout theme="spacing" className="justify-end">
+            <Button onClick={() => setAddDialogOpen(false)}>Cancelar</Button>
+            <Button theme="primary" onClick={handleAddToWaitingRoom}>
+              ➕ Agregar a Sala de Espera
+            </Button>
+          </HorizontalLayout>
+        )}
+      >
+        <VerticalLayout theme="spacing" style={{ minWidth: '400px', padding: 'var(--lumo-space-m)' }}>
+          <h4 className="m-0 text-primary">Seleccionar Cliente y Mascota</h4>
+
+          <ComboBox
+            label="Cliente *"
+            placeholder="Buscar y seleccionar cliente..."
+            items={clientItems}
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={selectedClientId}
+            onValueChanged={(e) => {
+              setSelectedClientId(e.detail.value)
+              if (e.detail.value) {
+                loadPetsForClient(Number.parseInt(e.detail.value))
+              } else {
+                setPets([])
+              }
+              setSelectedPetId('')
+            }}
+            clearButtonVisible
+          />
+
+          <ComboBox
+            label="Mascota *"
+            placeholder="Seleccionar mascota del cliente..."
+            items={petItems}
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={selectedPetId}
+            onValueChanged={(e) => setSelectedPetId(e.detail.value)}
+            disabled={!selectedClientId}
+            clearButtonVisible
+          />
+
+          <h4 className="m-0 text-primary" style={{ marginTop: 'var(--lumo-space-m)' }}>
+            Detalles de la Visita
+          </h4>
+
+          <TextField
+            label="Motivo de la visita *"
+            placeholder="Ej: Consulta general, vacunación, revisión..."
+            value={reasonForVisit}
+            onValueChanged={(e) => setReasonForVisit(e.detail.value)}
+            clearButtonVisible
+          />
+
+          <ComboBox
+            label="Nivel de Prioridad"
+            items={priorityItems}
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={priority}
+            onValueChanged={(e) => setPriority(e.detail.value as Priority)}
+          />
+
+          <TextArea
+            label="Notas adicionales"
+            placeholder="Información adicional sobre la condición del paciente, síntomas observados, etc..."
+            value={notes}
+            onValueChanged={(e) => setNotes(e.detail.value)}
+            style={{ minHeight: '80px' }}
+          />
+        </VerticalLayout>
+      </Dialog>
+      <VerticalLayout theme="spacing" className="flex-1 overflow-auto p-m">
         {waitingList.length === 0 ? (
           <Card className="flex flex-col items-center justify-center p-xl text-center">
             <div style={{ fontSize: '4rem', marginBottom: 'var(--lumo-space-m)' }}>🏥</div>
@@ -457,84 +528,6 @@ export default function WaitingRoomView() {
           })
         )}
       </VerticalLayout>
-
-      <Dialog
-        opened={addDialogOpen}
-        onOpenedChanged={(e) => setAddDialogOpen(e.detail.value)}
-        headerTitle="Agregar Paciente a Sala de Espera"
-        footerRenderer={() => (
-          <HorizontalLayout theme="spacing" className="justify-end">
-            <Button onClick={() => setAddDialogOpen(false)}>Cancelar</Button>
-            <Button theme="primary" onClick={handleAddToWaitingRoom}>
-              ➕ Agregar a Sala de Espera
-            </Button>
-          </HorizontalLayout>
-        )}
-      >
-        <VerticalLayout theme="spacing" style={{ minWidth: '400px', padding: 'var(--lumo-space-m)' }}>
-          <h4 className="m-0 text-primary">Seleccionar Cliente y Mascota</h4>
-
-          <ComboBox
-            label="Cliente *"
-            placeholder="Buscar y seleccionar cliente..."
-            items={clientItems}
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={selectedClientId}
-            onValueChanged={(e) => {
-              setSelectedClientId(e.detail.value)
-              if (e.detail.value) {
-                loadPetsForClient(Number.parseInt(e.detail.value))
-              } else {
-                setPets([])
-              }
-              setSelectedPetId('')
-            }}
-            clearButtonVisible
-          />
-
-          <ComboBox
-            label="Mascota *"
-            placeholder="Seleccionar mascota del cliente..."
-            items={petItems}
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={selectedPetId}
-            onValueChanged={(e) => setSelectedPetId(e.detail.value)}
-            disabled={!selectedClientId}
-            clearButtonVisible
-          />
-
-          <h4 className="m-0 text-primary" style={{ marginTop: 'var(--lumo-space-m)' }}>
-            Detalles de la Visita
-          </h4>
-
-          <TextField
-            label="Motivo de la visita *"
-            placeholder="Ej: Consulta general, vacunación, revisión..."
-            value={reasonForVisit}
-            onValueChanged={(e) => setReasonForVisit(e.detail.value)}
-            clearButtonVisible
-          />
-
-          <ComboBox
-            label="Nivel de Prioridad"
-            items={priorityItems}
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={priority}
-            onValueChanged={(e) => setPriority(e.detail.value as Priority)}
-          />
-
-          <TextArea
-            label="Notas adicionales"
-            placeholder="Información adicional sobre la condición del paciente, síntomas observados, etc..."
-            value={notes}
-            onValueChanged={(e) => setNotes(e.detail.value)}
-            style={{ minHeight: '80px' }}
-          />
-        </VerticalLayout>
-      </Dialog>
     </main>
   )
 }
