@@ -1,0 +1,18 @@
+vaadin-grid,
+vaadin-upload,
+vaadin-checkbox,
+vaadin-combo-box,
+vaadin-text-area,
+vaadin-text-field,
+vaadin-date-picker,
+vaadin-time-picker,
+vaadin-email-field,
+vaadin-custom-field,
+vaadin-number-field,
+vaadin-integer-field,
+vaadin-password-field,
+vaadin-multi-select-combo-box {
+  padding: 0.5rem 0.1rem 0.1rem;
+  font-size: var(--lumo-font-size-s);
+  --lumo-text-field-size: var(--lumo-size-s);
+}
