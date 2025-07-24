@@ -9,6 +9,7 @@ import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.dto.request.EmployeeCreateRequestDto;
 import com.wornux.dto.request.EmployeeUpdateRequestDto;
+import com.wornux.dto.response.EmployeeListDto;
 import com.wornux.exception.*;
 import com.wornux.mapper.EmployeeMapper;
 import com.wornux.services.interfaces.EmployeeService;
@@ -58,6 +59,38 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
 
         return employeeRepository.save(employee);
+    }
+
+    public EmployeeListDto updateEmployeeFromListDto(@Valid EmployeeListDto dto) {
+        if (dto.getId() == null) {
+            throw new EmployeeNotFoundException("Employee ID is required for update");
+        }
+        Employee employee = employeeRepository.findById(dto.getId())
+                .orElseThrow(() -> new EmployeeNotFoundException(dto.getId()));
+
+        // Map fields from DTO to entity (except password)
+        employee.setUsername(dto.getUsername());
+        employee.setEmail(dto.getEmail());
+        employee.setFirstName(dto.getFirstName());
+        employee.setLastName(dto.getLastName());
+        employee.setPhoneNumber(dto.getPhoneNumber());
+        employee.setBirthDate(dto.getBirthDate());
+        employee.setEmployeeRole(dto.getEmployeeRole());
+        employee.setNationality(dto.getNationality());
+        employee.setProvince(dto.getProvince());
+        employee.setMunicipality(dto.getMunicipality());
+        employee.setStreetAddress(dto.getStreetAddress());
+        employee.setProfilePicture(dto.getProfilePicture());
+        employee.setSalary(dto.getSalary());
+        employee.setHireDate(dto.getHireDate());
+        employee.setWorkSchedule(dto.getWorkSchedule());
+        employee.setEmergencyContactName(dto.getEmergencyContactName());
+        employee.setEmergencyContactPhone(dto.getEmergencyContactPhone());
+        employee.setAvailable(dto.isAvailable());
+        employee.setActive(dto.isActive());
+
+        Employee updated = employeeRepository.save(employee);
+        return employeeMapper.toListDto(updated);
     }
 
     @Override
