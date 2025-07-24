@@ -3,7 +3,6 @@ import { PasswordField } from '@vaadin/react-components'
 export const AUTO_GRID_EMPLOYEE_FIELD_OPTIONS = {
   username: { header: 'Nombre de Usuario' },
   password: {
-    renderer: ({ item }: { item: any }) => <span> ••••••</span>,
     header: 'Contraseña',
     type: 'password',
   },
@@ -18,6 +17,7 @@ export const AUTO_GRID_EMPLOYEE_FIELD_OPTIONS = {
   municipality: { header: 'Municipio' },
   province: { header: 'Provincia' },
   streetAddress: { header: 'Calle' },
+  profilePicture: { header: 'Foto de perfil', type: 'string' },
   hireDate: { header: 'Fecha de Contratación' },
   salary: { header: 'Salario' },
   notes: { header: 'Notas' },
@@ -31,7 +31,6 @@ export const AUTO_GRID_EMPLOYEE_FIELD_OPTIONS = {
 export const AUTO_FORM_EMPLOYEE_FIELD_OPTIONS = {
   username: { label: 'Nombre de Usuario' },
   password: {
-    renderer: ({ field }: { field: any }) => <PasswordField {...field} />,
     label: 'Contraseña',
   },
   email: { label: 'Correo Electrónico' },
