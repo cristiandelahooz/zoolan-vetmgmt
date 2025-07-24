@@ -18,6 +18,7 @@ export const AUTO_GRID_EMPLOYEE_FIELD_OPTIONS = {
   municipality: { header: 'Municipio' },
   province: { header: 'Provincia' },
   streetAddress: { header: 'Calle' },
+  profilePicture: { header: 'Foto de perfil', type: 'string' },
   hireDate: { header: 'Fecha de Contratación' },
   salary: { header: 'Salario' },
   notes: { header: 'Notas' },
