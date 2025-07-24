@@ -6,15 +6,15 @@
 
 -- Data for users table (40 rows)
  INSERT INTO users (user_id, username, password, email, first_name, last_name, phone_number, birth_date, gender, nationality, province, municipality, sector, street_address, reference_points, profile_picture_url, active, created_at, updated_at, system_role) VALUES
- (1, 'john.doe', 'hashed_password_1', 'john.doe@example.com', 'John', 'Doe', '809-222-3333', '1985-01-15', 'MALE', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Naco', 'Calle Principal 123', 'Near the park', NULL, TRUE, NOW(), NOW(), 'USER'),
- (2, 'jane.smith', 'hashed_password_2', 'jane.smith@example.com', 'Jane', 'Smith', '809-555-6666', '1990-03-20', 'FEMALE', 'Dominican', 'Santiago', 'Santiago de los Caballeros', 'Centro', 'Avenida Central 456', 'Next to the bank', NULL, TRUE, NOW(), NOW(), 'USER'),
- (3, 'peter.jones', 'hashed_password_3', 'peter.jones@example.com', 'Peter', 'Jones', '809-888-9999', '1978-07-01', 'MALE', 'Dominican', 'La Vega', 'Concepcion de La Vega', 'La Esmeralda', 'Callejon Sin Nombre 789', 'Behind the church', NULL, TRUE, NOW(), NOW(), 'USER'),
- (4, 'mary.brown', 'hashed_password_4', 'mary.brown@example.com', 'Mary', 'Brown', '809-111-2222', '1995-11-10', 'FEMALE', 'Dominican', 'Puerto Plata', 'San Felipe de Puerto Plata', 'Costambar', 'Carretera Principal 101', 'Near the beach', NULL, TRUE, NOW(), NOW(), 'USER'),
- (5, 'david.wilson', 'hashed_password_5', 'david.wilson@example.com', 'David', 'Wilson', '809-444-5555', '1982-02-28', 'MALE', 'Dominican', 'San Cristobal', 'San Cristobal', 'Pueblo Nuevo', 'Callejon de la Paz 202', 'Near the school', NULL, TRUE, NOW(), NOW(), 'USER'),
- (6, 'susan.davis', 'hashed_password_6', 'susan.davis@example.com', 'Susan', 'Davis', '829-777-8888', '1998-09-05', 'FEMALE', 'Dominican', 'La Romana', 'La Romana', 'Villa Hermosa', 'Avenida del Sol 303', 'In front of the market', NULL, TRUE, NOW(), NOW(), 'USER'),
- (7, 'robert.miller', 'hashed_password_7', 'robert.miller@example.com', 'Robert', 'Miller', '829-000-1111', '1975-04-12', 'MALE', 'Dominican', 'Duarte', 'San Francisco de Macoris', 'Los Rieles', 'Callejon de la Luna 404', 'Next to the river', NULL, TRUE, NOW(), NOW(), 'USER'),
- (8, 'linda.garcia', 'hashed_password_8', 'linda.garcia@example.com', 'Linda', 'Garcia', '829-333-4444', '1988-06-18', 'FEMALE', 'Dominican', 'Espaillat', 'Moca', 'Salitre', 'Carretera Vieja 505', 'Near the farm', NULL, TRUE, NOW(), NOW(), 'USER'),
- (9, 'william.rodriguez', 'hashed_password_9', 'william.rodriguez@example.com', 'William', 'Rodriguez', '829-666-7777', '1993-10-25', 'MALE', 'Dominican', 'Peravia', 'Bani', 'El Fundo', 'Calle Principal 606', 'Near the church', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (1, 'john.doe', 'hashed_password_1', 'john.doe@example.com', 'John', 'Doe', '8092223333', '1985-01-15', 'MALE', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Naco', 'Calle Principal 123', 'Near the park', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (2, 'jane.smith', 'hashed_password_2', 'jane.smith@example.com', 'Jane', 'Smith', '8095556666', '1990-03-20', 'FEMALE', 'Dominican', 'Santiago', 'Santiago de los Caballeros', 'Centro', 'Avenida Central 456', 'Next to the bank', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (3, 'peter.jones', 'hashed_password_3', 'peter.jones@example.com', 'Peter', 'Jones', '8098889999', '1978-07-01', 'MALE', 'Dominican', 'La Vega', 'Concepcion de La Vega', 'La Esmeralda', 'Callejon Sin Nombre 789', 'Behind the church', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (4, 'mary.brown', 'hashed_password_4', 'mary.brown@example.com', 'Mary', 'Brown', '8091112222', '1995-11-10', 'FEMALE', 'Dominican', 'Puerto Plata', 'San Felipe de Puerto Plata', 'Costambar', 'Carretera Principal 101', 'Near the beach', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (5, 'david.wilson', 'hashed_password_5', 'david.wilson@example.com', 'David', 'Wilson', '8094445555', '1982-02-28', 'MALE', 'Dominican', 'San Cristobal', 'San Cristobal', 'Pueblo Nuevo', 'Callejon de la Paz 202', 'Near the school', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (6, 'susan.davis', 'hashed_password_6', 'susan.davis@example.com', 'Susan', 'Davis', '8297778888', '1998-09-05', 'FEMALE', 'Dominican', 'La Romana', 'La Romana', 'Villa Hermosa', 'Avenida del Sol 303', 'In front of the market', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (7, 'robert.miller', 'hashed_password_7', 'robert.miller@example.com', 'Robert', 'Miller', '8290001111', '1975-04-12', 'MALE', 'Dominican', 'Duarte', 'San Francisco de Macoris', 'Los Rieles', 'Callejon de la Luna 404', 'Next to the river', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (8, 'linda.garcia', 'hashed_password_8', 'linda.garcia@example.com', 'Linda', 'Garcia', '8293334444', '1988-06-18', 'FEMALE', 'Dominican', 'Espaillat', 'Moca', 'Salitre', 'Carretera Vieja 505', 'Near the farm', NULL, TRUE, NOW(), NOW(), 'USER'),
+ (9, 'william.rodriguez', 'hashed_password_9', 'william.rodriguez@example.com', 'William', 'Rodriguez', '8296667777', '1993-10-25', 'MALE', 'Dominican', 'Peravia', 'Bani', 'El Fundo', 'Calle Principal 606', 'Near the church', NULL, TRUE, NOW(), NOW(), 'USER'),
  (10, 'patricia.martinez', 'hashed_password_10', 'patricia.martinez@example.com', 'Patricia', 'Martinez', '829-999-0000', '1980-12-30', 'FEMALE', 'Dominican', 'Azua', 'Azua de Compostela', 'La Bombita', 'Avenida Central 707', 'Next to the school', NULL, TRUE, NOW(), NOW(), 'USER'),
  (11, 'james.hernandez', 'hashed_password_11', 'james.hernandez@example.com', 'James', 'Hernandez', '809-111-1111', '1987-01-01', 'MALE', 'Dominican', 'Barahona', 'Santa Cruz de Barahona', 'Villa Central', 'Callejon Sin Nombre 808', 'Behind the hospital', NULL, TRUE, NOW(), NOW(), 'USER'),
  (12, 'elizabeth.lopez', 'hashed_password_12', 'elizabeth.lopez@example.com', 'Elizabeth', 'Lopez', '809-222-2222', '1992-02-02', 'FEMALE', 'Dominican', 'Monte Cristi', 'San Fernando de Monte Cristi', 'Las Matas', 'Carretera Principal 909', 'Near the river', NULL, TRUE, NOW(), NOW(), 'USER'),
@@ -49,11 +49,11 @@
 --
 -- -- Data for employee table (5 rows)
 INSERT INTO employee (employee_id, employee_role, salary, hire_date, available, work_schedule, emergency_contact_name, emergency_contact_phone) VALUES
-(1, 'VETERINARIAN', 80000.00, '2022-01-15', TRUE, 'Mon-Fri 9-5', 'Jane Doe', '809-222-3333'),
-(2, 'VETERINARIAN', 75000.00, '2023-03-01', TRUE, 'Mon-Sat 8-4', 'John Smith', '809-555-6666'),
-(3, 'RECEPTIONIST', 40000.00, '2023-06-20', TRUE, 'Mon-Fri 8-5', 'Peter Jones', '809-888-9999'),
-(4, 'VETERINARIAN', 78000.00, '2022-10-01', TRUE, 'Tue-Sat 9-5', 'Alice Brown', '809-111-2222'),
-(5, 'RECEPTIONIST', 42000.00, '2024-01-10', TRUE, 'Mon-Fri 9-6', 'Bob White', '809-444-5555');
+(1, 'VETERINARIAN', 80000.00, '2022-01-15', TRUE, 'Mon-Fri 9-5', 'Jane Doe', '8092223333'),
+(2, 'VETERINARIAN', 75000.00, '2023-03-01', TRUE, 'Mon-Sat 8-4', 'John Smith', '8095556666'),
+(3, 'RECEPTIONIST', 40000.00, '2023-06-20', TRUE, 'Mon-Fri 8-5', 'Peter Jones', '8098889999'),
+(4, 'VETERINARIAN', 78000.00, '2022-10-01', TRUE, 'Tue-Sat 9-5', 'Alice Brown', '8091112222'),
+(5, 'RECEPTIONIST', 42000.00, '2024-01-10', TRUE, 'Mon-Fri 9-6', 'Bob White', '8094445555');
 --
 -- -- Data for client table (40 rows, matching user_id)
  INSERT INTO client (client_id, cedula, passport, rnc, company_name, preferred_contact_method, emergency_contact_name, emergency_contact_number, rating, credit_limit, current_balance, payment_terms_days, notes, reference_source, verified) VALUES
