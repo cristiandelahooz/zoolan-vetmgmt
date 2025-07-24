@@ -1,4 +1,4 @@
-package com.wornux.views.transactions;
+package com.wornux.views.products;
 
 import com.wornux.components.ConfirmationDialog;
 import com.wornux.components.DecimalField;

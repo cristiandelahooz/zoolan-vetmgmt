@@ -54,57 +54,131 @@ INSERT INTO employee (employee_id, employee_role, salary, hire_date, available, 
 (3, 'RECEPTIONIST', 40000.00, '2023-06-20', TRUE, 'Mon-Fri 8-5', 'Peter Jones', '8098889999'),
 (4, 'VETERINARIAN', 78000.00, '2022-10-01', TRUE, 'Tue-Sat 9-5', 'Alice Brown', '8091112222'),
 (5, 'RECEPTIONIST', 42000.00, '2024-01-10', TRUE, 'Mon-Fri 9-6', 'Bob White', '8094445555');
---
+
 -- -- Data for client table (40 rows, matching user_id)
- INSERT INTO client (client_id, cedula, passport, rnc, company_name, preferred_contact_method, emergency_contact_name, emergency_contact_number, rating, credit_limit, current_balance, payment_terms_days, notes, reference_source, verified) VALUES
- (6, '67890123456', NULL, NULL, NULL, 'SMS', 'Emergency Contact 6', '849-777-8888', 'MUY_BUENO', 1500.00, 0.00, 30, 'VIP client', 'RECOMENDACION_PROFESIONAL', TRUE),
- (7, '78901234567', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 7', '849-000-1111', 'BUENO', 700.00, 20.00, 15, 'Always on time', 'OTRO', TRUE),
- (8, '89012345678', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 8', '849-333-4444', 'REGULAR', 400.00, 80.00, 7, 'Needs reminders', 'RECOMENDACION_PROFESIONAL', TRUE),
- (9, '90123456789', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 9', '849-666-7777', 'MUY_BUENO', 1100.00, 0.00, 30, 'Prefers specific vet', 'PASANTE', TRUE),
- (10, '01234567890', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 10', '829-999-0000', 'BUENO', 600.00, 10.00, 20, 'Travels frequently', 'GOOGLE', TRUE),
- (11, '11234567890', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 11', '829-111-1111', 'MUY_BUENO', 900.00, 0.00, 30, 'Calm pets', 'GOOGLE', TRUE),
- (12, '18345678901', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 12', '829-222-2222', 'BUENO', 450.00, 30.00, 15, 'Anxious pets', 'GOOGLE', TRUE),
- (13, '13456789012', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 13', '829-333-3333', 'MUY_BUENO', 1300.00, 0.00, 30, 'Prefers evening appointments', 'REFERIDO_CLIENTE', TRUE),
- (14, '14567890123', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 14', '849-444-4444', 'REGULAR', 250.00, 70.00, 7, 'Always brings treats', 'REDES_SOCIALES', TRUE),
- (15, '15678901234', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 15', '849-555-5555', 'BUENO', 750.00, 0.00, 20, 'Very organized', 'REDES_SOCIALES', TRUE),
- (16, '16789012345', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 16', '829-666-6666', 'MUY_BUENO', 1400.00, 0.00, 30, 'Loves to chat', 'REFERIDO_CLIENTE', TRUE),
- (17, '17890123456', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 17', '809-777-7777', 'BUENO', 650.00, 15.00, 15, 'Quick visits', 'REDES_SOCIALES', TRUE),
- (18, '18901234567', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 18', '809-888-8888', 'REGULAR', 350.00, 90.00, 7, 'Last minute appointments', 'PUBLICIDAD', TRUE),
- (19, '19012345678', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 19', '809-999-9999', 'MUY_BUENO', 1050.00, 0.00, 30, 'Prefers online booking', 'PUBLICIDAD', TRUE),
- (20, '20123456789', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 20', '829-000-0000', 'BUENO', 550.00, 25.00, 20, 'Always asks questions', 'REDES_SOCIALES', TRUE),
- (21, '21234567890', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 21', '829-456-7890', 'PAGO_TARDIO', 950.00, 0.00, 30, 'Very patient', 'REDES_SOCIALES', TRUE),
- (22, '22345678901', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 22', '829-654-3210', 'BUENO', 400.00, 40.00, 15, 'Always on time', 'REDES_SOCIALES', TRUE),
- (23, '23456789012', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 23', '829-233-4455', 'REGULAR', 1150.00, 0.00, 30, 'Prefers specific vet', 'REFERIDO_CLIENTE', TRUE),
- (24, '24567890123', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 24', '849-677-8899', 'REGULAR', 300.00, 60.00, 7, 'Has multiple pets', 'REFERIDO_CLIENTE', TRUE),
- (25, '25678901234', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 25', '829-788-9900', 'BUENO', 850.00, 0.00, 20, 'Sensitive pet', 'PUBLICIDAD', TRUE),
- (26, '26789012345', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 26', '849-899-0011', 'MUY_BUENO', 1600.00, 0.00, 30, 'VIP client', 'PUBLICIDAD', TRUE),
- (27, '27890123456', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 27', '829-900-1122', 'BUENO', 700.00, 20.00, 15, 'Always on time', 'PUBLICIDAD', TRUE),
- (28, '28901234567', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 28', '829-011-2233', 'PAGO_TARDIO', 400.00, 80.00, 7, 'Needs reminders', 'REFERIDO_CLIENTE', TRUE),
- (29, '29012345678', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 29', '849-122-3344', 'MUY_BUENO', 1200.00, 0.00, 30, 'Prefers specific vet', 'REFERIDO_CLIENTE', TRUE),
- (30, '30123456789', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 30', '849-233-4455', 'BUENO', 600.00, 10.00, 20, 'Travels frequently', 'REFERIDO_CLIENTE', TRUE),
- (31, '31234567890', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 31', '849-344-5566', 'MUY_BUENO', 1000.00, 0.00, 30, 'Calm pets', 'GOOGLE', TRUE),
- (32, '32345678901', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 32', '809-455-6677', 'BUENO', 500.00, 50.00, 15, 'Anxious pets', 'GOOGLE', TRUE),
- (33, '33456789012', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 33', '829-566-7788', 'PAGO_TARDIO', 1300.00, 0.00, 30, 'Prefers evening appointments', 'GOOGLE', TRUE),
- (34, '84567890123', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 34', '809-677-8899', 'CONFLICTIVO', 300.00, 100.00, 7, 'Always brings treats', 'GOOGLE', TRUE),
- (35, '35678901234', NULL, NULL, NULL, 'SMS', 'Emergency Contact 35', '849-788-9900', 'BUENO', 800.00, 0.00, 20, 'Very organized', 'GOOGLE', TRUE),
- (36, '36789012345', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 36', '849-899-0011', 'MUY_BUENO', 1500.00, 0.00, 30, 'Loves to chat', 'PASANTE', TRUE),
- (37, '37890123456', NULL, NULL, NULL, 'SMS', 'Emergency Contact 37', '849-900-1122', 'BUENO', 700.00, 20.00, 15, 'Quick visits', 'PASANTE', TRUE),
- (38, '38901234567', NULL, NULL, NULL, 'PHONE_CALL', 'Emergency Contact 38', '809-011-2233', 'CONFLICTIVO', 400.00, 80.00, 7, 'Last minute appointments', 'PASANTE', TRUE),
- (39, '39012345678', NULL, NULL, NULL, 'SMS', 'Emergency Contact 39', '849-122-3344', 'BUENO', 1100.00, 0.00, 30, 'Prefers online booking', 'REFERIDO_CLIENTE', TRUE),
- (40, '40123456789', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 40', '829-233-4455', 'BUENO', 600.00, 10.00, 20, 'Always asks questions', 'PASANTE', TRUE);
+INSERT INTO client (client_id, cedula, passport, rnc, company_name,
+                    preferred_contact_method, emergency_contact_name,
+                    emergency_contact_number, rating, credit_limit,
+                    current_balance, payment_terms_days, notes,
+                    reference_source, verified)
+VALUES (6, '67890123456', NULL, NULL, NULL, 'SMS', 'Emergency Contact 6',
+        '849-777-8888', 'MUY_BUENO', 1500.00, 0.00, 30, 'VIP client',
+        'RECOMENDACION_PROFESIONAL', TRUE),
+       (7, '78901234567', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 7',
+        '849-000-1111', 'BUENO', 700.00, 20.00, 15, 'Always on time', 'OTRO',
+        TRUE),
+       (8, '89012345678', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 8',
+        '849-333-4444', 'REGULAR', 400.00, 80.00, 7, 'Needs reminders',
+        'RECOMENDACION_PROFESIONAL', TRUE),
+       (9, '90123456789', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 9',
+        '849-666-7777', 'MUY_BUENO', 1100.00, 0.00, 30, 'Prefers specific vet',
+        'PASANTE', TRUE),
+       (10, '01234567890', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 10', '829-999-0000', 'BUENO', 600.00, 10.00, 20,
+        'Travels frequently', 'GOOGLE', TRUE),
+       (11, '11234567890', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 11',
+        '829-111-1111', 'MUY_BUENO', 900.00, 0.00, 30, 'Calm pets', 'GOOGLE',
+        TRUE),
+       (12, '18345678901', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 12', '829-222-2222', 'BUENO', 450.00, 30.00, 15,
+        'Anxious pets', 'GOOGLE', TRUE),
+       (13, '13456789012', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 13',
+        '829-333-3333', 'MUY_BUENO', 1300.00, 0.00, 30,
+        'Prefers evening appointments', 'REFERIDO_CLIENTE', TRUE),
+       (14, '14567890123', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 14', '849-444-4444', 'REGULAR', 250.00, 70.00, 7,
+        'Always brings treats', 'REDES_SOCIALES', TRUE),
+       (15, '15678901234', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 15',
+        '849-555-5555', 'BUENO', 750.00, 0.00, 20, 'Very organized',
+        'REDES_SOCIALES', TRUE),
+       (16, '16789012345', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 16', '829-666-6666', 'MUY_BUENO', 1400.00, 0.00, 30,
+        'Loves to chat', 'REFERIDO_CLIENTE', TRUE),
+       (17, '17890123456', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 17',
+        '809-777-7777', 'BUENO', 650.00, 15.00, 15, 'Quick visits',
+        'REDES_SOCIALES', TRUE),
+       (18, '18901234567', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 18', '809-888-8888', 'REGULAR', 350.00, 90.00, 7,
+        'Last minute appointments', 'PUBLICIDAD', TRUE),
+       (19, '19012345678', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 19',
+        '809-999-9999', 'MUY_BUENO', 1050.00, 0.00, 30,
+        'Prefers online booking', 'PUBLICIDAD', TRUE),
+       (20, '20123456789', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 20',
+        '829-000-0000', 'BUENO', 550.00, 25.00, 20, 'Always asks questions',
+        'REDES_SOCIALES', TRUE),
+       (21, '21234567890', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 21',
+        '829-456-7890', 'PAGO_TARDIO', 950.00, 0.00, 30, 'Very patient',
+        'REDES_SOCIALES', TRUE),
+       (22, '22345678901', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 22',
+        '829-654-3210', 'BUENO', 400.00, 40.00, 15, 'Always on time',
+        'REDES_SOCIALES', TRUE),
+       (23, '23456789012', NULL, NULL, NULL, 'EMAIL', 'Emergency Contact 23',
+        '829-233-4455', 'REGULAR', 1150.00, 0.00, 30, 'Prefers specific vet',
+        'REFERIDO_CLIENTE', TRUE),
+       (24, '24567890123', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 24', '849-677-8899', 'REGULAR', 300.00, 60.00, 7,
+        'Has multiple pets', 'REFERIDO_CLIENTE', TRUE),
+       (25, '25678901234', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 25', '829-788-9900', 'BUENO', 850.00, 0.00, 20,
+        'Sensitive pet', 'PUBLICIDAD', TRUE),
+       (26, '26789012345', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 26', '849-899-0011', 'MUY_BUENO', 1600.00, 0.00, 30,
+        'VIP client', 'PUBLICIDAD', TRUE),
+       (27, '27890123456', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 27',
+        '829-900-1122', 'BUENO', 700.00, 20.00, 15, 'Always on time',
+        'PUBLICIDAD', TRUE),
+       (28, '28901234567', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 28', '829-011-2233', 'PAGO_TARDIO', 400.00, 80.00, 7,
+        'Needs reminders', 'REFERIDO_CLIENTE', TRUE),
+       (29, '29012345678', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 29',
+        '849-122-3344', 'MUY_BUENO', 1200.00, 0.00, 30, 'Prefers specific vet',
+        'REFERIDO_CLIENTE', TRUE),
+       (30, '30123456789', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 30', '849-233-4455', 'BUENO', 600.00, 10.00, 20,
+        'Travels frequently', 'REFERIDO_CLIENTE', TRUE),
+       (31, '31234567890', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 31',
+        '849-344-5566', 'MUY_BUENO', 1000.00, 0.00, 30, 'Calm pets', 'GOOGLE',
+        TRUE),
+       (32, '32345678901', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 32', '809-455-6677', 'BUENO', 500.00, 50.00, 15,
+        'Anxious pets', 'GOOGLE', TRUE),
+       (33, '33456789012', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 33',
+        '829-566-7788', 'PAGO_TARDIO', 1300.00, 0.00, 30,
+        'Prefers evening appointments', 'GOOGLE', TRUE),
+       (34, '84567890123', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 34', '809-677-8899', 'CONFLICTIVO', 300.00, 100.00,
+        7, 'Always brings treats', 'GOOGLE', TRUE),
+       (35, '35678901234', NULL, NULL, NULL, 'SMS', 'Emergency Contact 35',
+        '849-788-9900', 'BUENO', 800.00, 0.00, 20, 'Very organized', 'GOOGLE',
+        TRUE),
+       (36, '36789012345', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 36', '849-899-0011', 'MUY_BUENO', 1500.00, 0.00, 30,
+        'Loves to chat', 'PASANTE', TRUE),
+       (37, '37890123456', NULL, NULL, NULL, 'SMS', 'Emergency Contact 37',
+        '849-900-1122', 'BUENO', 700.00, 20.00, 15, 'Quick visits', 'PASANTE',
+        TRUE),
+       (38, '38901234567', NULL, NULL, NULL, 'PHONE_CALL',
+        'Emergency Contact 38', '809-011-2233', 'CONFLICTIVO', 400.00, 80.00, 7,
+        'Last minute appointments', 'PASANTE', TRUE),
+       (39, '39012345678', NULL, NULL, NULL, 'SMS', 'Emergency Contact 39',
+        '849-122-3344', 'BUENO', 1100.00, 0.00, 30, 'Prefers online booking',
+        'REFERIDO_CLIENTE', TRUE),
+       (40, '40123456789', NULL, NULL, NULL, 'WHATSAPP', 'Emergency Contact 40',
+        '829-233-4455', 'BUENO', 600.00, 10.00, 20, 'Always asks questions',
+        'PASANTE', TRUE);
 --
 -- -- Data for pets table (40 rows)
- INSERT INTO pets (id, name, type, breed, birth_date, gender, active) VALUES
- (1, 'Milo', 'DOG', 'Yorkshire Terrier', '2020-05-10', 'MALE', TRUE),
- (2, 'Lucy', 'CAT', 'Persian', '2021-01-15', 'FEMALE', TRUE),
- (3, 'Max', 'DOG', 'Golden Retriever', '2019-11-22', 'MALE', TRUE),
- (4, 'Bella', 'DOG', 'German Shepherd', '2022-08-01', 'FEMALE', TRUE),
- (5, 'Rocky', 'DOG', 'French Bulldog', '2018-03-12', 'MALE', TRUE),
- (6, 'Misty', 'CAT', 'Persian', '2022-09-20', 'FEMALE', TRUE),
- (7, 'Duke', 'DOG', 'Poodle', '2021-07-11', 'MALE', TRUE),
- (8, 'Coco', 'CAT', 'Persian', '2023-01-05', 'FEMALE', TRUE),
- (9, 'Zeus', 'DOG', 'Rottweiler', '2020-02-28', 'MALE', TRUE),
- (10, 'Sasha', 'DOG', 'Yorkshire Terrier', '2022-11-15', 'FEMALE', TRUE);
+INSERT INTO pets (id, name, type, breed, birth_date, gender, active)
+VALUES (1, 'Milo', 'DOG', 'Yorkshire Terrier', '2020-05-10', 'MALE', TRUE),
+       (2, 'Lucy', 'CAT', 'Persian', '2021-01-15', 'FEMALE', TRUE),
+       (3, 'Max', 'DOG', 'Golden Retriever', '2019-11-22', 'MALE', TRUE),
+       (4, 'Bella', 'DOG', 'German Shepherd', '2022-08-01', 'FEMALE', TRUE),
+       (5, 'Rocky', 'DOG', 'French Bulldog', '2018-03-12', 'MALE', TRUE),
+       (6, 'Misty', 'CAT', 'Persian', '2022-09-20', 'FEMALE', TRUE),
+       (7, 'Duke', 'DOG', 'Poodle', '2021-07-11', 'MALE', TRUE),
+       (8, 'Coco', 'CAT', 'Persian', '2023-01-05', 'FEMALE', TRUE),
+       (9, 'Zeus', 'DOG', 'Rottweiler', '2020-02-28', 'MALE', TRUE),
+       (10, 'Sasha', 'DOG', 'Yorkshire Terrier', '2022-11-15', 'FEMALE', TRUE);
 -- (11, 'Oliver', 'Cat', 'Domestic Shorthair', '2023-03-01', 'MALE', TRUE),
 -- (12, 'Daisy', 'Dog', 'Beagle', '2022-04-10', 'FEMALE', TRUE),
 -- (13, 'Leo', 'Cat', 'Ragdoll', '2021-05-20', 'MALE', TRUE),
@@ -137,24 +211,45 @@ INSERT INTO employee (employee_id, employee_role, salary, hire_date, available, 
 -- (40, 'Nala', 'Cat', 'Abyssinian', '2023-11-20', 'FEMALE', TRUE);
 --
 -- -- Data for pet_owners table (40 rows)
- INSERT INTO pet_owners (client_id, pet_id) VALUES
- (6, 1), (7, 2), (8, 3), (9, 4), (10, 5), (11, 6), (12, 7), (13, 8), (14, 9), (15, 10);
+INSERT INTO pet_owners (client_id, pet_id)
+VALUES (6, 1),
+       (7, 2),
+       (8, 3),
+       (9, 4),
+       (10, 5),
+       (11, 6),
+       (12, 7),
+       (13, 8),
+       (14, 9),
+       (15, 10);
 -- (6, 11), (6, 12), (7, 13), (7, 14), (8, 15), (8, 16), (9, 17), (9, 18), (10, 19), (10, 20),
 -- (11, 21), (11, 22), (12, 23), (12, 24), (13, 25), (13, 26), (14, 27), (14, 28), (15, 29), (15, 30),
 -- (16, 31), (16, 32), (17, 33), (17, 34), (18, 35), (18, 36), (19, 37), (19, 38), (20, 39), (20, 40);
 --
 -- -- Data for medical_histories table (40 rows)
- INSERT INTO medical_histories (id, pet_id, allergies, medications, vaccinations, surgeries, chronic_conditions, notes, created_at, updated_at, active) VALUES
- (1, 1, 'Pollen', 'None', 'Up to date', 'None', 'None', 'Healthy and active.', NOW(), NOW(), TRUE),
- (2, 2, 'None', 'Flea treatment', 'Up to date', 'Spayed', 'None', 'Sensitive stomach.', NOW(), NOW(), TRUE),
- (3, 3, 'None', 'None', 'Up to date', 'None', 'Hip dysplasia', 'Requires joint supplements.', NOW(), NOW(), TRUE),
- (4, 4, 'Chicken', 'None', 'Up to date', 'None', 'None', 'N/A', NOW(), NOW(), TRUE),
- (5, 5, 'Grain', 'None', 'Up to date', 'None', 'None', 'Energetic.', NOW(), NOW(), TRUE),
- (6, 6, 'None', 'Dewormer', 'Needs boosters', 'None', 'None', 'Shy but friendly.', NOW(), NOW(), TRUE),
- (7, 7, 'Dust', 'Joint supplements', 'Up to date', 'None', 'Arthritis', 'Requires daily medication.', NOW(), NOW(), TRUE),
- (8, 8, 'None', 'None', 'Up to date', 'None', 'None', 'Playful and curious.', NOW(), NOW(), TRUE),
- (9, 9, 'Beef', 'None', 'Up to date', 'None', 'Sensitive skin', 'Needs special diet.', NOW(), NOW(), TRUE),
- (10, 10, 'None', 'Heartworm prevention', 'Up to date', 'None', 'None', 'Very active.', NOW(), NOW(), TRUE);
+INSERT INTO medical_histories (id, pet_id, allergies, medications, vaccinations,
+                               surgeries, chronic_conditions, notes, created_at,
+                               updated_at, active)
+VALUES (1, 1, 'Pollen', 'None', 'Up to date', 'None', 'None',
+        'Healthy and active.', NOW(), NOW(), TRUE),
+       (2, 2, 'None', 'Flea treatment', 'Up to date', 'Spayed', 'None',
+        'Sensitive stomach.', NOW(), NOW(), TRUE),
+       (3, 3, 'None', 'None', 'Up to date', 'None', 'Hip dysplasia',
+        'Requires joint supplements.', NOW(), NOW(), TRUE),
+       (4, 4, 'Chicken', 'None', 'Up to date', 'None', 'None', 'N/A', NOW(),
+        NOW(), TRUE),
+       (5, 5, 'Grain', 'None', 'Up to date', 'None', 'None', 'Energetic.',
+        NOW(), NOW(), TRUE),
+       (6, 6, 'None', 'Dewormer', 'Needs boosters', 'None', 'None',
+        'Shy but friendly.', NOW(), NOW(), TRUE),
+       (7, 7, 'Dust', 'Joint supplements', 'Up to date', 'None', 'Arthritis',
+        'Requires daily medication.', NOW(), NOW(), TRUE),
+       (8, 8, 'None', 'None', 'Up to date', 'None', 'None',
+        'Playful and curious.', NOW(), NOW(), TRUE),
+       (9, 9, 'Beef', 'None', 'Up to date', 'None', 'Sensitive skin',
+        'Needs special diet.', NOW(), NOW(), TRUE),
+       (10, 10, 'None', 'Heartworm prevention', 'Up to date', 'None', 'None',
+        'Very active.', NOW(), NOW(), TRUE);
 -- (11, 11, 'None', 'None', 'Up to date', 'None', 'None', 'Loves to cuddle.', NOW(), NOW(), TRUE),
 -- (12, 12, 'Grass', 'None', 'Up to date', 'None', 'Seasonal allergies', 'Sneezes in spring.', NOW(), NOW(), TRUE),
 -- (13, 13, 'None', 'None', 'Needs boosters', 'None', 'None', 'Quiet and observant.', NOW(), NOW(), TRUE),
@@ -187,17 +282,34 @@ INSERT INTO employee (employee_id, employee_role, salary, hire_date, available, 
 -- (40, 40, 'None', 'None', 'Up to date', 'None', 'None', 'Graceful and elegant.', NOW(), NOW(), TRUE);
 --
 -- -- Data for consultations table (10 rows)
- INSERT INTO consultations (id, notes, diagnosis, treatment, prescription, consultation_date, pet_id, veterinarian_id, medical_history_id, created_at, updated_at, active) VALUES
- (1, 'Annual check-up.', 'Healthy', 'N/A', 'N/A', '2024-06-01 10:00:00', 1, 2, 1, NOW(), NOW(), TRUE),
- (2, 'Vomiting and lethargy.', 'Gastroenteritis', 'Fluid therapy and anti-nausea medication.', 'Metronidazole', '2024-06-15 11:30:00', 2, 4, 2, NOW(), NOW(), TRUE),
- (3, 'Limps on right hind leg.', 'Mild arthritis', 'Pain medication and rest.', 'Carprofen', '2024-07-01 09:00:00', 3, 2, 3, NOW(), NOW(), TRUE),
- (4, 'Skin rash and itching.', 'Allergic dermatitis', 'Antihistamines and topical cream.', 'Diphenhydramine', '2024-07-05 14:00:00', 4, 4, 4, NOW(), NOW(), TRUE),
- (5, 'Coughing and sneezing.', 'Upper respiratory infection', 'Antibiotics and cough suppressant.', 'Amoxicillin', '2024-07-10 10:00:00', 5, 2, 5, NOW(), NOW(), TRUE),
- (6, 'Loss of appetite.', 'Dental disease', 'Dental cleaning recommended.', 'N/A', '2024-07-12 11:00:00', 6, 4, 6, NOW(), NOW(), TRUE),
- (7, 'Ear infection.', 'Otitis externa', 'Ear drops and cleaning.', 'Otomax', '2024-07-15 15:00:00', 7, 2, 7, NOW(), NOW(), TRUE),
- (8, 'Weight loss.', 'Hyperthyroidism', 'Medication to regulate thyroid.', 'Methimazole', '2024-07-18 09:30:00', 8, 4, 8, NOW(), NOW(), TRUE),
- (9, 'Lump on side.', 'Lipoma', 'Monitor, surgical removal if grows.', 'N/A', '2024-07-20 13:00:00', 9, 2, 9, NOW(), NOW(), TRUE),
- (10, 'Eye discharge.', 'Conjunctivitis', 'Eye drops.', 'Tobramycin', '2024-07-22 10:00:00', 10, 4, 10, NOW(), NOW(), TRUE);
+INSERT INTO consultations (id, notes, diagnosis, treatment, prescription,
+                           consultation_date, pet_id, veterinarian_id,
+                           medical_history_id, created_at, updated_at, active)
+VALUES (1, 'Annual check-up.', 'Healthy', 'N/A', 'N/A', '2024-06-01 10:00:00',
+        1, 2, 1, NOW(), NOW(), TRUE),
+       (2, 'Vomiting and lethargy.', 'Gastroenteritis',
+        'Fluid therapy and anti-nausea medication.', 'Metronidazole',
+        '2024-06-15 11:30:00', 2, 4, 2, NOW(), NOW(), TRUE),
+       (3, 'Limps on right hind leg.', 'Mild arthritis',
+        'Pain medication and rest.', 'Carprofen', '2024-07-01 09:00:00', 3, 2,
+        3, NOW(), NOW(), TRUE),
+       (4, 'Skin rash and itching.', 'Allergic dermatitis',
+        'Antihistamines and topical cream.', 'Diphenhydramine',
+        '2024-07-05 14:00:00', 4, 4, 4, NOW(), NOW(), TRUE),
+       (5, 'Coughing and sneezing.', 'Upper respiratory infection',
+        'Antibiotics and cough suppressant.', 'Amoxicillin',
+        '2024-07-10 10:00:00', 5, 2, 5, NOW(), NOW(), TRUE),
+       (6, 'Loss of appetite.', 'Dental disease',
+        'Dental cleaning recommended.', 'N/A', '2024-07-12 11:00:00', 6, 4, 6,
+        NOW(), NOW(), TRUE),
+       (7, 'Ear infection.', 'Otitis externa', 'Ear drops and cleaning.',
+        'Otomax', '2024-07-15 15:00:00', 7, 2, 7, NOW(), NOW(), TRUE),
+       (8, 'Weight loss.', 'Hyperthyroidism', 'Medication to regulate thyroid.',
+        'Methimazole', '2024-07-18 09:30:00', 8, 4, 8, NOW(), NOW(), TRUE),
+       (9, 'Lump on side.', 'Lipoma', 'Monitor, surgical removal if grows.',
+        'N/A', '2024-07-20 13:00:00', 9, 2, 9, NOW(), NOW(), TRUE),
+       (10, 'Eye discharge.', 'Conjunctivitis', 'Eye drops.', 'Tobramycin',
+        '2024-07-22 10:00:00', 10, 4, 10, NOW(), NOW(), TRUE);
 
 -- -- Data for appointments table (40 rows)
 --INSERT INTO appointments (id, start_appointment_date, end_appointment_date, service_type, status, reason, notes, client_id, pet_id, employee_id, created_at, updated_at, created_by, updated_by, guest_client_name, guest_client_phone, guest_client_email) VALUES
@@ -243,44 +355,118 @@ INSERT INTO employee (employee_id, employee_role, salary, hire_date, available, 
 -- (40, '2024-08-21 11:00:00', '2024-08-21 11:45:00', 'Emergency', 'Scheduled', 'Ingested foreign object', 'Needs endoscopy.', 20, 40, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL);
 --
 -- -- Data for waiting_room table (10 rows)
- INSERT INTO waiting_room (id, client_id, pet_id, arrival_time, status, reason_for_visit, priority, notes, consultation_started_at, completed_at) VALUES
- (1, 6, 1, '2024-07-05 09:00:00', 'WAITING', 'Check-up', 'NORMAL', 'N/A', NULL, NULL),
- (2, 7, 2, '2024-07-05 09:15:00', 'WAITING', 'Vaccination', 'URGENT', 'N/A', NULL, NULL),
- (3, 8, 3, '2024-07-05 10:00:00', 'WAITING', 'Skin issue', 'NORMAL', 'N/A', NULL, NULL),
- (4, 9, 4, '2024-07-05 10:05:00', 'IN_CONSULTATION', 'Vaccination', 'NORMAL', 'N/A', '2024-07-05 10:10:00', NULL),
- (5, 10, 5, '2024-07-05 10:20:00', 'WAITING', 'Not eating', 'EMERGENCY', 'N/A', NULL, NULL),
- (6, 11, 6, '2024-07-05 11:00:00', 'WAITING', 'Check-up', 'URGENT', 'N/A', NULL, NULL),
- (7, 12, 7, '2024-07-05 11:15:00', 'WAITING', 'Vaccination', 'NORMAL', 'N/A', NULL, NULL),
- (8, 13, 8, '2024-07-05 11:30:00', 'IN_CONSULTATION', 'Cough', 'URGENT', 'N/A', '2024-07-05 11:35:00', NULL),
- (9, 14, 9, '2024-07-05 11:45:00', 'WAITING', 'Grooming', 'NORMAL', 'N/A', NULL, NULL),
- (10, 15, 10, '2024-07-05 12:00:00', 'WAITING', 'New pet', 'URGENT', 'N/A', NULL, NULL);
+INSERT INTO waiting_room (id, client_id, pet_id, arrival_time, status,
+                          reason_for_visit, priority, notes,
+                          consultation_started_at, completed_at)
+VALUES (1, 6, 1, '2024-07-05 09:00:00', 'WAITING', 'Check-up', 'NORMAL', 'N/A',
+        NULL, NULL),
+       (2, 7, 2, '2024-07-05 09:15:00', 'WAITING', 'Vaccination', 'URGENT',
+        'N/A', NULL, NULL),
+       (3, 8, 3, '2024-07-05 10:00:00', 'WAITING', 'Skin issue', 'NORMAL',
+        'N/A', NULL, NULL),
+       (4, 9, 4, '2024-07-05 10:05:00', 'IN_CONSULTATION', 'Vaccination',
+        'NORMAL', 'N/A', '2024-07-05 10:10:00', NULL),
+       (5, 10, 5, '2024-07-05 10:20:00', 'WAITING', 'Not eating', 'EMERGENCY',
+        'N/A', NULL, NULL),
+       (6, 11, 6, '2024-07-05 11:00:00', 'WAITING', 'Check-up', 'URGENT', 'N/A',
+        NULL, NULL),
+       (7, 12, 7, '2024-07-05 11:15:00', 'WAITING', 'Vaccination', 'NORMAL',
+        'N/A', NULL, NULL),
+       (8, 13, 8, '2024-07-05 11:30:00', 'IN_CONSULTATION', 'Cough', 'URGENT',
+        'N/A', '2024-07-05 11:35:00', NULL),
+       (9, 14, 9, '2024-07-05 11:45:00', 'WAITING', 'Grooming', 'NORMAL', 'N/A',
+        NULL, NULL),
+       (10, 15, 10, '2024-07-05 12:00:00', 'WAITING', 'New pet', 'URGENT',
+        'N/A', NULL, NULL);
 
 
 -- Data for suppliers table (10 rows)
-INSERT INTO suppliers (supplier_id, rnc, company_name, contact_person, contact_phone, contact_email, province, municipality, sector, street_address, active) VALUES
-(1,'123456789' ,'Pets & Suppliers Co.', 'John Doe', '809-123-4567', 'johndoe@example.com', 'Santo Domingo', 'Santo Domingo Este', 'Los Mina', '123 Main St.', TRUE),
-(2,'987654321' ,'Pet Supplies Inc.', 'Jane Smith', '809-987-6543',  'janesmith@example.com', 'Santiago', 'Santiago de los Caballeros', 'Los Jardines', '456 Elm St.', TRUE),
-(3,'456789123' ,'Animal Care Supplies', 'Carlos Perez', '809-456-7890', 'carlosperez@example.com', 'La Romana', 'La Romana', 'Villa Verde', '789 Oak St.', TRUE),
-(4,'321654987' ,'Pet Food & More', 'Maria Lopez', '809-321-6543', 'marialopez@example.com', 'Puerto Plata', 'Puerto Plata', 'El Pueblito', '321 Pine St.', TRUE),
-(5,'654321789' ,'Vet Supplies Dominican', 'Luis Garcia', '809-654-3210', 'luisgarcia@example', 'San Cristobal', 'San Cristobal', 'Villa Altagracia', '654 Maple St.', TRUE);
+INSERT INTO suppliers (supplier_id, rnc, company_name, contact_person,
+                       contact_phone, contact_email, province, municipality,
+                       sector, street_address, active)
+VALUES (1, '123456789', 'Pets & Suppliers Co.', 'John Doe', '809-123-4567',
+        'johndoe@example.com', 'Santo Domingo', 'Santo Domingo Este',
+        'Los Mina', '123 Main St.', TRUE),
+       (2, '987654321', 'Pet Supplies Inc.', 'Jane Smith', '809-987-6543',
+        'janesmith@example.com', 'Santiago', 'Santiago de los Caballeros',
+        'Los Jardines', '456 Elm St.', TRUE),
+       (3, '456789123', 'Animal Care Supplies', 'Carlos Perez', '809-456-7890',
+        'carlosperez@example.com', 'La Romana', 'La Romana', 'Villa Verde',
+        '789 Oak St.', TRUE),
+       (4, '321654987', 'Pet Food & More', 'Maria Lopez', '809-321-6543',
+        'marialopez@example.com', 'Puerto Plata', 'Puerto Plata', 'El Pueblito',
+        '321 Pine St.', TRUE),
+       (5, '654321789', 'Vet Supplies Dominican', 'Luis Garcia', '809-654-3210',
+        'luisgarcia@example', 'San Cristobal', 'San Cristobal',
+        'Villa Altagracia', '654 Maple St.', TRUE);
 
 -- Data for supplier_products table (10 rows)-- Data for products table with correct attributes and ProductCategory enum
- INSERT INTO products (product_id, name, description, active, price, stock, reorder_level, supplier_id, category) VALUES
- (1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE, 1500.00, 100, 20, 1, 'FOOD'),
- (2, 'High Protein Cat Food', 'Nutritious wet food for cats', TRUE, 1200.00, 200, 30, 1, 'FOOD'),
- (3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE, 500.00, 300, 50, 2, 'FOOD'),
- (4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 400.00, 250, 40, 2, 'FOOD'),
- (5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin', TRUE, 800.00, 150, 25, 3, 'HYGIENE'),
- (6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE, 700.00, 180, 30, 3, 'HYGIENE'),
- (7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs', TRUE, 600.00, 120, 20, 4, 'ACCESSORY'),
- (8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE, 550.00, 130, 25, 4, 'ACCESSORY'),
- (9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 900.00, 110, 15, 5, 'ACCESSORY'),
- (10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 300.00, 400, 60, 5, 'HYGIENE'),
- (11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE, 2500.00, 50, 10, 1, 'MEDICINE'),
- (12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE, 1800.00, 75, 15, 2, 'MEDICINE'),
- (13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 1200.00, 100, 20, 3, 'MEDICINE'),
- (14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 650.00, 200, 35, 4, 'HYGIENE'),
- (15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 3500.00, 25, 5, 5, 'ACCESSORY');
+INSERT INTO products (product_id, name, description, active, price, stock,
+                      reorder_level, supplier_id, category)
+VALUES (1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE,
+        1500.00, 100, 20, 1, 'FOOD'),
+       (2, 'High Protein Cat Food', 'Nutritious wet food for cats', TRUE,
+        1200.00, 200, 30, 1, 'FOOD'),
+       (3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE,
+        500.00, 300, 50, 2, 'FOOD'),
+       (4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 400.00,
+        250, 40, 2, 'FOOD'),
+       (5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin',
+        TRUE, 800.00, 150, 25, 3, 'HYGIENE'),
+       (6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE,
+        700.00, 180, 30, 3, 'HYGIENE'),
+       (7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs',
+        TRUE, 600.00, 120, 20, 4, 'ACCESSORY'),
+       (8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE,
+        550.00, 130, 25, 4, 'ACCESSORY'),
+       (9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 900.00,
+        110, 15, 5, 'ACCESSORY'),
+       (10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 300.00,
+        400, 60, 5, 'HYGIENE'),
+       (11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE,
+        2500.00, 50, 10, 1, 'MEDICINE'),
+       (12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE,
+        1800.00, 75, 15, 2, 'MEDICINE'),
+       (13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 1200.00,
+        100, 20, 3, 'MEDICINE'),
+       (14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 650.00, 200,
+        35, 4, 'HYGIENE'),
+       (15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 3500.00,
+        25, 5, 5, 'ACCESSORY');
+
+INSERT INTO invoices (client,
+                      issued_date,
+                      payment_date,
+                      sales_order,
+                      status,
+                      subtotal,
+                      discount_percentage,
+                      discount,
+                      tax,
+                      total,
+                      paid_to_date,
+                      notes,
+                      created_by,
+                      created_date,
+                      last_modified_by,
+                      last_modified_date)
+VALUES (6, -- client (foreign key to client_id)
+        '2024-01-15', -- issuedDate
+        '2024-02-14', -- paymentDate
+        'SO-001', -- salesOrder
+        'PENDING', -- status (DRAFT, PENDING, PAID, OVERDUE)
+        1500.00, -- subtotal
+        10.00, -- discountPercentage
+        150.00, -- discount
+        243.00, -- tax
+        1593.00, -- total
+        0.00, -- paidToDate
+        'This is a sample note.', -- notes
+        'john.doe', -- created_by
+        '2025-04-24 11:10:27.717079-04', -- created_date
+        'admin_user', -- last_modified_by
+        '2025-04-24 11:10:27.717079-04' -- last_modified_date
+       );
 
 -- =================================================================================================
 --  RESET SEQUENCES TO AVOID CONFLICTS
@@ -290,13 +476,23 @@ INSERT INTO suppliers (supplier_id, rnc, company_name, contact_person, contact_p
 --  is greater than the highest ID we've inserted manually.
 -- =================================================================================================
 
-SELECT setval(pg_get_serial_sequence('users', 'user_id'), COALESCE((SELECT MAX(user_id) FROM users), 1), true);
-SELECT setval(pg_get_serial_sequence('employee', 'employee_id'), COALESCE((SELECT MAX(employee_id) FROM employee), 1), true);
-SELECT setval(pg_get_serial_sequence('client', 'client_id'), COALESCE((SELECT MAX(client_id) FROM client), 1), true);
-SELECT setval(pg_get_serial_sequence('pets', 'id'), COALESCE((SELECT MAX(id) FROM pets), 1), true);
-SELECT setval(pg_get_serial_sequence('medical_histories', 'id'), COALESCE((SELECT MAX(id) FROM medical_histories), 1), true);
-SELECT setval(pg_get_serial_sequence('consultations', 'id'), COALESCE((SELECT MAX(id) FROM consultations), 1), true);
-SELECT setval(pg_get_serial_sequence('appointments', 'id'), COALESCE((SELECT MAX(id) FROM appointments), 1), true);
-SELECT setval(pg_get_serial_sequence('waiting_room', 'id'), COALESCE((SELECT MAX(id) FROM waiting_room), 1), true);
-SELECT setval(pg_get_serial_sequence('suppliers', 'supplier_id'), COALESCE((SELECT MAX(supplier_id) FROM suppliers), 1), true);
-SELECT setval(pg_get_serial_sequence('products', 'product_id'), COALESCE((SELECT MAX(product_id) FROM products), 1), true);
+SELECT setval(pg_get_serial_sequence('users', 'user_id'),
+              COALESCE((SELECT MAX(user_id) FROM users), 1), true);
+SELECT setval(pg_get_serial_sequence('employee', 'employee_id'),
+              COALESCE((SELECT MAX(employee_id) FROM employee), 1), true);
+SELECT setval(pg_get_serial_sequence('client', 'client_id'),
+              COALESCE((SELECT MAX(client_id) FROM client), 1), true);
+SELECT setval(pg_get_serial_sequence('pets', 'id'),
+              COALESCE((SELECT MAX(id) FROM pets), 1), true);
+SELECT setval(pg_get_serial_sequence('medical_histories', 'id'),
+              COALESCE((SELECT MAX(id) FROM medical_histories), 1), true);
+SELECT setval(pg_get_serial_sequence('consultations', 'id'),
+              COALESCE((SELECT MAX(id) FROM consultations), 1), true);
+SELECT setval(pg_get_serial_sequence('appointments', 'id'),
+              COALESCE((SELECT MAX(id) FROM appointments), 1), true);
+SELECT setval(pg_get_serial_sequence('waiting_room', 'id'),
+              COALESCE((SELECT MAX(id) FROM waiting_room), 1), true);
+SELECT setval(pg_get_serial_sequence('suppliers', 'supplier_id'),
+              COALESCE((SELECT MAX(supplier_id) FROM suppliers), 1), true);
+SELECT setval(pg_get_serial_sequence('products', 'product_id'),
+              COALESCE((SELECT MAX(product_id) FROM products), 1), true);
