@@ -20,20 +20,20 @@ import java.time.LocalDate;
 public class EmployeeCreateRequestDto {
 
     @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Size(min = 3, max = 50, message = "Nombre de usuario debe tener entre 3 y 50 caracteres")
     private String username;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @Size(min = 8, message = "Contraseña debe tener al menos 8 caracteres")
     private String password;
 
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = "Primer nombre es requerido")
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
+    @NotBlank(message = "Apellido es requerido")
     private String lastName;
 
-    @Email(message = "Please provide a valid email address")
+    @Email(message = "Por favor, proporciona un correo electrónico válido")
     private String email;
 
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid phone number")
@@ -57,7 +57,7 @@ public class EmployeeCreateRequestDto {
     @NotNull(message = "La dirección es requerida")
     private String streetAddress;
 
-    private String profilePictureUrl;
+    private String profilePicture;
 
     @NotNull(message = "Employee role is required")
     private EmployeeRole employeeRole;
@@ -69,11 +69,6 @@ public class EmployeeCreateRequestDto {
     @NotNull(message = "Hire date is required")
     private LocalDate hireDate;
 
-    @Builder.Default
-    private boolean available = false;
-
-    @Builder.Default
-    private boolean active = true;
 
     @NotBlank(message = "Work schedule is required")
     private String workSchedule;
