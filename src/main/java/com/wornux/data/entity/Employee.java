@@ -11,7 +11,6 @@ import java.time.LocalDate;
 
 import com.wornux.data.enums.EmployeeRole;
 import org.hibernate.envers.Audited;
-import org.jspecify.annotations.Nullable;
 
 @Entity
 @Table(name = "employee")
@@ -47,11 +46,11 @@ public class Employee extends User {
     private String workSchedule;
 
     @Column(name = "emergency_contact_name")
-    @Nullable
+    @NotBlank(message = "Emergency contact name is required")
     private String emergencyContactName;
 
     @Column(name = "emergency_contact_phone")
-    @Nullable
+    @NotBlank(message = "Emergency contact phone is required")
     private String emergencyContactPhone;
 
 }
