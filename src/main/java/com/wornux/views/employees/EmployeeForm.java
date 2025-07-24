@@ -48,7 +48,7 @@ public class EmployeeForm extends Div {
     private final TextField workSchedule = new TextField("Horario laboral");
     private final TextField emergencyContactName = new TextField("Nombre de contacto de emergencia");
     private final TextField emergencyContactPhone = new TextField("Teléfono de contacto de emergencia");
-    private final TextField profilePicture = new TextField("URL de foto de perfil");
+
     @Autowired
     private EmployeeServiceImpl employeeService;
 
@@ -83,10 +83,8 @@ public class EmployeeForm extends Div {
     private Section createUserInfoSection() {
         H4 sectionTitle = new H4("Información del usuario");
         FormLayout form = new FormLayout();
-        form.add(username, password, firstName, lastName, email, phoneNumber, birthDate, gender, nationality,
-                profilePicture);
+        form.add(username, password, firstName, lastName, email, phoneNumber, birthDate, gender, nationality);
         form.setColspan(email, 2);
-        form.setColspan(profilePicture, 2);
         form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("20rem", 2));
         form.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
 
@@ -128,7 +126,7 @@ public class EmployeeForm extends Div {
                     .password(password.getValue()).firstName(firstName.getValue()).lastName(lastName.getValue())
                     .email(email.getValue()).phoneNumber(phoneNumber.getValue()).birthDate(birthDate.getValue())
                     .gender(gender.getValue()).nationality(nationality.getValue())
-                    .profilePicture(profilePicture.getValue()).province(province.getValue())
+                    .province(province.getValue())
                     .municipality(municipality.getValue()).sector(sector.getValue())
                     .streetAddress(streetAddress.getValue()).employeeRole(employeeRole.getValue())
                     .salary(salary.getValue() != null && !salary.getValue().isEmpty() ? Double.valueOf(
