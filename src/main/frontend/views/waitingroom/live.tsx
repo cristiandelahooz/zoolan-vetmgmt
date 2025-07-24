@@ -389,7 +389,7 @@ export default function WaitingRoomView() {
                 <HorizontalLayout theme="spacing" className="w-full mb-m">
                   <VerticalLayout theme="spacing-xs" className="flex-1">
                     <h3 className="m-0 text-primary">
-                       {entry.client?.firstName} {entry.client?.lastName}
+                      {entry.client?.firstName} {entry.client?.lastName}
                     </h3>
                     <span className="text-s text-secondary">
                       {entry.client?.cedula && `Cédula: ${entry.client.cedula}`}
