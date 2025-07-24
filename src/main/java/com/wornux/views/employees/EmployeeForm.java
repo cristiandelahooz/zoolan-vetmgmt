@@ -52,11 +52,10 @@ public class EmployeeForm extends Div {
     private ComboBox<EmployeeRole> employeeRole = new ComboBox<>("Rol");
     private TextField salary = new TextField("Salario");
     private DatePicker hireDate = new DatePicker("Fecha de contratación");
-    private Checkbox available = new Checkbox("Disponible");
-    private Checkbox isActive = new Checkbox("Activo");
     private TextField workSchedule = new TextField("Horario laboral");
     private TextField emergencyContactName = new TextField("Nombre de contacto de emergencia");
     private TextField emergencyContactPhone = new TextField("Teléfono de contacto de emergencia");
+    private TextField profilePicture = new TextField("URL de foto de perfil");
 
 
     public EmployeeForm() {
@@ -75,18 +74,14 @@ public class EmployeeForm extends Div {
                 createHeaderSection(),
                 createUserInfoSection(),
                 createAddressSection(),
-                createEmployeeInfoSection()
+                createEmployeeInfoSection(),
+                createFooterButtons()
         );
     }
 
     private Section createHeaderSection() {
         H1 title = new H1("Registrar nuevo empleado");
-        Button saveButton = new Button("Guardar", event -> saveEmployee());
-        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        Button cancelButton = new Button("Cancelar", event -> Notification.show("Registro cancelado"));
-        Div buttonGroup = new Div(saveButton, cancelButton);
-        buttonGroup.addClassNames(LumoUtility.Gap.MEDIUM, LumoUtility.Display.FLEX);
-        Section headerSection = new Section(title, buttonGroup);
+        Section headerSection = new Section(title);
         headerSection.addClassNames(
                 LumoUtility.Display.FLEX,
                 LumoUtility.Gap.XLARGE,
@@ -96,11 +91,22 @@ public class EmployeeForm extends Div {
         return headerSection;
     }
 
+    private Div createFooterButtons() {
+        Button saveButton = new Button("Guardar", event -> saveEmployee());
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancelar", event -> Notification.show("Registro cancelado"));
+        Div buttonGroup = new Div(saveButton, cancelButton);
+        buttonGroup.addClassNames(LumoUtility.Gap.MEDIUM, LumoUtility.Display.FLEX, LumoUtility.JustifyContent.END);
+        return buttonGroup;
+    }
+
+
     private Section createUserInfoSection() {
         H4 sectionTitle = new H4("Información del usuario");
         FormLayout form = new FormLayout();
-        form.add(username, password, firstName, lastName, email, phoneNumber, birthDate, gender, nationality);
+        form.add(username, password, firstName, lastName, email, phoneNumber, birthDate, gender, nationality, profilePicture);
         form.setColspan(email, 2);
+        form.setColspan(profilePicture, 2);
         form.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("20rem", 2)
@@ -116,6 +122,7 @@ public class EmployeeForm extends Div {
         );
         return section;
     }
+
 
     private Section createAddressSection() {
         H4 sectionTitle = new H4("Dirección del empleado");
@@ -140,7 +147,7 @@ public class EmployeeForm extends Div {
     private Section createEmployeeInfoSection() {
         H4 sectionTitle = new H4("Información del empleado");
         FormLayout form = new FormLayout();
-        form.add(employeeRole, salary, hireDate, available, isActive, workSchedule, emergencyContactName, emergencyContactPhone);
+        form.add(employeeRole, salary, hireDate, workSchedule, emergencyContactName, emergencyContactPhone);
         form.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("20rem", 2)
@@ -169,6 +176,7 @@ public class EmployeeForm extends Div {
                     .birthDate(birthDate.getValue())
                     .gender(gender.getValue())
                     .nationality(nationality.getValue())
+                    .profilePicture(profilePicture.getValue())
                     .province(province.getValue())
                     .municipality(municipality.getValue())
                     .sector(sector.getValue())
@@ -176,8 +184,6 @@ public class EmployeeForm extends Div {
                     .employeeRole(employeeRole.getValue())
                     .salary(salary.getValue() != null && !salary.getValue().isEmpty() ? Double.valueOf(salary.getValue()) : null)
                     .hireDate(hireDate.getValue())
-                    .available(available.getValue())
-                    .active(isActive.getValue())
                     .workSchedule(workSchedule.getValue())
                     .emergencyContactName(emergencyContactName.getValue())
                     .emergencyContactPhone(emergencyContactPhone.getValue())
