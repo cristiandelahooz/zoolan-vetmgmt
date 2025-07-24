@@ -83,7 +83,6 @@ public class EmployeeForm extends Div {
         H1 title = new H1("Registrar nuevo empleado");
         Button saveButton = new Button("Guardar", event -> saveEmployee());
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        saveButton.addClickShortcut(Key.ENTER);
         Button cancelButton = new Button("Cancelar", event -> Notification.show("Registro cancelado"));
         Div buttonGroup = new Div(saveButton, cancelButton);
         buttonGroup.addClassNames(LumoUtility.Gap.MEDIUM, LumoUtility.Display.FLEX);
