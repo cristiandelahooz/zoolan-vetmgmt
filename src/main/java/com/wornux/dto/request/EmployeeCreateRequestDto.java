@@ -7,8 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
+
+import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 
 /**
  * DTO for creating a new Employee Includes all required fields from both User and Employee entities
@@ -36,7 +39,7 @@ public class EmployeeCreateRequestDto {
     @Email(message = "Por favor, proporciona un correo electrónico válido")
     private String email;
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid phone number")
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Please provide a valid phone number")
     private String phoneNumber;
 
     private LocalDate birthDate;
@@ -73,11 +76,11 @@ public class EmployeeCreateRequestDto {
     @NotBlank(message = "Work schedule is required")
     private String workSchedule;
 
-    @NotBlank(message = "Emergency contact name is required")
+    @Nullable
     private String emergencyContactName;
 
-    @NotBlank(message = "Emergency contact phone is required")
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid emergency contact phone number")
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de emergencia válido")
+    @Nullable
     private String emergencyContactPhone;
 
 }
