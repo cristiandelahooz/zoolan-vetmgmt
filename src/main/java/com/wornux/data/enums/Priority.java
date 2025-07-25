@@ -1,7 +1,7 @@
 package com.wornux.data.enums;
 
 public enum Priority {
-    NORMAL("Normal", 1), URGENT("Urgente", 2), EMERGENCY("Emergencia", 3);
+    NORMAL("Normal", 1), URGENTE("Urgente", 2), EMERGENCIA("Emergencia", 3);
 
     private final String displayName;
     private final int numericValue;

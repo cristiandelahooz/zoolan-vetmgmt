@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum ClientType {
 
-    COMMERCIAL("Commercial"), RESIDENTIAL("Residential");
+    COMMERCIAL("Comercial"), RESIDENTIAL("Residencial");
 
     private final String display;
 

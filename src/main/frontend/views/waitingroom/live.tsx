@@ -223,9 +223,9 @@ export default function WaitingRoomView() {
 
   const getPriorityDisplay = (priority: Priority) => {
     switch (priority) {
-      case Priority.EMERGENCY:
+      case Priority.EMERGENCIA:
         return { icon: '🚨', text: 'Emergencia', theme: 'badge error primary' }
-      case Priority.URGENT:
+      case Priority.URGENTE:
         return { icon: '!', text: 'Urgente', theme: 'badge contrast primary' }
       case Priority.NORMAL:
       default:
@@ -272,8 +272,8 @@ export default function WaitingRoomView() {
 
   const priorityItems = [
     { label: '✅ Normal - Consulta de rutina', value: Priority.NORMAL },
-    { label: '! Urgente - Requiere atención pronta', value: Priority.URGENT },
-    { label: '🚨 Emergencia - Atención inmediata', value: Priority.EMERGENCY },
+    { label: '! Urgente - Requiere atención pronta', value: Priority.URGENTE },
+    { label: '🚨 Emergencia - Atención inmediata', value: Priority.EMERGENCIA },
   ]
 
   if (loading) {
