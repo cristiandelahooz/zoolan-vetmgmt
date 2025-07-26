@@ -169,17 +169,17 @@ VALUES (6, '67890123456', NULL, NULL, NULL, 'SMS', 'Emergency Contact 6',
         'PASANTE', TRUE);
 --
 -- -- Data for pets table (40 rows)
- INSERT INTO pets (id, name, type, breed, birth_date, gender, active) VALUES
- (1, 'Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE),
- (2, 'Lucy', 'GATO', 'Persa', '2021-01-15', 'FEMENINO', TRUE),
- (3, 'Max', 'PERRO', 'Golden Retriever', '2019-11-22', 'MASCULINO', TRUE),
- (4, 'Bella', 'PERRO', 'Pastor Alemán', '2022-08-01', 'FEMENINO', TRUE),
- (5, 'Rocky', 'PERRO', 'Bulldog Francés', '2018-03-12', 'MASCULINO', TRUE),
- (6, 'Misty', 'GATO', 'Persa', '2022-09-20', 'FEMENINO', TRUE),
- (7, 'Duke', 'PERRO', 'Poodle', '2021-07-11', 'MASCULINO', TRUE),
- (8, 'Coco', 'GATO', 'Persa', '2023-01-05', 'FEMENINO', TRUE),
- (9, 'Zeus', 'PERRO', 'Rottweiler', '2020-02-28', 'MASCULINO', TRUE),
- (10, 'Sasha', 'PERRO', 'Yorkshire Terrier', '2022-11-15', 'FEMENINO', TRUE);
+INSERT INTO pets (id, name, type, breed, birth_date, gender, active, color, size, fur_type) VALUES
+(1, 'Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE, 'Marrón', 'PEQUEÑO', 'LARGO'),
+(2, 'Lucy', 'GATO', 'Persa', '2021-01-15', 'FEMENINO', TRUE, 'Blanco', 'MEDIANO', 'LARGO'),
+(3, 'Max', 'PERRO', 'Golden Retriever', '2019-11-22', 'MASCULINO', TRUE, 'Dorado', 'GRANDE', 'LARGO'),
+(4, 'Bella', 'PERRO', 'Pastor Alemán', '2022-08-01', 'FEMENINO', TRUE, 'Negro y fuego', 'GRANDE', 'CORTO'),
+(5, 'Rocky', 'PERRO', 'Bulldog Francés', '2018-03-12', 'MASCULINO', TRUE, 'Gris', 'MEDIANO', 'CORTO'),
+(6, 'Misty', 'GATO', 'Persa', '2022-09-20', 'FEMENINO', TRUE, 'Gris claro', 'MEDIANO', 'LARGO'),
+(7, 'Duke', 'PERRO', 'Poodle', '2021-07-11', 'MASCULINO', TRUE, 'Blanco', 'MEDIANO', 'LARGO'),
+(8, 'Coco', 'GATO', 'Persa', '2023-01-05', 'FEMENINO', TRUE, 'Beige', 'MEDIANO', 'LARGO'),
+(9, 'Zeus', 'PERRO', 'Rottweiler', '2020-02-28', 'MASCULINO', TRUE, 'Negro y fuego', 'GRANDE', 'CORTO'),
+(10, 'Sasha', 'PERRO', 'Yorkshire Terrier', '2022-11-15', 'FEMENINO', TRUE, 'Marrón', 'PEQUEÑO', 'LARGO');
 -- (11, 'Oliver', 'Cat', 'Domestic Shorthair', '2023-03-01', 'MALE', TRUE),
 -- (12, 'Daisy', 'Dog', 'Beagle', '2022-04-10', 'FEMALE', TRUE),
 -- (13, 'Leo', 'Cat', 'Ragdoll', '2021-05-20', 'MALE', TRUE),
