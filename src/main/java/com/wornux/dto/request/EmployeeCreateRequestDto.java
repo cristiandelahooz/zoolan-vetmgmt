@@ -72,7 +72,6 @@ public class EmployeeCreateRequestDto {
     @NotNull(message = "Hire date is required")
     private LocalDate hireDate;
 
-
     @NotBlank(message = "Work schedule is required")
     private String workSchedule;
 
