@@ -363,4 +363,9 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
         log.info("Archived Client ID: {}", client.getId());
     }
+    
+    @Override
+    public ClientRepository getRepository() {
+        return clientRepository;
+    }
 }

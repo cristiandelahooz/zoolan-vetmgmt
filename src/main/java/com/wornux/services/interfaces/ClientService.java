@@ -3,6 +3,7 @@ package com.wornux.services.interfaces;
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Client;
 import com.wornux.data.enums.ClientRating;
+import com.wornux.data.repository.ClientRepository;
 import com.wornux.dto.request.ClientCreateRequestDto;
 import com.wornux.dto.request.ClientUpdateRequestDto;
 import jakarta.validation.Valid;
@@ -195,4 +196,11 @@ public interface ClientService {
     void deleteClient(Long id);
 
     void archive(Client client);
+    
+    /**
+     * Gets the repository instance for direct access.
+     * 
+     * @return the ClientRepository instance
+     */
+    ClientRepository getRepository();
 }

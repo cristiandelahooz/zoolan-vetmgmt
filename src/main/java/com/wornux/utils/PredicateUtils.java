@@ -173,6 +173,24 @@ public final class PredicateUtils {
         });
     }
 
+    public static <T> Predicate predicateForTextField(Root<T> root, CriteriaBuilder builder, String[] fields, String searchValue) {
+        if (searchValue == null || searchValue.trim().isEmpty()) {
+            return builder.conjunction();
+        }
+        
+        String normalizedSearch = normalizeText(searchValue.trim());
+        Predicate[] predicates = new Predicate[fields.length];
+        
+        for (int i = 0; i < fields.length; i++) {
+            predicates[i] = builder.like(
+                builder.lower(root.get(fields[i])), 
+                "%" + normalizedSearch + "%"
+            );
+        }
+        
+        return builder.or(predicates);
+    }
+
     private static boolean isBase10Number(String value) {
         if (value == null || value.trim().isEmpty()) {
             return false;
