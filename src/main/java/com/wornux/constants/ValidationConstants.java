@@ -4,6 +4,11 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 public class ValidationConstants {
+    // User validation constants
+    public static final int MIN_USERNAME_LENGTH = 3;
+    public static final int MAX_USERNAME_LENGTH = 50;
+    public static final int MIN_PASSWORD_LENGTH = 8;
+
     // Client validation constants
     public static final int MAX_IDENTIFICATION_DOCUMENT_COUNT = 1;
     public static final int MIN_IDENTIFICATION_DOCUMENT_COUNT = 1;
@@ -21,4 +26,5 @@ public class ValidationConstants {
     // Length constraints
     public static final int MAX_NOTES_LENGTH = 1000;
     public static final int MAX_REFERENCE_POINTS_LENGTH = 500;
+
 }
