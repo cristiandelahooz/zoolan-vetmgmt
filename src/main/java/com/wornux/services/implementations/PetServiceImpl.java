@@ -102,10 +102,17 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Transactional(readOnly = true)
     public List<PetSummaryResponseDto> getAllPets(Pageable pageable) {
         return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
-                .map(pet -> new PetSummaryResponseDto(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
+                .map(pet -> new PetSummaryResponseDto(
+                        pet.getId(),
+                        pet.getName(),
+                        pet.getType(),
+                        pet.getBreed(),
                         pet.getBirthDate(),
+                        pet.getColor(),
+                        pet.getSize(),
+                        pet.getFurType(),
                         pet.getOwners().isEmpty()
-                                ? "Sin dueÃ±o"
+                                ? "Sin dueño"
                                 : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
                 .toList();
     }
