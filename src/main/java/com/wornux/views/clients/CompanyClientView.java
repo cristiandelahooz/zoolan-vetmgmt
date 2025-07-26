@@ -47,13 +47,21 @@ public class CompanyClientView extends Div {
 
     private final Button create = new Button();
     private final ClientService clientService;
+    private final CompanyClientForm companyClientForm;
 
     public CompanyClientView(@Qualifier("clientServiceImpl") ClientService clientService) {
         this.clientService = clientService;
+        this.companyClientForm = new CompanyClientForm(clientService);
 
         setId("company-clients-view");
 
-        // TODO: Implement client form
+        // Configure form event listeners
+        companyClientForm.addClientSavedListener(event -> {
+            refreshAll();
+            companyClientForm.close();
+        });
+
+        companyClientForm.addClientCancelledListener(companyClientForm::close);
 
         createGrid(clientService, createFilterSpecification());
 
@@ -66,7 +74,7 @@ public class CompanyClientView extends Div {
         setSizeFull();
 
         create.addClickListener(event -> {
-            // TODO: Implement client creation form
+            companyClientForm.open();
         });
     }
 
@@ -81,8 +89,8 @@ public class CompanyClientView extends Div {
 
         GridUtils.addColumn(grid, Client::getPhoneNumber, "Teléfono", "phoneNumber");
 
-        GridUtils.addColumn(grid, client -> client.isActive() ? "Activo" : "Inactivo",
-                "Estado", "active").setTextAlign(ColumnTextAlign.CENTER);
+        GridUtils.addColumn(grid, client -> client.isActive() ? "Activo" : "Inactivo", "Estado", "active")
+                .setTextAlign(ColumnTextAlign.CENTER);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             // TODO: Implement client editing
@@ -106,16 +114,13 @@ public class CompanyClientView extends Div {
     }
 
     private Predicate createSearchPredicate(Root<Client> root, CriteriaBuilder builder) {
-        return predicateForTextField(root, builder,
-                new String[]{"companyName", "rnc", "email"},
+        return predicateForTextField(root, builder, new String[] { "companyName", "rnc", "email" },
                 searchField.getValue());
     }
 
     private void refreshAll() {
         grid.getDataProvider().refreshAll();
-        long count = clientService.getAllActiveClients().stream()
-                .filter(client -> client.getRnc() != null)
-                .count();
+        long count = clientService.getAllActiveClients().stream().filter(client -> client.getRnc() != null).count();
         quantity.setText("Clientes Empresariales (" + count + ")");
     }
 
@@ -127,12 +132,10 @@ public class CompanyClientView extends Div {
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
         searchField.addValueChangeListener(e -> refreshAll());
 
-        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL,
-                LumoUtility.FontWeight.MEDIUM, LumoUtility.JustifyContent.CENTER,
-                LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
+        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
                 LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
                 LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY);
-
 
         HorizontalLayout toolbar = new HorizontalLayout(searchField, quantity);
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
