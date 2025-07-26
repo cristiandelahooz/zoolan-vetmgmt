@@ -1,0 +1,29 @@
+#invoices-view vaadin-grid,
+#invoices-view vaadin-upload,
+#invoices-view vaadin-checkbox,
+#invoices-view vaadin-combo-box,
+#invoices-view vaadin-text-area,
+#invoices-view vaadin-text-field,
+#invoices-view vaadin-date-picker,
+#invoices-view vaadin-time-picker,
+#invoices-view vaadin-email-field,
+#invoices-view vaadin-custom-field,
+#invoices-view vaadin-number-field,
+#invoices-view vaadin-integer-field,
+#invoices-view vaadin-password-field,
+#invoices-view vaadin-multi-select-combo-box {
+  padding: 0.5rem 0.1rem 0.1rem;
+  font-size: var(--lumo-font-size-s);
+  --lumo-text-field-size: var(--lumo-size-s);
+}
+
+#invoices-view section {
+  max-width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem;
+  box-shadow: var(--lumo-box-shadow-s);
+  margin: var(--lumo-space-s);
+  background: var(--lumo-base-color) linear-gradient(var(--lumo-tint-5pct), var(--lumo-tint-5pct));
+}

@@ -223,13 +223,13 @@ export default function WaitingRoomView() {
 
   const getPriorityDisplay = (priority: Priority) => {
     switch (priority) {
-      case Priority.EMERGENCIA:
-        return { icon: '🚨', text: 'Emergencia', theme: 'badge error primary' }
-      case Priority.URGENTE:
-        return { icon: '!', text: 'Urgente', theme: 'badge contrast primary' }
+      case Priority.EMERGENCY:
+        return { icon: '', text: 'Emergencia', theme: 'badge error primary' }
+      case Priority.URGENT:
+        return { icon: '', text: 'Urgente', theme: 'badge contrast primary' }
       case Priority.NORMAL:
       default:
-        return { icon: '✅', text: 'Normal', theme: 'badge success primary' }
+        return { icon: '', text: 'Normal', theme: 'badge success primary' }
     }
   }
 
@@ -289,7 +289,7 @@ export default function WaitingRoomView() {
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-l p-m">
-      <HorizontalLayout theme="spacing wrap" className="w-full">
+      <HorizontalLayout theme="spacing wrap" className="w-full min-w-full">
         <Card className="flex items-center gap-m p-m">
           <div
             style={{
@@ -298,9 +298,7 @@ export default function WaitingRoomView() {
               padding: 'var(--lumo-space-s)',
               borderRadius: 'var(--lumo-border-radius-m)',
             }}
-          >
-            ⏳
-          </div>
+          ></div>
           <VerticalLayout theme="spacing-xs">
             <span className="text-2xl font-bold text-primary">{stats.waiting}</span>
             <span className="text-s text-secondary">Esperando</span>
@@ -315,9 +313,7 @@ export default function WaitingRoomView() {
               padding: 'var(--lumo-space-s)',
               borderRadius: 'var(--lumo-border-radius-m)',
             }}
-          >
-            🩺
-          </div>
+          ></div>
           <VerticalLayout theme="spacing-xs">
             <span className="text-2xl font-bold text-primary">{stats.inConsultation}</span>
             <span className="text-s text-secondary">En Consulta</span>
@@ -332,9 +328,7 @@ export default function WaitingRoomView() {
               padding: 'var(--lumo-space-s)',
               borderRadius: 'var(--lumo-border-radius-m)',
             }}
-          >
-            📊
-          </div>
+          ></div>
           <VerticalLayout theme="spacing-xs">
             <span className="text-2xl font-bold text-primary">{stats.todayTotal}</span>
             <span className="text-s text-secondary">Total Hoy</span>
@@ -345,118 +339,6 @@ export default function WaitingRoomView() {
           ➕ Agregar Paciente
         </Button>
       </HorizontalLayout>
-
-      <VerticalLayout theme="spacing" className="flex-1 overflow-auto">
-        {waitingList.length === 0 ? (
-          <Card className="flex flex-col items-center justify-center p-xl text-center">
-            <div style={{ fontSize: '4rem', marginBottom: 'var(--lumo-space-m)' }}>🏥</div>
-            <h2 className="m-0 text-primary">Sala de espera vacía</h2>
-            <span className="text-secondary">No hay pacientes esperando en este momento</span>
-            <Button theme="primary" onClick={() => setAddDialogOpen(true)} style={{ marginTop: 'var(--lumo-space-m)' }}>
-              ➕ Agregar Primer Paciente
-            </Button>
-          </Card>
-        ) : (
-          waitingList.map((entry) => {
-            const statusDisplay = getStatusDisplay(entry.status!)
-            const priorityDisplay = getPriorityDisplay(entry.priority!)
-
-            return (
-              <Card
-                key={entry.id}
-                className="p-m"
-                style={{
-                  borderLeft: `4px solid ${
-                    entry.status === WaitingRoomStatus.WAITING
-                      ? 'var(--lumo-warning-color)'
-                      : entry.status === WaitingRoomStatus.IN_CONSULTATION
-                        ? 'var(--lumo-primary-color)'
-                        : entry.status === WaitingRoomStatus.COMPLETED
-                          ? 'var(--lumo-success-color)'
-                          : 'var(--lumo-error-color)'
-                  }`,
-                }}
-              >
-                <HorizontalLayout theme="spacing" className="w-full justify-between mb-m">
-                  <span className={priorityDisplay.theme}>
-                    {priorityDisplay.icon} {priorityDisplay.text}
-                  </span>
-                  <span className={statusDisplay.theme}>
-                    {statusDisplay.icon} {statusDisplay.text}
-                  </span>
-                </HorizontalLayout>
-
-                <HorizontalLayout theme="spacing" className="w-full mb-m">
-                  <VerticalLayout theme="spacing-xs" className="flex-1">
-                    <h3 className="m-0 text-primary">
-                       {entry.client?.firstName} {entry.client?.lastName}
-                    </h3>
-                    <span className="text-s text-secondary">
-                      {entry.client?.cedula && `Cédula: ${entry.client.cedula}`}
-                      {entry.client?.phoneNumber && ` • 📞 ${entry.client.phoneNumber}`}
-                      {entry.client?.email && ` • ✉ ${entry.client.email}`}
-                    </span>
-                  </VerticalLayout>
-
-                  <VerticalLayout theme="spacing-xs" className="flex-1">
-                    <h3 className="m-0 text-primary">🐾 {entry.pet?.name}</h3>
-                    <span className="text-s text-secondary">
-                      {entry.pet?.type} {entry.pet?.breed && `- ${entry.pet.breed}`}
-                      {entry.pet?.gender && ` • ${entry.pet.gender}`}
-                    </span>
-                  </VerticalLayout>
-                </HorizontalLayout>
-
-                <VerticalLayout theme="spacing-xs" className="mb-m">
-                  <HorizontalLayout theme="spacing" className="w-full">
-                    <span className="flex-1">
-                      <strong>Motivo de la visita:</strong> {entry.reasonForVisit}
-                    </span>
-                  </HorizontalLayout>
-
-                  <HorizontalLayout theme="spacing" className="w-full">
-                    <span className="text-s text-secondary flex-1">
-                      <strong>Hora de llegada:</strong> {formatTime(entry.arrivalTime!)}
-                    </span>
-                    <span className="text-s text-secondary">
-                      <strong>Tiempo esperando:</strong> {getWaitTime(entry.arrivalTime!)}
-                    </span>
-                  </HorizontalLayout>
-
-                  {entry.notes && (
-                    <span className="text-s text-secondary">
-                      <strong>Notas:</strong> {entry.notes}
-                    </span>
-                  )}
-                </VerticalLayout>
-
-                <HorizontalLayout theme="spacing" className="justify-end">
-                  {entry.status === WaitingRoomStatus.WAITING && (
-                    <>
-                      <Button theme="primary small" onClick={() => handleMoveToConsultation(entry.id!)}>
-                        Iniciar Consulta
-                      </Button>
-                      <Button theme="error small" onClick={() => handleCancelEntry(entry.id!)}>
-                        Cancelar
-                      </Button>
-                    </>
-                  )}
-                  {entry.status === WaitingRoomStatus.IN_CONSULTATION && (
-                    <Button theme="success small" onClick={() => handleCompleteConsultation(entry.id!)}>
-                      Completar Consulta
-                    </Button>
-                  )}
-                  {(entry.status === WaitingRoomStatus.COMPLETED || entry.status === WaitingRoomStatus.CANCELLED) && (
-                    <span className="text-s text-secondary">
-                      {entry.status === WaitingRoomStatus.COMPLETED ? 'Consulta finalizada' : 'Visita cancelada'}
-                    </span>
-                  )}
-                </HorizontalLayout>
-              </Card>
-            )
-          })
-        )}
-      </VerticalLayout>
 
       <Dialog
         opened={addDialogOpen}
@@ -535,6 +417,117 @@ export default function WaitingRoomView() {
           />
         </VerticalLayout>
       </Dialog>
+      <VerticalLayout theme="spacing" className="flex-1 overflow-auto p-m">
+        {waitingList.length === 0 ? (
+          <Card className="flex flex-col items-center justify-center p-xl text-center">
+            <div style={{ fontSize: '4rem', marginBottom: 'var(--lumo-space-m)' }}>🏥</div>
+            <h2 className="m-0 text-primary">Sala de espera vacía</h2>
+            <span className="text-secondary">No hay pacientes esperando en este momento</span>
+            <Button theme="primary" onClick={() => setAddDialogOpen(true)} style={{ marginTop: 'var(--lumo-space-m)' }}>
+              ➕ Agregar Primer Paciente
+            </Button>
+          </Card>
+        ) : (
+          waitingList.map((entry) => {
+            const statusDisplay = getStatusDisplay(entry.status!)
+            const priorityDisplay = getPriorityDisplay(entry.priority!)
+
+            return (
+              <Card
+                key={entry.id}
+                className="p-m"
+                style={{
+                  borderLeft: `4px solid ${
+                    entry.status === WaitingRoomStatus.WAITING
+                      ? 'var(--lumo-warning-color)'
+                      : entry.status === WaitingRoomStatus.IN_CONSULTATION
+                        ? 'var(--lumo-primary-color)'
+                        : entry.status === WaitingRoomStatus.COMPLETED
+                          ? 'var(--lumo-success-color)'
+                          : 'var(--lumo-error-color)'
+                  }`,
+                }}
+              >
+                <HorizontalLayout theme="spacing" className="w-full justify-between mb-m">
+                  <span className={priorityDisplay.theme}>
+                    {priorityDisplay.icon} {priorityDisplay.text}
+                  </span>
+                  <span className={statusDisplay.theme}>
+                    {statusDisplay.icon} {statusDisplay.text}
+                  </span>
+                </HorizontalLayout>
+
+                <HorizontalLayout theme="spacing" className="w-full mb-m">
+                  <VerticalLayout theme="spacing-xs" className="flex-1">
+                    <h3 className="m-0 text-primary">
+                      {entry.client?.firstName} {entry.client?.lastName}
+                    </h3>
+                    <span className="text-s text-secondary">
+                      {entry.client?.cedula && `Cédula: ${entry.client.cedula}`}
+                      {entry.client?.phoneNumber && ` • 📞 ${entry.client.phoneNumber}`}
+                      {entry.client?.email && ` • ✉ ${entry.client.email}`}
+                    </span>
+                  </VerticalLayout>
+
+                  <VerticalLayout theme="spacing-xs" className="flex-1">
+                    <h3 className="m-0 text-primary">🐾 {entry.pet?.name}</h3>
+                    <span className="text-s text-secondary">
+                      {entry.pet?.type} {entry.pet?.breed && `- ${entry.pet.breed}`}
+                      {entry.pet?.gender && ` • ${entry.pet.gender}`}
+                    </span>
+                  </VerticalLayout>
+                </HorizontalLayout>
+
+                <VerticalLayout theme="spacing-xs" className="mb-m">
+                  <HorizontalLayout theme="spacing" className="w-full">
+                    <span className="flex-1">
+                      <strong>Motivo de la visita:</strong> {entry.reasonForVisit}
+                    </span>
+                  </HorizontalLayout>
+
+                  <HorizontalLayout theme="spacing" className="w-full">
+                    <span className="text-s text-secondary flex-1">
+                      <strong>Hora de llegada:</strong> {formatTime(entry.arrivalTime!)}
+                    </span>
+                    <span className="text-s text-secondary">
+                      <strong>Tiempo esperando:</strong> {getWaitTime(entry.arrivalTime!)}
+                    </span>
+                  </HorizontalLayout>
+
+                  {entry.notes && (
+                    <span className="text-s text-secondary">
+                      <strong>Notas:</strong> {entry.notes}
+                    </span>
+                  )}
+                </VerticalLayout>
+
+                <HorizontalLayout theme="spacing" className="justify-end">
+                  {entry.status === WaitingRoomStatus.WAITING && (
+                    <>
+                      <Button theme="primary small" onClick={() => handleMoveToConsultation(entry.id!)}>
+                        Iniciar Consulta
+                      </Button>
+                      <Button theme="error small" onClick={() => handleCancelEntry(entry.id!)}>
+                        Cancelar
+                      </Button>
+                    </>
+                  )}
+                  {entry.status === WaitingRoomStatus.IN_CONSULTATION && (
+                    <Button theme="success small" onClick={() => handleCompleteConsultation(entry.id!)}>
+                      Completar Consulta
+                    </Button>
+                  )}
+                  {(entry.status === WaitingRoomStatus.COMPLETED || entry.status === WaitingRoomStatus.CANCELLED) && (
+                    <span className="text-s text-secondary">
+                      {entry.status === WaitingRoomStatus.COMPLETED ? 'Consulta finalizada' : 'Visita cancelada'}
+                    </span>
+                  )}
+                </HorizontalLayout>
+              </Card>
+            )
+          })
+        )}
+      </VerticalLayout>
     </main>
   )
 }

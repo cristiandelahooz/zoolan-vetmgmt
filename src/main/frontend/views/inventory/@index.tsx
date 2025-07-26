@@ -26,7 +26,6 @@ export default function InventoryView() {
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <AutoCrud
-        key={refreshKey}
         service={{
           ...ProductServiceImpl,
           list: async (filter, sort) => {

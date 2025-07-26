@@ -7,7 +7,6 @@ import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
 import com.wornux.utils.CommonUtils;
-import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
 import com.wornux.views.customers.ClientForm;
@@ -17,7 +16,6 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -26,8 +24,6 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.HasClearButton;
@@ -40,6 +36,7 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.views.products.ProductServiceForm;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -62,14 +59,14 @@ import static com.wornux.utils.CommonUtils.createIconItem;
 @Slf4j
 public class InvoiceForm extends Div {
 
-    private final ComboBox<Client> customer = new ComboBox<>("Choose a customer");
-    private final TextField docNum = new TextField("Invoice number");
+    private final ComboBox<Client> customer = new ComboBox<>("Selecciona un cliente");
+    private final TextField docNum = new TextField("No. de factura");
     private final TextField salesOrder = new TextField("P.O./S.O. number");
-    private final DatePicker issuedDate = new DatePicker("Invoice date");
-    private final DatePicker paymentDate = new DatePicker("Payment date");
+    private final DatePicker issuedDate = new DatePicker("Fecha de emisión");
+    private final DatePicker paymentDate = new DatePicker("Fecha de pago");
 
     private final DecimalField total = new DecimalField("Total");
-    private final TextArea notes = new TextArea("Notes");
+    private final TextArea notes = new TextArea("Notas");
 
     private final Grid<InvoiceProduct> gridProductService = new Grid<>(InvoiceProduct.class, false);
     private final Set<InvoiceProduct> invoiceProducts = new HashSet<>();
@@ -190,16 +187,14 @@ public class InvoiceForm extends Div {
                 .setHeader("Products & services").setAutoWidth(true);
         gridProductService.addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getDescription).orElse(""))
                 .setHeader("Description").setAutoWidth(true);
-        gridProductService
-                .addColumn(c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getQuantity()).orElse(0.0)))
+        gridProductService.addColumn(
+                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getQuantity()).orElse(0.0)))
                 .setHeader("Quantity").setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
-        gridProductService
-                .addColumn(c -> new DecimalFormat("#,##0.00")
-                        .format(Optional.ofNullable(c.getPrice()).orElse(BigDecimal.ZERO)))
+        gridProductService.addColumn(
+                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getPrice()).orElse(BigDecimal.ZERO)))
                 .setHeader("Price").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
-        gridProductService
-                .addColumn(c -> new DecimalFormat("#,##0.00")
-                        .format(Optional.ofNullable(c.getAmount()).orElse(BigDecimal.ZERO)))
+        gridProductService.addColumn(
+                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getAmount()).orElse(BigDecimal.ZERO)))
                 .setHeader("Amount").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
         gridProductService.getDataProvider().addDataProviderListener(event -> calculateTotal());
         gridProductService.addItemDoubleClickListener(event -> {
@@ -279,13 +274,14 @@ public class InvoiceForm extends Div {
 
         binderLine.forField(fieldProduct).asRequired("This field cannot be null").bind("product");
 
-        binderLine.forField(fieldPrice).asRequired("This field cannot be null").bind(
-                invoiceProduct -> Optional.ofNullable(invoiceProduct.getPrice()).orElse(BigDecimal.ZERO).doubleValue(),
-                (invoiceProduct, aDouble) -> invoiceProduct.setPrice(BigDecimal.valueOf(aDouble)));
+        binderLine.forField(fieldPrice).asRequired("This field cannot be null")
+                .bind(invoiceProduct -> Optional.ofNullable(invoiceProduct.getPrice()).orElse(BigDecimal.ZERO)
+                                .doubleValue(),
+                        (invoiceProduct, aDouble) -> invoiceProduct.setPrice(BigDecimal.valueOf(aDouble)));
 
-        binderLine.forField(fieldQty).asRequired("This field cannot be null").bind(
-                invoiceProduct -> Optional.ofNullable(invoiceProduct.getQuantity()).orElse(1.0),
-                InvoiceProduct::setQuantity);
+        binderLine.forField(fieldQty).asRequired("This field cannot be null")
+                .bind(invoiceProduct -> Optional.ofNullable(invoiceProduct.getQuantity()).orElse(1.0),
+                        InvoiceProduct::setQuantity);
 
         add.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
         add.addClickListener(event -> {
@@ -357,12 +353,12 @@ public class InvoiceForm extends Div {
 
     public void open() {
         populateForm(null);
-        sidebar.newObject("New Invoice");
+        sidebar.newObject("Nueva factura");
     }
 
     public void edit(Invoice element) {
         populateForm(element);
-        sidebar.editObject("Edit Invoice");
+        sidebar.editObject("Editar factura");
     }
 
     private void cancel(ClickEvent<Button> buttonClickEvent) {
@@ -457,7 +453,7 @@ public class InvoiceForm extends Div {
     private Div createLeftHeaderForm() {
 
         Button add = new Button(VaadinIcon.PLUS_CIRCLE.create());
-        add.setTooltipText("Add a customer");
+        add.setTooltipText("Agregar nuevo cliente");
 
         Button edit = new Button(LumoIcon.EDIT.create());
         edit.setVisible(false);
@@ -513,7 +509,7 @@ public class InvoiceForm extends Div {
                 address.setText(event.getValue().getStreetAddress());
                 phone.setText(event.getValue().getPhoneNumber());
                 email.setText(event.getValue().getEmail());
-                edit.setTooltipText("Edit (%s)".formatted(event.getValue().getFirstName()));
+                edit.setTooltipText("Editar (%s)".formatted(event.getValue().getFirstName()));
             } else {
                 Arrays.asList(contactName, contactEmail, address, phone, email).forEach(c -> c.setText(""));
             }
@@ -601,7 +597,7 @@ public class InvoiceForm extends Div {
     }
 
     private void createUpload() {
-        Button button = new Button("Click to upload");
+        Button button = new Button("Click o arrastra para subir archivos");
         button.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 

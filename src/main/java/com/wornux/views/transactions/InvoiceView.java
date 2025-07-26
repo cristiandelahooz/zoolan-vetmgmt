@@ -1,21 +1,12 @@
 package com.wornux.views.transactions;
 
-import com.wornux.components.*;
-import com.wornux.data.entity.Client;
-import com.wornux.data.entity.Invoice;
-import com.wornux.data.enums.InvoiceStatus;
-import com.wornux.services.AuditService;
-import com.wornux.services.implementations.InvoiceService;
-import com.wornux.services.interfaces.ClientService;
-import com.wornux.services.interfaces.ProductService;
-import com.wornux.services.report.pdf.JasperReportFactory;
-import com.wornux.utils.GridUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -35,13 +26,19 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.data.entity.Client;
+import com.wornux.data.entity.Invoice;
+import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.services.AuditService;
+import com.wornux.services.implementations.InvoiceService;
+import com.wornux.services.interfaces.ClientService;
+import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.report.pdf.JasperReportFactory;
+import com.wornux.utils.GridUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
@@ -49,25 +46,31 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.domain.Specification;
 
 import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 import static com.wornux.utils.PredicateUtils.predicateForNumericField;
 
+import com.wornux.components.*;
+
 @Slf4j
 @Uses(Icon.class)
 @Route(value = "invoices")
 @PageTitle("Invoices Management")
+@CssImport("./themes/zoolan-vetmgmt/view/invoice.css")
 public class InvoiceView extends Div {
 
     private final Grid<Invoice> grid = GridUtils.createBasicGrid(Invoice.class);
 
-    private final TextField docNum = new TextField("Enter invoice #");
-    private final MultiSelectComboBox<Client> customer = new MultiSelectComboBox<>("All customers");
-    private final MultiSelectComboBox<InvoiceStatus> status = new MultiSelectComboBox<>("All status");
-    private final DatePicker fromPeriod = new DatePicker("From");
-    private final DatePicker toPeriod = new DatePicker("To");
+    private final TextField docNum = new TextField("Número de factura#");
+    private final MultiSelectComboBox<Client> customer = new MultiSelectComboBox<>("Todos los clientes");
+    private final MultiSelectComboBox<InvoiceStatus> status = new MultiSelectComboBox<>("Todos los estados");
+    private final DatePicker fromPeriod = new DatePicker("Desde");
+    private final DatePicker toPeriod = new DatePicker("Hasta");
     private final Span quantity = new Span();
     private final JasperReportFactory reportFactory;
 
@@ -82,6 +85,8 @@ public class InvoiceView extends Div {
         this.reportFactory = reportFactory;
         this.service = service;
 
+        setId("invoices-view");
+
         invoiceForm = new InvoiceForm(service, customerService, productService, auditService);
 
         createGrid(service, createFilterSpecification());
@@ -94,9 +99,7 @@ public class InvoiceView extends Div {
         addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
         setSizeFull();
 
-        create.addClickListener(event -> {
-            invoiceForm.open();
-        });
+        create.addClickListener(event -> invoiceForm.open());
 
         invoiceForm.setCallable(this::refreshAll);
 
@@ -108,14 +111,15 @@ public class InvoiceView extends Div {
     }
 
     private static Renderer<Invoice> renderCustomer() {
-        return LitRenderer
-                .<Invoice> of("<vaadin-horizontal-layout style=\"align-items: center;\" theme=\"spacing\">"
-                        + "  <vaadin-avatar img=\"${item.pictureUrl}\" name=\"${item.pictureUrl}\"></vaadin-avatar>"
-                        + "  <vaadin-vertical-layout style=\"line-height: var(--lumo-line-height-m);\">"
-                        + "    <span class=\"font-semibold\" > ${item.name} </span>"
-                        + "    <span class=\"text-s text-secondary\">" + "      ${item.address}" + "    </span>"
-                        + "  </vaadin-vertical-layout>" + "</vaadin-horizontal-layout>")
-                .withProperty("pictureUrl", c -> c.getClient().getFirstName())
+        return LitRenderer.<Invoice> of("""
+                        <vaadin-horizontal-layout style="align-items: center;" theme="spacing">
+                            <vaadin-avatar img="${item.pictureUrl}" name="${item.pictureUrl}"></vaadin-avatar>
+                            <vaadin-vertical-layout style="line-height: var(--lumo-line-height-m);">
+                                <span class="font-semibold">${item.name}</span>
+                                <span class="text-s text-secondary">${item.address}</span>
+                            </vaadin-vertical-layout>
+                        </vaadin-horizontal-layout>
+                        """).withProperty("pictureUrl", c -> c.getClient().getFirstName())
                 .withProperty("name", c -> c.getClient().getFirstName())
                 .withProperty("address", c -> c.getClient().getEmail());
     }
@@ -124,21 +128,21 @@ public class InvoiceView extends Div {
 
         GridUtils.configureGrid(grid, specification, service.getRepository());
 
-        GridUtils.addComponentColumn(grid, this::renderStatus, "Status", "status");
+        GridUtils.addComponentColumn(grid, this::renderStatus, "Estado", "status");
 
-        GridUtils.addColumn(grid, Invoice::getIssuedDate, "Date", "issuedDate");
+        GridUtils.addColumn(grid, Invoice::getIssuedDate, "Fecha", "issuedDate");
 
-        GridUtils.addColumn(grid, Invoice::getCode, "Number", "code");
+        GridUtils.addColumn(grid, Invoice::getCode, "Número", "code");
 
-        GridUtils.addColumn(grid, renderCustomer(), "Customer", "customer.name", "customer.email");
+        GridUtils.addColumn(grid, renderCustomer(), "Cliente", "customer.name", "customer.email");
 
         GridUtils.addColumn(grid, c -> new DecimalFormat("#,##0.00").format(c.getTotal()), "Total", "total")
                 .setTextAlign(ColumnTextAlign.END);
 
         GridUtils.addColumn(grid, c -> new DecimalFormat("#,##0.00").format(c.getTotal().subtract(c.getPaidToDate())),
-                "Amount due").setTextAlign(ColumnTextAlign.END);
+                "Deuda total").setTextAlign(ColumnTextAlign.END);
 
-        GridUtils.addComponentColumn(grid, this::renderActions, "Actions").setFlexGrow(0)
+        GridUtils.addComponentColumn(grid, this::renderActions, "Acciones").setFlexGrow(0)
                 .setTextAlign(ColumnTextAlign.CENTER);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -148,12 +152,10 @@ public class InvoiceView extends Div {
                 invoiceForm.close();
             }
         });
-
     }
 
     public Specification<Invoice> createFilterSpecification() {
         return (root, query, builder) -> {
-
             Order order = builder.desc(root.get("code"));
             //            assert query != null;
             //            query.orderBy(order);
@@ -189,7 +191,7 @@ public class InvoiceView extends Div {
 
     private void refreshAll() {
         grid.getDataProvider().refreshAll();
-        quantity.setText("Invoices (%s)".formatted(service.getCount(createFilterSpecification())));
+        quantity.setText("Facturas (%s)".formatted(service.getCount(createFilterSpecification())));
     }
 
     private Component createFilter() {
@@ -206,8 +208,7 @@ public class InvoiceView extends Div {
                 LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY, LumoUtility.Display.HIDDEN,
                 LumoUtility.Display.Breakpoint.Large.FLEX);
         quantity.setMinWidth(10, Unit.REM);
-        quantity.setHeight(1.2F, Unit.REM);
-        quantity.setText("Invoices (%s)".formatted(service.getCount(createFilterSpecification())));
+        quantity.setText("Facturas (%s)".formatted(service.getCount(createFilterSpecification())));
 
         customer.setItemLabelGenerator(p -> "%s (%s)".formatted(p.getFirstName(), p.getEmail()));
 
@@ -241,11 +242,10 @@ public class InvoiceView extends Div {
 
         HorizontalLayout toolbar = new HorizontalLayout(docNum, customer, status, fromPeriod, periodDiv, toPeriod,
                 quantity);
-        toolbar.setSpacing(false);
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         toolbar.setAlignItems(FlexComponent.Alignment.END);
-        toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.XSMALL,
-                LumoUtility.Margin.Top.SMALL);
+        toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM);
 
         return toolbar;
     }
@@ -254,16 +254,16 @@ public class InvoiceView extends Div {
         final Breadcrumb breadcrumb = new Breadcrumb();
 
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(new BreadcrumbItem("Transactions", InvoiceView.class),
-                new BreadcrumbItem("Invoices", InvoiceView.class));
+        breadcrumb.add(new BreadcrumbItem("Transacciones", InvoiceView.class),
+                new BreadcrumbItem("Facturas", InvoiceView.class));
 
-        Icon icon = InfoIcon.INFO_CIRCLE.create("View and manage invoices information");
+        Icon icon = InfoIcon.INFO_CIRCLE.create("Visualizar y gestionar las facturas de tus clientes.");
 
         Div headerLayout = new Div(breadcrumb, icon);
         headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW,
                 LumoUtility.Margin.Top.SMALL);
 
-        create.setText("Create an invoice");
+        create.setText("Crear Factura");
         create.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
         create.addClassNames(LumoUtility.Width.AUTO);
 
@@ -274,12 +274,9 @@ public class InvoiceView extends Div {
                 LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
 
         return layout;
-
     }
 
     private void generateInvoice(Invoice invoice) {
-        var fileName = UUID.randomUUID().toString();
-
         var reportService = reportFactory.getServiceFromDatabase("/report/Invoice.jasper");
 
         InputStream resourceAsStream = InvoiceView.class.getResourceAsStream("/report/your-logo.png");
@@ -296,8 +293,7 @@ public class InvoiceView extends Div {
 
         Div layout = new Div(section);
         layout.addClassNames(LumoUtility.Width.FULL, LumoUtility.Display.FLEX, LumoUtility.Margin.Horizontal.AUTO,
-                LumoUtility.Padding.Horizontal.SMALL, LumoUtility.BoxSizing.BORDER, LumoUtility.FlexDirection.COLUMN,
-                LumoUtility.Gap.LARGE);
+                LumoUtility.BoxSizing.BORDER, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.LARGE);
 
         return layout;
     }
@@ -308,13 +304,13 @@ public class InvoiceView extends Div {
         DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
         DecimalFormat numberFormat = new DecimalFormat("#,##0");
 
-        BoardCard card = createBoardCard("Overdue", decimalFormat.format(0.00), "USD");
+        BoardCard card = createBoardCard("Abonado", decimalFormat.format(0.00), "DOP");
         boardCards.add(card);
 
-        card = createBoardCard("Due within next 30 days", decimalFormat.format(0.00), "USD");
+        card = createBoardCard("Deuda a pagar dentro de los próximos 30 días", decimalFormat.format(0.00), "DOP");
         boardCards.add(card);
 
-        card = createBoardCard("Average time to get paid", numberFormat.format(0), "days");
+        card = createBoardCard("Tiempo promedio para recibir pago", numberFormat.format(0), "días");
         boardCards.add(card);
     }
 
@@ -354,35 +350,29 @@ public class InvoiceView extends Div {
     }
 
     private Component renderActions(Invoice item) {
-        Button more = new Button("More");
+        Button more = new Button("Más");
         more.addClassNames(LumoUtility.Width.AUTO);
         more.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        Button edit = new Button("Edit");
+        Button edit = new Button("Editar");
         edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-        edit.addClickListener(event -> {
-            invoiceForm.edit(item);
-        });
+        edit.addClickListener(event -> invoiceForm.edit(item));
 
         Button duplicate = new Button("Duplicate");
         duplicate.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
 
-        Button sendInvoice = new Button("Send invoice");
+        Button sendInvoice = new Button("Enviar factura");
         sendInvoice.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
 
-        Button exportPDF = new Button("Export as PDF");
+        Button exportPDF = new Button("Exportar como PDF");
         exportPDF.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-        exportPDF.addClickListener(e -> {
-            generateInvoice(item);
-        });
+        exportPDF.addClickListener(e -> generateInvoice(item));
 
-        Button print = new Button("Print");
+        Button print = new Button("Imprimir");
         print.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-        print.addClickListener(e -> {
-            generateInvoice(item);
-        });
+        print.addClickListener(e -> generateInvoice(item));
 
-        Button delete = new Button("Delete");
+        Button delete = new Button("Borrar");
         delete.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
 
         Div buttonLayout = new Div(edit, duplicate, new Hr(), sendInvoice, new Hr(), exportPDF, print, delete);
@@ -399,5 +389,4 @@ public class InvoiceView extends Div {
         actions.addClassNames("-mx-s");
         return actions;
     }
-
 }
