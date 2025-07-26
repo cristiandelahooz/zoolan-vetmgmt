@@ -1,4 +1,4 @@
-import {useState, useCallback, useEffect} from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { EmployeeServiceImpl } from '@/generated/endpoints'
 import {
   AUTO_FORM_EMPLOYEE_FIELD_OPTIONS,
@@ -24,34 +24,34 @@ export default function EmployeesView() {
     throw new Error('Datos del empleado inválidos')
   }, [])
 
-   return (
+  return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
-        <h3 className="text-xl font-semibold"> Editar Empleados </h3>
+      <h3 className="text-xl font-semibold"> Editar Empleados </h3>
       <AutoCrud
-          className=".auto-crud-form-header: { display: none; }"
-          service={{
-            ...EmployeeServiceImpl,
-            save: handleEmployeeUpdate,
-          }}
-          model={EmployeeUpdateRequestDtoModel}
-          gridProps={{
-            columnOptions: AUTO_GRID_EMPLOYEE_FIELD_OPTIONS,
-            hiddenColumns: ['id', 'password'],
-          }}
-          formProps={{
-            fieldOptions: AUTO_FORM_EMPLOYEE_FIELD_OPTIONS,
-            hiddenFields: ['id', 'password'],
-          }}
-          style={{ flexGrow: '1' }}
-          noNewButton={true}
+        className=".auto-crud-form-header: { display: none; }"
+        service={{
+          ...EmployeeServiceImpl,
+          save: handleEmployeeUpdate,
+        }}
+        model={EmployeeUpdateRequestDtoModel}
+        gridProps={{
+          columnOptions: AUTO_GRID_EMPLOYEE_FIELD_OPTIONS,
+          hiddenColumns: ['id', 'password'],
+        }}
+        formProps={{
+          fieldOptions: AUTO_FORM_EMPLOYEE_FIELD_OPTIONS,
+          hiddenFields: ['id', 'password'],
+        }}
+        style={{ flexGrow: '1' }}
+        noNewButton={true}
       />
-        <style>
-            {`
+      <style>
+        {`
       .auto-crud-form-header {
         display: none !important;
       }
     `}
-        </style>
+      </style>
     </main>
   )
 }

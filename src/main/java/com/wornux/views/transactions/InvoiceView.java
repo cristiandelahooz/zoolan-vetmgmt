@@ -112,14 +112,14 @@ public class InvoiceView extends Div {
 
     private static Renderer<Invoice> renderCustomer() {
         return LitRenderer.<Invoice> of("""
-                        <vaadin-horizontal-layout style="align-items: center;" theme="spacing">
-                            <vaadin-avatar img="${item.pictureUrl}" name="${item.pictureUrl}"></vaadin-avatar>
-                            <vaadin-vertical-layout style="line-height: var(--lumo-line-height-m);">
-                                <span class="font-semibold">${item.name}</span>
-                                <span class="text-s text-secondary">${item.address}</span>
-                            </vaadin-vertical-layout>
-                        </vaadin-horizontal-layout>
-                        """).withProperty("pictureUrl", c -> c.getClient().getFirstName())
+                <vaadin-horizontal-layout style="align-items: center;" theme="spacing">
+                    <vaadin-avatar img="${item.pictureUrl}" name="${item.pictureUrl}"></vaadin-avatar>
+                    <vaadin-vertical-layout style="line-height: var(--lumo-line-height-m);">
+                        <span class="font-semibold">${item.name}</span>
+                        <span class="text-s text-secondary">${item.address}</span>
+                    </vaadin-vertical-layout>
+                </vaadin-horizontal-layout>
+                """).withProperty("pictureUrl", c -> c.getClient().getFirstName())
                 .withProperty("name", c -> c.getClient().getFirstName())
                 .withProperty("address", c -> c.getClient().getEmail());
     }
