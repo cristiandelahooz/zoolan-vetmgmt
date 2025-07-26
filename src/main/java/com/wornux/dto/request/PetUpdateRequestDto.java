@@ -7,6 +7,10 @@ import com.wornux.validation.petsbreed.ValidPetBreed;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import lombok.Data;
+import com.wornux.data.enums.FurType;
+import com.wornux.data.enums.PetSize;
+
+
 
 @Data
 @ValidPetBreed
@@ -38,4 +42,12 @@ public class PetUpdateRequestDto implements PetBreedValidatable {
         }
         return type.isValidBreedForType(breed);
     }
+
+    @Size(max = 50, message = "El color no puede exceder 50 caracteres")
+    private String color;
+
+    private PetSize size;
+
+    private FurType furType;
+
 }
