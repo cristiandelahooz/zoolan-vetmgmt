@@ -223,9 +223,9 @@ export default function WaitingRoomView() {
 
   const getPriorityDisplay = (priority: Priority) => {
     switch (priority) {
-      case Priority.EMERGENCY:
+      case Priority.EMERGENCIA:
         return { icon: '', text: 'Emergencia', theme: 'badge error primary' }
-      case Priority.URGENT:
+      case Priority.URGENTE:
         return { icon: '', text: 'Urgente', theme: 'badge contrast primary' }
       case Priority.NORMAL:
       default:
