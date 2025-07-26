@@ -23,7 +23,8 @@ import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.Gender;
 import com.wornux.services.implementations.EmployeeServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import static com.wornux.constants.ValidationConstants.*;
 
 @Slf4j
 @PageTitle("Register Employee")
@@ -38,27 +39,31 @@ public class EmployeeForm extends Div {
     private final DatePicker birthDate = new DatePicker("Fecha de nacimiento");
     private final ComboBox<Gender> gender = new ComboBox<>("Género");
     private final TextField nationality = new TextField("Nacionalidad");
+
     private final TextField province = new TextField("Provincia");
     private final TextField municipality = new TextField("Municipio");
     private final TextField sector = new TextField("Sector");
     private final TextField streetAddress = new TextField("Dirección");
+
     private final ComboBox<EmployeeRole> employeeRole = new ComboBox<>("Rol");
     private final TextField salary = new TextField("Salario");
     private final DatePicker hireDate = new DatePicker("Fecha de contratación");
     private final TextField workSchedule = new TextField("Horario laboral");
+
     private final TextField emergencyContactName = new TextField("Nombre de contacto de emergencia");
     private final TextField emergencyContactPhone = new TextField("Teléfono de contacto de emergencia");
 
-    @Autowired
-    private EmployeeServiceImpl employeeService;
+    private transient EmployeeServiceImpl employeeService;
 
-    public EmployeeForm() {
+    public EmployeeForm(EmployeeServiceImpl employeeService) {
+        this.employeeService = employeeService;
         addClassNames(LumoUtility.Display.GRID, LumoUtility.Margin.Horizontal.AUTO,
                 LumoUtility.Padding.Horizontal.MEDIUM, LumoUtility.Gap.LARGE, LumoUtility.MaxWidth.SCREEN_MEDIUM,
                 LumoUtility.Margin.Top.XLARGE);
         setWidthFull();
         gender.setItems(Gender.values());
         employeeRole.setItems(EmployeeRole.values());
+
         add(createHeaderSection(), createUserInfoSection(), createAddressSection(), createEmployeeInfoSection(),
                 createFooterButtons());
     }
@@ -82,12 +87,7 @@ public class EmployeeForm extends Div {
 
     private Section createUserInfoSection() {
         H4 sectionTitle = new H4("Información del usuario");
-        FormLayout form = new FormLayout();
-        form.add(username, password, firstName, lastName, email, phoneNumber, birthDate, gender, nationality);
-        form.setColspan(email, 2);
-        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("20rem", 2));
-        form.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
-
+        FormLayout form = createUserInfoForm();
         Section section = new Section(sectionTitle, form);
         section.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.MEDIUM,
                 LumoUtility.Margin.Top.LARGE);
@@ -96,11 +96,7 @@ public class EmployeeForm extends Div {
 
     private Section createAddressSection() {
         H4 sectionTitle = new H4("Dirección del empleado");
-        FormLayout form = new FormLayout();
-        form.add(province, municipality, sector, streetAddress);
-        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("20rem", 2));
-        form.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
-
+        FormLayout form = createAddressForm();
         Section section = new Section(sectionTitle, form);
         section.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.MEDIUM,
                 LumoUtility.Margin.Top.LARGE);
@@ -109,11 +105,7 @@ public class EmployeeForm extends Div {
 
     private Section createEmployeeInfoSection() {
         H4 sectionTitle = new H4("Información del empleado");
-        FormLayout form = new FormLayout();
-        form.add(employeeRole, salary, hireDate, workSchedule, emergencyContactName, emergencyContactPhone);
-        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("20rem", 2));
-        form.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
-
+        FormLayout form = createEmployeeInfoForm();
         Section section = new Section(sectionTitle, form);
         section.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.MEDIUM,
                 LumoUtility.Margin.Top.LARGE);
@@ -121,29 +113,97 @@ public class EmployeeForm extends Div {
     }
 
     private void saveEmployee() {
+        if (!validateFields()) {
+            return;
+        }
         try {
             EmployeeCreateRequestDto dto = EmployeeCreateRequestDto.builder().username(username.getValue())
                     .password(password.getValue()).firstName(firstName.getValue()).lastName(lastName.getValue())
                     .email(email.getValue()).phoneNumber(phoneNumber.getValue()).birthDate(birthDate.getValue())
-                    .gender(gender.getValue()).nationality(nationality.getValue())
-                    .province(province.getValue())
+                    .gender(gender.getValue()).nationality(nationality.getValue()).province(province.getValue())
                     .municipality(municipality.getValue()).sector(sector.getValue())
                     .streetAddress(streetAddress.getValue()).employeeRole(employeeRole.getValue())
-                    .salary(salary.getValue() != null && !salary.getValue().isEmpty() ? Double.valueOf(
-                            salary.getValue()) : null).hireDate(hireDate.getValue())
+                    .salary(Double.valueOf(salary.getValue())).hireDate(hireDate.getValue())
                     .workSchedule(workSchedule.getValue()).emergencyContactName(emergencyContactName.getValue())
                     .emergencyContactPhone(emergencyContactPhone.getValue()).build();
-
-            employeeService.createEmployee(dto);
+            employeeService.save(dto);
             handleOnSuccess();
         } catch (Exception e) {
-            Notification.show("Error al guardar el empleado: " + e.getMessage(), 5000, Notification.Position.MIDDLE);
+            handleOnError(e.getMessage());
         }
+    }
+
+    private FormLayout createUserInfoForm() {
+        FormLayout form = new FormLayout();
+        username.setRequired(true);
+        username.setMinLength(MIN_USERNAME_LENGTH);
+        username.setMaxLength(MAX_USERNAME_LENGTH);
+        username.setErrorMessage("Nombre de usuario debe tener entre 3 y 50 caracteres");
+        password.setRequired(true);
+        password.setMinLength(MIN_PASSWORD_LENGTH);
+        password.setErrorMessage("La contraseña debe tener al menos 8 caracteres");
+        firstName.setRequired(true);
+        lastName.setRequired(true);
+        email.setRequired(true);
+        email.setErrorMessage("Correo electrónico inválido");
+        phoneNumber.setRequired(true);
+        phoneNumber.setPattern(DOMINICAN_PHONE_PATTERN);
+        phoneNumber.setErrorMessage("Por favor, proporciona un número de teléfono dominicano válido");
+        birthDate.setRequired(true);
+        gender.setRequired(true);
+        form.add(username, password, firstName, lastName, email, phoneNumber, birthDate, gender, nationality);
+        form.setColspan(email, 2);
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("20rem", 2));
+        form.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
+        return form;
+    }
+
+    private FormLayout createEmployeeInfoForm() {
+        FormLayout form = new FormLayout();
+        employeeRole.setRequired(true);
+        salary.setRequired(true);
+        hireDate.setRequired(true);
+        workSchedule.setRequired(true);
+        form.add(employeeRole, salary, hireDate, workSchedule, emergencyContactName, emergencyContactPhone);
+        form.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
+        return form;
+    }
+
+    private FormLayout createAddressForm() {
+        FormLayout form = new FormLayout();
+        streetAddress.setRequired(true);
+        sector.setRequired(true);
+        form.add(province, municipality, sector, streetAddress);
+        form.addClassNames(LumoUtility.Gap.LARGE, LumoUtility.Width.FULL);
+        return form;
+    }
+
+    private boolean validateFields() {
+        boolean anyBlank = isBlank(username.getValue()) || isBlank(password.getValue()) || isBlank(firstName.getValue())
+                || isBlank(lastName.getValue()) || isBlank(email.getValue()) || isBlank(phoneNumber.getValue())
+                || birthDate.isEmpty() || gender.isEmpty() || isBlank(province.getValue())
+                || isBlank(municipality.getValue()) || isBlank(sector.getValue()) || isBlank(streetAddress.getValue())
+                || employeeRole.isEmpty() || isBlank(salary.getValue()) || hireDate.isEmpty()
+                || isBlank(workSchedule.getValue());
+        if (anyBlank) {
+            handleOnError("Por favor, complete todos los campos requeridos.");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     private void handleOnSuccess() {
         Notification.show("Empleado guardado exitosamente", 3000, Notification.Position.BOTTOM_END)
                 .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         UI.getCurrent().navigate("/employees");
+    }
+
+    private void handleOnError(String errorMessage) {
+        Notification.show(errorMessage, 5000, Notification.Position.MIDDLE)
+                .addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 }
