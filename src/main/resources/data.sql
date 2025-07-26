@@ -168,17 +168,17 @@ VALUES (6, '67890123456', NULL, NULL, NULL, 'SMS', 'Emergency Contact 6',
         'PASANTE', TRUE);
 --
 -- -- Data for pets table (40 rows)
-INSERT INTO pets (id, name, type, breed, birth_date, gender, active)
-VALUES (1, 'Milo', 'DOG', 'Yorkshire Terrier', '2020-05-10', 'MALE', TRUE),
-       (2, 'Lucy', 'CAT', 'Persian', '2021-01-15', 'FEMALE', TRUE),
-       (3, 'Max', 'DOG', 'Golden Retriever', '2019-11-22', 'MALE', TRUE),
-       (4, 'Bella', 'DOG', 'German Shepherd', '2022-08-01', 'FEMALE', TRUE),
-       (5, 'Rocky', 'DOG', 'French Bulldog', '2018-03-12', 'MALE', TRUE),
-       (6, 'Misty', 'CAT', 'Persian', '2022-09-20', 'FEMALE', TRUE),
-       (7, 'Duke', 'DOG', 'Poodle', '2021-07-11', 'MALE', TRUE),
-       (8, 'Coco', 'CAT', 'Persian', '2023-01-05', 'FEMALE', TRUE),
-       (9, 'Zeus', 'DOG', 'Rottweiler', '2020-02-28', 'MALE', TRUE),
-       (10, 'Sasha', 'DOG', 'Yorkshire Terrier', '2022-11-15', 'FEMALE', TRUE);
+ INSERT INTO pets (id, name, type, breed, birth_date, gender, active) VALUES
+ (1, 'Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE),
+ (2, 'Lucy', 'GATO', 'Persa', '2021-01-15', 'FEMENINO', TRUE),
+ (3, 'Max', 'PERRO', 'Golden Retriever', '2019-11-22', 'MASCULINO', TRUE),
+ (4, 'Bella', 'PERRO', 'Pastor Alemán', '2022-08-01', 'FEMENINO', TRUE),
+ (5, 'Rocky', 'PERRO', 'Bulldog Francés', '2018-03-12', 'MASCULINO', TRUE),
+ (6, 'Misty', 'GATO', 'Persa', '2022-09-20', 'FEMENINO', TRUE),
+ (7, 'Duke', 'PERRO', 'Poodle', '2021-07-11', 'MASCULINO', TRUE),
+ (8, 'Coco', 'GATO', 'Persa', '2023-01-05', 'FEMENINO', TRUE),
+ (9, 'Zeus', 'PERRO', 'Rottweiler', '2020-02-28', 'MASCULINO', TRUE),
+ (10, 'Sasha', 'PERRO', 'Yorkshire Terrier', '2022-11-15', 'FEMENINO', TRUE);
 -- (11, 'Oliver', 'Cat', 'Domestic Shorthair', '2023-03-01', 'MALE', TRUE),
 -- (12, 'Daisy', 'Dog', 'Beagle', '2022-04-10', 'FEMALE', TRUE),
 -- (13, 'Leo', 'Cat', 'Ragdoll', '2021-05-20', 'MALE', TRUE),
@@ -355,29 +355,18 @@ VALUES (1, 'Annual check-up.', 'Healthy', 'N/A', 'N/A', '2024-06-01 10:00:00',
 -- (40, '2024-08-21 11:00:00', '2024-08-21 11:45:00', 'Emergency', 'Scheduled', 'Ingested foreign object', 'Needs endoscopy.', 20, 40, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL);
 --
 -- -- Data for waiting_room table (10 rows)
-INSERT INTO waiting_room (id, client_id, pet_id, arrival_time, status,
-                          reason_for_visit, priority, notes,
-                          consultation_started_at, completed_at)
-VALUES (1, 6, 1, '2024-07-05 09:00:00', 'WAITING', 'Check-up', 'NORMAL', 'N/A',
-        NULL, NULL),
-       (2, 7, 2, '2024-07-05 09:15:00', 'WAITING', 'Vaccination', 'URGENT',
-        'N/A', NULL, NULL),
-       (3, 8, 3, '2024-07-05 10:00:00', 'WAITING', 'Skin issue', 'NORMAL',
-        'N/A', NULL, NULL),
-       (4, 9, 4, '2024-07-05 10:05:00', 'IN_CONSULTATION', 'Vaccination',
-        'NORMAL', 'N/A', '2024-07-05 10:10:00', NULL),
-       (5, 10, 5, '2024-07-05 10:20:00', 'WAITING', 'Not eating', 'EMERGENCY',
-        'N/A', NULL, NULL),
-       (6, 11, 6, '2024-07-05 11:00:00', 'WAITING', 'Check-up', 'URGENT', 'N/A',
-        NULL, NULL),
-       (7, 12, 7, '2024-07-05 11:15:00', 'WAITING', 'Vaccination', 'NORMAL',
-        'N/A', NULL, NULL),
-       (8, 13, 8, '2024-07-05 11:30:00', 'IN_CONSULTATION', 'Cough', 'URGENT',
-        'N/A', '2024-07-05 11:35:00', NULL),
-       (9, 14, 9, '2024-07-05 11:45:00', 'WAITING', 'Grooming', 'NORMAL', 'N/A',
-        NULL, NULL),
-       (10, 15, 10, '2024-07-05 12:00:00', 'WAITING', 'New pet', 'URGENT',
-        'N/A', NULL, NULL);
+ INSERT INTO waiting_room (id, client_id, pet_id, arrival_time, status, reason_for_visit, priority, notes, consultation_started_at, completed_at) VALUES
+ (1, 6, 1, '2024-07-05 09:00:00', 'WAITING', 'Check-up', 'NORMAL', 'N/A', NULL, NULL),
+ (2, 7, 2, '2024-07-05 09:15:00', 'WAITING', 'Vaccination', 'URGENTE', 'N/A', NULL, NULL),
+ (3, 8, 3, '2024-07-05 10:00:00', 'WAITING', 'Skin issue', 'NORMAL', 'N/A', NULL, NULL),
+ (4, 9, 4, '2024-07-05 10:05:00', 'IN_CONSULTATION', 'Vaccination', 'NORMAL', 'N/A', '2024-07-05 10:10:00', NULL),
+ (5, 10, 5, '2024-07-05 10:20:00', 'WAITING', 'Not eating', 'EMERGENCIA', 'N/A', NULL, NULL),
+ (6, 11, 6, '2024-07-05 11:00:00', 'WAITING', 'Check-up', 'URGENTE', 'N/A', NULL, NULL),
+ (7, 12, 7, '2024-07-05 11:15:00', 'WAITING', 'Vaccination', 'NORMAL', 'N/A', NULL, NULL),
+ (8, 13, 8, '2024-07-05 11:30:00', 'IN_CONSULTATION', 'Cough', 'URGENTE', 'N/A', '2024-07-05 11:35:00', NULL),
+ (9, 14, 9, '2024-07-05 11:45:00', 'WAITING', 'Grooming', 'NORMAL', 'N/A', NULL, NULL),
+ (10, 15, 10, '2024-07-05 12:00:00', 'WAITING', 'New pet', 'URGENTE', 'N/A', NULL, NULL);
+
 
 
 -- Data for suppliers table (10 rows)
@@ -401,39 +390,23 @@ VALUES (1, '123456789', 'Pets & Suppliers Co.', 'John Doe', '809-123-4567',
         'Villa Altagracia', '654 Maple St.', TRUE);
 
 -- Data for supplier_products table (10 rows)-- Data for products table with correct attributes and ProductCategory enum
-INSERT INTO products (product_id, name, description, active, price, stock,
-                      reorder_level, supplier_id, category)
-VALUES (1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE,
-        1500.00, 100, 20, 1, 'FOOD'),
-       (2, 'High Protein Cat Food', 'Nutritious wet food for cats', TRUE,
-        1200.00, 200, 30, 1, 'FOOD'),
-       (3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE,
-        500.00, 300, 50, 2, 'FOOD'),
-       (4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 400.00,
-        250, 40, 2, 'FOOD'),
-       (5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin',
-        TRUE, 800.00, 150, 25, 3, 'HYGIENE'),
-       (6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE,
-        700.00, 180, 30, 3, 'HYGIENE'),
-       (7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs',
-        TRUE, 600.00, 120, 20, 4, 'ACCESSORY'),
-       (8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE,
-        550.00, 130, 25, 4, 'ACCESSORY'),
-       (9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 900.00,
-        110, 15, 5, 'ACCESSORY'),
-       (10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 300.00,
-        400, 60, 5, 'HYGIENE'),
-       (11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE,
-        2500.00, 50, 10, 1, 'MEDICINE'),
-       (12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE,
-        1800.00, 75, 15, 2, 'MEDICINE'),
-       (13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 1200.00,
-        100, 20, 3, 'MEDICINE'),
-       (14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 650.00, 200,
-        35, 4, 'HYGIENE'),
-       (15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 3500.00,
-        25, 5, 5, 'ACCESSORY');
-
+ INSERT INTO products (product_id, name, description, active, price, stock, reorder_level, supplier_id, category) VALUES
+ (1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE, 1500.00, 100, 20, 1, 'ALIMENTO'),
+ (2, 'High Protein Cat food', 'Nutritious wet food for cats', TRUE, 1200.00, 200, 30, 1, 'ALIMENTO'),
+ (3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE, 500.00, 300, 50, 2, 'ALIMENTO'),
+ (4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 400.00, 250, 40, 2, 'ALIMENTO'),
+ (5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin', TRUE, 800.00, 150, 25, 3, 'HIGIENE'),
+ (6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE, 700.00, 180, 30, 3, 'HIGIENE'),
+ (7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs', TRUE, 600.00, 120, 20, 4, 'ACCESORIO'),
+ (8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE, 550.00, 130, 25, 4, 'ACCESORIO'),
+ (9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 900.00, 110, 15, 5, 'ACCESORIO'),
+ (10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 300.00, 400, 60, 5, 'HIGIENE'),
+ (11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE, 2500.00, 50, 10, 1, 'MEDICINA'),
+ (12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE, 1800.00, 75, 15, 2, 'MEDICINA'),
+ (13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 1200.00, 100, 20, 3, 'MEDICINA'),
+ (14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 650.00, 200, 35, 4, 'HIGIENE'),
+ (15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 3500.00, 25, 5, 5, 'ACCESORIO');
+ 
 INSERT INTO invoices (client,
                       issued_date,
                       payment_date,

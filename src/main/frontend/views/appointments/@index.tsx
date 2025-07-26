@@ -187,7 +187,7 @@ export default function AppointmentsCalendarView() {
       <div className="calendar-header mb-m flex justify-between items-center">
         <h2 className="text-xl font-bold">Calendario de Citas</h2>
         <Button autofocus theme="primary contrast" onClick={() => setWeekendsVisible(!weekendsVisible)}>
-          {weekendsVisible ? 'Hide Weekends' : 'Show Weekends'}
+          {weekendsVisible ? 'Ocultar Fines de Semana' : 'Mostrar Fines de Semana'}
         </Button>
       </div>
 

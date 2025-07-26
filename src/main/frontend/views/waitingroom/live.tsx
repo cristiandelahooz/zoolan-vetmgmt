@@ -272,8 +272,8 @@ export default function WaitingRoomView() {
 
   const priorityItems = [
     { label: '✅ Normal - Consulta de rutina', value: Priority.NORMAL },
-    { label: '! Urgente - Requiere atención pronta', value: Priority.URGENT },
-    { label: '🚨 Emergencia - Atención inmediata', value: Priority.EMERGENCY },
+    { label: '! Urgente - Requiere atención pronta', value: Priority.URGENTE },
+    { label: '🚨 Emergencia - Atención inmediata', value: Priority.EMERGENCIA },
   ]
 
   if (loading) {

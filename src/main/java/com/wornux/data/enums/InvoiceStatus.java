@@ -7,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum InvoiceStatus {
 
-    PARTIAL("Partial"),
-    OVERPAID("Overpaid"),
-    PENDING("Pending"),
-    PAID("Paid"),
-    OVERDUE("Overdue"),
-    DRAFT("Draft"),
-    UNSENT("Unsent"),
-    SENT("Sent");
+    PARTIAL("Parcial"),
+    OVERPAID("Sobrepago"),
+    PENDING("Pendiente"),
+    PAID("Pago"),
+    OVERDUE("Vencido"),
+    DRAFT("Borrador"),
+    UNSENT("No enviado"),
+    SENT("Enviado");
 
     private final String display;
 

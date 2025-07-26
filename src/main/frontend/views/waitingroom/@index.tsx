@@ -48,9 +48,9 @@ const PriorityRenderer: React.FC<{ item: WaitingRoomModel }> = ({ item }) => {
   const priority = item.priority?.valueOf()
 
   switch (priority) {
-    case Priority.EMERGENCY:
+    case Priority.EMERGENCIA:
       return <span style={{ color: '#dc2626', fontWeight: 'bold' }}> Emergencia</span>
-    case Priority.URGENT:
+    case Priority.URGENTE:
       return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}> Urgente</span>
     case Priority.NORMAL:
     default:

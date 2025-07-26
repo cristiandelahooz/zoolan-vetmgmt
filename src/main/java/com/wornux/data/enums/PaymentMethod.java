@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PaymentMethod {
 
-    CASH("Cash"),
-    ELECTRONIC("Electronic"), // Credit Card, PayPal, Stripe, etc.
-    TRANSFER("Transfer");
+    CASH("Efectivo"),
+    ELECTRONIC("Electronico"), // Credit Card, PayPal, Stripe, etc.
+    TRANSFER("Transferencia");
 
     private final String display;
 }
