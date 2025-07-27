@@ -113,7 +113,8 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
                         pet.getFurType(),
                         pet.getOwners().isEmpty()
                                 ? "Sin dueño"
-                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
+                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName(),
+                        pet.isActive()))
                 .toList();
     }
 
@@ -203,5 +204,10 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<Pet> findSimilarPetsByName(String name) {
         log.debug("Searching for pets with name containing: {}", name);
         return petRepository.findSimilarPetsByName(name);
+    }
+
+    @Override
+    public PetRepository getRepository() {
+        return petRepository;
     }
 }
