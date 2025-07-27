@@ -18,8 +18,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.data.repository.support.Repositories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +76,10 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
      */
     @Override
     public Page<Employee> getAllEmployees(Pageable pageable) {
-        log.debug("Fetching page {} of employees", pageable.getPageNumber());
+        if (pageable == null || pageable.isUnpaged()) {
+            List<Employee> all = employeeRepository.findAll();
+            return new PageImpl<>(all);
+        }
         return employeeRepository.findAll(pageable);
     }
 
@@ -128,4 +133,11 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
                 .filter(employee -> employee.getEmployeeRole() == EmployeeRole.VETERINARIAN).toList();
     }
 
+    /*
+
+     */
+    @Override
+    public EmployeeRepository getRepository(){
+        return this.employeeRepository;
+    }
 }
