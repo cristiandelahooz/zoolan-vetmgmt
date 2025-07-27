@@ -8,6 +8,7 @@ public class ValidationConstants {
     public static final int MIN_USERNAME_LENGTH = 3;
     public static final int MAX_USERNAME_LENGTH = 50;
     public static final int MIN_PASSWORD_LENGTH = 8;
+    public static final String EMAIL_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
 
     // Client validation constants
     public static final int MAX_IDENTIFICATION_DOCUMENT_COUNT = 1;
@@ -21,7 +22,7 @@ public class ValidationConstants {
     public static final String PASSPORT_PATTERN = "^[0-9A-Z]{9}$";
     public static final String RNC_PATTERN = "\\d{9}$";
 
-    public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String DATE_PATTERN = "mm/dd/yyyy";
 
     // Length constraints
     public static final int MAX_NOTES_LENGTH = 1000;
