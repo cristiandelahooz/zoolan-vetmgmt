@@ -179,4 +179,24 @@ public final class PredicateUtils {
         }
         return value.trim().matches("^-?\\d+$");
     }
+
+    public static <T> Predicate predicateForTextField(Root<T> root, CriteriaBuilder builder, String[] fields, String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return builder.conjunction();
+        }
+
+        String normalized = "%" + normalizeText(value) + "%";
+
+        Predicate[] predicates = new Predicate[fields.length];
+
+        for (int i = 0; i < fields.length; i++) {
+            predicates[i] = builder.like(
+                    builder.lower(root.get(fields[i]).as(String.class)),
+                    normalized
+            );
+        }
+
+        return builder.or(predicates);
+    }
+
 }
