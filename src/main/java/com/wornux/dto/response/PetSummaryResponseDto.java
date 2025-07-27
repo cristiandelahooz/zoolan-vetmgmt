@@ -15,6 +15,6 @@ public record PetSummaryResponseDto(
         String color,
         PetSize size,
         FurType furType,
-        String ownerName
+        String ownerName,
+        boolean active
 ) {}
-
