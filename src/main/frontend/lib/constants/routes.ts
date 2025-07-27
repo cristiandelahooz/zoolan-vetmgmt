@@ -4,8 +4,8 @@ export const ROUTES = {
   APPOINTMENTS: '/appointments',
 
   // Client routes
-  CLIENTS: '/clients',
-  CLIENT_NEW: '/clients/new',
+  BUSINESS_CLIENTS: '/business-clients',
+  INDIVIDUAL_CLIENTS: '/individual-clients',
 
   // Other feature routes
   CLIENT_EDIT: '/clients/edit',
@@ -51,10 +51,3 @@ export const ROUTES = {
   //inventory routes
   INVENTORY: '/inventory',
 } as const
-
-// Type for route values
-export type Route = (typeof ROUTES)[keyof typeof ROUTES]
-
-// Helper function for dynamic routes
-export const createClientRoute = (id: string) => `${ROUTES.CLIENTS}/${id}`
-export const createEditClientRoute = (id: string) => `${ROUTES.CLIENT_EDIT}/${id}`

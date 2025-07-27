@@ -83,14 +83,14 @@ export const menuConfig: MenuItemConfig[] = [
     icon: 'lumo:user',
     children: [
       {
-        path: ROUTES.CLIENTS,
-        title: 'Listar',
+        path: ROUTES.INDIVIDUAL_CLIENTS,
+        title: 'Individuales',
         icon: 'lumo:align-left',
       },
       {
-        path: ROUTES.CLIENT_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
+        path: ROUTES.BUSINESS_CLIENTS,
+        title: 'Empresariales',
+        icon: 'lumo:align-left',
       },
     ],
   },

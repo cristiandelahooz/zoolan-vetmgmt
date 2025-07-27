@@ -33,13 +33,12 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 import static com.wornux.utils.PredicateUtils.predicateForTextField;
 
 @Slf4j
-@Route(value = "clientes-individuales")
+@Route(value = "individual-clients")
 @PageTitle("Clientes Individuales")
 public class IndividualClientView extends Div {
 

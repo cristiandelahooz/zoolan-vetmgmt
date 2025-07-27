@@ -3,7 +3,6 @@ package com.wornux.views.clients;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -29,14 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Optional;
-import java.util.Set;
-
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 import static com.wornux.utils.PredicateUtils.predicateForTextField;
 
 @Slf4j
-@Route(value = "clientes-empresariales")
+@Route(value = "business-clients")
 @PageTitle("Clientes Empresariales")
 public class CompanyClientView extends Div {
 
