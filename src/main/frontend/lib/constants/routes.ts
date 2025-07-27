@@ -26,8 +26,6 @@ export const ROUTES = {
 
   //Employee routes
   EMPLOYEES: '/employees',
-  EMPLOYEE_EDIT: '/employees/edit',
-  EMPLOYEE_NEW: '/employees/form',
 
   //waiting room routes
   WAITING_ROOM: '/waitingroom',

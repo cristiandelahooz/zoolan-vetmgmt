@@ -117,21 +117,9 @@ export const menuConfig: MenuItemConfig[] = [
     ],
   },
   {
-    path: undefined,
+    path: ROUTES.EMPLOYEES,
     title: 'Empleados',
     icon: 'vaadin:doctor',
-    children: [
-      {
-        path: ROUTES.EMPLOYEES,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.EMPLOYEE_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-    ],
   },
   {
     path: undefined,
