@@ -401,4 +401,10 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         log.debug("Request to get WaitingRoom: {}", id);
         return waitingRoomRepository.findById(id);
     }
+
+    @Override
+    public void update(WaitingRoom waitingRoom) {
+        waitingRoomRepository.save(waitingRoom);
+    }
+
 }
