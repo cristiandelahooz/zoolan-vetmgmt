@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -83,6 +84,7 @@ public class PetView extends Div {
 
     private void createGrid(PetService service, Specification<Pet> specification) {
         GridUtils.configureGrid(grid, specification, service.getRepository());
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
         GridUtils.addColumn(grid, Pet::getName, "Nombre", "name");
         GridUtils.addColumn(grid, pet -> pet.getType().name(), "Tipo", "type");
