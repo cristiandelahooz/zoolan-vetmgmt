@@ -42,7 +42,7 @@ public class PetForm extends Dialog {
     private final ComboBox<FurType> furType = new ComboBox<>("Tipo de Pelo");
 
     private final ClientService clientService;
-    private final Button selectOwnerButton = new Button("Seleccionar Dueño");
+    private final Button selectOwnerButton = new Button("Seleccionar");
     private final TextField ownerName = new TextField("Dueño");
     private Client selectedOwner;
     private Long ownerId;
