@@ -28,4 +28,7 @@ public interface PetRepository extends JpaRepository<Pet, Long>, JpaSpecificatio
 
     @Query("SELECT p FROM Pet p WHERE p.active = true")
     List<Pet> findAllActive();
+
+    @Query("SELECT p FROM Pet p JOIN p.owners o WHERE o.id = :ownerId AND p.active = true")
+    List<Pet> findByOwnerId2(@Param("ownerId") Long ownerId);
 }
