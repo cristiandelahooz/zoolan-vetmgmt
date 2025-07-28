@@ -208,13 +208,13 @@ export default function WaitingRoomView() {
 
   const getStatusDisplay = (status: WaitingRoomStatus) => {
     switch (status) {
-      case WaitingRoomStatus.WAITING:
+      case WaitingRoomStatus.ESPERANDO:
         return { icon: '⏳', text: 'Esperando', theme: 'badge contrast' }
-      case WaitingRoomStatus.IN_CONSULTATION:
+      case WaitingRoomStatus.EN_CONSULTA:
         return { icon: '🩺', text: 'En Consulta', theme: 'badge primary' }
-      case WaitingRoomStatus.COMPLETED:
+      case WaitingRoomStatus.COMPLETADO:
         return { icon: '✅', text: 'Completado', theme: 'badge success' }
-      case WaitingRoomStatus.CANCELLED:
+      case WaitingRoomStatus.CANCELADO:
         return { icon: '❌', text: 'Cancelado', theme: 'badge error' }
       default:
         return { icon: '❓', text: 'Desconocido', theme: 'badge' }
@@ -438,11 +438,11 @@ export default function WaitingRoomView() {
                 className="p-m"
                 style={{
                   borderLeft: `4px solid ${
-                    entry.status === WaitingRoomStatus.WAITING
+                    entry.status === WaitingRoomStatus.ESPERANDO
                       ? 'var(--lumo-warning-color)'
-                      : entry.status === WaitingRoomStatus.IN_CONSULTATION
+                      : entry.status === WaitingRoomStatus.EN_CONSULTA
                         ? 'var(--lumo-primary-color)'
-                        : entry.status === WaitingRoomStatus.COMPLETED
+                        : entry.status === WaitingRoomStatus.COMPLETADO
                           ? 'var(--lumo-success-color)'
                           : 'var(--lumo-error-color)'
                   }`,
@@ -502,7 +502,7 @@ export default function WaitingRoomView() {
                 </VerticalLayout>
 
                 <HorizontalLayout theme="spacing" className="justify-end">
-                  {entry.status === WaitingRoomStatus.WAITING && (
+                  {entry.status === WaitingRoomStatus.ESPERANDO && (
                     <>
                       <Button theme="primary small" onClick={() => handleMoveToConsultation(entry.id!)}>
                         Iniciar Consulta
@@ -512,14 +512,14 @@ export default function WaitingRoomView() {
                       </Button>
                     </>
                   )}
-                  {entry.status === WaitingRoomStatus.IN_CONSULTATION && (
+                  {entry.status === WaitingRoomStatus.EN_CONSULTA && (
                     <Button theme="success small" onClick={() => handleCompleteConsultation(entry.id!)}>
                       Completar Consulta
                     </Button>
                   )}
-                  {(entry.status === WaitingRoomStatus.COMPLETED || entry.status === WaitingRoomStatus.CANCELLED) && (
+                  {(entry.status === WaitingRoomStatus.COMPLETADO || entry.status === WaitingRoomStatus.CANCELADO) && (
                     <span className="text-s text-secondary">
-                      {entry.status === WaitingRoomStatus.COMPLETED ? 'Consulta finalizada' : 'Visita cancelada'}
+                      {entry.status === WaitingRoomStatus.COMPLETADO ? 'Consulta finalizada' : 'Visita cancelada'}
                     </span>
                   )}
                 </HorizontalLayout>
