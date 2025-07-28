@@ -125,6 +125,12 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     }
 
     @Override
+    public List<Pet> getPetsByOwnerId2(Long ownerId) {
+        return petRepository.findByOwnerId2(ownerId);
+    }
+
+
+    @Override
     @Transactional
     // @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
