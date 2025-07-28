@@ -97,7 +97,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.setReasonForVisit(reasonForVisit);
         waitingRoom.setPriority(priority != null ? priority : Priority.NORMAL);
         waitingRoom.setNotes(notes);
-        waitingRoom.setStatus(WaitingRoomStatus.WAITING);
+        waitingRoom.setStatus(WaitingRoomStatus.ESPERANDO);
 
         WaitingRoom saved = waitingRoomRepository.save(waitingRoom);
         log.info("Agregado a sala de espera con ID: {} para {} - {}", saved.getId(), client.getFirstName(),
@@ -111,8 +111,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     public List<WaitingRoom> getCurrentWaitingRoom() {
         log.debug("Request to get current waiting room");
 
-        List<WaitingRoomStatus> activeStatuses = Arrays.asList(WaitingRoomStatus.WAITING,
-                WaitingRoomStatus.IN_CONSULTATION);
+        List<WaitingRoomStatus> activeStatuses = Arrays.asList(WaitingRoomStatus.ESPERANDO,
+                WaitingRoomStatus.EN_CONSULTA);
 
         List<WaitingRoom> waitingList = waitingRoomRepository.findCurrentWaitingRoom(activeStatuses);
 
@@ -151,7 +151,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
-        if (waitingRoom.getStatus() != WaitingRoomStatus.WAITING) {
+        if (waitingRoom.getStatus() != WaitingRoomStatus.ESPERANDO) {
             throw new IllegalStateException("Solo se pueden mover a consulta las entradas en estado 'WAITING'");
         }
 
@@ -171,7 +171,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
-        if (waitingRoom.getStatus() != WaitingRoomStatus.IN_CONSULTATION) {
+        if (waitingRoom.getStatus() != WaitingRoomStatus.EN_CONSULTA) {
             throw new IllegalStateException("Solo se pueden completar las consultas en estado 'IN_CONSULTATION'");
         }
 
@@ -191,12 +191,12 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
                 .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
-        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETED
-                || waitingRoom.getStatus() == WaitingRoomStatus.CANCELLED) {
+        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETADO
+                || waitingRoom.getStatus() == WaitingRoomStatus.CANCELADO) {
             throw new IllegalStateException("No se puede cancelar una entrada ya completada o cancelada");
         }
 
-        waitingRoom.setStatus(WaitingRoomStatus.CANCELLED);
+        waitingRoom.setStatus(WaitingRoomStatus.CANCELADO);
         waitingRoom.setCompletedAt(LocalDateTime.now());
 
         String currentNotes = waitingRoom.getNotes();
@@ -258,13 +258,13 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     @Override
     @Transactional(readOnly = true)
     public long getWaitingCount() {
-        return waitingRoomRepository.countByStatus(WaitingRoomStatus.WAITING);
+        return waitingRoomRepository.countByStatus(WaitingRoomStatus.ESPERANDO);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long getInConsultationCount() {
-        return waitingRoomRepository.countByStatus(WaitingRoomStatus.IN_CONSULTATION);
+        return waitingRoomRepository.countByStatus(WaitingRoomStatus.EN_CONSULTA);
     }
 
     @Override
@@ -330,7 +330,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
             List<WaitingRoom> completedToday = waitingRoomRepository
                     .findTodayHistory(startOfDay, endOfDay, Pageable.unpaged()).getContent().stream()
-                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETED
+                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETADO
                             && wr.getConsultationStartedAt() != null)
                     .toList();
 
@@ -364,7 +364,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
             }
 
             if (waitingRoom.getStatus() == null) {
-                waitingRoom.setStatus(WaitingRoomStatus.WAITING);
+                waitingRoom.setStatus(WaitingRoomStatus.ESPERANDO);
             }
             if (waitingRoom.getPriority() == null) {
                 waitingRoom.setPriority(Priority.NORMAL);
@@ -387,7 +387,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         WaitingRoom waitingRoom = waitingRoomRepository.findById(id)
                 .orElseThrow(() -> new WaitingRoomNotFoundException(id));
 
-        if (waitingRoom.getStatus() == WaitingRoomStatus.IN_CONSULTATION) {
+        if (waitingRoom.getStatus() == WaitingRoomStatus.EN_CONSULTA) {
             throw new IllegalStateException("No se puede eliminar una entrada que está en consulta activa");
         }
 
