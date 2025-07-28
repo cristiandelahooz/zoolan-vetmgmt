@@ -73,6 +73,7 @@ public interface PetService {
      * @return paginated list of Pets belonging to the given owner
      */
     Page<Pet> getPetsByOwnerId(Long ownerId, Pageable pageable);
+    List<Pet> getPetsByOwnerId2(Long ownerId);
 
     /**
      * Permanently deletes a Pet.
