@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.wornux.data.entity.Client;
 import com.wornux.services.interfaces.ClientService;
 
@@ -47,30 +48,34 @@ public class SelectOwnerDialog extends Dialog {
         TextField cedulaFilter = new TextField();
         cedulaFilter.setPlaceholder("Filtrar por cédula");
 
-        TextField phoneFilter = new TextField();
-        phoneFilter.setPlaceholder("Filtrar por teléfono");
+        //TextField phoneFilter = new TextField();
+        //phoneFilter.setPlaceholder("Filtrar por teléfono");
 
-        HorizontalLayout filterBar = new HorizontalLayout(firstNameFilter, lastNameFilter, cedulaFilter, phoneFilter);
+        HorizontalLayout filterBar = new HorizontalLayout(firstNameFilter, lastNameFilter, cedulaFilter);
 
+
+        firstNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
         firstNameFilter.addValueChangeListener(e ->
                 dataProvider.setFilter(Client::getFirstName,
                         name -> name != null && name.toLowerCase().contains(firstNameFilter.getValue().toLowerCase()))
         );
 
+        lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
         lastNameFilter.addValueChangeListener(e ->
                 dataProvider.setFilter(Client::getLastName,
                         last -> last != null && last.toLowerCase().contains(lastNameFilter.getValue().toLowerCase()))
         );
 
+        cedulaFilter.setValueChangeMode(ValueChangeMode.EAGER);
         cedulaFilter.addValueChangeListener(e ->
                 dataProvider.setFilter(Client::getCedula,
                         ced -> ced != null && ced.contains(cedulaFilter.getValue()))
         );
 
-        phoneFilter.addValueChangeListener(e ->
+        /*phoneFilter.addValueChangeListener(e ->
                 dataProvider.setFilter(Client::getPhoneNumber,
                         phone -> phone != null && phone.contains(phoneFilter.getValue()))
-        );
+        );*/
 
         grid.addColumn(Client::getFirstName).setHeader("Nombre");
         grid.addColumn(Client::getLastName).setHeader("Apellido");
