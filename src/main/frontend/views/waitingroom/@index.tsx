@@ -31,13 +31,13 @@ const StatusRenderer: React.FC<{ item: WaitingRoomModel }> = ({ item }) => {
   const status = item.status?.valueOf()
 
   switch (status) {
-    case WaitingRoomStatus.WAITING:
+    case WaitingRoomStatus.ESPERANDO:
       return <span style={{ color: 'rgba(245,158,11,0.68)', fontWeight: 'bold' }}> Esperando</span>
-    case WaitingRoomStatus.IN_CONSULTATION:
+    case WaitingRoomStatus.EN_CONSULTA:
       return <span style={{ color: '#3b82f6', fontWeight: 'bold' }}> En Consulta</span>
-    case WaitingRoomStatus.COMPLETED:
+    case WaitingRoomStatus.COMPLETADO:
       return <span style={{ color: '#16a34a', fontWeight: 'bold' }}> Completado</span>
-    case WaitingRoomStatus.CANCELLED:
+    case WaitingRoomStatus.CANCELADO:
       return <span style={{ color: '#dc2626', fontWeight: 'bold' }}> Cancelado</span>
     default:
       return <span>Desconocido</span>
