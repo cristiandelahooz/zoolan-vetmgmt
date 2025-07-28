@@ -3,6 +3,8 @@ package com.wornux.views.waitingroom;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
@@ -14,10 +16,13 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -31,6 +36,8 @@ public class WaitingRoomView extends VerticalLayout {
 
     private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
     private final WaitingRoomForm form;
+    private final VerticalLayout cardContainer = new VerticalLayout();
+
 
     public WaitingRoomView(WaitingRoomService waitingRoomService,
             ClientService clientService,
@@ -71,7 +78,8 @@ public class WaitingRoomView extends VerticalLayout {
         form = new WaitingRoomForm(waitingRoomService, clientService, petService);
         form.setOnSave(dto -> refreshGrid());
 
-        add(header, grid);
+        //add(header, grid);
+        add(header, grid, cardContainer);
         refreshGrid();
     }
 
@@ -97,6 +105,13 @@ public class WaitingRoomView extends VerticalLayout {
 
         grid.addComponentColumn(this::renderStatus)
                 .setHeader("Estado");
+
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            WaitingRoom selected = event.getValue();
+            if (selected != null) {
+                openDetailsDialog(selected);
+            }
+        });
 
     }
 
@@ -140,6 +155,135 @@ public class WaitingRoomView extends VerticalLayout {
 
         return badge;
     }
+
+    private void openDetailsDialog(WaitingRoom wr) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Detalles de la Consulta");
+        dialog.setModal(true);
+        dialog.setDraggable(true);
+        dialog.setResizable(true);
+        dialog.setWidth("600px");
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+        layout.getStyle()
+                .set("padding", "1.5rem")
+                .set("border-radius", "10px")
+                .set("background-color", "var(--lumo-base-color)")
+                .set("box-shadow", "var(--lumo-box-shadow-m)");
+        layout.setSpacing(true);
+        layout.setPadding(false);
+
+        // Encabezado: Prioridad y Estado
+        Span priority = new Span(wr.getPriority().name());
+        priority.getElement().getThemeList().add("badge pill");
+        switch (wr.getPriority()) {
+        case URGENTE -> priority.getElement().getThemeList().add("error");
+        case EMERGENCIA -> priority.getElement().getThemeList().add("warning");
+        case NORMAL -> priority.getElement().getThemeList().add("success");
+        }
+
+        Span status = new Span(wr.getStatus().name().replace("_", " "));
+        status.getElement().getThemeList().add("badge pill");
+        switch (wr.getStatus()) {
+        case EN_CONSULTA -> status.getElement().getThemeList().add("success");
+        case COMPLETADO -> status.getElement().getThemeList().add("contrast");
+        case CANCELADO -> status.getElement().getThemeList().add("error");
+        default -> status.getElement().getThemeList().add("primary");
+        }
+
+        HorizontalLayout header = new HorizontalLayout(priority, status);
+        header.setWidthFull();
+        header.setJustifyContentMode(JustifyContentMode.BETWEEN);
+
+        // Datos del cliente
+        Span clientName = new Span(wr.getClient().getFirstName() + " " + wr.getClient().getLastName());
+        clientName.getElement().getStyle().set("font-weight", "bold").set("font-size", "1.2em");
+
+        Span contactInfo = new Span("📞 " + wr.getClient().getPhoneNumber() + " • ✉ " + wr.getClient().getEmail());
+
+        // Datos del animal
+        Span petInfo = new Span(wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • " + wr.getPet().getBreed() + " • " + wr.getPet().getGender());
+
+        // Datos de visita
+        Span reason = new Span("📝 Motivo: " + wr.getReasonForVisit());
+        Span arrival = new Span("🕒 Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
+
+        Duration waitTime = Duration.ZERO;
+        if (wr.getArrivalTime() != null && !wr.getArrivalTime().isAfter(LocalDateTime.now())) {
+            waitTime = Duration.between(wr.getArrivalTime(), LocalDateTime.now());
+        }
+        String formattedWait = String.format("%dh %02dm", waitTime.toHours(), waitTime.toMinutesPart());
+        Span waiting = new Span("⏳ Esperando: " + formattedWait);
+
+        // Botones según el estado
+        Button completeButton = new Button("Finalizar Consulta", e -> {
+            wr.setStatus(WaitingRoomStatus.COMPLETADO);
+            waitingRoomService.update(wr);
+            refreshGrid();
+            dialog.close();
+        });
+        completeButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+
+        Button startButton = new Button("Iniciar Consulta", e -> {
+            wr.setStatus(WaitingRoomStatus.EN_CONSULTA);
+            waitingRoomService.update(wr);
+            refreshGrid();
+            dialog.close();
+        });
+        startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        /*Button cancelButton = new Button("Cancelar", e -> {
+            wr.setStatus(WaitingRoomStatus.CANCELADO);
+            waitingRoomService.update(wr);
+            refreshGrid();
+            dialog.close();
+        });*/
+
+        Button cancelConsultation = new Button("Cancelar Consulta");
+        cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+        HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
+        actions.setWidthFull();
+        actions.setSpacing(true);
+
+        startButton.setWidthFull();
+        cancelConsultation.setWidthFull();
+
+
+        cancelConsultation.addClickListener(e -> {
+            ConfirmDialog dialogConfirm = new ConfirmDialog();
+            dialogConfirm.setHeader("¿Estás seguro?");
+            dialogConfirm.setText("Esto cancelará la consulta y marcará al paciente como cancelado.");
+
+            dialogConfirm.setCancelable(true);
+            dialogConfirm.setCancelText("No");
+            dialogConfirm.setConfirmText("Sí, cancelar");
+
+            dialogConfirm.addConfirmListener(event -> {
+                wr.setStatus(WaitingRoomStatus.CANCELADO);
+                waitingRoomService.update(wr);
+                refreshGrid();
+                dialog.close(); // cierra el modal original
+            });
+
+            dialogConfirm.open();
+        });
+
+        cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+        HorizontalLayout buttons = new HorizontalLayout();
+        if (wr.getStatus() == WaitingRoomStatus.ESPERANDO) {
+            buttons.add(startButton, cancelConsultation);
+        } else if (wr.getStatus() == WaitingRoomStatus.EN_CONSULTA) {
+            buttons.add(completeButton, cancelConsultation);
+        }
+
+        layout.add(header, clientName, contactInfo, petInfo, reason, arrival, waiting, buttons);
+        dialog.add(layout);
+        dialog.open();
+    }
+
 
 
 }
