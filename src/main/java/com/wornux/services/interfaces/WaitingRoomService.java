@@ -71,4 +71,7 @@ public interface WaitingRoomService {
      */
     void delete(Long id);
 
+    void update(WaitingRoom waitingRoom);
+
+
 }
