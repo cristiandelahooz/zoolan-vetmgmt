@@ -13,6 +13,7 @@ import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.data.repository.WaitingRoomRepository;
 import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import com.wornux.exception.WaitingRoomNotFoundException;
+import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import org.jspecify.annotations.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -407,4 +408,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoomRepository.save(waitingRoom);
     }
 
+    @Override
+    public WaitingRoomRepository getRepository() {
+        return waitingRoomRepository;
+    }
 }
