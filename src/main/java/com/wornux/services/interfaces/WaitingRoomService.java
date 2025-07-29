@@ -3,6 +3,7 @@ package com.wornux.services.interfaces;
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.enums.Priority;
 import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.repository.WaitingRoomRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
@@ -73,5 +74,5 @@ public interface WaitingRoomService {
 
     void update(WaitingRoom waitingRoom);
 
-
+    WaitingRoomRepository getRepository();
 }
