@@ -3,6 +3,7 @@ package com.wornux.views.waitingroom;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -10,21 +11,30 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.Priority;
 import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
+import java.util.Optional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+
 
 @Route("sala-espera")
 @PageTitle("Sala de Espera")
@@ -37,7 +47,9 @@ public class WaitingRoomView extends VerticalLayout {
     private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
     private final WaitingRoomForm form;
     private final VerticalLayout cardContainer = new VerticalLayout();
-
+    TextField searchField = new TextField();
+    private final MultiSelectComboBox<Priority> priorityFilter = new MultiSelectComboBox<>("Prioridad");
+    private final MultiSelectComboBox<WaitingRoomStatus> statusFilter = new MultiSelectComboBox<>("Estado");
 
     public WaitingRoomView(WaitingRoomService waitingRoomService,
             ClientService clientService,
@@ -62,6 +74,33 @@ public class WaitingRoomView extends VerticalLayout {
         titleWithInfo.setAlignItems(Alignment.CENTER);
         titleWithInfo.setSpacing(true);
 
+        priorityFilter.setItems(Priority.values());
+        priorityFilter.setClearButtonVisible(true);
+        priorityFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+        priorityFilter.addValueChangeListener(e -> refreshGrid());
+
+        statusFilter.setItems(WaitingRoomStatus.values());
+        statusFilter.setClearButtonVisible(true);
+        statusFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+        statusFilter.addValueChangeListener(e -> refreshGrid());
+
+        searchField.setClearButtonVisible(true);
+        searchField.setPlaceholder("Buscar por cliente o mascota...");
+        searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        searchField.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
+        searchField.addValueChangeListener(e -> refreshGrid());
+
+
+        statusFilter.setItems(WaitingRoomStatus.values());
+        statusFilter.setClearButtonVisible(true);
+        statusFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+        statusFilter.addValueChangeListener(e -> refreshGrid());
+
+        HorizontalLayout filters = new HorizontalLayout(searchField, priorityFilter, statusFilter);
+        filters.setAlignItems(Alignment.END);
+        filters.setWidthFull();
+        filters.setSpacing(true);
+
         Button newEntryButton = new Button("Nueva Entrada", e -> openForm());
         newEntryButton.addThemeVariants(
                 ButtonVariant.LUMO_PRIMARY,
@@ -79,7 +118,7 @@ public class WaitingRoomView extends VerticalLayout {
         form.setOnSave(dto -> refreshGrid());
 
         //add(header, grid);
-        add(header, grid, cardContainer);
+        add(header,filters, grid, cardContainer);
         refreshGrid();
     }
 
@@ -119,10 +158,17 @@ public class WaitingRoomView extends VerticalLayout {
         form.openForNew();
     }
 
-    private void refreshGrid() {
+    /*private void refreshGrid() {
         List<WaitingRoom> entries = waitingRoomService.getCurrentWaitingRoom();
         grid.setItems(entries);
+    }*/
+
+    private void refreshGrid() {
+        Specification<WaitingRoom> spec = createFilterSpecification();
+        List<WaitingRoom> filtered = waitingRoomService.getRepository().findAll(spec);
+        grid.setItems(filtered);
     }
+
 
     private Component renderPriority(WaitingRoom wr) {
         Span badge = new Span(wr.getPriority().name());
@@ -200,21 +246,58 @@ public class WaitingRoomView extends VerticalLayout {
         Span clientName = new Span(wr.getClient().getFirstName() + " " + wr.getClient().getLastName());
         clientName.getElement().getStyle().set("font-weight", "bold").set("font-size", "1.2em");
 
-        Span contactInfo = new Span("📞 " + wr.getClient().getPhoneNumber() + " • ✉ " + wr.getClient().getEmail());
+        Icon phoneIcon = VaadinIcon.PHONE.create();
+        phoneIcon.setColor("var(--lumo-secondary-text-color)");
+
+        Span phoneText = new Span(wr.getClient().getPhoneNumber());
+
+        Icon mailIcon = VaadinIcon.ENVELOPE.create();
+        mailIcon.setColor("var(--lumo-secondary-text-color)");
+
+        Span emailText = new Span(wr.getClient().getEmail());
+
+        HorizontalLayout contactInfo = new HorizontalLayout(phoneIcon, phoneText, new Span("•"), mailIcon, emailText);
+        contactInfo.setAlignItems(FlexComponent.Alignment.CENTER);
+        contactInfo.setSpacing(true);
 
         // Datos del animal
         Span petInfo = new Span(wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • " + wr.getPet().getBreed() + " • " + wr.getPet().getGender());
+        petInfo.getElement().getStyle()
+                .set("font-weight", "600")
+                .set("color", "var(--lumo-primary-text-color)")
+                .set("font-size", "1.05em");
 
         // Datos de visita
-        Span reason = new Span("📝 Motivo: " + wr.getReasonForVisit());
-        Span arrival = new Span("🕒 Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
+
+        Icon reasonIcon = VaadinIcon.CLIPBOARD_TEXT.create();
+        reasonIcon.setColor("var(--lumo-secondary-text-color)");
+        Span reasonText = new Span("Motivo: " + wr.getReasonForVisit());
+        HorizontalLayout reason = new HorizontalLayout(reasonIcon, reasonText);
+
+        Icon notesIcon = VaadinIcon.NOTEBOOK.create();
+        notesIcon.setColor("var(--lumo-secondary-text-color)");
+        Span notesText = new Span("Notas: " + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr.getNotes() : "N/A"));
+        HorizontalLayout notes = new HorizontalLayout(notesIcon, notesText);
+
+        Icon arrivalIcon = VaadinIcon.CLOCK.create();
+        arrivalIcon.setColor("var(--lumo-secondary-text-color)");
+        Span arrivalText = new Span("Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
+        HorizontalLayout arrival = new HorizontalLayout(arrivalIcon, arrivalText);
+
+
+        Icon motivoIcon = VaadinIcon.CLIPBOARD_TEXT.create();
+        motivoIcon.setColor("var(--lumo-secondary-text-color)");
 
         Duration waitTime = Duration.ZERO;
         if (wr.getArrivalTime() != null && !wr.getArrivalTime().isAfter(LocalDateTime.now())) {
             waitTime = Duration.between(wr.getArrivalTime(), LocalDateTime.now());
         }
         String formattedWait = String.format("%dh %02dm", waitTime.toHours(), waitTime.toMinutesPart());
-        Span waiting = new Span("⏳ Esperando: " + formattedWait);
+
+        Icon waitIcon = VaadinIcon.HOURGLASS.create();
+        waitIcon.setColor("var(--lumo-secondary-text-color)");
+        Span waitingText = new Span("Esperando: " + formattedWait);
+        HorizontalLayout waiting = new HorizontalLayout(waitIcon, waitingText);
 
         // Botones según el estado
         Button completeButton = new Button("Finalizar Consulta", e -> {
@@ -233,23 +316,18 @@ public class WaitingRoomView extends VerticalLayout {
         });
         startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        /*Button cancelButton = new Button("Cancelar", e -> {
-            wr.setStatus(WaitingRoomStatus.CANCELADO);
-            waitingRoomService.update(wr);
-            refreshGrid();
-            dialog.close();
-        });*/
-
         Button cancelConsultation = new Button("Cancelar Consulta");
         cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
         HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
-        actions.setWidthFull();
         actions.setSpacing(true);
+        actions.setJustifyContentMode(JustifyContentMode.CENTER);
+        actions.setWidthFull();
 
-        startButton.setWidthFull();
-        cancelConsultation.setWidthFull();
+        actions.getStyle().set("margin-top", "1rem");
 
+        startButton.setMinWidth("200px");
+        cancelConsultation.setMinWidth("200px");
 
         cancelConsultation.addClickListener(e -> {
             ConfirmDialog dialogConfirm = new ConfirmDialog();
@@ -264,7 +342,7 @@ public class WaitingRoomView extends VerticalLayout {
                 wr.setStatus(WaitingRoomStatus.CANCELADO);
                 waitingRoomService.update(wr);
                 refreshGrid();
-                dialog.close(); // cierra el modal original
+                dialog.close();
             });
 
             dialogConfirm.open();
@@ -279,11 +357,42 @@ public class WaitingRoomView extends VerticalLayout {
             buttons.add(completeButton, cancelConsultation);
         }
 
-        layout.add(header, clientName, contactInfo, petInfo, reason, arrival, waiting, buttons);
+        layout.add(header, clientName, contactInfo, petInfo, reason, notes, arrival, waiting, buttons);
         dialog.add(layout);
         dialog.open();
     }
 
+    public Specification<WaitingRoom> createFilterSpecification() {
+        return (root, query, builder) -> {
+            var clientJoin = root.join("client");
+            var petJoin = root.join("pet");
 
+            String searchTerm = searchField.getValue();
+            Predicate searchPredicate = builder.conjunction();
 
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                String likeSearch = "%" + searchTerm.toLowerCase() + "%";
+
+                searchPredicate = builder.or(
+                        builder.like(builder.lower(clientJoin.get("firstName")), likeSearch),
+                        builder.like(builder.lower(clientJoin.get("lastName")), likeSearch),
+                        builder.like(builder.lower(petJoin.get("name")), likeSearch)
+                );
+            }
+
+            Predicate priorityPredicate = createPredicateForSelectedItems(
+                    Optional.ofNullable(priorityFilter.getSelectedItems()),
+                    items -> root.get("priority").in(items),
+                    builder
+            );
+
+            Predicate statusPredicate = createPredicateForSelectedItems(
+                    Optional.ofNullable(statusFilter.getSelectedItems()),
+                    items -> root.get("status").in(items),
+                    builder
+            );
+
+            return builder.and(searchPredicate, priorityPredicate, statusPredicate);
+        };
+    }
 }
