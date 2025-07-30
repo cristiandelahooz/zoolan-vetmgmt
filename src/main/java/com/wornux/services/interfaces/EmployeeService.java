@@ -24,7 +24,8 @@ public interface EmployeeService {
     /**
      * Retrieves an Employee by ID.
      *
-     * @param id the ID of the employee
+     * @param id
+     *            the ID of the employee
      * @return the Employee entity if found
      */
     Optional<Employee> getEmployeeById(Long id);
@@ -32,7 +33,8 @@ public interface EmployeeService {
     /**
      * Retrieves all Employees with pagination.
      *
-     * @param pageable pagination information
+     * @param pageable
+     *            pagination information
      * @return paginated list of Employees
      */
     Page<Employee> getAllEmployees(Pageable pageable);
@@ -54,7 +56,8 @@ public interface EmployeeService {
     /**
      * Saves a new Employee entity.
      *
-     * @param value the EmployeeCreateRequestDto containing employee data
+     * @param value
+     *            the EmployeeCreateRequestDto containing employee data
      * @return the saved EmployeeCreateRequestDto
      */
     EmployeeCreateRequestDto save(@NonNull EmployeeCreateRequestDto value);
