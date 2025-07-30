@@ -60,17 +60,8 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
     }
 
     @Override
-    public ProductListDto save(ProductListDto dto) {
-        log.debug("Saving/updating Product via AutoCrud");
-
-        if (dto.getId() != null) {
-            // Actualización - solo permite cambiar el stock
-            return updateStock(dto.getId(), dto.getStock());
-        } else {
-            // Creación - no permitida desde AutoCrud
-            throw new UnsupportedOperationException(
-                    "Creating products through AutoCrud is not supported. Use the dedicated form.");
-        }
+    public Product save(Product entity) {
+        return productRepository.save(entity);
     }
 
     public ProductCreateRequestDto createProduct(ProductCreateRequestDto dto) {
@@ -150,13 +141,13 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
 
     @Transactional(readOnly = true)
     public Page<Product> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable);
+        return productRepository.findAllActiveWithSupplier(pageable);
     }
 
     @Override
     public List<Product> getAllProducts() {
         log.debug("Retrieving all active products");
-        return productRepository.findByActiveTrue();
+        return productRepository.findAllActiveWithSupplier();
     }
 
     @Override
@@ -164,19 +155,6 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
     public List<Product> getLowStockProducts() {
         log.debug("Retrieving products with low stock");
         return productRepository.findLowStockProducts();
-    }
-
-    public ProductListDto updateStock(Long productId, int newStock) {
-        log.debug("Updating stock for Product ID: {} to {}", productId, newStock);
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
-
-        product.setStock(newStock);
-        Product updatedProduct = productRepository.save(product);
-
-        log.info("Stock updated for Product ID: {}", productId);
-        return productMapper.toListDto(updatedProduct);
     }
 
     @Override
