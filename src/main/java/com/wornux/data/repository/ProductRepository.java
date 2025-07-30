@@ -26,8 +26,14 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     List<Product> findByActiveTrue();
 
-    @Query("SELECT p FROM Product p WHERE p.stock <= p.reorderLevel AND p.active = true")
+    @Query("SELECT p FROM Product p WHERE p.accountingStock <= p.reorderLevel AND p.active = true")
     List<Product> findLowStockProducts();
 
     List<Product> findAllByActiveIsTrue();
+
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.supplier WHERE p.active = true")
+    List<Product> findAllActiveWithSupplier();
+
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.supplier WHERE p.active = true")
+    Page<Product> findAllActiveWithSupplier(Pageable pageable);
 }
