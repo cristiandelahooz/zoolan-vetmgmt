@@ -196,7 +196,7 @@ public interface ClientService {
     void deleteClient(Long id);
 
     void archive(Client client);
-    
+
     /**
      * Gets the repository instance for direct access.
      * 
