@@ -2,6 +2,7 @@ package com.wornux.services.interfaces;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Supplier;
+import com.wornux.data.repository.SupplierRepository;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.dto.request.UpdateSupplierRequestDto;
 import com.wornux.dto.response.SupplierListDto;
@@ -38,4 +39,9 @@ public interface SupplierService {
     List<Supplier> list(Pageable pageable, @Nullable Filter filter);
 
     List<SupplierListDto> listAsDto(Pageable pageable, @Nullable Filter filter);
+
+    SupplierRepository getRepository();
+
+    SupplierCreateRequestDto getCreateDtoById(Long id);
+
 }
