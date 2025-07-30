@@ -21,17 +21,29 @@ public class ProductCreateRequestDto {
 
     private String description;
 
-    @NotNull(message = "El precio es obligatorio")
+    @NotNull(message = "El precio de compra es obligatorio")
     @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")
-    private BigDecimal price;
+    private BigDecimal purchasePrice;
+
+    @NotNull(message = "El precio de venta es obligatorio")
+    @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")
+    private BigDecimal salesPrice;
 
     @Min(value = 0, message = "El stock no puede ser negativo")
-    private int stock;
+    private int availableStock;
+
+    @Min(value = 0, message = "El stock contable no puede ser negativo")
+    private int accountingStock;
+
+    private int reorderLevel;
 
     @NotNull(message = "El proveedor es obligatorio")
     private Long supplierId;
 
     @NotNull(message = "La categoría del producto es obligatoria")
     private ProductCategory category;
+
+    @NotNull(message = "El almacén es obligatorio")
+    private Long warehouseId;
 
 }
