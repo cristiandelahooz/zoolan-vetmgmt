@@ -24,6 +24,9 @@ public class ValidationConstants {
 
     public static final String DATE_PATTERN = "mm/dd/yyyy";
 
+    //Warehouse validation constants
+    public static final int MAX_WAREHOUSE_NAME_LENGTH = 50;
+
     // Length constraints
     public static final int MAX_NOTES_LENGTH = 1000;
     public static final int MAX_REFERENCE_POINTS_LENGTH = 500;
