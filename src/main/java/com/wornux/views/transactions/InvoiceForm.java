@@ -343,7 +343,7 @@ public class InvoiceForm extends Div {
         fieldProduct.setItems(copy);
         fieldProduct.addValueChangeListener(event -> {
             fieldQty.setValue(1.0);
-            fieldPrice.setValue(Optional.ofNullable(event.getValue().getPrice()).orElse(BigDecimal.ZERO).doubleValue());
+            fieldPrice.setValue(Optional.ofNullable(event.getValue().getSalesPrice()).orElse(BigDecimal.ZERO).doubleValue());
         });
         return fieldProduct;
     }
