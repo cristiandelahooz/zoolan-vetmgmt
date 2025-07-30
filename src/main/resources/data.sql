@@ -390,24 +390,33 @@ VALUES (1, '123456789', 'Pets & Suppliers Co.', 'John Doe', '809-123-4567',
         'luisgarcia@example', 'San Cristobal', 'San Cristobal',
         'Villa Altagracia', '654 Maple St.', TRUE);
 
+-- Data for warehouses
+INSERT INTO warehouses (id, warehouse_name, warehouse_type, status, is_available_for_sale) VALUES
+(1, 'Main Warehouse', 'PRINCIPAL', TRUE, TRUE),
+(2, 'Secondary Warehouse', 'SECUNDARIO', TRUE, FALSE),
+(3, 'Grooming Supplies Warehouse', 'SECUNDARIO', TRUE, TRUE),
+(4, 'Accessories Warehouse', 'SECUNDARIO', TRUE, TRUE),
+(5, 'Medical Warehouse', 'SECUNDARIO', TRUE, FALSE);
+
 -- Data for supplier_products table (10 rows)-- Data for products table with correct attributes and ProductCategory enum
- INSERT INTO products (product_id, name, description, active, price, stock, reorder_level, supplier_id, category) VALUES
- (1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE, 1500.00, 100, 20, 1, 'ALIMENTO'),
- (2, 'High Protein Cat food', 'Nutritious wet food for cats', TRUE, 1200.00, 200, 30, 1, 'ALIMENTO'),
- (3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE, 500.00, 300, 50, 2, 'ALIMENTO'),
- (4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 400.00, 250, 40, 2, 'ALIMENTO'),
- (5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin', TRUE, 800.00, 150, 25, 3, 'HIGIENE'),
- (6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE, 700.00, 180, 30, 3, 'HIGIENE'),
- (7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs', TRUE, 600.00, 120, 20, 4, 'ACCESORIO'),
- (8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE, 550.00, 130, 25, 4, 'ACCESORIO'),
- (9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 900.00, 110, 15, 5, 'ACCESORIO'),
- (10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 300.00, 400, 60, 5, 'HIGIENE'),
- (11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE, 2500.00, 50, 10, 1, 'MEDICINA'),
- (12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE, 1800.00, 75, 15, 2, 'MEDICINA'),
- (13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 1200.00, 100, 20, 3, 'MEDICINA'),
- (14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 650.00, 200, 35, 4, 'HIGIENE'),
- (15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 3500.00, 25, 5, 5, 'ACCESORIO');
- 
+INSERT INTO products (product_id, name, description, active, purchase_price, sales_price, accounting_stock, available_stock, reorder_level, supplier_id, category, warehouse_id) VALUES
+(1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE, 1200.00, 1500.00, 100, 80, 20, 1, 'ALIMENTO', 1),
+(2, 'High Protein Cat Food', 'Nutritious wet food for cats', TRUE, 900.00, 1200.00, 200, 180, 30, 1, 'ALIMENTO', 1),
+(3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE, 350.00, 500.00, 300, 250, 50, 2, 'ALIMENTO', 2),
+(4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 250.00, 400.00, 250, 200, 40, 2, 'ALIMENTO', 2),
+(5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin', TRUE, 500.00, 800.00, 150, 120, 25, 3, 'HIGIENE', 3),
+(6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE, 400.00, 700.00, 180, 150, 30, 3, 'HIGIENE', 3),
+(7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs', TRUE, 350.00, 600.00, 120, 100, 20, 4, 'ACCESORIO', 4),
+(8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE, 300.00, 550.00, 130, 110, 25, 4, 'ACCESORIO', 4),
+(9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 600.00, 900.00, 110, 90, 15, 5, 'ACCESORIO', 5),
+(10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 200.00, 300.00, 400, 350, 60, 5, 'HIGIENE', 5),
+(11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE, 1800.00, 2500.00, 50, 40, 10, 1, 'MEDICINA', 1),
+(12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE, 1200.00, 1800.00, 75, 60, 15, 2, 'MEDICINA', 2),
+(13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 800.00, 1200.00, 100, 80, 20, 3, 'MEDICINA', 3),
+(14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 400.00, 650.00, 200, 170, 35, 4, 'HIGIENE', 4),
+(15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 2500.00, 3500.00, 25, 20, 5, 5, 'ACCESORIO', 5);
+
+-- Data for invoices table (1 row)
 INSERT INTO invoices (client,
                       issued_date,
                       payment_date,
@@ -470,3 +479,7 @@ SELECT setval(pg_get_serial_sequence('suppliers', 'supplier_id'),
               COALESCE((SELECT MAX(supplier_id) FROM suppliers), 1), true);
 SELECT setval(pg_get_serial_sequence('products', 'product_id'),
               COALESCE((SELECT MAX(product_id) FROM products), 1), true);
+SELECT setval(pg_get_serial_sequence('invoices', 'code'),
+              COALESCE((SELECT MAX(code) FROM invoices), 1), true);
+SELECT setval(pg_get_serial_sequence('warehouses', 'id'),
+              COALESCE((SELECT MAX(id) FROM warehouses), 1), true);
