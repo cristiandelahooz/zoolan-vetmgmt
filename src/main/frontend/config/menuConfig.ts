@@ -22,9 +22,21 @@ export const menuConfig: MenuItemConfig[] = [
     icon: 'vaadin:calendar',
   },
   {
-    path: ROUTES.INVENTORY,
+    path: undefined,
     title: 'Inventario',
     icon: 'vaadin:archives',
+    children: [
+      {
+        path: ROUTES.INVENTORY,
+        title: 'Productos',
+        icon: 'vaadin:cart',
+      },
+      {
+        path: ROUTES.WAREHOUSE,
+        title: 'Almacenes',
+        icon: 'vaadin:truck',
+      }
+    ],
   },
   {
     path: undefined,
@@ -121,24 +133,6 @@ export const menuConfig: MenuItemConfig[] = [
     title: 'Empleados',
     icon: 'vaadin:doctor',
   },
-  {
-    path: undefined,
-    title: 'Productos',
-    icon: 'lumo:user',
-    children: [
-      {
-        path: ROUTES.PRODUCTS,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.PRODUCT_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-    ],
-  },
-
   {
     path: undefined,
     title: 'Suplidores',
