@@ -40,12 +40,20 @@ public class Product {
     private boolean active = true;
 
     @DecimalMin(value = "0.0", inclusive = true)
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "purchase_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal purchasePrice;
+
+    @DecimalMin(value = "0.0", inclusive = true)
+    @Column(name = "sales_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal salesPrice;
 
     @Min(0)
-    @Column(name = "stock", nullable = false)
-    private int stock;
+    @Column(name = "accounting_stock", nullable = false)
+    private int accountingStock;
+
+    @Min(0)
+    @Column(name = "available_stock", nullable = false)
+    private int availableStock;
 
     @Min(0)
     @Builder.Default
@@ -60,4 +68,8 @@ public class Product {
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
     private ProductCategory category;
+
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
 }
