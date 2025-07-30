@@ -41,6 +41,9 @@ export const ROUTES = {
   PRODUCT_EDIT: '/products/edit',
   PRODUCT_NEW: '/products/new',
 
+  //Warehouse routes
+    WAREHOUSE: '/warehouses',
+
   //supplier routes
   SUPPLIERS: '/suppliers',
   SUPPLIER_EDIT: '/suppliers/edit',
