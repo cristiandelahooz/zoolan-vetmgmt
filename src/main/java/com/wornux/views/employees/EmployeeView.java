@@ -100,7 +100,9 @@ public class EmployeeView extends Div {
 
         GridUtils.addComponentColumn(grid, this::renderRole, "Rol", "employeeRole");
 
-        GridUtils.addColumn(grid, employee -> "$" + String.format("%.2f", employee.getSalary() != null ? employee.getSalary() : 0.0), "Salario", "salary");
+        GridUtils.addColumn(grid,
+                employee -> "$" + String.format("%.2f", employee.getSalary() != null ? employee.getSalary() : 0.0),
+                "Salario", "salary");
 
         GridUtils.addColumn(grid, employee -> employee.isActive() ? "Activo" : "Inactivo", "Estado", "active")
                 .setTextAlign(ColumnTextAlign.CENTER);
@@ -142,7 +144,8 @@ public class EmployeeView extends Div {
 
     private void refreshAll() {
         grid.getDataProvider().refreshAll();
-        long count = employeeService.getAllEmployees(org.springframework.data.domain.Pageable.unpaged()).getTotalElements();
+        long count = employeeService.getAllEmployees(org.springframework.data.domain.Pageable.unpaged())
+                .getTotalElements();
         quantity.setText("Empleados (" + count + ")");
     }
 
