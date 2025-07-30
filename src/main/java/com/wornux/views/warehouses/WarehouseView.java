@@ -1,0 +1,294 @@
+package com.wornux.views.warehouses;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.Menu;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.data.entity.Warehouse;
+import com.wornux.data.enums.WarehouseType;
+import com.wornux.dto.request.WarehouseCreateRequestDto;
+import com.wornux.dto.request.WarehouseUpdateRequestDto;
+import com.wornux.services.interfaces.WarehouseService;
+import com.wornux.utils.NotificationUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+@Slf4j
+@PageTitle("Warehouses")
+@Route(value = "warehouses")
+@Menu(order = 4, icon = "line-awesome/svg/warehouse-solid.svg")
+public class WarehouseView extends VerticalLayout {
+
+    private final WarehouseGrid warehouseGrid;
+    private final Button newButton = new Button("Nuevo", new Icon(VaadinIcon.PLUS_CIRCLE));
+    private final Button deleteButton = new Button("Eliminar", new Icon(VaadinIcon.TRASH));
+    private final Button saveButton = new Button("Guardar", new Icon(VaadinIcon.CHECK_CIRCLE));
+    private final Button toggleGridButton = new Button("Mostrar Grid", new Icon(VaadinIcon.EYE));
+    private final TextField searchField = new TextField("Buscar Almacén");
+    private final ComboBox<String> statusFilter = new ComboBox<>("Estado");
+
+    // Form fields
+    private final TextField name = new TextField("Nombre del Almacén");
+    private final ComboBox<WarehouseType> warehouseType = new ComboBox<>("Tipo de Almacén");
+    private final ComboBox<Boolean> availableForSale = new ComboBox<>("Disponible para Venta");
+    private final ComboBox<Boolean> status = new ComboBox<>("Estado");
+
+    private transient Warehouse selectedWarehouse;
+    private final transient WarehouseService warehouseService;
+    private boolean isEditMode = false;
+    private ListDataProvider<Warehouse> warehouseDataProvider;
+
+    private final HorizontalLayout gridFilters;
+    private final VerticalLayout contentLayout;
+
+    public WarehouseView(@Qualifier("warehouseServiceImpl") WarehouseService warehouseService) {
+        this.warehouseService = warehouseService;
+        var warehouses = warehouseService.getAllWarehouses();
+        warehouseDataProvider = new ListDataProvider<>(warehouses);
+        this.warehouseGrid = new WarehouseGrid(warehouseDataProvider, warehouse -> {
+            selectedWarehouse = warehouse;
+            populateForm(warehouse);
+            isEditMode = true;
+            deleteButton.setEnabled(true);
+        });
+
+        gridFilters = createGridFilters();
+        contentLayout = new VerticalLayout();
+
+        setupComponents();
+        setupEventListeners();
+        setupLayout();
+    }
+
+    private void setupLayout() {
+        setSizeFull();
+        addClassNames(LumoUtility.Padding.LARGE);
+        setSpacing(true);
+
+        warehouseGrid.setWidthFull();
+        warehouseGrid.setHeight("450px");
+        deleteButton.setEnabled(false);
+
+        // Start with grid and filters hidden
+        warehouseGrid.setVisible(false);
+        gridFilters.setVisible(false);
+
+        contentLayout.setPadding(false);
+        contentLayout.setSpacing(false);
+        contentLayout.setSizeFull();
+
+        contentLayout.add(toggleGridButton, gridFilters, warehouseGrid, createFormLayout(), createFooterBar());
+
+        removeAll();
+        add(contentLayout);
+    }
+
+    private void setupComponents() {
+        toggleGridButton.setWidthFull();
+        toggleGridButton.addClickListener(e -> {
+            boolean isVisible = !warehouseGrid.isVisible();
+            warehouseGrid.setVisible(isVisible);
+            gridFilters.setVisible(isVisible);
+            toggleGridButton.setIcon(new Icon(isVisible ? VaadinIcon.EYE_SLASH : VaadinIcon.EYE));
+            toggleGridButton.setText(isVisible ? "Ocultar Grid" : "Mostrar Grid");
+            if (isVisible) {
+                searchField.focus();
+            }
+        });
+
+        searchField.setClearButtonVisible(true);
+        searchField.setValueChangeMode(ValueChangeMode.EAGER);
+        searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+        searchField.setPlaceholder("Buscar por nombre o tipo...");
+        searchField.addValueChangeListener(e -> applyFilters());
+
+        statusFilter.setItems("Todos", "Activo", "Inactivo");
+        statusFilter.setValue("Todos");
+        statusFilter.addValueChangeListener(e -> applyFilters());
+
+        warehouseType.setItems(WarehouseType.values());
+        warehouseType.setRequired(true);
+        warehouseType.setRequiredIndicatorVisible(true);
+
+        availableForSale.setItems(true, false);
+        availableForSale.setItemLabelGenerator(val -> val ? "Si" : "No");
+        availableForSale.setRequired(true);
+        availableForSale.setRequiredIndicatorVisible(true);
+
+        status.setItems(true, false);
+        status.setItemLabelGenerator(val -> val ? "Activo" : "Inactivo");
+        status.setRequired(true);
+        status.setRequiredIndicatorVisible(true);
+
+        name.setRequired(true);
+        name.setRequiredIndicatorVisible(true);
+    }
+
+    private void setupEventListeners() {
+        newButton.addClickListener(e -> {
+            clearForm();
+            isEditMode = false;
+            selectedWarehouse = null;
+            deleteButton.setEnabled(false);
+        });
+
+        saveButton.addClickListener(e -> saveOrUpdateWarehouse());
+
+        deleteButton.addClickListener(e -> deleteWarehouse());
+    }
+
+    private HorizontalLayout createGridFilters() {
+        searchField.setWidth("100%");
+        statusFilter.setWidth("100%");
+        HorizontalLayout filters = new HorizontalLayout(searchField, statusFilter);
+        filters.setWidthFull();
+        filters.setFlexGrow(1, searchField, statusFilter);
+        filters.addClassNames(LumoUtility.Gap.MEDIUM);
+        return filters;
+    }
+
+    private FormLayout createFormLayout() {
+        FormLayout formLayout = new FormLayout();
+        formLayout.addClassNames(LumoUtility.Padding.Right.XLARGE);
+        formLayout.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("500px", 2)
+        );
+
+        formLayout.add(new H3("Información del Almacén"), name, warehouseType, availableForSale, status);
+        formLayout.setColspan(name, 2);
+        formLayout.setColspan(warehouseType, 2);
+        formLayout.setColspan(availableForSale, 2);
+        formLayout.setColspan(status, 2);
+
+        return formLayout;
+    }
+
+    private HorizontalLayout createFooterBar() {
+        HorizontalLayout buttonLayout = new HorizontalLayout(saveButton, newButton, deleteButton);
+        buttonLayout.addClassNames(LumoUtility.FlexWrap.WRAP, LumoUtility.Padding.MEDIUM);
+        buttonLayout.setJustifyContentMode(HorizontalLayout.JustifyContentMode.END);
+        buttonLayout.setWidthFull();
+        return buttonLayout;
+    }
+
+    private void saveOrUpdateWarehouse() {
+        if (!validateForm()) {
+            NotificationUtils.error("Por favor, complete todos los campos requeridos");
+            return;
+        }
+
+        if (isEditMode && selectedWarehouse != null) {
+            WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder().name(name.getValue()).warehouseType(warehouseType.getValue()).availableForSale(availableForSale.getValue()).status(status.getValue()).build();
+
+            warehouseService.updateWarehouse(selectedWarehouse.getId(), dto);
+            NotificationUtils.success("Almacén actualizado exitosamente");
+        } else {
+            WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder().name(name.getValue()).warehouseType(warehouseType.getValue()).availableForSale(availableForSale.getValue()).status(status.getValue()).build();
+
+            warehouseService.createWarehouse(dto);
+            NotificationUtils.success("Almacén creado exitosamente");
+        }
+
+        clearForm();
+        selectedWarehouse = null;
+        isEditMode = false;
+        deleteButton.setEnabled(false);
+        refreshAll();
+    }
+
+    private void deleteWarehouse() {
+        try {
+            if (selectedWarehouse != null) {
+                warehouseService.deleteWarehouse(selectedWarehouse.getId());
+                NotificationUtils.success("Almacén eliminado exitosamente");
+                clearForm();
+                selectedWarehouse = null;
+                isEditMode = false;
+                deleteButton.setEnabled(false);
+                refreshAll();
+            }
+        } catch (Exception ex) {
+            log.error(ex.getLocalizedMessage());
+            NotificationUtils.error("Error al eliminar el almacén: " + ex.getMessage());
+        }
+    }
+
+    private void populateForm(Warehouse warehouse) {
+        name.setValue(warehouse.getName());
+        warehouseType.setValue(warehouse.getWarehouseType());
+        availableForSale.setValue(warehouse.isAvailableForSale());
+        status.setValue(warehouse.isStatus());
+    }
+
+    private void clearForm() {
+        name.clear();
+        warehouseType.clear();
+        availableForSale.clear();
+        status.clear();
+
+        name.setInvalid(false);
+        warehouseType.setInvalid(false);
+        availableForSale.setInvalid(false);
+        status.setInvalid(false);
+    }
+
+    private boolean validateForm() {
+        boolean isValid = true;
+        if (name.isEmpty()) {
+            name.setInvalid(true);
+            isValid = false;
+        } else {
+            name.setInvalid(false);
+        }
+        if (warehouseType.isEmpty()) {
+            warehouseType.setInvalid(true);
+            isValid = false;
+        } else {
+            warehouseType.setInvalid(false);
+        }
+        if (availableForSale.isEmpty()) {
+            availableForSale.setInvalid(true);
+            isValid = false;
+        } else {
+            availableForSale.setInvalid(false);
+        }
+        if (status.isEmpty()) {
+            status.setInvalid(true);
+            isValid = false;
+        } else {
+            status.setInvalid(false);
+        }
+        return isValid;
+    }
+
+    private void refreshAll() {
+        var warehouses = warehouseService.getAllWarehouses();
+        warehouseDataProvider.getItems().clear();
+        warehouseDataProvider.getItems().addAll(warehouses);
+        warehouseDataProvider.refreshAll();
+        applyFilters();
+    }
+
+    private void applyFilters() {
+        String search = searchField.getValue() != null ? searchField.getValue().trim().toLowerCase() : "";
+        String status = statusFilter.getValue();
+
+        warehouseDataProvider.setFilter(warehouse -> {
+            boolean matchesSearch = search.isEmpty() || warehouse.getName().toLowerCase().contains(search) || (warehouse.getWarehouseType() != null && warehouse.getWarehouseType().name().toLowerCase().contains(search));
+            boolean matchesStatus = "Todos".equals(status) || ("Activo".equals(status) && warehouse.isStatus()) || ("Inactivo".equals(status) && !warehouse.isStatus());
+            return matchesSearch && matchesStatus;
+        });
+    }
+}
