@@ -91,6 +91,8 @@ public class SupplierView extends Div {
         return (root, query, builder) -> {
             Predicate predicate = builder.conjunction();
 
+            searchField.setWidth("300px");
+
             if (!searchField.isEmpty()) {
                 String value = "%" + searchField.getValue().toLowerCase() + "%";
                 Predicate name = builder.like(builder.lower(root.get("companyName")), value);
