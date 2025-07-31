@@ -104,6 +104,24 @@ public class ConsultationsForm extends Dialog {
         selectedVeterinarianField.setReadOnly(true);
         selectedPetField.setReadOnly(true);
 
+        consultationDate.setRequired(true);
+        consultationDate.setErrorMessage("La fecha de consulta es requerida");
+
+        consultationTime.setRequired(true);
+        consultationTime.setErrorMessage("La hora de consulta es requerida");
+
+        petId.setRequired(true);
+        petId.setErrorMessage("La mascota es requerida");
+
+        veterinarianId.setRequired(true);
+        veterinarianId.setErrorMessage("El veterinario es requerido");
+
+        selectedVeterinarianField.setRequired(true);
+        selectedVeterinarianField.setErrorMessage("Debe seleccionar un veterinario");
+
+        selectedPetField.setRequired(true);
+        selectedPetField.setErrorMessage("Debe seleccionar una mascota");
+
         VerticalLayout content = new VerticalLayout(
                 new H3("Información de la Consulta"),
                 formLayout
@@ -238,35 +256,47 @@ public class ConsultationsForm extends Dialog {
 
     private boolean validateForm() {
         boolean isValid = true;
-        if (notes.isEmpty()) {
-            notes.setInvalid(true);
-            isValid = false;
-        } else {
-            notes.setInvalid(false);
-        }
         if (consultationDate.isEmpty()) {
             consultationDate.setInvalid(true);
+            consultationDate.setErrorMessage("La fecha de consulta es requerida");
             isValid = false;
         } else {
             consultationDate.setInvalid(false);
         }
         if (consultationTime.isEmpty()) {
             consultationTime.setInvalid(true);
+            consultationTime.setErrorMessage("La hora de consulta es requerida");
             isValid = false;
         } else {
             consultationTime.setInvalid(false);
         }
         if (petId.isEmpty()) {
             petId.setInvalid(true);
+            petId.setErrorMessage("La mascota es requerida");
             isValid = false;
         } else {
             petId.setInvalid(false);
         }
         if (veterinarianId.isEmpty()) {
             veterinarianId.setInvalid(true);
+            veterinarianId.setErrorMessage("El veterinario es requerido");
             isValid = false;
         } else {
             veterinarianId.setInvalid(false);
+        }
+        if (selectedVeterinarianField.isEmpty()) {
+            selectedVeterinarianField.setInvalid(true);
+            selectedVeterinarianField.setErrorMessage("Debe seleccionar un veterinario");
+            isValid = false;
+        } else {
+            selectedVeterinarianField.setInvalid(false);
+        }
+        if (selectedPetField.isEmpty()) {
+            selectedPetField.setInvalid(true);
+            selectedPetField.setErrorMessage("Debe seleccionar una mascota");
+            isValid = false;
+        } else {
+            selectedPetField.setInvalid(false);
         }
         return isValid;
     }
