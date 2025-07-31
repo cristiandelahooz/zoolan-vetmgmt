@@ -78,10 +78,10 @@ public class Invoice extends Auditable implements Serializable {
 
     public void markAsPaid(BigDecimal paymentAmount, LocalDate paymentDate) {
         if (this.status != InvoiceStatus.PENDING) {
-            throw new IllegalStateException("Only outstanding invoices can be marked as paid.");
+            throw new IllegalStateException("Solo las facturas pendientes pueden ser marcadas como pagadas.");
         }
         if (paymentDate.isBefore(this.issuedDate)) {
-            throw new IllegalArgumentException("The payment date cannot be before the issued date.");
+            throw new IllegalArgumentException("El pago no puede ser anterior a la fecha de emisión.");
         }
         this.paidToDate = this.paidToDate.add(paymentAmount);
         if (this.paidToDate.compareTo(this.total) >= 0) {
@@ -92,10 +92,10 @@ public class Invoice extends Auditable implements Serializable {
 
     public void markAsOverdue() {
         if (this.status != InvoiceStatus.PENDING) {
-            throw new IllegalStateException("Only outstanding invoices can be marked as overdue.");
+            throw new IllegalStateException("Solo las facturas pendientes pueden ser marcadas como atrasadas.");
         }
         if (!LocalDate.now().isAfter(this.paymentDate)) {
-            throw new IllegalArgumentException("The invoice is not overdue.");
+            throw new IllegalArgumentException("La factura no está atrasada");
         }
         this.status = InvoiceStatus.OVERDUE;
     }
@@ -114,12 +114,10 @@ public class Invoice extends Auditable implements Serializable {
             return true;
         if (o == null)
             return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy
-                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-                : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-                : this.getClass();
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer()
+                .getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer()
+                .getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass)
             return false;
         Invoice that = (Invoice) o;
@@ -128,8 +126,7 @@ public class Invoice extends Auditable implements Serializable {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
-                : getClass().hashCode();
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer()
+                .getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

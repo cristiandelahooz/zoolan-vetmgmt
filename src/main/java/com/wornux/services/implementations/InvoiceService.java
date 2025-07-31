@@ -53,6 +53,11 @@ public class InvoiceService {
         return repository.count(specification);
     }
 
+    public String getNextInvoiceNumber() {
+        long count = repository.count();
+        return String.valueOf(count + 1);
+    }
+
     public Invoice markInvoiceAsPaid(Invoice invoice, BigDecimal paymentAmount, LocalDate paymentDate) {
         invoice.markAsPaid(paymentAmount, paymentDate);
         return repository.save(invoice);
