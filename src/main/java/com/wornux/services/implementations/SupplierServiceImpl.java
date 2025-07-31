@@ -6,12 +6,14 @@ import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.vaadin.hilla.crud.filter.Filter;
 import com.wornux.data.entity.Supplier;
+import com.wornux.data.repository.PetRepository;
 import com.wornux.data.repository.SupplierRepository;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.dto.request.UpdateSupplierRequestDto;
 import com.wornux.dto.response.SupplierListDto;
 import com.wornux.mapper.SupplierMapper;
 import com.wornux.services.interfaces.SupplierService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,4 +92,20 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
         log.info("Supplier updated with ID: {}", updatedSupplier.getId());
         return updatedSupplier;
     }
+
+    @Override
+    public SupplierRepository getRepository() {
+        return supplierRepository;
+    }
+
+    @Override
+    public SupplierCreateRequestDto getCreateDtoById(Long id) {
+        Supplier supplier = getRepository().findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
+
+        return supplierMapper.toDto(supplier);
+
+    }
+
+
 }

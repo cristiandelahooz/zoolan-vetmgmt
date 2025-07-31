@@ -3,6 +3,7 @@ package com.wornux.services.interfaces;
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
+import com.wornux.data.repository.PetRepository;
 import com.wornux.dto.request.PetCreateRequestDto;
 import com.wornux.dto.response.PetSummaryResponseDto;
 import com.wornux.dto.request.PetUpdateRequestDto;
@@ -77,6 +78,7 @@ public interface PetService {
      * @return paginated list of Pets belonging to the given owner
      */
     Page<Pet> getPetsByOwnerId(Long ownerId, Pageable pageable);
+    List<Pet> getPetsByOwnerId2(Long ownerId);
 
     /**
      * Permanently deletes a Pet.
@@ -87,4 +89,7 @@ public interface PetService {
     void delete(Long id);
 
     List<Consultation> getConsultationsByPetId(Long petId);
+
+    PetRepository getRepository();
+
 }

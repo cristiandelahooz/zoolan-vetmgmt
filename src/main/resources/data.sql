@@ -169,17 +169,17 @@ VALUES (6, '67890123456', NULL, NULL, NULL, 'SMS', 'Emergency Contact 6',
         'PASANTE', TRUE);
 --
 -- -- Data for pets table (40 rows)
- INSERT INTO pets (id, name, type, breed, birth_date, gender, active) VALUES
- (1, 'Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE),
- (2, 'Lucy', 'GATO', 'Persa', '2021-01-15', 'FEMENINO', TRUE),
- (3, 'Max', 'PERRO', 'Golden Retriever', '2019-11-22', 'MASCULINO', TRUE),
- (4, 'Bella', 'PERRO', 'Pastor Alemán', '2022-08-01', 'FEMENINO', TRUE),
- (5, 'Rocky', 'PERRO', 'Bulldog Francés', '2018-03-12', 'MASCULINO', TRUE),
- (6, 'Misty', 'GATO', 'Persa', '2022-09-20', 'FEMENINO', TRUE),
- (7, 'Duke', 'PERRO', 'Poodle', '2021-07-11', 'MASCULINO', TRUE),
- (8, 'Coco', 'GATO', 'Persa', '2023-01-05', 'FEMENINO', TRUE),
- (9, 'Zeus', 'PERRO', 'Rottweiler', '2020-02-28', 'MASCULINO', TRUE),
- (10, 'Sasha', 'PERRO', 'Yorkshire Terrier', '2022-11-15', 'FEMENINO', TRUE);
+INSERT INTO pets (id, name, type, breed, birth_date, gender, active, color, size, fur_type) VALUES
+(1, 'Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE, 'Marrón', 'PEQUEÑO', 'LARGO'),
+(2, 'Lucy', 'GATO', 'Persa', '2021-01-15', 'FEMENINO', TRUE, 'Blanco', 'MEDIANO', 'LARGO'),
+(3, 'Max', 'PERRO', 'Golden Retriever', '2019-11-22', 'MASCULINO', TRUE, 'Dorado', 'GRANDE', 'LARGO'),
+(4, 'Bella', 'PERRO', 'Pastor Alemán', '2022-08-01', 'FEMENINO', TRUE, 'Negro y fuego', 'GRANDE', 'CORTO'),
+(5, 'Rocky', 'PERRO', 'Bulldog Francés', '2018-03-12', 'MASCULINO', TRUE, 'Gris', 'MEDIANO', 'CORTO'),
+(6, 'Misty', 'GATO', 'Persa', '2022-09-20', 'FEMENINO', TRUE, 'Gris claro', 'MEDIANO', 'LARGO'),
+(7, 'Duke', 'PERRO', 'Poodle', '2021-07-11', 'MASCULINO', TRUE, 'Blanco', 'MEDIANO', 'LARGO'),
+(8, 'Coco', 'GATO', 'Persa', '2023-01-05', 'FEMENINO', TRUE, 'Beige', 'MEDIANO', 'LARGO'),
+(9, 'Zeus', 'PERRO', 'Rottweiler', '2020-02-28', 'MASCULINO', TRUE, 'Negro y fuego', 'GRANDE', 'CORTO'),
+(10, 'Sasha', 'PERRO', 'Yorkshire Terrier', '2022-11-15', 'FEMENINO', TRUE, 'Marrón', 'PEQUEÑO', 'LARGO');
 -- (11, 'Oliver', 'Cat', 'Domestic Shorthair', '2023-03-01', 'MALE', TRUE),
 -- (12, 'Daisy', 'Dog', 'Beagle', '2022-04-10', 'FEMALE', TRUE),
 -- (13, 'Leo', 'Cat', 'Ragdoll', '2021-05-20', 'MALE', TRUE),
@@ -357,16 +357,16 @@ VALUES (1, 'Annual check-up.', 'Healthy', 'N/A', 'N/A', '2024-06-01 10:00:00',
 --
 -- -- Data for waiting_room table (10 rows)
  INSERT INTO waiting_room (id, client_id, pet_id, arrival_time, status, reason_for_visit, priority, notes, consultation_started_at, completed_at) VALUES
- (1, 6, 1, '2024-07-05 09:00:00', 'WAITING', 'Check-up', 'NORMAL', 'N/A', NULL, NULL),
- (2, 7, 2, '2024-07-05 09:15:00', 'WAITING', 'Vaccination', 'URGENTE', 'N/A', NULL, NULL),
- (3, 8, 3, '2024-07-05 10:00:00', 'WAITING', 'Skin issue', 'NORMAL', 'N/A', NULL, NULL),
- (4, 9, 4, '2024-07-05 10:05:00', 'IN_CONSULTATION', 'Vaccination', 'NORMAL', 'N/A', '2024-07-05 10:10:00', NULL),
- (5, 10, 5, '2024-07-05 10:20:00', 'WAITING', 'Not eating', 'EMERGENCIA', 'N/A', NULL, NULL),
- (6, 11, 6, '2024-07-05 11:00:00', 'WAITING', 'Check-up', 'URGENTE', 'N/A', NULL, NULL),
- (7, 12, 7, '2024-07-05 11:15:00', 'WAITING', 'Vaccination', 'NORMAL', 'N/A', NULL, NULL),
- (8, 13, 8, '2024-07-05 11:30:00', 'IN_CONSULTATION', 'Cough', 'URGENTE', 'N/A', '2024-07-05 11:35:00', NULL),
- (9, 14, 9, '2024-07-05 11:45:00', 'WAITING', 'Grooming', 'NORMAL', 'N/A', NULL, NULL),
- (10, 15, 10, '2024-07-05 12:00:00', 'WAITING', 'New pet', 'URGENTE', 'N/A', NULL, NULL);
+ (1, 6, 1, '2024-07-05 09:00:00', 'ESPERANDO', 'Check-up', 'NORMAL', 'N/A', NULL, NULL),
+ (2, 7, 2, '2024-07-05 09:15:00', 'ESPERANDO', 'Vaccination', 'URGENTE', 'N/A', NULL, NULL),
+ (3, 8, 3, '2024-07-05 10:00:00', 'ESPERANDO', 'Skin issue', 'NORMAL', 'N/A', NULL, NULL),
+ (4, 9, 4, '2024-07-05 10:05:00', 'EN_CONSULTA', 'Vaccination', 'NORMAL', 'N/A', '2024-07-05 10:10:00', NULL),
+ (5, 10, 5, '2024-07-05 10:20:00', 'ESPERANDO', 'Not eating', 'EMERGENCIA', 'N/A', NULL, NULL),
+ (6, 11, 6, '2024-07-05 11:00:00', 'ESPERANDO', 'Check-up', 'URGENTE', 'N/A', NULL, NULL),
+ (7, 12, 7, '2024-07-05 11:15:00', 'ESPERANDO', 'Vaccination', 'NORMAL', 'N/A', NULL, NULL),
+ (8, 13, 8, '2024-07-05 11:30:00', 'EN_CONSULTA', 'Cough', 'URGENTE', 'N/A', '2024-07-05 11:35:00', NULL),
+ (9, 14, 9, '2024-07-05 11:45:00', 'ESPERANDO', 'Grooming', 'NORMAL', 'N/A', NULL, NULL),
+ (10, 15, 10, '2024-07-05 12:00:00', 'ESPERANDO', 'New pet', 'URGENTE', 'N/A', NULL, NULL);
 
 
 

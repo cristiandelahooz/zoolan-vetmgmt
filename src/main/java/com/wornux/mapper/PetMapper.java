@@ -15,10 +15,16 @@ public interface PetMapper {
     @Mapping(target = "owners", source = "dto.ownerId", qualifiedByName = "mapOwnerAsList")
     @Mapping(target = "birthDate", source = "dto.birthDate")
     @Mapping(target = "gender", source = "dto.gender")
+    @Mapping(target = "color", source = "dto.color")
+    @Mapping(target = "size", source = "dto.size")
+    @Mapping(target = "furType", source = "dto.furType")
     Pet toEntity(PetCreateRequestDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "owners", source = "dto.ownerId", qualifiedByName = "mapOwnerAsList")
+    @Mapping(target = "color", source = "dto.color")
+    @Mapping(target = "size", source = "dto.size")
+    @Mapping(target = "furType", source = "dto.furType")
     void updatePetFromDTO(PetUpdateRequestDto dto, @MappingTarget Pet pet);
 
     PetCreateRequestDto toCreateDTO(Pet savedPet);

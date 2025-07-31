@@ -43,7 +43,7 @@ public class WaitingRoom {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     @NotNull
-    private WaitingRoomStatus status = WaitingRoomStatus.WAITING;
+    private WaitingRoomStatus status = WaitingRoomStatus.ESPERANDO;
 
     @Column(name = "reason_for_visit")
     private String reasonForVisit;
@@ -70,12 +70,12 @@ public class WaitingRoom {
     }
 
     public void startConsultation() {
-        this.status = WaitingRoomStatus.IN_CONSULTATION;
+        this.status = WaitingRoomStatus.EN_CONSULTA;
         this.consultationStartedAt = LocalDateTime.now();
     }
 
     public void completeConsultation() {
-        this.status = WaitingRoomStatus.COMPLETED;
+        this.status = WaitingRoomStatus.COMPLETADO;
         this.completedAt = LocalDateTime.now();
     }
 }

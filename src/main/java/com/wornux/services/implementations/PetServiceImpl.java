@@ -103,11 +103,19 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Transactional(readOnly = true)
     public List<PetSummaryResponseDto> getAllPets(Pageable pageable) {
         return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
-                .map(pet -> new PetSummaryResponseDto(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
+                .map(pet -> new PetSummaryResponseDto(
+                        pet.getId(),
+                        pet.getName(),
+                        pet.getType(),
+                        pet.getBreed(),
                         pet.getBirthDate(),
+                        pet.getColor(),
+                        pet.getSize(),
+                        pet.getFurType(),
                         pet.getOwners().isEmpty()
-                                ? "Sin dueÃ±o"
-                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
+                                ? "Sin dueño"
+                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName(),
+                        pet.isActive()))
                 .toList();
     }
 
@@ -122,6 +130,12 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         log.debug("Request to get Pets by Owner ID: {}", ownerId);
         return petRepository.findByOwnerId(ownerId, pageable);
     }
+
+    @Override
+    public List<Pet> getPetsByOwnerId2(Long ownerId) {
+        return petRepository.findByOwnerId2(ownerId);
+    }
+
 
     @Override
     @Transactional
@@ -203,5 +217,10 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<Pet> findSimilarPetsByName(String name) {
         log.debug("Searching for pets with name containing: {}", name);
         return petRepository.findSimilarPetsByName(name);
+    }
+
+    @Override
+    public PetRepository getRepository() {
+        return petRepository;
     }
 }
