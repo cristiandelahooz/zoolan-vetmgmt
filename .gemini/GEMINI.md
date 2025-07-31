@@ -37,7 +37,7 @@ The frontend, located in `src/main/frontend/`, is a modern React application str
 
 -   **Hilla Integration**: The frontend heavily relies on Vaadin Hilla. Java services annotated with `@BrowserCallable` are made available as asynchronous functions in TypeScript. Type definitions for DTOs and Entities are automatically generated in the `src/main/frontend/generated` directory, ensuring end-to-end type safety.
 -   **Folder Structure**:
-    -   **`views`**: Contains the application's pages, using Hilla's file-based routing (e.g., `clients/@index.tsx`, `pets/new.tsx`).
+    -   **`views`**: Contains the application's pages, using Hilla's file-based routing (e.g., `clients/<!-- Import failed: index.tsx`, - Only .md files are supported --> `pets/new.tsx`).
     -   **`components`**: Reusable React components, including custom UI elements (`ui/`) built with Radix UI and Vaadin components.
     -   **`stores`**: Global state management using Zustand (e.g., `useAppointments`, `useClients`).
     -   **`lib`**: Utility functions and application-level constants (`constants/`).
@@ -115,7 +115,7 @@ All common development tasks are managed via the `Makefile`.
 
 ## 6. Security Note
 
-Many backend services (`@BrowserCallable`) are currently annotated with `@AnonymousAllowed`. **This is a significant security risk and must be replaced with role-based authorization (e.g., `@RolesAllowed({...})`, `@PermitAll`) before deploying to a production environment.**
+Many backend services (`@BrowserCallable`) are currently annotated with `@AnonymousAllowed`. **This is a significant security risk and must be replaced with role-based authorization (e.g., `<!-- Import failed: RolesAllowed({...})`, - Only .md files are supported --> `@PermitAll`) before deploying to a production environment.**
 
 ## 7. Future Integrations
 
