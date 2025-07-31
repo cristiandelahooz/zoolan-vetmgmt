@@ -9,10 +9,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
-/**
- * @author me@fredpena.dev
- * @created 19/04/2025 - 01:40
- */
 @Route("invoicetmp")
 @PermitAll
 public class InvoiceViewTmp extends VerticalLayout {
