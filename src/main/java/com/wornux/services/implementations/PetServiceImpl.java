@@ -29,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -108,6 +109,12 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
                                 ? "Sin dueÃ±o"
                                 : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()))
                 .toList();
+    }
+
+    @Override
+    public List<Pet> getAllPets() {
+        log.debug("Request to get all active Pets");
+        return petRepository.findAll();
     }
 
     @Override
