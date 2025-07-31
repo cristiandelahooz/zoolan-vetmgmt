@@ -39,21 +39,9 @@ export const menuConfig: MenuItemConfig[] = [
     ],
   },
   {
-    path: undefined,
+    path: ROUTES.CONSULTATIONS,
     title: 'Consultas',
     icon: 'vaadin:stethoscope',
-    children: [
-      {
-        path: ROUTES.CONSULTATIONS,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.CONSULTATION_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-    ],
   },
   {
     path: undefined,
@@ -136,7 +124,7 @@ export const menuConfig: MenuItemConfig[] = [
   {
     path: undefined,
     title: 'Suplidores',
-    icon: 'lumo:user',
+    icon: 'vaadin:truck',
     children: [
       {
         path: ROUTES.SUPPLIERS,
