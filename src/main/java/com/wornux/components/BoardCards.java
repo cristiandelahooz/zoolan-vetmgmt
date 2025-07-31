@@ -4,10 +4,6 @@ import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-/**
- * @author me@fredpena.dev
- * @created 14/02/2025 - 18:42
- */
 public class BoardCards extends Div implements HasTheme {
 
     public BoardCards() {

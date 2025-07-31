@@ -3,10 +3,6 @@ package com.wornux.components;
 import com.vaadin.flow.component.HasTheme;
 import com.vaadin.flow.component.checkbox.Checkbox;
 
-/**
- * @author me@fredpena.dev
- * @created 12/01/2025 - 13:36
- */
 public class ToggleButton extends Checkbox implements HasTheme {
     public static final String THEME_NAME = "toggle-button";
 

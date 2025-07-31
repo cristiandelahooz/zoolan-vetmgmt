@@ -11,10 +11,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.util.function.Consumer;
 
-/**
- * @author me@fredpena.dev
- * @created 02/12/2024 - 15:29
- */
 public class ConfirmationDialogBuilder {
 
     private final VerticalLayout textLayout = new VerticalLayout();

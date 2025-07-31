@@ -5,10 +5,6 @@ import com.vaadin.flow.component.shared.Tooltip;
 
 import java.util.Locale;
 
-/**
- * @author me@fredpena.dev
- * @created 22/04/2025 - 18:17
- */
 public enum InfoIcon {
 
     INFO_CIRCLE;

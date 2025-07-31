@@ -5,10 +5,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-/**
- * @author me@fredpena.dev
- * @created 05/07/2025 - 00:21
- */
 public class ZoneIdUtils {
 
     private ZoneIdUtils() {

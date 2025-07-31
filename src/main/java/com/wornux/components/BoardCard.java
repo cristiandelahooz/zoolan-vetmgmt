@@ -6,10 +6,6 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-/**
- * @author me@fredpena.dev
- * @created 14/02/2025 - 18:42
- */
 public class BoardCard extends Div {
     // Components
     private final Div prefix;

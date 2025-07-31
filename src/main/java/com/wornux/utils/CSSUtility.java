@@ -1,9 +1,5 @@
 package com.wornux.utils;
 
-/**
- * @author me@fredpena.dev
- * @created 07/12/2024 - 18:24
- */
 public final class CSSUtility {
 
     public static final String COLUMN_GAP = "column-gap";

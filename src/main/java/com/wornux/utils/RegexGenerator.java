@@ -5,10 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-/**
- * @author me@fredpena.dev
- * @created 03/05/2025 - 15:25
- */
 public class RegexGenerator {
 
     public RegexGenerator() {

@@ -1,9 +1,5 @@
 package com.wornux.utils;
 
-/**
- * @author me@fredpena.dev
- * @created 28/02/2025 - 12:31
- */
 public final class FileSizeUtils {
     private static final String[] UNITS = { "bytes", "KB", "MB", "GB", "TB", "PB", "EB" };
     private static final double UNIT_STEP = 1024.0;

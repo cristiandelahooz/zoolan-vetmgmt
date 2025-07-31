@@ -8,10 +8,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-/**
- * @author me@fredpena.dev
- * @created 17/11/2024 - 20:16
- */
 public final class Broadcaster {
 
     private static final Executor executor = Executors.newFixedThreadPool(4);
