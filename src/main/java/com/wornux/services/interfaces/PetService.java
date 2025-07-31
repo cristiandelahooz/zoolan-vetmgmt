@@ -63,6 +63,11 @@ public interface PetService {
     List<PetSummaryResponseDto> getAllPets(Pageable pageable);
 
     /**
+     *
+     */
+    List<Pet> getAllPets();
+
+    /**
      * Retrieves Pets by owner ID.
      *
      * @param ownerId
