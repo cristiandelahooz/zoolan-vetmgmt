@@ -82,7 +82,7 @@ public class ConsultationsView extends Div {
         GridUtils.addColumn(grid, Consultation::getDiagnosis, "Diagnóstico", "diagnosis");
         GridUtils.addColumn(grid, Consultation::getTreatment, "Tratamiento", "treatment");
         GridUtils.addColumn(grid, Consultation::getPrescription, "Prescripción", "prescription");
-        GridUtils.addColumn(grid, c -> c.isActive() ? "Activo" : "Inactivo", "Estado", "active");
+        GridUtils.addComponentColumn(grid, this::renderStatus, "Estado", "active");
 
         grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
     }
@@ -191,5 +191,13 @@ public class ConsultationsView extends Div {
         actions.setMargin(false);
         actions.setWidth(null);
         return actions;
+    }
+
+    private Component renderStatus(Consultation consultation) {
+        boolean isActive = consultation.isActive();
+        Span badge = new Span(isActive ? "Activo" : "Inactivo");
+        badge.getElement().getThemeList().add("badge pill");
+        badge.getElement().getThemeList().add(isActive ? "success" : "error");
+        return badge;
     }
 }
