@@ -51,8 +51,7 @@ public class Client extends User {
     @Nullable
     private String emergencyContactName;
 
-    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono de emergencia válido (809, 849 o 829 seguido de 7"
-            + " dígitos)")
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono de emergencia válido (809, 849 o 829 seguido de 7" + " dígitos)")
     @Column(name = "emergency_contact_number")
     @Nullable
     private String emergencyContactNumber;
@@ -103,5 +102,11 @@ public class Client extends User {
             filledFields++;
 
         return filledFields == MAX_IDENTIFICATION_DOCUMENT_COUNT;
+    }
+
+    public String getFullName() {
+        if (firstName == null || lastName == null)
+            return companyName != null ? companyName : "Cliente Sin Nombre";
+        return String.format("%s %s", firstName, lastName);
     }
 }
