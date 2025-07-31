@@ -6,6 +6,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
@@ -60,12 +61,10 @@ public class CompanyClientForm extends Dialog {
 
     private final Binder<ClientCreateRequestDto> binder = new BeanValidationBinder<>(ClientCreateRequestDto.class);
     private final ClientService clientService;
-
-    @Setter
-    private Runnable onSaveCallback;
-
     private final List<Consumer<ClientCreateRequestDto>> clientSavedListeners = new ArrayList<>();
     private final List<Runnable> clientCancelledListeners = new ArrayList<>();
+    @Setter
+    private Runnable onSaveCallback;
 
     public CompanyClientForm(ClientService clientService) {
         this.clientService = clientService;
@@ -73,7 +72,13 @@ public class CompanyClientForm extends Dialog {
         setHeaderTitle("Nueva Empresa");
         setModal(true);
         setWidth("900px");
-        setHeight("80vh");
+        setMaxWidth("95vw");
+        setHeight("85vh");
+        setMaxHeight("95vh");
+
+        // Add header styling similar to ClientForm
+        getHeader().getElement().getStyle().set("background", "var(--lumo-primary-color-10pct)")
+                .set("color", "var(--lumo-primary-text-color)");
 
         createForm();
         setupValidation();
@@ -129,6 +134,25 @@ public class CompanyClientForm extends Dialog {
         rnc.setPlaceholder("Ej: 123456789");
         rnc.setHelperText("9 dígitos");
 
+        // Add icons to fields
+        companyName.setPrefixComponent(VaadinIcon.BUILDING.create());
+        rnc.setPrefixComponent(VaadinIcon.CREDIT_CARD.create());
+        email.setPrefixComponent(VaadinIcon.ENVELOPE.create());
+        phoneNumber.setPrefixComponent(VaadinIcon.PHONE.create());
+        preferredContactMethod.setPrefixComponent(VaadinIcon.CONNECT.create());
+        emergencyContactName.setPrefixComponent(VaadinIcon.USERS.create());
+        emergencyContactNumber.setPrefixComponent(VaadinIcon.PHONE_LANDLINE.create());
+        province.setPrefixComponent(VaadinIcon.LOCATION_ARROW.create());
+        municipality.setPrefixComponent(VaadinIcon.HOME.create());
+        sector.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
+        streetAddress.setPrefixComponent(VaadinIcon.ROAD.create());
+        referencePoints.setPrefixComponent(VaadinIcon.INFO_CIRCLE.create());
+        creditLimit.setPrefixComponent(VaadinIcon.DOLLAR.create());
+        paymentTermsDays.setPrefixComponent(VaadinIcon.CALENDAR_CLOCK.create());
+        rating.setPrefixComponent(VaadinIcon.STAR.create());
+        referenceSource.setPrefixComponent(VaadinIcon.QUESTION_CIRCLE.create());
+        notes.setPrefixComponent(VaadinIcon.EDIT.create());
+
         VerticalLayout content = new VerticalLayout();
         content.add(new H3("Información de la Empresa"), companyInfo, new H3("Información de Contacto"), contactInfo,
                 new H3("Dirección"), addressInfo, referencePoints, new H3("Información Comercial"), businessInfo,
@@ -148,14 +172,13 @@ public class CompanyClientForm extends Dialog {
 
         binder.forField(rnc).asRequired("El RNC es requerido")
                 .withValidator(value -> value != null && value.matches("\\d{9}"),
-                        "El RNC debe contener exactamente 9 dígitos")
-                .bind(ClientCreateRequestDto::rnc, null);
+                        "El RNC debe contener exactamente 9 dígitos").bind(ClientCreateRequestDto::rnc, null);
 
-        binder.forField(email).asRequired("El correo electrónico es requerido").bind(ClientCreateRequestDto::email,
-                null);
+        binder.forField(email).asRequired("El correo electrónico es requerido")
+                .bind(ClientCreateRequestDto::email, null);
 
-        binder.forField(phoneNumber).asRequired("El teléfono es requerido").bind(ClientCreateRequestDto::phoneNumber,
-                null);
+        binder.forField(phoneNumber).asRequired("El teléfono es requerido")
+                .bind(ClientCreateRequestDto::phoneNumber, null);
 
         binder.forField(preferredContactMethod).bind(ClientCreateRequestDto::preferredContactMethod, null);
 
@@ -169,8 +192,8 @@ public class CompanyClientForm extends Dialog {
 
         binder.forField(province).asRequired("La provincia es requerida").bind(ClientCreateRequestDto::province, null);
 
-        binder.forField(municipality).asRequired("El municipio es requerido").bind(ClientCreateRequestDto::municipality,
-                null);
+        binder.forField(municipality).asRequired("El municipio es requerido")
+                .bind(ClientCreateRequestDto::municipality, null);
 
         binder.forField(sector).asRequired("El sector es requerido").bind(ClientCreateRequestDto::sector, null);
 
@@ -199,7 +222,8 @@ public class CompanyClientForm extends Dialog {
                 return;
             }
 
-            ClientCreateRequestDto dto = new ClientCreateRequestDto(email.getValue(), null, // firstName is null for companies
+            ClientCreateRequestDto dto = new ClientCreateRequestDto(email.getValue(), null,
+                    // firstName is null for companies
                     null, // lastName is null for companies
                     phoneNumber.getValue(), null, // birthDate is null for companies
                     null, // gender is null for companies
@@ -238,9 +262,9 @@ public class CompanyClientForm extends Dialog {
 
     /**
      * Adds a listener that will be called when a client is successfully saved.
-     * 
+     *
      * @param listener
-     *            Consumer that receives the saved client DTO
+     *         Consumer that receives the saved client DTO
      */
     public void addClientSavedListener(Consumer<ClientCreateRequestDto> listener) {
         clientSavedListeners.add(listener);
@@ -248,9 +272,9 @@ public class CompanyClientForm extends Dialog {
 
     /**
      * Adds a listener that will be called when the form is cancelled.
-     * 
+     *
      * @param listener
-     *            Runnable to execute on cancel
+     *         Runnable to execute on cancel
      */
     public void addClientCancelledListener(Runnable listener) {
         clientCancelledListeners.add(listener);
@@ -258,9 +282,9 @@ public class CompanyClientForm extends Dialog {
 
     /**
      * Notifies all saved listeners that a client was successfully saved.
-     * 
+     *
      * @param dto
-     *            The saved client DTO
+     *         The saved client DTO
      */
     private void fireClientSavedEvent(ClientCreateRequestDto dto) {
         clientSavedListeners.forEach(listener -> listener.accept(dto));

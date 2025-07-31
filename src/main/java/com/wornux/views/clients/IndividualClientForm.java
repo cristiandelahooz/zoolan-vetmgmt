@@ -8,6 +8,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
@@ -67,12 +68,10 @@ public class IndividualClientForm extends Dialog {
 
     private final Binder<ClientCreateRequestDto> binder = new BeanValidationBinder<>(ClientCreateRequestDto.class);
     private final ClientService clientService;
-
-    @Setter
-    private Runnable onSaveCallback;
-
     private final List<Consumer<ClientCreateRequestDto>> clientSavedListeners = new ArrayList<>();
     private final List<Runnable> clientCancelledListeners = new ArrayList<>();
+    @Setter
+    private Runnable onSaveCallback;
 
     public IndividualClientForm(ClientService clientService) {
         this.clientService = clientService;
@@ -80,7 +79,13 @@ public class IndividualClientForm extends Dialog {
         setHeaderTitle("Nuevo Cliente Individual");
         setModal(true);
         setWidth("900px");
-        setHeight("80vh");
+        setMaxWidth("95vw");
+        setHeight("85vh");
+        setMaxHeight("95vh");
+
+        // Add header styling similar to ClientForm
+        getHeader().getElement().getStyle().set("background", "var(--lumo-primary-color-10pct)")
+                .set("color", "var(--lumo-primary-text-color)");
 
         createForm();
         setupValidation();
@@ -134,6 +139,28 @@ public class IndividualClientForm extends Dialog {
         referencePoints.setMaxLength(500);
         notes.setMaxLength(1000);
 
+        // Add icons to fields
+        firstName.setPrefixComponent(VaadinIcon.USER.create());
+        lastName.setPrefixComponent(VaadinIcon.USER.create());
+        email.setPrefixComponent(VaadinIcon.ENVELOPE.create());
+        phoneNumber.setPrefixComponent(VaadinIcon.PHONE.create());
+        birthDate.setPrefixComponent(VaadinIcon.CALENDAR.create());
+        gender.setPrefixComponent(VaadinIcon.USER_CHECK.create());
+        nationality.setPrefixComponent(VaadinIcon.FLAG.create());
+        cedula.setPrefixComponent(VaadinIcon.CREDIT_CARD.create());
+        passport.setPrefixComponent(VaadinIcon.AIRPLANE.create());
+        preferredContactMethod.setPrefixComponent(VaadinIcon.CONNECT.create());
+        emergencyContactName.setPrefixComponent(VaadinIcon.USERS.create());
+        emergencyContactNumber.setPrefixComponent(VaadinIcon.PHONE_LANDLINE.create());
+        province.setPrefixComponent(VaadinIcon.LOCATION_ARROW.create());
+        municipality.setPrefixComponent(VaadinIcon.HOME.create());
+        sector.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
+        streetAddress.setPrefixComponent(VaadinIcon.ROAD.create());
+        referencePoints.setPrefixComponent(VaadinIcon.INFO_CIRCLE.create());
+        rating.setPrefixComponent(VaadinIcon.STAR.create());
+        referenceSource.setPrefixComponent(VaadinIcon.QUESTION_CIRCLE.create());
+        notes.setPrefixComponent(VaadinIcon.EDIT.create());
+
         VerticalLayout content = new VerticalLayout();
         content.add(new H3("Información Personal"), personalInfo, new H3("Identificación"), identificationInfo,
                 new H3("Información de Contacto"), contactInfo, new H3("Dirección"), addressInfo, referencePoints,
@@ -152,11 +179,11 @@ public class IndividualClientForm extends Dialog {
 
         binder.forField(lastName).asRequired("El apellido es requerido").bind(ClientCreateRequestDto::lastName, null);
 
-        binder.forField(email).asRequired("El correo electrónico es requerido").bind(ClientCreateRequestDto::email,
-                null);
+        binder.forField(email).asRequired("El correo electrónico es requerido")
+                .bind(ClientCreateRequestDto::email, null);
 
-        binder.forField(phoneNumber).asRequired("El teléfono es requerido").bind(ClientCreateRequestDto::phoneNumber,
-                null);
+        binder.forField(phoneNumber).asRequired("El teléfono es requerido")
+                .bind(ClientCreateRequestDto::phoneNumber, null);
 
         binder.forField(birthDate).bind(ClientCreateRequestDto::birthDate, null);
 
@@ -181,8 +208,8 @@ public class IndividualClientForm extends Dialog {
 
         binder.forField(province).asRequired("La provincia es requerida").bind(ClientCreateRequestDto::province, null);
 
-        binder.forField(municipality).asRequired("El municipio es requerido").bind(ClientCreateRequestDto::municipality,
-                null);
+        binder.forField(municipality).asRequired("El municipio es requerido")
+                .bind(ClientCreateRequestDto::municipality, null);
 
         binder.forField(sector).asRequired("El sector es requerido").bind(ClientCreateRequestDto::sector, null);
 
@@ -221,8 +248,8 @@ public class IndividualClientForm extends Dialog {
             String cedulaValue = cedula.getValue();
             String passportValue = passport.getValue();
 
-            if ((cedulaValue == null || cedulaValue.trim().isEmpty())
-                    && (passportValue == null || passportValue.trim().isEmpty())) {
+            if ((cedulaValue == null || cedulaValue.trim().isEmpty()) && (passportValue == null || passportValue.trim()
+                    .isEmpty())) {
                 NotificationUtils.error("Debe proporcionar cédula o pasaporte");
                 return;
             }
@@ -263,9 +290,9 @@ public class IndividualClientForm extends Dialog {
 
     /**
      * Adds a listener that will be called when a client is successfully saved.
-     * 
+     *
      * @param listener
-     *            Consumer that receives the saved client DTO
+     *         Consumer that receives the saved client DTO
      */
     public void addClientSavedListener(Consumer<ClientCreateRequestDto> listener) {
         clientSavedListeners.add(listener);
@@ -273,9 +300,9 @@ public class IndividualClientForm extends Dialog {
 
     /**
      * Adds a listener that will be called when the form is cancelled.
-     * 
+     *
      * @param listener
-     *            Runnable to execute on cancel
+     *         Runnable to execute on cancel
      */
     public void addClientCancelledListener(Runnable listener) {
         clientCancelledListeners.add(listener);
@@ -283,9 +310,9 @@ public class IndividualClientForm extends Dialog {
 
     /**
      * Notifies all saved listeners that a client was successfully saved.
-     * 
+     *
      * @param dto
-     *            The saved client DTO
+     *         The saved client DTO
      */
     private void fireClientSavedEvent(ClientCreateRequestDto dto) {
         clientSavedListeners.forEach(listener -> listener.accept(dto));
