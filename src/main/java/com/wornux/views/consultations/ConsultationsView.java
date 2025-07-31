@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -22,96 +23,89 @@ import com.wornux.data.entity.Consultation;
 import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.services.interfaces.PetService;
+import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
+
 
 @Route(value = "consultations")
 @PageTitle("Consultas")
 public class ConsultationsView extends Div {
 
-    private final Grid<Consultation> grid = new Grid<>(Consultation.class, false);
+    private final Grid<Consultation> grid = GridUtils.createBasicGrid(Consultation.class);
     private final TextField searchField = new TextField("Buscar consultas");
     private final Button create = new Button("Nueva Consulta");
+    private final Span quantity = new Span();
     private final transient ConsultationService consultationService;
-    private final ConsultationsForm consultationsForm;
+    private final transient ConsultationsForm consultationsForm;
 
     public ConsultationsView(@Qualifier("consultationServiceImpl") ConsultationService consultationService,
                              @Qualifier("employeeServiceImpl") EmployeeService employeeService,
                              @Qualifier("petServiceImpl") PetService petService) {
         this.consultationService = consultationService;
-        this.consultationsForm = new ConsultationsForm(
-                consultationService,
-                employeeService,
-                petService
-        );
+        this.consultationsForm = new ConsultationsForm(consultationService, employeeService, petService);
 
         setId("consultations-view");
-        setSizeFull();
-        setClassName(LumoUtility.Display.FLEX);
-        getStyle().set("flex-direction", "column");
 
-        consultationsForm.setOnSaveCallback(saved -> refreshAll());
+        consultationsForm.setOnSaveCallback(saved -> {
+            refreshAll();
+            consultationsForm.close();
+        });
 
-        createGrid();
+        createGrid(consultationService, createFilterSpecification());
 
-        Div gridLayout = new Div(grid);
-        gridLayout.setSizeFull();
-        gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
+        final Div gridLayout = new Div(grid);
+        gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL,
+                LumoUtility.Height.FULL);
+        grid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
 
         add(createTitle(), createFilter(), gridLayout);
+        addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
+        setSizeFull();
 
         create.addClickListener(event -> consultationsForm.openForNew());
     }
 
-    private void createGrid() {
-        grid.setSizeFull();
-        grid.addColumn(c -> c.getPet() != null ? c.getPet().getName() : null).setHeader("Mascota");
-        grid.addColumn(c -> c.getVeterinarian() != null ? c.getVeterinarian().getFirstName() : null).setHeader("Veterinario");
-        grid.addColumn(Consultation::getConsultationDate).setHeader("Fecha de Consulta");
-        grid.addColumn(Consultation::getNotes).setHeader("Notas");
-        grid.addColumn(Consultation::getDiagnosis).setHeader("Diagnóstico");
-        grid.addColumn(Consultation::getTreatment).setHeader("Tratamiento");
-        grid.addColumn(Consultation::getPrescription).setHeader("Prescripción");
-        grid.addColumn(c -> c.isActive() ? "Activo" : "Inactivo").setHeader("Estado");
+    private void createGrid(ConsultationService service, Specification<Consultation> specification) {
+        GridUtils.configureGrid(grid, specification, service.getRepository());
+
+        GridUtils.addColumn(grid, c -> c.getPet() != null ? c.getPet().getName() : "", "Mascota", "pet");
+        GridUtils.addColumn(grid, c -> c.getVeterinarian() != null ? c.getVeterinarian().getFirstName() : "", "Veterinario", "veterinarian");
+        GridUtils.addColumn(grid, Consultation::getConsultationDate, "Fecha de Consulta", "consultationDate");
+        GridUtils.addColumn(grid, Consultation::getNotes, "Notas", "notes");
+        GridUtils.addColumn(grid, Consultation::getDiagnosis, "Diagnóstico", "diagnosis");
+        GridUtils.addColumn(grid, Consultation::getTreatment, "Tratamiento", "treatment");
+        GridUtils.addColumn(grid, Consultation::getPrescription, "Prescripción", "prescription");
+        GridUtils.addColumn(grid, c -> c.isActive() ? "Activo" : "Inactivo", "Estado", "active");
 
         grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
-
-        refreshAll();
     }
 
-    private Component createActionsColumn(Consultation consultation) {
-        Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-        edit.getElement().setProperty("title", "Editar");
-        edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+    public Specification<Consultation> createFilterSpecification() {
+        return (root, query, builder) -> {
+            Order order = builder.desc(root.get("consultationDate"));
+            if (query != null) {
+                query.orderBy(order);
+            }
 
-        // Java
-        Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(
-                ButtonVariant.LUMO_ICON,
-                ButtonVariant.LUMO_TERTIARY_INLINE,
-                ButtonVariant.LUMO_SMALL,
-                ButtonVariant.LUMO_ERROR // This adds the red color
-        );
-        delete.getElement().setProperty("title", "Eliminar");
-        delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+            Predicate searchPredicate = builder.or(
+                    builder.like(builder.lower(root.get("notes")), "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("diagnosis")), "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("treatment")), "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("prescription")), "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("pet").get("name")), "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("veterinarian").get("firstName")), "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("veterinarian").get("lastName")), "%" + searchField.getValue().toLowerCase() + "%")
+            );
 
-        edit.addClickListener(e -> consultationsForm.openForEdit(consultation));
-        delete.addClickListener(e -> {
-            consultationService.delete(consultation.getId());
-            NotificationUtils.success("Consulta eliminada");
-            refreshAll();
-        });
-
-        HorizontalLayout actions = new HorizontalLayout(edit, delete);
-        actions.setSpacing(true);
-        actions.setPadding(false);
-        actions.setMargin(false);
-        actions.setWidth(null);
-        return actions;
+            return searchPredicate;
+        };
     }
 
     private Div createTitle() {
@@ -171,5 +165,31 @@ public class ConsultationsView extends Div {
             ).toList();
         }
         grid.setItems(consultations);
+    }
+
+    private Component createActionsColumn(Consultation consultation) {
+        Button edit = new Button(new Icon(VaadinIcon.EDIT));
+        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.getElement().setProperty("title", "Editar");
+        edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+        Button delete = new Button(new Icon(VaadinIcon.TRASH));
+        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
+        delete.getElement().setProperty("title", "Eliminar");
+        delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+        edit.addClickListener(e -> consultationsForm.openForEdit(consultation));
+        delete.addClickListener(e -> {
+            consultationService.delete(consultation.getId());
+            NotificationUtils.success("Consulta eliminada");
+            refreshAll();
+        });
+
+        HorizontalLayout actions = new HorizontalLayout(edit, delete);
+        actions.setSpacing(true);
+        actions.setPadding(false);
+        actions.setMargin(false);
+        actions.setWidth(null);
+        return actions;
     }
 }
