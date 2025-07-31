@@ -230,4 +230,8 @@ public class ConsultationServiceImpl extends ListRepositoryService<Consultation,
         return consultationRepository.findByActiveTrue(pageable);
     }
 
+    @Override
+    public ConsultationRepository getRepository() {
+        return consultationRepository;
+    }
 }

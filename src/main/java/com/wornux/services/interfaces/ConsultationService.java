@@ -2,6 +2,7 @@ package com.wornux.services.interfaces;
 
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Consultation;
+import com.wornux.data.repository.ConsultationRepository;
 import com.wornux.dto.request.CreateConsultationRequestDto;
 import com.wornux.dto.request.UpdateConsultationRequestDto;
 
@@ -94,5 +95,12 @@ public interface ConsultationService {
     void delete(Long id);
 
     Page<Consultation> findByActiveTrue(Pageable pageable);
+
+    /**
+     * Get the Consultation repository for direct database operations.
+     *
+     * @return the ConsultationService instance
+     */
+    ConsultationRepository getRepository();
 
 }
