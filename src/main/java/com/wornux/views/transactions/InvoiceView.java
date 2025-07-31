@@ -29,6 +29,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Invoice;
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.mapper.ClientMapper;
 import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
@@ -81,13 +82,14 @@ public class InvoiceView extends Div {
     private final InvoiceForm invoiceForm;
 
     public InvoiceView(InvoiceService service, @Qualifier("clientServiceImpl") ClientService customerService,
-            ProductService productService, AuditService auditService, JasperReportFactory reportFactory) {
+            ProductService productService, AuditService auditService, ClientMapper clientMapper,
+            JasperReportFactory reportFactory) {
         this.reportFactory = reportFactory;
         this.service = service;
 
         setId("invoices-view");
 
-        invoiceForm = new InvoiceForm(service, customerService, productService, auditService);
+        invoiceForm = new InvoiceForm(service, customerService, productService, auditService, clientMapper);
 
         createGrid(service, createFilterSpecification());
 
@@ -304,7 +306,7 @@ public class InvoiceView extends Div {
         DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
         DecimalFormat numberFormat = new DecimalFormat("#,##0");
 
-        BoardCard card = createBoardCard("Abonado", decimalFormat.format(0.00), "DOP");
+        BoardCard card = createBoardCard("Vencido", decimalFormat.format(0.00), "DOP");
         boardCards.add(card);
 
         card = createBoardCard("Deuda a pagar dentro de los próximos 30 días", decimalFormat.format(0.00), "DOP");
