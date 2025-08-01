@@ -1,6 +1,7 @@
 package com.wornux.views.transactions;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,13 +22,16 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.popover.Popover;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.streams.DownloadHandler;
+import com.vaadin.flow.server.streams.DownloadResponse;
+import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Client;
@@ -45,14 +49,17 @@ import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.core5.http.ContentType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -284,59 +291,34 @@ public class InvoiceView extends Div {
 
     private void generateInvoice(Invoice invoice) {
         try {
+            var fileName = "Invoice_" + invoice.getCode();
+
             var reportService = reportFactory.getServiceFromDatabase("/report/Invoice.jasper");
 
-            InputStream resourceAsStream = InvoiceView.class.getResourceAsStream("/report/your-logo.png");
-            log.info("Logo path: {}", resourceAsStream == null ? "null" : "exists");
+            try (InputStream inputStream = reportService.execute()) {
+                byte[] data = inputStream.readAllBytes();
+                UI.getCurrent().access(() -> {
 
-            // Configurar parámetros del reporte
-            reportService.put("INVOICE_ID", invoice.getCode());
-            reportService.put("LOGO", resourceAsStream);
-            
-            // Agregar más parámetros necesarios para el reporte
-            reportService.put("INVOICE_ID", invoice.getCode().toString());
-            reportService.put("CLIENT_NAME", invoice.getClient() != null ? invoice.getClient().getFullName() : "");
-            reportService.put("INVOICE_DATE", invoice.getIssuedDate());
-            reportService.put("DUE_DATE", invoice.getPaymentDate());
-            reportService.put("TOTAL_AMOUNT", invoice.getTotal());
-            reportService.put("SUBTOTAL", invoice.getSubtotal());
-            reportService.put("TAX_AMOUNT", invoice.getTax());
-            reportService.put("DISCOUNT_AMOUNT", invoice.getDiscount());
-            
-            // Ejecutar el reporte y obtener el InputStream del PDF
-            InputStream pdfStream = reportService.execute();
-            
-            // Crear el recurso de descarga
-            StreamResource resource = new StreamResource(
-                "factura_" + invoice.getCode() + ".pdf",
-                () -> pdfStream
-            );
-            resource.setContentType("application/pdf");
-            resource.setCacheTime(0);
-            
-            // Crear anchor para descarga automática
-            Anchor downloadLink = new Anchor(resource, "");
-            downloadLink.getElement().setAttribute("download", true);
-            downloadLink.setTarget("_blank");
-            
-            // Simular click para iniciar descarga
-            getUI().ifPresent(ui -> {
-                ui.getElement().appendChild(downloadLink.getElement());
-                downloadLink.getElement().callJsFunction("click");
-                ui.getElement().removeChild(downloadLink.getElement());
-            });
-            
-            log.info("PDF generado exitosamente para la factura: {}", invoice.getCode());
-            
+                    InputStreamDownloadHandler downloadHandler = DownloadHandler.fromInputStream((event) -> {
+                        try {
+                            return new DownloadResponse(new ByteArrayInputStream(data), "%s.pdf".formatted(fileName),
+                                    "application/pdf", data.length);
+                        } catch (Exception e) {
+                            return DownloadResponse.error(500);
+                        }
+                    });
+
+                    final StreamRegistration registration = VaadinSession.getCurrent().getResourceRegistry()
+                            .registerResource(downloadHandler);
+                    UI.getCurrent().getPage().open(registration.getResourceUri().toString(), "_blank");
+                });
+            }
+
         } catch (Exception e) {
             log.error("Error al generar el PDF de la factura: {}", invoice.getCode(), e);
-            
-            // Mostrar notificación de error al usuario
-            Notification.show(
-                "Error al generar el PDF: " + e.getMessage(),
-                5000,
-                Notification.Position.TOP_CENTER
-            ).addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+            Notification.show("Error al generar el PDF, favor intentar nuevamente en unos minutos", 5000,
+                    Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
     }
 

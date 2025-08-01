@@ -5,7 +5,6 @@
 --  ███████║   ██║   ██║  ██║╚██████╔╝╚██████╗   ██║   ╚██████╔╝██║  ██║███████╗
 --  ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
-
 CREATE SEQUENCE IF NOT EXISTS revision_seq START WITH 1 INCREMENT BY 50;
 
 CREATE TABLE appointments
@@ -665,10 +664,10 @@ CREATE TABLE waiting_room_aud
 );
 
 ALTER TABLE client_aud
-    ADD CONSTRAINT pk_client_aud PRIMARY KEY (client_id, rev);
+    ADD CONSTRAINT pk_client_aud PRIMARY KEY (client_id, rev, client_id, rev);
 
 ALTER TABLE employee_aud
-    ADD CONSTRAINT pk_employee_aud PRIMARY KEY (employee_id, rev);
+    ADD CONSTRAINT pk_employee_aud PRIMARY KEY (employee_id, rev, employee_id, rev);
 
 ALTER TABLE client
     ADD CONSTRAINT uc_client_cedula UNIQUE (cedula);
@@ -725,7 +724,7 @@ ALTER TABLE appointments
     ADD CONSTRAINT FK_APPOINTMENTS_ON_PET FOREIGN KEY (pet_id) REFERENCES pets (id);
 
 ALTER TABLE client_aud
-    ADD CONSTRAINT FK_CLIENT_AUD_ON_CLIDRE FOREIGN KEY (client_id, rev) REFERENCES users_aud (user_id, rev);
+    ADD CONSTRAINT FK_CLIENT_AUD_ON_CLIDRE FOREIGN KEY (client_id, rev, rev) REFERENCES users_aud (user_id, rev);
 
 ALTER TABLE client
     ADD CONSTRAINT FK_CLIENT_ON_CLIENT FOREIGN KEY (client_id) REFERENCES users (user_id);
@@ -743,7 +742,7 @@ ALTER TABLE consultations
     ADD CONSTRAINT FK_CONSULTATIONS_ON_VETERINARIAN FOREIGN KEY (veterinarian_id) REFERENCES employee (employee_id);
 
 ALTER TABLE employee_aud
-    ADD CONSTRAINT FK_EMPLOYEE_AUD_ON_EMIDRE FOREIGN KEY (employee_id, rev) REFERENCES users_aud (user_id, rev);
+    ADD CONSTRAINT FK_EMPLOYEE_AUD_ON_EMIDRE FOREIGN KEY (employee_id, rev, rev) REFERENCES users_aud (user_id, rev);
 
 ALTER TABLE employee
     ADD CONSTRAINT FK_EMPLOYEE_ON_EMPLOYEE FOREIGN KEY (employee_id) REFERENCES users (user_id);

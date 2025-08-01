@@ -1,9 +1,14 @@
 package com.wornux.services.report.pdf;
 
-/**
- * @author hectorvent@gmail.com
- */
 public class ReportErrorException extends RuntimeException {
+
+    public ReportErrorException(String message) {
+        super(message);
+    }
+
+    public ReportErrorException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
     public ReportErrorException(Throwable cause) {
         super(cause);
