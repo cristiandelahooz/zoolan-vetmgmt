@@ -197,7 +197,7 @@ public class ProductForm extends Dialog {
         });
     }
 
-    private void save(ClickEvent<Button> event) {
+    public void save(ClickEvent<Button> event) {
         try {
             if (!validateForm()) {
                 NotificationUtils.error("Por favor, complete todos los campos requeridos");
@@ -214,6 +214,24 @@ public class ProductForm extends Dialog {
             log.error("Error saving product", e);
             NotificationUtils.error("Error al guardar producto: " + e.getMessage());
         }
+    }
+
+    public void delete() {
+        if (currentProduct == null) {
+            NotificationUtils.error("No hay producto seleccionado para eliminar");
+            return;
+        }
+
+        productService.delete(currentProduct.getId());
+        NotificationUtils.success("Producto eliminado exitosamente");
+
+        fireProductCancelledEvent();
+
+        if (onSaveCallback != null) {
+            onSaveCallback.run();
+        }
+
+        close();
     }
 
     private void createProduct() {
