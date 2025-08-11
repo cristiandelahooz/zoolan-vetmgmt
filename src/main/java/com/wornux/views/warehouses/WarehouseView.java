@@ -195,7 +195,22 @@ public class WarehouseView extends VerticalLayout {
             warehouseService.updateWarehouse(selectedWarehouse.getId(), dto);
             NotificationUtils.success("Almacén actualizado exitosamente");
         } else {
-            WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder().name(name.getValue()).warehouseType(warehouseType.getValue()).availableForSale(availableForSale.getValue()).status(status.getValue()).build();
+            WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder()
+                .name(name.getValue())
+                .warehouseType(warehouseType.getValue())
+                .availableForSale(availableForSale.getValue())
+                .status(status.getValue())
+                .build();
+
+            warehouseService.updateWarehouse(selectedWarehouse.getId(), dto);
+            NotificationUtils.success("Almacén actualizado exitosamente");
+        } else {
+            WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder()
+                .name(name.getValue())
+                .warehouseType(warehouseType.getValue())
+                .availableForSale(availableForSale.getValue())
+                .status(status.getValue())
+                .build();
 
             warehouseService.createWarehouse(dto);
             NotificationUtils.success("Almacén creado exitosamente");
