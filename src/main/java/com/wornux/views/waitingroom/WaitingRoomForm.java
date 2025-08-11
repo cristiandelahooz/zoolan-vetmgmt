@@ -40,16 +40,16 @@ public class WaitingRoomForm extends Dialog {
     private final Button cancelButton = new Button("Cancelar");
 
     private final SelectOwnerDialog selectOwnerDialog;
-    private final ClientService clientService;
-    private final PetService petService;
-    private final WaitingRoomService waitingRoomService;
+    private final transient ClientService clientService;
+    private final transient PetService petService;
+    private final transient WaitingRoomService waitingRoomService;
 
 
-    private Client selectedClient;
+    private transient Client selectedClient;
     private Long clientId;
 
     private final Binder<WaitingRoomFormModel> binder = new BeanValidationBinder<>(WaitingRoomFormModel.class);
-    private final WaitingRoomFormModel model = new WaitingRoomFormModel();
+    private final transient WaitingRoomFormModel model = new WaitingRoomFormModel();
 
     private Consumer<WaitingRoomCreateRequestDto> onSave;
 
@@ -100,7 +100,6 @@ public class WaitingRoomForm extends Dialog {
             clientId = cliente.getId();
             clientName.setValue(cliente.getFirstName() + " " + cliente.getLastName());
 
-            // Cargar mascotas del cliente seleccionado
             List<Pet> pets = petService.getPetsByOwnerId2(clientId);
             petComboBox.setItems(pets);
             petComboBox.setItemLabelGenerator(Pet::getName);
@@ -141,15 +140,13 @@ public class WaitingRoomForm extends Dialog {
 
         WaitingRoomCreateRequestDto dto = model.toDto();
 
-
         try {
-            //waitingRoomService.save(dto);
-            ((FormService<WaitingRoomCreateRequestDto, Long>) waitingRoomService).save(dto);
             waitingRoomService.save(dto);
             NotificationUtils.success("Entrada agregada exitosamente a la sala de espera");
 
             if (onSave != null) onSave.accept(dto);
             close();
+            clearForm();
         } catch (Exception e) {
             NotificationUtils.error("Error al guardar: " + e.getMessage());
         }
@@ -170,5 +167,16 @@ public class WaitingRoomForm extends Dialog {
 
     public void setOnSave(Consumer<WaitingRoomCreateRequestDto> listener) {
         this.onSave = listener;
+    }
+
+    public void clearForm() {
+        binder.setBean(new WaitingRoomFormModel());
+        clientName.clear();
+        petComboBox.clear();
+        reasonForVisit.clear();
+        priorityComboBox.clear();
+        notes.clear();
+        clientId = null;
+        selectedClient = null;
     }
 }
