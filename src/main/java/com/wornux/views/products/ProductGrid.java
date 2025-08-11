@@ -1,21 +1,28 @@
 package com.wornux.views.products;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Span;
 import com.wornux.data.entity.Product;
 import com.wornux.data.enums.ProductCategory;
 import com.wornux.services.interfaces.ProductService;
 import org.springframework.data.domain.PageRequest;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.function.Consumer;
 
 public class ProductGrid extends Grid<Product> {
+    private Specification<Product> specification;
+    private final transient ProductService productService;
+
 
     public ProductGrid(ProductService productService,
                        Consumer<Product> onSelect) {
         super(Product.class, false);
-        setWidthFull();
-        setHeight("450px");
+        this.productService = productService;
+        setSizeFull();
 
         setItems(query -> {
             var products = productService.getAllProducts(PageRequest.of(query.getPage(), query.getPageSize(),
@@ -32,8 +39,10 @@ public class ProductGrid extends Grid<Product> {
                 .setAutoWidth(true).setHeader("Precio de Venta");
         addColumn(Product::getAccountingStock).setAutoWidth(true).setHeader("Stock Contable");
         addColumn(Product::getAvailableStock).setAutoWidth(true).setHeader("Stock Disponible");
-        addColumn(product -> getCategoryDisplayName(product.getCategory())).setAutoWidth(true)
-                .setHeader("Categoría");
+        addComponentColumn(this::renderCategoryBadge)
+                .setHeader("Categoría")
+                .setKey("categoryBadge")
+                .setAutoWidth(true);
         addColumn(product -> {
             try {
                 return product.getSupplier() != null ? product.getSupplier().getCompanyName() : "Sin Proveedor";
@@ -43,6 +52,11 @@ public class ProductGrid extends Grid<Product> {
         }).setAutoWidth(true).setHeader("Proveedor");
         addColumn(product -> product.getWarehouse() != null ? product.getWarehouse().getName() : "Sin Almacén")
                 .setAutoWidth(true).setHeader("Almacén");
+
+        addThemeVariants(GridVariant.LUMO_COMPACT,
+                GridVariant.LUMO_ROW_STRIPES,
+                GridVariant.LUMO_WRAP_CELL_CONTENT);
+
 
         addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(onSelect));
     }
@@ -57,5 +71,32 @@ public class ProductGrid extends Grid<Product> {
             case HIGIENE -> "Higiene";
             case OTRO -> "Otro";
         };
+    }
+    private Component renderCategoryBadge(Product product) {
+        ProductCategory category = product.getCategory();
+        if (category == null) {
+            return new Span("-");
+        }
+        com.vaadin.flow.component.html.Span badge = new com.vaadin.flow.component.html.Span(getCategoryDisplayName(category));
+        badge.getElement().getThemeList().add("badge pill");
+        switch (category) {
+            case ALIMENTO -> badge.getElement().getThemeList().add("success");
+            case MEDICINA -> badge.getElement().getThemeList().add("primary");
+            case ACCESORIO -> badge.getElement().getThemeList().add("contrast");
+            case HIGIENE -> badge.getElement().getThemeList().add("warning");
+            case OTRO -> badge.getElement().getThemeList().add("error");
+        }
+        return badge;
+    }
+
+    public void setSpecification(Specification<Product> specification) {
+        this.specification = specification;
+        setItems(query -> {
+            var products = productService.getAllProducts(
+                    specification,
+                    PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query))
+            );
+            return products.stream().filter(Product::isActive);
+        });
     }
 }
