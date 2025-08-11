@@ -145,6 +145,7 @@ public class WaitingRoomForm extends Dialog {
         try {
             //waitingRoomService.save(dto);
             ((FormService<WaitingRoomCreateRequestDto, Long>) waitingRoomService).save(dto);
+            waitingRoomService.save(dto);
             NotificationUtils.success("Entrada agregada exitosamente a la sala de espera");
 
             if (onSave != null) onSave.accept(dto);
