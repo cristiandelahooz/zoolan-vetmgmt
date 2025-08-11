@@ -4,6 +4,7 @@ import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.enums.Priority;
 import com.wornux.data.entity.WaitingRoom;
 import com.wornux.data.repository.WaitingRoomRepository;
+import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,8 +21,6 @@ import java.util.Optional;
 @Validated
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface WaitingRoomService {
-
-    WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Priority priority, String notes);
 
     List<WaitingRoom> getCurrentWaitingRoom();
 
@@ -58,11 +57,11 @@ public interface WaitingRoomService {
     /**
      * Save a waitingRoom.
      *
-     * @param waitingRoom
+     * @param dto
      *            the entity to save.
      * @return the persisted entity.
      */
-    WaitingRoom save(WaitingRoom waitingRoom);
+    WaitingRoom save(WaitingRoomCreateRequestDto dto);
 
     /**
      * Delete the waitingRoom by id.
