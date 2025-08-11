@@ -56,26 +56,9 @@ export const menuConfig: MenuItemConfig[] = [
     ],
   },
   {
-    path: undefined,
+    path: ROUTES.WAITING_ROOM,
     title: 'Sala de Espera',
-    icon: 'lumo:user',
-    children: [
-      {
-        path: ROUTES.WAITING_ROOM,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.WAITING_ROOM_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-      {
-        path: ROUTES.WAITING_ROOM_LIVE,
-        title: 'Sala de Espera',
-        icon: 'lumo:align-left',
-      },
-    ],
+    icon: 'vaadin:office',
   },
   {
     path: undefined,
@@ -95,26 +78,9 @@ export const menuConfig: MenuItemConfig[] = [
     ],
   },
   {
-    path: undefined,
+    path: ROUTES.PETS,
     title: 'Mascotas',
     src: petsIcon,
-    children: [
-      {
-        path: ROUTES.PETS,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.PET_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-      {
-        path: ROUTES.PET_MERGE,
-        title: 'Fusionar',
-        icon: 'lumo:edit',
-      },
-    ],
   },
   {
     path: ROUTES.EMPLOYEES,
@@ -122,20 +88,8 @@ export const menuConfig: MenuItemConfig[] = [
     icon: 'vaadin:doctor',
   },
   {
-    path: undefined,
+    path: ROUTES.SUPPLIERS,
     title: 'Suplidores',
     icon: 'vaadin:truck',
-    children: [
-      {
-        path: ROUTES.SUPPLIERS,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.SUPPLIER_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-    ],
   },
 ]
