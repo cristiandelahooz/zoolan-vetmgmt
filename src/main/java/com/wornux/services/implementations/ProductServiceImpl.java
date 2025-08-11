@@ -163,4 +163,11 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
         return productRepository.count(specification);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> getAllProducts(Specification<Product> spec, Pageable pageable) {
+        log.debug("Retrieving all products with specification: {}", spec);
+        return productRepository.findAll(spec, pageable);
+    }
+
 }
