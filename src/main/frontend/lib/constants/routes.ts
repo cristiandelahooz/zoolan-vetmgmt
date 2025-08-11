@@ -18,7 +18,7 @@ export const ROUTES = {
 
   // Pet routes
   LOGOUT: '/logout',
-  PETS: '/pets',
+  PETS: '/mascotas',
   PET_NEW: '/pets/new',
   PET_EDIT: '/pets/edit',
   PET_MERGE: '/pets/merge',
@@ -28,7 +28,7 @@ export const ROUTES = {
   EMPLOYEES: '/employees',
 
   //waiting room routes
-  WAITING_ROOM: '/waitingroom',
+  WAITING_ROOM: '/sala-espera',
   WAITING_ROOM_NEW: '/waitingroom/new',
   WAITING_ROOM_LIVE: '/waitingroom/live',
 
@@ -45,7 +45,7 @@ export const ROUTES = {
     WAREHOUSE: '/warehouses',
 
   //supplier routes
-  SUPPLIERS: '/suppliers',
+  SUPPLIERS: '/proveedores',
   SUPPLIER_EDIT: '/suppliers/edit',
   SUPPLIER_NEW: '/suppliers/new',
 
