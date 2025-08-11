@@ -188,39 +188,57 @@ public class WarehouseView extends VerticalLayout {
             NotificationUtils.error("Por favor, complete todos los campos requeridos");
             return;
         }
-
         if (isEditMode && selectedWarehouse != null) {
-            WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder().name(name.getValue()).warehouseType(warehouseType.getValue()).availableForSale(availableForSale.getValue()).status(status.getValue()).build();
-
-            warehouseService.updateWarehouse(selectedWarehouse.getId(), dto);
-            NotificationUtils.success("Almacén actualizado exitosamente");
+            updateWarehouse();
         } else {
-            WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder()
-                .name(name.getValue())
-                .warehouseType(warehouseType.getValue())
-                .availableForSale(availableForSale.getValue())
-                .status(status.getValue())
-                .build();
+            createWarehouse();
+        }
+    }
 
-            warehouseService.updateWarehouse(selectedWarehouse.getId(), dto);
-            NotificationUtils.success("Almacén actualizado exitosamente");
-        } else {
+    private void createWarehouse() {
+        try {
             WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder()
-                .name(name.getValue())
-                .warehouseType(warehouseType.getValue())
-                .availableForSale(availableForSale.getValue())
-                .status(status.getValue())
-                .build();
+                    .name(name.getValue())
+                    .warehouseType(warehouseType.getValue())
+                    .availableForSale(availableForSale.getValue())
+                    .status(status.getValue())
+                    .build();
 
             warehouseService.createWarehouse(dto);
             NotificationUtils.success("Almacén creado exitosamente");
+            clearForm();
+            selectedWarehouse = null;
+            isEditMode = false;
+            deleteButton.setEnabled(false);
+            refreshAll();
+        } catch (Exception ex) {
+            log.error(ex.getLocalizedMessage());
+            NotificationUtils.error("Error al crear el almacén: " + ex.getMessage());
         }
+    }
 
-        clearForm();
-        selectedWarehouse = null;
-        isEditMode = false;
-        deleteButton.setEnabled(false);
-        refreshAll();
+    private void updateWarehouse() {
+        try {
+            if (selectedWarehouse != null) {
+                WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder()
+                        .name(name.getValue())
+                        .warehouseType(warehouseType.getValue())
+                        .availableForSale(availableForSale.getValue())
+                        .status(status.getValue())
+                        .build();
+
+                warehouseService.updateWarehouse(selectedWarehouse.getId(), dto);
+                NotificationUtils.success("Almacén actualizado exitosamente");
+                clearForm();
+                selectedWarehouse = null;
+                isEditMode = false;
+                deleteButton.setEnabled(false);
+                refreshAll();
+            }
+        } catch (Exception ex) {
+            log.error(ex.getLocalizedMessage());
+            NotificationUtils.error("Error al actualizar el almacén: " + ex.getMessage());
+        }
     }
 
     private void deleteWarehouse() {
