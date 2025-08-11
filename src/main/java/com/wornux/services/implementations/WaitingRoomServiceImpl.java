@@ -13,6 +13,7 @@ import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.data.repository.WaitingRoomRepository;
 import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import com.wornux.exception.WaitingRoomNotFoundException;
+import com.wornux.mapper.WaitingRoomMapper;
 import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import org.jspecify.annotations.Nullable;
@@ -42,70 +43,38 @@ import java.util.Optional;
 @Transactional
 // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
 public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, Long, WaitingRoomRepository>
-        implements WaitingRoomService, FormService<WaitingRoomCreateRequestDto, Long> {
+        implements WaitingRoomService {
 
     private final WaitingRoomRepository waitingRoomRepository;
     private final ClientRepository clientRepository;
     private final PetRepository petRepository;
+    private final WaitingRoomMapper waitingRoomMapper;
 
     @Override
-    public @Nullable WaitingRoomCreateRequestDto save(WaitingRoomCreateRequestDto dto) {
-        try {
-            log.debug("Request to save WaitingRoom via FormService: {}", dto);
+    public WaitingRoom save(WaitingRoomCreateRequestDto dto) {
+        log.debug("Request to save WaitingRoom: {}", dto);
 
-            WaitingRoom saved = addToWaitingRoom(dto.clientId(), dto.petId(), dto.reasonForVisit(), dto.priority(),
-                    dto.notes());
+        WaitingRoom waitingRoom = waitingRoomMapper.toEntity(dto, clientRepository, petRepository);
 
-            WaitingRoomCreateRequestDto result = new WaitingRoomCreateRequestDto(saved.getClient().getId(),
-                    saved.getPet().getId(), saved.getReasonForVisit(), saved.getPriority(), saved.getNotes());
-
-            log.info("WaitingRoom saved successfully via FormService with ID: {}", saved.getId());
-            return result;
-
-        } catch (Exception e) {
-            log.error("Error saving WaitingRoom via FormService: {}", e.getMessage());
-            throw e;
+        if (waitingRoom.getPet() != null && waitingRoom.getClient() != null) {
+            boolean petBelongsToClient = waitingRoom.getPet().getOwners().stream()
+                    .anyMatch(owner -> owner.getId().equals(waitingRoom.getClient().getId()));
+            if (!petBelongsToClient) {
+                throw new IllegalArgumentException("La mascota no pertenece al cliente especificado");
+            }
         }
-    }
 
-    @Override
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public WaitingRoom addToWaitingRoom(Long clientId, Long petId, String reasonForVisit, Priority priority,
-            String notes) {
-        log.debug("Request to add to waiting room - Client: {}, Pet: {}", clientId, petId);
-
-        List<WaitingRoom> existing = waitingRoomRepository.findWaitingByClientAndPet(clientId, petId);
+        List<WaitingRoom> existing = waitingRoomRepository
+                .findWaitingByClientAndPet(dto.clientId(), dto.petId());
         if (!existing.isEmpty()) {
-            log.warn("Cliente y mascota ya están en la sala de espera");
             throw new IllegalStateException("El cliente y mascota ya están en la sala de espera");
         }
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado con ID: " + clientId));
-
-        Pet pet = petRepository.findById(petId)
-                .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + petId));
-
-        boolean petBelongsToClient = pet.getOwners().stream().anyMatch(owner -> owner.getId().equals(clientId));
-
-        if (!petBelongsToClient) {
-            throw new IllegalArgumentException("La mascota no pertenece al cliente especificado");
-        }
-
-        WaitingRoom waitingRoom = new WaitingRoom();
-        waitingRoom.setClient(client);
-        waitingRoom.setPet(pet);
-        waitingRoom.setReasonForVisit(reasonForVisit);
-        waitingRoom.setPriority(priority != null ? priority : Priority.NORMAL);
-        waitingRoom.setNotes(notes);
-        waitingRoom.setStatus(WaitingRoomStatus.ESPERANDO);
-
         WaitingRoom saved = waitingRoomRepository.save(waitingRoom);
-        log.info("Agregado a sala de espera con ID: {} para {} - {}", saved.getId(), client.getFirstName(),
-                pet.getName());
-
+        log.info("WaitingRoom saved with ID: {}", saved.getId());
         return saved;
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -351,35 +320,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         }
     }
 
-    @Override
-    public WaitingRoom save(WaitingRoom waitingRoom) {
-        log.debug("Request to save WaitingRoom: {}", waitingRoom);
 
-        if (waitingRoom.getId() == null) {
-            if (waitingRoom.getClient() != null && waitingRoom.getPet() != null) {
-                List<WaitingRoom> existing = waitingRoomRepository
-                        .findWaitingByClientAndPet(waitingRoom.getClient().getId(), waitingRoom.getPet().getId());
-                if (!existing.isEmpty()) {
-                    throw new IllegalStateException("El cliente y mascota ya están en la sala de espera");
-                }
-            }
-
-            if (waitingRoom.getStatus() == null) {
-                waitingRoom.setStatus(WaitingRoomStatus.ESPERANDO);
-            }
-            if (waitingRoom.getPriority() == null) {
-                waitingRoom.setPriority(Priority.NORMAL);
-            }
-            if (waitingRoom.getArrivalTime() == null) {
-                waitingRoom.setArrivalTime(LocalDateTime.now());
-            }
-        }
-
-        WaitingRoom saved = waitingRoomRepository.save(waitingRoom);
-        log.info("WaitingRoom saved with ID: {}", saved.getId());
-
-        return saved;
-    }
 
     @Override
     public void delete(Long id) {
@@ -396,12 +337,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         log.info("WaitingRoom deleted with ID: {}", id);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<WaitingRoom> get(Long id) {
-        log.debug("Request to get WaitingRoom: {}", id);
-        return waitingRoomRepository.findById(id);
-    }
+
 
     @Override
     public void update(WaitingRoom waitingRoom) {
