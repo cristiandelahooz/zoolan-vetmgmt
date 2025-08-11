@@ -102,6 +102,7 @@ const useCalendarHandlers = (
         endAppointmentDate: event.end ? event.end.toISOString() : event.start.toISOString(),
       })
       state.showNotification('Appointment rescheduled successfully.')
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (e: any) {
       console.error(`Error rescheduling appointment: ${e}`)
       dropInfo.revert()
@@ -186,14 +187,13 @@ export default function AppointmentsCalendarView() {
       <div className="calendar-header mb-m flex justify-between items-center">
         <h2 className="text-xl font-bold">Calendario de Citas</h2>
         <Button autofocus theme="primary contrast" onClick={() => setWeekendsVisible(!weekendsVisible)}>
-          {weekendsVisible ? 'Hide Weekends' : 'Show Weekends'}
+          {weekendsVisible ? 'Ocultar Fines de Semana' : 'Mostrar Fines de Semana'}
         </Button>
       </div>
 
       <FullCalendar
         ref={calendarRef}
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        headerToolbar={{
+       headerToolbar={{
           left: 'prev,next today',
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay',

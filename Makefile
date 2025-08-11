@@ -79,6 +79,9 @@ db-clean:
 	@echo "${BLUE}Cleaning PostgreSQL container volumes...${NC}"
 	docker-compose -f $(DOCKER_COMPOSE_FILE) down -v
 
+db-restart: db-clean db-up
+	@echo "${BLUE}Restarting PostgreSQL container...${NC}"
+
 db-shell:
 	@echo "${BLUE}Connecting to PostgreSQL container shell...${NC}"
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec db bash

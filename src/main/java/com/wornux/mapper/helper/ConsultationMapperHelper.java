@@ -2,8 +2,8 @@ package com.wornux.mapper.helper;
 
 import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.Pet;
-import com.wornux.service.interfaces.EmployeeService;
-import com.wornux.service.interfaces.PetService;
+import com.wornux.services.interfaces.EmployeeService;
+import com.wornux.services.interfaces.PetService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
 import org.springframework.context.annotation.Lazy;

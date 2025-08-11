@@ -23,42 +23,42 @@ export const menuConfig: MenuItemConfig[] = [
   },
   {
     path: undefined,
-    title: 'Consultas',
-    icon: 'vaadin:stethoscope',
+    title: 'Inventario',
+    icon: 'vaadin:archives',
     children: [
       {
-        path: ROUTES.CONSULTATIONS,
-        title: 'Listar',
-        icon: 'lumo:align-left',
+        path: ROUTES.INVENTORY,
+        title: 'Productos',
+        icon: 'vaadin:cart',
       },
       {
-        path: ROUTES.CONSULTATION_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
+        path: ROUTES.WAREHOUSE,
+        title: 'Almacenes',
+        icon: 'vaadin:truck',
+      }
+    ],
+  },
+  {
+    path: ROUTES.CONSULTATIONS,
+    title: 'Consultas',
+    icon: 'vaadin:stethoscope',
+  },
+  {
+    path: undefined,
+    title: 'Transacciones',
+    icon: 'vaadin:credit-card',
+    children: [
+      {
+        path: '/invoices',
+        title: 'Facturas',
+        icon: 'lumo:align-left',
       },
     ],
   },
   {
-    path: undefined,
+    path: ROUTES.WAITING_ROOM,
     title: 'Sala de Espera',
-    icon: 'lumo:user',
-    children: [
-      {
-        path: ROUTES.WAITING_ROOM,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.WAITING_ROOM_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-      {
-        path: ROUTES.WAITING_ROOM_LIVE,
-        title: 'Sala de Espera',
-        icon: 'lumo:align-left',
-      },
-    ],
+    icon: 'vaadin:office',
   },
   {
     path: undefined,
@@ -66,54 +66,30 @@ export const menuConfig: MenuItemConfig[] = [
     icon: 'lumo:user',
     children: [
       {
-        path: ROUTES.CLIENTS,
-        title: 'Listar',
+        path: ROUTES.INDIVIDUAL_CLIENTS,
+        title: 'Individuales',
         icon: 'lumo:align-left',
       },
       {
-        path: ROUTES.CLIENT_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
+        path: ROUTES.BUSINESS_CLIENTS,
+        title: 'Empresariales',
+        icon: 'lumo:align-left',
       },
     ],
   },
   {
-    path: undefined,
+    path: ROUTES.PETS,
     title: 'Mascotas',
     src: petsIcon,
-    children: [
-      {
-        path: ROUTES.PETS,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.PET_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-      {
-        path: ROUTES.PET_MERGE,
-        title: 'Fusionar',
-        icon: 'lumo:edit',
-      },
-    ],
   },
   {
-    path: undefined,
+    path: ROUTES.EMPLOYEES,
     title: 'Empleados',
     icon: 'vaadin:doctor',
-    children: [
-      {
-        path: ROUTES.EMPLOYEES,
-        title: 'Listar',
-        icon: 'lumo:align-left',
-      },
-      {
-        path: ROUTES.EMPLOYEE_NEW,
-        title: 'Registrar',
-        icon: 'lumo:edit',
-      },
-    ],
+  },
+  {
+    path: ROUTES.SUPPLIERS,
+    title: 'Suplidores',
+    icon: 'vaadin:truck',
   },
 ]

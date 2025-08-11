@@ -1,23 +1,22 @@
 package com.wornux.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.wornux.data.entity.Consultation;
-import com.wornux.data.entity.Pet;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.*;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "medical_histories")
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = { "consultations", "pet" })
+@Getter
+@Setter
 @ToString(exclude = { "consultations", "pet" })
+@Audited(withModifiedFlag = true)
 public class MedicalHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

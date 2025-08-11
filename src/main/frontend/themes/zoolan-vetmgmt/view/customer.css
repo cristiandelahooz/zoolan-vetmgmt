@@ -1,0 +1,12 @@
+.customer-board-company {
+    margin: 0;
+    max-width: 400px;
+    word-wrap: break-word;
+    text-align: right;
+}
+
+@media only screen and  (max-width: 1536px) {
+    .customer-board-company-left {
+        text-align: left;
+    }
+}

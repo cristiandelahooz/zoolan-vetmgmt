@@ -1,14 +1,15 @@
 package com.wornux.data.entity;
 
-import com.wornux.data.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
 import static com.wornux.constants.ValidationConstants.*;
+
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.ReferenceSource;
@@ -21,6 +22,7 @@ import com.wornux.data.enums.ReferenceSource;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Audited(withModifiedFlag = true)
 public class Client extends User {
     @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
     @Column(name = "cedula", length = 11, nullable = true, unique = true, columnDefinition = "CHAR(11)")

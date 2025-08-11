@@ -1,0 +1,105 @@
+/* General styling for the pricing view */
+.pricing-view {
+    /* Puedes añadir estilos específicos para el contenedor principal si es necesario */
+}
+
+/* Styling for the container of all pricing cards */
+.pricing-container {
+    gap: var(--lumo-space-l);
+}
+
+/* Base styling for each pricing card */
+.pricing-view .card {
+    background-color: var(--lumo-base-color);
+    border-radius: var(--lumo-border-radius-l);
+    padding: var(--lumo-space-xl);
+    padding-left: var(--lumo-space-m);
+    padding-right: var(--lumo-space-m);
+    box-shadow: var(--lumo-box-shadow-m);
+    border: 1px solid var(--lumo-contrast-10pct);
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.pricing-view .card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--lumo-box-shadow-l);
+}
+
+/* Styling for the recommended plan card */
+.pricing-view .card.recommended-plan {
+    border: 2px solid var(--lumo-primary-color);
+    box-shadow: 0 6px 16px rgba(var(--lumo-primary-color-rgb), 0.25);
+    position: relative;
+}
+
+/* Styling for the price value */
+.pricing-view .card .price-value {
+    font-size: var(--lumo-font-size-xxxl);
+    font-weight: var(--lumo-font-weight-extra-bold);
+    color: var(--lumo-header-text-color);
+    line-height: 1.2;
+}
+
+/* Styling for the price suffix (e.g., /month, /year) */
+.pricing-view .card .price-suffix {
+    font-size: var(--lumo-font-size-m);
+    color: var(--lumo-secondary-text-color);
+    margin-left: var(--lumo-space-xs);
+    font-weight: var(--lumo-font-weight-regular);
+}
+
+/* Styling for the feature list items */
+.pricing-view .card .feature-item {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-s);
+    /*padding: var(--lumo-space-xs) 0;*/
+    font-size: var(--lumo-font-size-m);
+}
+
+.pricing-view .card .feature-item vaadin-icon {
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-l);
+}
+
+/* Styling for the action button */
+.pricing-view .card vaadin-button {
+    margin-top: auto;
+}
+
+/* Specific styling for the trial card, if needed */
+.pricing-view .card.trial {
+    border-color: var(--lumo-contrast-30pct);
+}
+
+/* Styling for the billing toggle switch area */
+.billing-toggle {
+    margin-bottom: var(--lumo-space-s);
+}
+
+.billing-switch {
+}
+
+/* Centrar el contenido del header de la tarjeta (título, precio, descuento) */
+.pricing-view .card .price-info-container {
+    text-align: center;
+    margin-bottom: var(--lumo-space-m);
+}
+
+.pricing-view .card h3 {
+    margin-top: 0;
+    margin-bottom: var(--lumo-space-s);
+    font-size: var(--lumo-font-size-xl);
+    font-weight: var(--lumo-font-weight-semibold);
+}
+
+/* In your CSS file */
+.quantity-field {
+    margin-top: var(--lumo-space-s);
+    margin-bottom: var(--lumo-space-m);
+    width: 20%;
+    min-width: 200px;
+}

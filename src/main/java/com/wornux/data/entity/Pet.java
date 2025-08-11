@@ -2,6 +2,8 @@ package com.wornux.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wornux.data.enums.Gender;
+import com.wornux.data.enums.PetSize;
+import com.wornux.data.enums.FurType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -10,16 +12,17 @@ import java.util.List;
 
 import lombok.*;
 import com.wornux.data.enums.PetType;
+import org.hibernate.envers.Audited;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = { "medicalHistory" })
 @ToString(exclude = { "medicalHistory" })
 @Entity
 @Table(name = "pets")
+@Audited(withModifiedFlag = true)
 public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,4 +57,13 @@ public class Pet {
         this.medicalHistory = MedicalHistory.builder().pet(this).notes("Historial médico creado automáticamente")
                 .build();
     }
+
+    private String color;
+
+    @Enumerated(EnumType.STRING)
+    private PetSize size;
+
+    @Enumerated(EnumType.STRING)
+    private FurType furType;
+
 }

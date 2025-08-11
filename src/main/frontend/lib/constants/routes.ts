@@ -4,8 +4,8 @@ export const ROUTES = {
   APPOINTMENTS: '/appointments',
 
   // Client routes
-  CLIENTS: '/clients',
-  CLIENT_NEW: '/clients/new',
+  BUSINESS_CLIENTS: '/business-clients',
+  INDIVIDUAL_CLIENTS: '/individual-clients',
 
   // Other feature routes
   CLIENT_EDIT: '/clients/edit',
@@ -18,7 +18,7 @@ export const ROUTES = {
 
   // Pet routes
   LOGOUT: '/logout',
-  PETS: '/pets',
+  PETS: '/mascotas',
   PET_NEW: '/pets/new',
   PET_EDIT: '/pets/edit',
   PET_MERGE: '/pets/merge',
@@ -26,21 +26,29 @@ export const ROUTES = {
 
   //Employee routes
   EMPLOYEES: '/employees',
-  EMPLOYEE_EDIT: '/employees/edit',
 
-  EMPLOYEE_NEW: '/employees/new',
   //waiting room routes
-  WAITING_ROOM: '/waitingroom',
+  WAITING_ROOM: '/sala-espera',
   WAITING_ROOM_NEW: '/waitingroom/new',
   WAITING_ROOM_LIVE: '/waitingroom/live',
 
+  //Consultations routes
   CONSULTATIONS: '/consultations',
   CONSULTATION_NEW: '/consultations/new',
+
+  //product routes
+  PRODUCTS: '/products',
+  PRODUCT_EDIT: '/products/edit',
+  PRODUCT_NEW: '/products/new',
+
+  //Warehouse routes
+    WAREHOUSE: '/warehouses',
+
+  //supplier routes
+  SUPPLIERS: '/proveedores',
+  SUPPLIER_EDIT: '/suppliers/edit',
+  SUPPLIER_NEW: '/suppliers/new',
+
+  //inventory routes
+  INVENTORY: '/inventory',
 } as const
-
-// Type for route values
-export type Route = (typeof ROUTES)[keyof typeof ROUTES]
-
-// Helper function for dynamic routes
-export const createClientRoute = (id: string) => `${ROUTES.CLIENTS}/${id}`
-export const createEditClientRoute = (id: string) => `${ROUTES.CLIENT_EDIT}/${id}`

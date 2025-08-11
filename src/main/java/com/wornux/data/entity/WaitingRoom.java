@@ -1,7 +1,5 @@
 package com.wornux.data.entity;
 
-import com.wornux.data.entity.Client;
-import com.wornux.data.entity.Pet;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,8 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+
 import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.data.enums.Priority;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "waiting_room")
@@ -19,6 +19,7 @@ import com.wornux.data.enums.Priority;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Audited(withModifiedFlag = true)
 public class WaitingRoom {
 
     @Id
@@ -42,7 +43,7 @@ public class WaitingRoom {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     @NotNull
-    private WaitingRoomStatus status = WaitingRoomStatus.WAITING;
+    private WaitingRoomStatus status = WaitingRoomStatus.ESPERANDO;
 
     @Column(name = "reason_for_visit")
     private String reasonForVisit;
@@ -69,12 +70,12 @@ public class WaitingRoom {
     }
 
     public void startConsultation() {
-        this.status = WaitingRoomStatus.IN_CONSULTATION;
+        this.status = WaitingRoomStatus.EN_CONSULTA;
         this.consultationStartedAt = LocalDateTime.now();
     }
 
     public void completeConsultation() {
-        this.status = WaitingRoomStatus.COMPLETED;
+        this.status = WaitingRoomStatus.COMPLETADO;
         this.completedAt = LocalDateTime.now();
     }
 }

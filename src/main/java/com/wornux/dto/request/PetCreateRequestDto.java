@@ -11,6 +11,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.wornux.data.enums.FurType;
+import com.wornux.data.enums.PetSize;
+
 
 @Data
 @Builder
@@ -42,4 +45,14 @@ public class PetCreateRequestDto implements PetBreedValidatable {
 
     @NotNull(message = "El género es requerido")
     private Gender gender;
+
+    @Size(max = 50, message = "El color no puede exceder 50 caracteres")
+    private String color;
+
+    @NotNull(message = "El tamaño es requerido")
+    private PetSize size;
+
+    @NotNull(message = "El tipo de pelo es requerido")
+    private FurType furType;
+
 }

@@ -1,7 +1,8 @@
 package com.wornux.data.enums;
 
 public enum WaitingRoomStatus {
-    WAITING("Esperando"), IN_CONSULTATION("En Consulta"), COMPLETED("Completado"), CANCELLED("Cancelado");
+    ESPERANDO("Esperando"), EN_CONSULTA("En Consulta"),
+    COMPLETADO("Completado"), CANCELADO("Cancelado");
 
     private final String displayName;
 

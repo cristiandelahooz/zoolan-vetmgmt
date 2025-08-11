@@ -1,6 +1,5 @@
 package com.wornux.data.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -8,23 +7,25 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 
 import static com.wornux.constants.AppointmentConstants.*;
-import static com.wornux.constants.ValidationConstants.DATE_PATTERN;
 
 import com.wornux.data.enums.ServiceType;
 import com.wornux.data.enums.AppointmentStatus;
 
 @Entity
 @Table(name = "appointments")
-@Data
+@Setter
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Slf4j
+@Audited(withModifiedFlag = true)
 public class Appointment {
 
     @Id

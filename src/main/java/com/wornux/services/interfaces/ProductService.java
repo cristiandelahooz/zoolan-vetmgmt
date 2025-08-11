@@ -1,0 +1,143 @@
+package com.wornux.services.interfaces;
+
+import com.vaadin.hilla.BrowserCallable;
+import com.wornux.data.entity.Product;
+import com.wornux.dto.request.ProductCreateRequestDto;
+
+import com.wornux.dto.request.ProductUpdateRequestDto;
+import jakarta.validation.Valid;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import com.wornux.dto.response.ProductListDto;
+
+import java.util.List;
+import java.util.Optional;
+
+import com.vaadin.hilla.crud.filter.Filter;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * Service Interface for managing {@link Product} entities.
+ */
+@BrowserCallable
+@Validated
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public interface ProductService {
+
+    /**
+     * Saves (creates) a new Product.
+     *
+     * @param dto
+     *            Product creation DTO.
+     * @return Saved Product (or response DTO).
+     */
+    Product save(Product dto);
+
+    /**
+     * Creates a new Product.
+     *
+     * @param dto
+     *            Product creation DTO.
+     * @return Created Product DTO.
+     */
+    ProductCreateRequestDto createProduct(ProductCreateRequestDto dto);
+
+    /**
+     * Deactivates (soft delete) a Product.
+     *
+     * @param id
+     *            ID of the Product to delete.
+     */
+    void delete(Long id);
+
+    /**
+     * Updates an existing Product.
+     *
+     * @param id
+     *            ID of the Product to update.
+     * @param dto
+     *            Product update DTO.
+     * @return Updated Product entity.
+     */
+    Product update(Long id, ProductUpdateRequestDto dto);
+
+    /**
+     * Retrieves a Product by its ID.
+     *
+     * @param id
+     *            ID of the Product.
+     * @return Optional Product entity.
+     */
+    Optional<Product> getProductById(Long id);
+
+    /**
+     * Lists all active Products.
+     *
+     * @return List of active Products.
+     */
+    Page<Product> getAllProducts(Pageable pageable);
+
+    List<Product> getAllProducts();
+    Page<Product> getAllProducts(Specification<Product> spec, Pageable pageable);
+    /**
+     * Lists paginated active Products for AutoGrid (entities).
+     *
+     * @param pageable
+     *            Pagination parameters.
+     * @return Paginated list of active Products.
+     */
+    List<Product> list(Pageable pageable, @Nullable Filter filter);
+
+    /**
+     * Lists paginated active Products as DTOs for frontend.
+     *
+     * @param pageable
+     *            Pagination parameters.
+     * @return Paginated list of active ProductListDto.
+     */
+    List<ProductListDto> listAsDto(Pageable pageable, @Nullable Filter filter);
+
+    /**
+     * Lists Products by category.
+     *
+     * @param category
+     *            Product category name.
+     * @return List of Products.
+     */
+    List<Product> getProductsByCategory(String category);
+
+    /**
+     * Lists Products matching a name search.
+     *
+     * @param name
+     *            Name search term.
+     * @return List of Products.
+     */
+    List<Product> getProductsByName(String name);
+
+    /**
+     * Lists Products with low stock levels.
+     *
+     * @return List of Products with stock <= reorderLevel.
+     */
+    List<Product> getLowStockProducts();
+
+    long getCount(Specification<Product> spec);
+
+    /**
+     * Lists Products by supplier.
+     *
+     * @param supplierId
+     *            ID of the supplier.
+     * @return List of Products.
+     */
+    List<Product> getProductsBySupplier(Long supplierId);
+
+    Product update(Product product);
+}

@@ -31,14 +31,14 @@ const StatusRenderer: React.FC<{ item: WaitingRoomModel }> = ({ item }) => {
   const status = item.status?.valueOf()
 
   switch (status) {
-    case WaitingRoomStatus.WAITING:
-      return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>⏳ Esperando</span>
-    case WaitingRoomStatus.IN_CONSULTATION:
-      return <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>🩺 En Consulta</span>
-    case WaitingRoomStatus.COMPLETED:
-      return <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✅ Completado</span>
-    case WaitingRoomStatus.CANCELLED:
-      return <span style={{ color: '#dc2626', fontWeight: 'bold' }}>❌ Cancelado</span>
+    case WaitingRoomStatus.ESPERANDO:
+      return <span style={{ color: 'rgba(245,158,11,0.68)', fontWeight: 'bold' }}> Esperando</span>
+    case WaitingRoomStatus.EN_CONSULTA:
+      return <span style={{ color: '#3b82f6', fontWeight: 'bold' }}> En Consulta</span>
+    case WaitingRoomStatus.COMPLETADO:
+      return <span style={{ color: '#16a34a', fontWeight: 'bold' }}> Completado</span>
+    case WaitingRoomStatus.CANCELADO:
+      return <span style={{ color: '#dc2626', fontWeight: 'bold' }}> Cancelado</span>
     default:
       return <span>Desconocido</span>
   }
@@ -48,13 +48,13 @@ const PriorityRenderer: React.FC<{ item: WaitingRoomModel }> = ({ item }) => {
   const priority = item.priority?.valueOf()
 
   switch (priority) {
-    case Priority.EMERGENCY:
-      return <span style={{ color: '#dc2626', fontWeight: 'bold' }}>🚨 Emergencia</span>
-    case Priority.URGENT:
-      return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>! Urgente</span>
+    case Priority.EMERGENCIA:
+      return <span style={{ color: '#dc2626', fontWeight: 'bold' }}> Emergencia</span>
+    case Priority.URGENTE:
+      return <span style={{ color: '#f59e0b', fontWeight: 'bold' }}> Urgente</span>
     case Priority.NORMAL:
     default:
-      return <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✅ Normal</span>
+      return <span style={{ color: '#16a34a', fontWeight: 'bold' }}> Normal</span>
   }
 }
 
@@ -161,8 +161,8 @@ export default function WaitingRoomListView() {
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
         <p className="text-sm text-blue-800">
-          💡 <strong>Historial de Sala de Espera:</strong> Aquí puedes ver todas las entradas a la sala de espera,
-          filtrar por fecha, estado, prioridad, etc.
+          <strong>Historial de Sala de Espera:</strong> Aquí puedes ver todas las entradas a la sala de espera, filtrar
+          por fecha, estado, prioridad, etc.
         </p>
       </div>
 
