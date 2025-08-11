@@ -84,7 +84,7 @@ public interface ProductService {
     Page<Product> getAllProducts(Pageable pageable);
 
     List<Product> getAllProducts();
-
+    Page<Product> getAllProducts(Specification<Product> spec, Pageable pageable);
     /**
      * Lists paginated active Products for AutoGrid (entities).
      *
