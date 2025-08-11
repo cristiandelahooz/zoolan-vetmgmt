@@ -60,7 +60,7 @@ public class Product {
     @Column(name = "reorder_level", nullable = false)
     private int reorderLevel = 5;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "supplier_id")
     @JsonManagedReference
     private Supplier supplier;
