@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
-@Route(value = "employees")
+@Route(value = "empleados")
 @PageTitle("Empleados")
 public class EmployeeView extends Div {
 
