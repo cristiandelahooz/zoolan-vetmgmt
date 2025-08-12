@@ -25,7 +25,7 @@ export const ROUTES = {
   PET_VIEW: '/pets/view',
 
   //Employee routes
-  EMPLOYEES: '/employees',
+  EMPLOYEES: '/empleados',
 
   //waiting room routes
   WAITING_ROOM: '/sala-espera',
@@ -33,7 +33,7 @@ export const ROUTES = {
   WAITING_ROOM_LIVE: '/waitingroom/live',
 
   //Consultations routes
-  CONSULTATIONS: '/consultations',
+  CONSULTATIONS: '/consultas',
   CONSULTATION_NEW: '/consultations/new',
 
   //product routes
@@ -50,5 +50,5 @@ export const ROUTES = {
   SUPPLIER_NEW: '/suppliers/new',
 
   //inventory routes
-  INVENTORY: '/inventory',
+  INVENTORY: '/inventario',
 } as const
