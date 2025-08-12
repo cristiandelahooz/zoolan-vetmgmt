@@ -13,6 +13,12 @@ import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
+import static com.wornux.constants.ValidationConstants.*;
+
+import com.wornux.data.enums.PreferredContactMethod;
+import com.wornux.data.enums.ClientRating;
+import com.wornux.data.enums.ReferenceSource;
+
 @Entity
 @Table(name = "client", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"cedula"}),
@@ -46,10 +52,10 @@ public class Client extends User {
   @Nullable
   private String passport;
 
-  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
-  @Column(name = "rnc", length = 9, columnDefinition = "CHAR(9)")
-  @Nullable
-  private String rnc;
+    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
+    @Column(name = "rnc", length = 11, nullable = true, unique = true, columnDefinition = "CHAR(11)")
+    @Nullable
+    private String rnc;
 
   @Column(name = "company_name")
   @Nullable
