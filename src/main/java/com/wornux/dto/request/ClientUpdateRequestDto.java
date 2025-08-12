@@ -2,15 +2,19 @@ package com.wornux.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.ClientRating;
-import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
+import com.wornux.data.enums.Gender;
 import jakarta.validation.constraints.*;
-import java.time.LocalDate;
+import lombok.Data;
 import static com.wornux.constants.ValidationConstants.*;
 
+
+
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
-import lombok.Data;
+
 
 @Data
 @AllArgsConstructor
@@ -42,8 +46,8 @@ public class ClientUpdateRequestDto {
       message = "El pasaporte debe contener 9 caracteres alfanuméricos")
   private String passport;
 
-  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
-  private String rnc;
+    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente o 11 dígitos")
+    private String rnc;
 
   private String companyName;
 
