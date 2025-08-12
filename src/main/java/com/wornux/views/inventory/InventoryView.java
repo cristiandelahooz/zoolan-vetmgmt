@@ -41,7 +41,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @PageTitle("Inventario")
-@Route(value = "inventory")
+@Route(value = "inventario")
 @Menu(order = 3, icon = "line-awesome/svg/boxes-solid.svg")
 public class InventoryView extends Div {
 
