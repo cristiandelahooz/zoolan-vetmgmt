@@ -8,9 +8,10 @@ import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
 import jakarta.validation.constraints.*;
+import org.jspecify.annotations.Nullable;
+
 import java.time.LocalDate;
 import java.util.stream.Stream;
-import org.jspecify.annotations.Nullable;
 
 public record ClientCreateRequestDto(
     @Email(message = "Please provide a valid email address") String email,
