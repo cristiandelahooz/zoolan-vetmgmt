@@ -1,264 +1,165 @@
+// src/main/java/com/wornux/views/waitingroom/WaitingRoomForm.java
 package com.wornux.views.waitingroom;
 
-import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Pet;
+import com.wornux.data.entity.WaitingRoom;
 import com.wornux.data.enums.Priority;
 import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import com.wornux.utils.NotificationUtils;
-import com.wornux.views.clients.SelectOwnerDialog;
+import lombok.Setter;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.function.Consumer;
 
 public class WaitingRoomForm extends Dialog {
-
-    private static final int MAX_REASON_LENGTH = 255;
-    private static final int MAX_NOTES_LENGTH  = 255;
-
-    private final TextField clientName = new TextField("Dueño");
-    private final Button selectClientButton = new Button("Seleccionar");
-    private final ComboBox<Pet> petComboBox = new ComboBox<>("Mascota");
-    private final TextField reasonForVisit = new TextField("Razón de la Visita");
-    private final ComboBox<Priority> priorityComboBox = new ComboBox<>("Prioridad");
-    private final TextArea notes = new TextArea("Notas");
+    private final ComboBox<Client> clientField = new ComboBox<>("Cliente");
+    private final ComboBox<Pet> petField = new ComboBox<>("Mascota");
+    private final TextField reasonField = new TextField("Razón de Visita");
+    private final ComboBox<Priority> priorityField = new ComboBox<>("Prioridad");
+    private final TextArea notesField = new TextArea("Notas");
+    private final com.vaadin.flow.component.datetimepicker.DateTimePicker arrivalTimeField = new DateTimePicker("Hora de Llegada");
 
     private final Button saveButton = new Button("Guardar");
     private final Button cancelButton = new Button("Cancelar");
 
-    private final SelectOwnerDialog selectOwnerDialog;
+    private final transient WaitingRoomService waitingRoomService;
     private final transient ClientService clientService;
     private final transient PetService petService;
-    private final transient WaitingRoomService waitingRoomService;
 
-    private transient Client selectedClient;
-    private Long clientId;
+    @Setter
+    private transient Consumer<WaitingRoomCreateRequestDto> onSave;
 
-    private final Binder<WaitingRoomFormModel> binder = new BeanValidationBinder<>(WaitingRoomFormModel.class);
-    private final transient WaitingRoomFormModel model = new WaitingRoomFormModel();
-
-    private Consumer<WaitingRoomCreateRequestDto> onSave;
+    private transient WaitingRoom editingWaitingRoom;
 
     public WaitingRoomForm(WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {
-
         this.waitingRoomService = waitingRoomService;
         this.clientService = clientService;
         this.petService = petService;
-        this.selectOwnerDialog = new SelectOwnerDialog(clientService);
 
-        setHeaderTitle("Nueva Entrada - Sala de Espera");
-        setWidth("600px");
+        setHeaderTitle("Entrada a Sala de Espera");
         setModal(true);
+        setWidth("500px");
 
-        createForm();
-        setupEvents();
-        setupValidation();
-    }
+        clientField.setItems(clientService.getAllActiveClients());
+        clientField.setItemLabelGenerator(c -> c.getFirstName() + " " + c.getLastName());
+        petField.setItems(petService.getAllPets());
+        petField.setItemLabelGenerator(Pet::getName);
+        priorityField.setItems(Priority.values());
 
-    private void createForm() {
-        clientName.setReadOnly(true);
+        FormLayout formLayout = new FormLayout(clientField, petField, reasonField, priorityField, notesField, arrivalTimeField);
 
-        priorityComboBox.setItems(Priority.values());
-        petComboBox.setItemLabelGenerator(Pet::getName);
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        FormLayout formLayout = new FormLayout();
-        formLayout.add(clientName, selectClientButton, petComboBox, reasonForVisit, priorityComboBox, notes);
-        formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("500px", 2)
-        );
-
-        HorizontalLayout buttons = new HorizontalLayout(cancelButton, saveButton);
-        buttons.addClassNames(LumoUtility.JustifyContent.END, LumoUtility.Gap.MEDIUM);
-
-        VerticalLayout content = new VerticalLayout(
-                new H3("Registro en Sala de Espera"),
-                formLayout,
-                buttons
-        );
-        content.setPadding(true);
-        add(content);
-    }
-
-    private void setupEvents() {
-        selectClientButton.addClickListener(e -> selectOwnerDialog.open());
-
-        selectOwnerDialog.addClienteSeleccionadoListener(cliente -> {
-            selectedClient = cliente;
-            clientId = cliente.getId();
-            clientName.setValue(cliente.getFirstName() + " " + cliente.getLastName());
-
-            List<Pet> pets = petService.getPetsByOwnerId2(clientId);
-            petComboBox.setItems(pets);
-            petComboBox.setItemLabelGenerator(Pet::getName);
-
-            clientName.setInvalid(false);
-            petComboBox.setInvalid(false);
-        });
-
-        saveButton.addClickListener(this::save);
+        saveButton.addClickListener(e -> save());
         cancelButton.addClickListener(e -> close());
+
+        add(formLayout, saveButton, cancelButton);
     }
 
-    private void setupValidation() {
-        petComboBox.setRequired(true);
-        petComboBox.setRequiredIndicatorVisible(true);
-        petComboBox.setErrorMessage("Debe seleccionar una mascota");
-
-        reasonForVisit.setRequired(true);
-        reasonForVisit.setRequiredIndicatorVisible(true);
-        reasonForVisit.setMaxLength(MAX_REASON_LENGTH);
-        reasonForVisit.setErrorMessage("La razón de la visita es requerida");
-
-        priorityComboBox.setRequired(true);
-        priorityComboBox.setRequiredIndicatorVisible(true);
-        priorityComboBox.setErrorMessage("La prioridad es requerida");
-
-        notes.setMaxLength(MAX_NOTES_LENGTH);
-        notes.setHelperText("Máx. " + MAX_NOTES_LENGTH + " caracteres");
-
-        binder.forField(reasonForVisit)
-                .asRequired("La razón de la visita es requerida")
-                .bind(WaitingRoomFormModel::getReasonForVisit, WaitingRoomFormModel::setReasonForVisit);
-
-        binder.forField(priorityComboBox)
-                .asRequired("La prioridad es requerida")
-                .bind(WaitingRoomFormModel::getPriority, WaitingRoomFormModel::setPriority);
-
-        binder.forField(notes)
-                .bind(WaitingRoomFormModel::getNotes, WaitingRoomFormModel::setNotes);
-    }
-
-    private void save(ClickEvent<Button> event) {
-
+    private void save() {
         if (!validateForm()) {
             NotificationUtils.error("Por favor, complete/corrija los campos marcados.");
             return;
         }
 
-        model.setClientId(clientId);
-        model.setPetId(petComboBox.getValue().getId());
+        WaitingRoomCreateRequestDto dto = WaitingRoomCreateRequestDto.builder().clientId(clientField.getValue().getId()).petId(petField.getValue().getId()).reasonForVisit(reasonField.getValue()).priority(priorityField.getValue()).notes(notesField.getValue()).arrivalTime(arrivalTimeField.getValue()).build();
 
-        WaitingRoomCreateRequestDto dto = model.toDto();
-
-        try {
+        if (editingWaitingRoom == null) {
             waitingRoomService.save(dto);
-            NotificationUtils.success("Entrada agregada exitosamente a la sala de espera");
-
-            if (onSave != null) onSave.accept(dto);
-            close();
-            clearForm();
-        } catch (Exception e) {
-            NotificationUtils.error("Error al guardar: " + e.getMessage());
+            NotificationUtils.success("Entrada creada exitosamente.");
+        } else {
+            editingWaitingRoom.setClient(clientField.getValue());
+            editingWaitingRoom.setPet(petField.getValue());
+            editingWaitingRoom.setReasonForVisit(reasonField.getValue());
+            editingWaitingRoom.setPriority(priorityField.getValue());
+            editingWaitingRoom.setNotes(notesField.getValue());
+            editingWaitingRoom.setArrivalTime(arrivalTimeField.getValue());
+            waitingRoomService.update(editingWaitingRoom);
+            NotificationUtils.success("Entrada actualizada exitosamente.");
         }
+        if (onSave != null) onSave.accept(dto);
+        close();
     }
 
-    /** Valida campos obligatorios y longitudes, y marca los componentes como inválidos si aplica. */
     private boolean validateForm() {
-        boolean ok = true;
+        boolean valid = true;
+        if (clientField.isEmpty()) {
+            clientField.setInvalid(true);
+            valid = false;
+        } else clientField.setInvalid(false);
 
-        if (clientId == null) {
-            clientName.setInvalid(true);
-            clientName.setErrorMessage("Debe seleccionar un cliente");
-            ok = false;
+        if (petField.isEmpty()) {
+            petField.setInvalid(true);
+            valid = false;
+        } else petField.setInvalid(false);
+
+        if (reasonField.isEmpty()) {
+            reasonField.setInvalid(true);
+            valid = false;
+        } else reasonField.setInvalid(false);
+
+        if (priorityField.isEmpty()) {
+            priorityField.setInvalid(true);
+            valid = false;
+        } else priorityField.setInvalid(false);
+
+        if (arrivalTimeField.isEmpty() || arrivalTimeField.getValue() == null) {
+            arrivalTimeField.setInvalid(true);
+            arrivalTimeField.setErrorMessage("La hora de llegada es requerida");
+            valid = false;
+        } else if (arrivalTimeField.getValue().isBefore(LocalDateTime.now())) {
+            arrivalTimeField.setInvalid(true);
+            arrivalTimeField.setErrorMessage("La hora de llegada debe ser en el futuro");
+            valid = false;
         } else {
-            clientName.setInvalid(false);
+            arrivalTimeField.setInvalid(false);
         }
 
-        if (petComboBox.isEmpty()) {
-            petComboBox.setInvalid(true);
-            petComboBox.setErrorMessage("Debe seleccionar una mascota");
-            ok = false;
-        } else {
-            petComboBox.setInvalid(false);
-        }
-
-        if (reasonForVisit.isEmpty()) {
-            reasonForVisit.setInvalid(true);
-            reasonForVisit.setErrorMessage("La razón de la visita es requerida");
-            ok = false;
-        } else if (reasonForVisit.getValue().length() > MAX_REASON_LENGTH) {
-            reasonForVisit.setInvalid(true);
-            reasonForVisit.setErrorMessage("Máximo " + MAX_REASON_LENGTH + " caracteres");
-            ok = false;
-        } else {
-            reasonForVisit.setInvalid(false);
-        }
-
-        if (priorityComboBox.isEmpty()) {
-            priorityComboBox.setInvalid(true);
-            priorityComboBox.setErrorMessage("La prioridad es requerida");
-            ok = false;
-        } else {
-            priorityComboBox.setInvalid(false);
-        }
-
-        if (notes.getValue() != null && notes.getValue().length() > MAX_NOTES_LENGTH) {
-            notes.setInvalid(true);
-            notes.setErrorMessage("Notas: máximo " + MAX_NOTES_LENGTH + " caracteres");
-            ok = false;
-        } else {
-            notes.setInvalid(false);
-        }
-
-        ok = binder.validate().isOk() && ok;
-
-        return ok;
+        return valid;
     }
 
     public void openForNew() {
-        binder.setBean(model);
-        clientName.clear();
-        clientId = null;
-        selectedClient = null;
-        petComboBox.clear();
-        petComboBox.setItems();
-        reasonForVisit.clear();
-        priorityComboBox.clear();
-        notes.clear();
-        
-        clientName.setInvalid(false);
-        petComboBox.setInvalid(false);
-        reasonForVisit.setInvalid(false);
-        priorityComboBox.setInvalid(false);
-        notes.setInvalid(false);
-
+        clearForm();
+        editingWaitingRoom = null;
+        saveButton.setText("Guardar");
         open();
     }
 
-    public void setOnSave(Consumer<WaitingRoomCreateRequestDto> listener) {
-        this.onSave = listener;
+    public void openForEdit(WaitingRoom waitingRoom) {
+        editingWaitingRoom = waitingRoom;
+        clientField.setValue(waitingRoom.getClient());
+        petField.setValue(waitingRoom.getPet());
+        reasonField.setValue(waitingRoom.getReasonForVisit());
+        priorityField.setValue(waitingRoom.getPriority());
+        notesField.setValue(waitingRoom.getNotes());
+        arrivalTimeField.setValue(waitingRoom.getArrivalTime());
+        saveButton.setText("Actualizar");
+        open();
     }
 
-    public void clearForm() {
-        binder.setBean(new WaitingRoomFormModel());
-        clientName.clear();
-        petComboBox.clear();
-        reasonForVisit.clear();
-        priorityComboBox.clear();
-        notes.clear();
-        clientId = null;
-        selectedClient = null;
-
-        clientName.setInvalid(false);
-        petComboBox.setInvalid(false);
-        reasonForVisit.setInvalid(false);
-        priorityComboBox.setInvalid(false);
-        notes.setInvalid(false);
+    private void clearForm() {
+        clientField.clear();
+        petField.clear();
+        reasonField.clear();
+        priorityField.clear();
+        notesField.clear();
+        arrivalTimeField.clear();
+        clientField.setInvalid(false);
+        petField.setInvalid(false);
+        reasonField.setInvalid(false);
+        priorityField.setInvalid(false);
     }
 }
