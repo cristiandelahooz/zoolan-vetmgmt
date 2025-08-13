@@ -105,6 +105,13 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     }
 
     @Override
+    @Transactional
+    public Client getClientByIdMandatory(Long id) {
+        log.debug("Request to get Client mandatory: {}", id);
+        return clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Optional<Client> getClientByCedula(String cedula) {
         log.debug("Request to get Client by cedula : {}", cedula);
