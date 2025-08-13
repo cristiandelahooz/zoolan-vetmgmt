@@ -12,7 +12,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WaitingRoomCreateRequestDto {
+public class WaitingRoomUpdateRequestDto {
+
+    @NotNull(message = "El ID de la entrada es requerido")
+    private Long id;
 
     @NotNull(message = "El cliente es requerido")
     private Long clientId;
@@ -31,4 +34,5 @@ public class WaitingRoomCreateRequestDto {
     @NotNull(message = "La hora de llegada es requerida")
     @Future(message = "La hora de llegada debe ser en el futuro")
     private LocalDateTime arrivalTime;
+
 }
