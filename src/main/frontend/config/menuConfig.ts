@@ -81,6 +81,13 @@ export const menuConfig: MenuItemConfig[] = [
     path: ROUTES.PETS,
     title: 'Mascotas',
     src: petsIcon,
+    children: [
+      {
+        path: ROUTES.PET_MERGE,
+        title: 'Fusionar',
+        icon: 'lumo:align-left',
+      },
+    ],
   },
   {
     path: ROUTES.EMPLOYEES,
