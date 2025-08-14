@@ -21,7 +21,7 @@ export const ROUTES = {
   PETS: '/mascotas',
   PET_NEW: '/pets/new',
   PET_EDIT: '/pets/edit',
-  PET_MERGE: '/pets/merge',
+  PET_MERGE: '/mascotas/fusionar',
   PET_VIEW: '/pets/view',
 
   //Employee routes
