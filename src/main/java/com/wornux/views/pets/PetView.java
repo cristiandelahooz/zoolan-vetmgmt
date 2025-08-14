@@ -171,7 +171,11 @@ public class PetView extends Div {
             Predicate sizePredicate = createPredicateForSelectedItems(Optional.ofNullable(sizeFilter.getSelectedItems()),
                     items -> root.get("size").in(items), builder);
 
-            return builder.and(searchPredicate, typePredicate, genderPredicate, sizePredicate);
+            Predicate activePredicate = builder.isTrue(root.get("active"));
+
+            return builder.and(activePredicate, searchPredicate, typePredicate, genderPredicate, sizePredicate);
+
+            //return builder.and(searchPredicate, typePredicate, genderPredicate, sizePredicate);
         };
     }
 
