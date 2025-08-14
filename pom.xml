@@ -235,11 +235,10 @@
                 <configuration>
                     <java>
                         <toggleOffOn/>
-                        <eclipse>
-                            <version>4.35</version>
-                            <file>${project.basedir}/eclipse-formatter.xml
-                            </file>
-                        </eclipse>
+                        <googleJavaFormat>
+                            <version>1.19.2</version>
+                            <style>GOOGLE</style>
+                        </googleJavaFormat>
                     </java>
                     <typescript>
                         <includes>
