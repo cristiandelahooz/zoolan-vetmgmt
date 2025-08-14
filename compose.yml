@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:16
-    restart: always
     environment:
       POSTGRES_DB: wornux_vetmgmt
       POSTGRES_USER: admin

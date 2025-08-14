@@ -100,7 +100,7 @@ public class InvoiceView extends Div {
 
         setId("invoices-view");
 
-        invoiceForm = new InvoiceForm(service, customerService, productService, auditService, clientMapper);
+        invoiceForm = new InvoiceForm(service, customerService, productService, auditService, clientMapper, reportFactory);
 
         createGrid(service, createFilterSpecification());
 

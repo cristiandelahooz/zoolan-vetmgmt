@@ -6,6 +6,7 @@ import com.wornux.services.*;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.report.pdf.JasperReportFactory;
 import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
@@ -14,6 +15,7 @@ import com.wornux.views.customers.ClientCreationDialog;
 import com.wornux.mapper.ClientMapper;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -38,13 +40,21 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.server.StreamRegistration;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.streams.DownloadHandler;
+import com.vaadin.flow.server.streams.DownloadResponse;
+import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.views.products.ProductServiceForm;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -76,12 +86,14 @@ public class InvoiceForm extends Div {
 
     private final Sidebar sidebar = new Sidebar();
     private final Button add = new Button(VaadinIcon.PLUS_CIRCLE.create());
+    private final Button exportPdfButton = new Button("Exportar PDF", VaadinIcon.FILE_TEXT_O.create());
     private final Div layoutTabBar = new Div();
     private final Div layoutGrid = new Div();
     private final Div createDetails = new Div();
     private final Div footer = new Div();
     private final InvoiceService service;
     private final ClientService customerService;
+    private final JasperReportFactory reportFactory;
     private final RevisionView<Invoice> revisionView;
     private final ClientCreationDialog clientCreationDialog;
     private final ProductServiceForm productServiceForm;
@@ -91,9 +103,10 @@ public class InvoiceForm extends Div {
     private Runnable callable;
 
     public InvoiceForm(InvoiceService service, ClientService customerService, ProductService productService,
-            AuditService auditService, ClientMapper clientMapper) {
+            AuditService auditService, ClientMapper clientMapper, JasperReportFactory reportFactory) {
         this.service = service;
         this.customerService = customerService;
+        this.reportFactory = reportFactory;
 
         CommonUtils.commentsFormat(notes, 10000);
 
@@ -451,12 +464,32 @@ public class InvoiceForm extends Div {
             }
         });
 
-        Div tabs = new Div(menuBar);
-        tabs.addClassNames(LumoUtility.Padding.SMALL, LumoUtility.Gap.MEDIUM, LumoUtility.Background.CONTRAST_10,
-                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.MEDIUM);
+        // Configure PDF export button
+        exportPdfButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        exportPdfButton.addClickListener(e -> exportToPdf());
+        exportPdfButton.setEnabled(element != null && element.getCode() != null);
+
+        Div tabs = getDiv(menuBar);
         tabs.getStyle().set("border-top-left-radius", "var(--lumo-space-m)");
         tabs.getStyle().set("border-top-right-radius", "var(--lumo-space-m)");
 
+        return tabs;
+    }
+
+    private @NotNull Div getDiv(MenuBar menuBar) {
+        Div menuBarContainer = new Div(menuBar);
+        menuBarContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.Flex.GROW);
+
+        Div buttonContainer = new Div(exportPdfButton);
+        buttonContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER);
+
+        Div tabsContent = new Div(menuBarContainer, buttonContainer);
+        tabsContent.addClassNames(LumoUtility.Display.FLEX, LumoUtility.JustifyContent.BETWEEN,
+                LumoUtility.AlignItems.CENTER, LumoUtility.Width.FULL);
+
+        Div tabs = new Div(tabsContent);
+        tabs.addClassNames(LumoUtility.Padding.SMALL, LumoUtility.Gap.MEDIUM, LumoUtility.Background.CONTRAST_10,
+                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.MEDIUM);
         return tabs;
     }
 
@@ -478,6 +511,8 @@ public class InvoiceForm extends Div {
             customer.setEnabled(true);
             // Show add button only for new invoices
             add.setVisible(true);
+            // Disable export button for new invoices
+            exportPdfButton.setEnabled(false);
         } else {
             // Show actual invoice number for existing invoices
             docNum.setValue(String.valueOf(element.getCode()));
@@ -492,6 +527,8 @@ public class InvoiceForm extends Div {
             customer.setEnabled(false);
             // Hide add button for existing invoices - no client changes allowed
             add.setVisible(false);
+            // Enable export button for existing invoices
+            exportPdfButton.setEnabled(true);
         }
 
         gridProductService.getDataProvider().refreshAll();
@@ -635,5 +672,44 @@ public class InvoiceForm extends Div {
                 LumoUtility.Margin.Top.SMALL);
 
         return headerLayout;
+    }
+
+    private void exportToPdf() {
+        if (element == null || element.getCode() == null) {
+            NotificationUtils.error("No se puede exportar una factura que no ha sido guardada.");
+            return;
+        }
+
+        try {
+            var fileName = "Invoice_" + element.getCode();
+            var reportService = reportFactory.getServiceFromDatabase("/report/Invoice.jasper");
+
+            // Add invoice ID as parameter for the report
+            reportService.put("INVOICE_ID", element.getCode());
+
+            try (InputStream inputStream = reportService.execute()) {
+                byte[] data = inputStream.readAllBytes();
+                UI.getCurrent().access(() -> {
+                    InputStreamDownloadHandler downloadHandler = DownloadHandler.fromInputStream((event) -> {
+                        try {
+                            return new DownloadResponse(new ByteArrayInputStream(data), "%s.pdf".formatted(fileName),
+                                    "application/pdf", data.length);
+                        } catch (Exception e) {
+                            return DownloadResponse.error(500);
+                        }
+                    });
+
+                    final StreamRegistration registration = VaadinSession.getCurrent().getResourceRegistry()
+                            .registerResource(downloadHandler);
+                    UI.getCurrent().getPage().open(registration.getResourceUri().toString(), "_blank");
+                });
+            }
+
+            NotificationUtils.success("PDF generado exitosamente.");
+
+        } catch (Exception e) {
+            log.error("Error al generar el PDF de la factura: {}", element.getCode(), e);
+            NotificationUtils.error("Error al generar el PDF, favor intentar nuevamente en unos minutos.");
+        }
     }
 }
