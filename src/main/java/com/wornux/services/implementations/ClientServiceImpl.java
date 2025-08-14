@@ -365,6 +365,12 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         return clientRepository;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Client> findAllActiveByIds(List<Long> ids) {
+        return (ids == null || ids.isEmpty()) ? List.of() : clientRepository.findByIdInAndActiveTrue(ids);
+    }
+
     private void handleConstraintViolation(DataIntegrityViolationException e) {
         String message = e.getMessage().toLowerCase();
 
