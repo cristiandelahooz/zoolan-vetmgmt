@@ -1,6 +1,7 @@
 package com.wornux.services.interfaces;
 
 import com.vaadin.hilla.BrowserCallable;
+import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
 import com.wornux.data.repository.PetRepository;
