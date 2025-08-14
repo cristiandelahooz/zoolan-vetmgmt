@@ -57,7 +57,8 @@ public class ClientCreationDialog extends Dialog {
         title.addClassNames(LumoUtility.Margin.Bottom.MEDIUM, LumoUtility.TextAlignment.CENTER);
 
         Paragraph description = new Paragraph(
-                "Selecciona el tipo de cliente que deseas agregar. Puedes crear un cliente individual " + "o una empresa según tus necesidades.");
+                "Selecciona el tipo de cliente que deseas agregar. Puedes crear un cliente individual "
+                        + "o una empresa según tus necesidades.");
         description.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.TextAlignment.CENTER,
                 LumoUtility.Margin.Bottom.LARGE);
 
@@ -162,7 +163,7 @@ public class ClientCreationDialog extends Dialog {
      * Sets the callback to be executed when a client is successfully created
      *
      * @param callback
-     *         Consumer that receives the created client
+     *            Consumer that receives the created client
      */
     public void setOnClientCreated(Consumer<Client> callback) {
         this.onClientCreated = callback;

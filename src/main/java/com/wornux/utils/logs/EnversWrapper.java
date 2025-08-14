@@ -24,13 +24,13 @@ public final class EnversWrapper {
         //            System.out.println("value: " + value.getClass().getSimpleName());
         //        }
         return switch (value) {
-            case null -> "";
-            case String object -> object;
-            //            case Therapist object -> object.getName();
-            //            case CancellationCategory object -> object.getDescription();
-            //            case AppointmentRecurrent object -> object.getRepeatEvery().getKey();
-            //            case PatientTherapist object -> String.valueOf(object.getPrice());
-            default -> "";
+        case null -> "";
+        case String object -> object;
+        //            case Therapist object -> object.getName();
+        //            case CancellationCategory object -> object.getDescription();
+        //            case AppointmentRecurrent object -> object.getRepeatEvery().getKey();
+        //            case PatientTherapist object -> String.valueOf(object.getPrice());
+        default -> "";
         };
 
     }

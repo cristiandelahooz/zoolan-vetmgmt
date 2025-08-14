@@ -130,8 +130,8 @@ public class InvoiceForm extends Div {
         binder.bindInstanceFields(this);
 
         // Manual binding for customer field since it's not an instance field of Invoice
-        binder.forField(customer).asRequired("Debes seleccionar un cliente")
-                .bind(Invoice::getClient, Invoice::setClient);
+        binder.forField(customer).asRequired("Debes seleccionar un cliente").bind(Invoice::getClient,
+                Invoice::setClient);
         binder.getFields().forEach(field -> {
             if (field instanceof HasClearButton clear) {
                 clear.setClearButtonVisible(true);
@@ -211,14 +211,16 @@ public class InvoiceForm extends Div {
                 .setHeader("Productos y servicios").setAutoWidth(true);
         gridProductService.addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getDescription).orElse(""))
                 .setHeader("Descripción").setAutoWidth(true);
-        gridProductService.addColumn(
-                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getQuantity()).orElse(0.0)))
+        gridProductService
+                .addColumn(c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getQuantity()).orElse(0.0)))
                 .setHeader("Cantidad").setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
-        gridProductService.addColumn(
-                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getPrice()).orElse(BigDecimal.ZERO)))
+        gridProductService
+                .addColumn(c -> new DecimalFormat("#,##0.00")
+                        .format(Optional.ofNullable(c.getPrice()).orElse(BigDecimal.ZERO)))
                 .setHeader("Precio").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
-        gridProductService.addColumn(
-                        c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getAmount()).orElse(BigDecimal.ZERO)))
+        gridProductService
+                .addColumn(c -> new DecimalFormat("#,##0.00")
+                        .format(Optional.ofNullable(c.getAmount()).orElse(BigDecimal.ZERO)))
                 .setHeader("Importe").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
         gridProductService.getDataProvider().addDataProviderListener(event -> calculateTotal());
         gridProductService.addItemDoubleClickListener(event -> createDialog(event.getItem()));
@@ -292,14 +294,13 @@ public class InvoiceForm extends Div {
 
         binderLine.forField(fieldProduct).asRequired("Este campo no puede estar vacío").bind("product");
 
-        binderLine.forField(fieldPrice).asRequired("Este campo no puede estar vacío")
-                .bind(invoiceProduct -> Optional.ofNullable(invoiceProduct.getPrice()).orElse(BigDecimal.ZERO)
-                                .doubleValue(),
-                        (invoiceProduct, aDouble) -> invoiceProduct.setPrice(BigDecimal.valueOf(aDouble)));
+        binderLine.forField(fieldPrice).asRequired("Este campo no puede estar vacío").bind(
+                invoiceProduct -> Optional.ofNullable(invoiceProduct.getPrice()).orElse(BigDecimal.ZERO).doubleValue(),
+                (invoiceProduct, aDouble) -> invoiceProduct.setPrice(BigDecimal.valueOf(aDouble)));
 
-        binderLine.forField(fieldQty).asRequired("Este campo no puede estar vacío")
-                .bind(invoiceProduct -> Optional.ofNullable(invoiceProduct.getQuantity()).orElse(1.0),
-                        InvoiceProduct::setQuantity);
+        binderLine.forField(fieldQty).asRequired("Este campo no puede estar vacío").bind(
+                invoiceProduct -> Optional.ofNullable(invoiceProduct.getQuantity()).orElse(1.0),
+                InvoiceProduct::setQuantity);
 
         add.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
         add.addClickListener(event -> {

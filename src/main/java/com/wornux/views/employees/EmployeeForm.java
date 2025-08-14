@@ -229,7 +229,10 @@ public class EmployeeForm extends Dialog {
                     .gender(gender.getValue()).nationality(nationality.getValue()).province(province.getValue())
                     .municipality(municipality.getValue()).sector(sector.getValue())
                     .streetAddress(streetAddress.getValue()).employeeRole(employeeRole.getValue())
-                    .salary(salary.getValue()).hireDate(hireDate.getValue()).workSchedule(workSchedule.getValue())
+                    .salary(salary.getValue() != null && !salary.getValue().isEmpty()
+                            ? Double.valueOf(salary.getValue())
+                            : null)
+                    .hireDate(hireDate.getValue()).workSchedule(workSchedule.getValue())
                     .emergencyContactName(emergencyContactName.getValue())
                     .emergencyContactPhone(emergencyContactPhone.getValue()).build();
 

@@ -77,8 +77,8 @@ public class CompanyClientForm extends Dialog {
         setMaxHeight("95vh");
 
         // Add header styling similar to ClientForm
-        getHeader().getElement().getStyle().set("background", "var(--lumo-primary-color-10pct)")
-                .set("color", "var(--lumo-primary-text-color)");
+        getHeader().getElement().getStyle().set("background", "var(--lumo-primary-color-10pct)").set("color",
+                "var(--lumo-primary-text-color)");
 
         createForm();
         setupValidation();
@@ -172,13 +172,14 @@ public class CompanyClientForm extends Dialog {
 
         binder.forField(rnc).asRequired("El RNC es requerido")
                 .withValidator(value -> value != null && value.matches("\\d{9}"),
-                        "El RNC debe contener exactamente 9 dígitos").bind(ClientCreateRequestDto::rnc, null);
+                        "El RNC debe contener exactamente 9 dígitos")
+                .bind(ClientCreateRequestDto::rnc, null);
 
-        binder.forField(email).asRequired("El correo electrónico es requerido")
-                .bind(ClientCreateRequestDto::email, null);
+        binder.forField(email).asRequired("El correo electrónico es requerido").bind(ClientCreateRequestDto::email,
+                null);
 
-        binder.forField(phoneNumber).asRequired("El teléfono es requerido")
-                .bind(ClientCreateRequestDto::phoneNumber, null);
+        binder.forField(phoneNumber).asRequired("El teléfono es requerido").bind(ClientCreateRequestDto::phoneNumber,
+                null);
 
         binder.forField(preferredContactMethod).bind(ClientCreateRequestDto::preferredContactMethod, null);
 
@@ -192,8 +193,8 @@ public class CompanyClientForm extends Dialog {
 
         binder.forField(province).asRequired("La provincia es requerida").bind(ClientCreateRequestDto::province, null);
 
-        binder.forField(municipality).asRequired("El municipio es requerido")
-                .bind(ClientCreateRequestDto::municipality, null);
+        binder.forField(municipality).asRequired("El municipio es requerido").bind(ClientCreateRequestDto::municipality,
+                null);
 
         binder.forField(sector).asRequired("El sector es requerido").bind(ClientCreateRequestDto::sector, null);
 
@@ -264,7 +265,7 @@ public class CompanyClientForm extends Dialog {
      * Adds a listener that will be called when a client is successfully saved.
      *
      * @param listener
-     *         Consumer that receives the saved client DTO
+     *            Consumer that receives the saved client DTO
      */
     public void addClientSavedListener(Consumer<ClientCreateRequestDto> listener) {
         clientSavedListeners.add(listener);
@@ -274,7 +275,7 @@ public class CompanyClientForm extends Dialog {
      * Adds a listener that will be called when the form is cancelled.
      *
      * @param listener
-     *         Runnable to execute on cancel
+     *            Runnable to execute on cancel
      */
     public void addClientCancelledListener(Runnable listener) {
         clientCancelledListeners.add(listener);
@@ -284,7 +285,7 @@ public class CompanyClientForm extends Dialog {
      * Notifies all saved listeners that a client was successfully saved.
      *
      * @param dto
-     *         The saved client DTO
+     *            The saved client DTO
      */
     private void fireClientSavedEvent(ClientCreateRequestDto dto) {
         clientSavedListeners.forEach(listener -> listener.accept(dto));

@@ -28,9 +28,9 @@ public class MenuBarHandler {
      * Adds a menu item and its associated component to the menu bar.
      *
      * @param menuItem
-     *         The menu item to add.
+     *            The menu item to add.
      * @param component
-     *         The component to display when the menu item is selected.
+     *            The component to display when the menu item is selected.
      */
     public void addMenuItem(MenuItem menuItem, Component component) {
         menuItemToComponentMap.put(menuItem, component);
@@ -41,7 +41,7 @@ public class MenuBarHandler {
      * Selects a menu item and displays its associated component.
      *
      * @param menuItem
-     *         The menu item to select.
+     *            The menu item to select.
      */
     public void selectMenuItem(MenuItem menuItem) {
         if (Objects.equals(selectedMenuItem, menuItem)) {
@@ -70,7 +70,7 @@ public class MenuBarHandler {
      * Sets the default selected menu item.
      *
      * @param defaultMenuItem
-     *         The menu item to select by default.
+     *            The menu item to select by default.
      */
     public void setDefaultMenuItem(MenuItem defaultMenuItem) {
         if (menuItemToComponentMap.containsKey(defaultMenuItem)) {
@@ -84,7 +84,7 @@ public class MenuBarHandler {
      * Adds a listener to be notified when the selected menu item changes.
      *
      * @param listener
-     *         The listener to add.
+     *            The listener to add.
      */
     public void addMenuItemSelectionListener(MenuItemSelectionListener listener) {
         selectionListeners.add(listener);
@@ -94,7 +94,7 @@ public class MenuBarHandler {
      * Removes a listener from the list of listeners.
      *
      * @param listener
-     *         The listener to remove.
+     *            The listener to remove.
      */
     public void removeMenuItemSelectionListener(MenuItemSelectionListener listener) {
         selectionListeners.remove(listener);
