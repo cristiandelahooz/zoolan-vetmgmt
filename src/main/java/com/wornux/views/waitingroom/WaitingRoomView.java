@@ -26,6 +26,7 @@ import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.utils.GridUtils;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 
@@ -47,7 +48,8 @@ public class WaitingRoomView extends VerticalLayout {
     private final ClientService clientService;
     private final PetService petService;
 
-    private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
+    //private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
+    private final Grid<WaitingRoom> grid = GridUtils.createBasicGrid(WaitingRoom.class);
     private final WaitingRoomForm form;
     private final VerticalLayout cardContainer = new VerticalLayout();
     TextField searchField = new TextField();
@@ -290,6 +292,7 @@ public class WaitingRoomView extends VerticalLayout {
             dialog.close();
         });
         completeButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        completeButton.setWidth("220px");
 
         Button startButton = new Button("Iniciar Consulta", e -> {
             wr.setStatus(WaitingRoomStatus.EN_CONSULTA);
