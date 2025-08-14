@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -20,6 +21,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.Breadcrumb;
 import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
+import com.wornux.data.entity.Pet;
 import com.wornux.data.entity.Supplier;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.services.interfaces.SupplierService;
@@ -34,8 +36,7 @@ import org.springframework.data.jpa.domain.Specification;
 @PageTitle("Proveedores")
 public class SupplierView extends Div {
 
-    private final Grid<Supplier> grid = new Grid<>();
-
+    private final Grid<Supplier> grid = GridUtils.createBasicGrid(Supplier.class);
     private final TextField searchField = new TextField("Buscar proveedores");
     private final Span quantity = new Span();
     private final Button create = new Button();
@@ -68,6 +69,7 @@ public class SupplierView extends Div {
 
     private void createGrid() {
         GridUtils.configureGrid(grid, createFilterSpecification(), supplierService.getRepository());
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
         GridUtils.addColumn(grid, Supplier::getCompanyName, "Empresa");
         GridUtils.addColumn(grid, Supplier::getContactPerson, "Contacto");
