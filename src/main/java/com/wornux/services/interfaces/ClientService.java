@@ -70,47 +70,54 @@ public interface ClientService {
    */
   Optional<Client> getClientByRnc(String rnc);
 
-  /**
-   * Retrieves all Clients with pagination.
-   *
-   * @param pageable pagination information
-   * @return paginated list of Clients
-   */
-  Page<Client> getAllClients(Pageable pageable);
+    /**
+     * Retrieves all Clients with pagination.
+     *
+     * @param pageable
+     *            pagination information
+     * @return paginated list of Clients
+     */
+    Page<Client> getAllClients(Pageable pageable);
 
-  /**
-   * Searches for Clients based on a search term.
-   *
-   * @param searchTerm the term to search for in client fields
-   * @param pageable pagination information
-   * @return paginated list of matching Clients
-   */
-  Page<Client> searchClients(String searchTerm, Pageable pageable);
+    /**
+     * Searches for Clients based on a search term.
+     *
+     * @param searchTerm
+     *            the term to search for in client fields
+     * @param pageable
+     *            pagination information
+     * @return paginated list of matching Clients
+     */
+    Page<Client> searchClients(String searchTerm, Pageable pageable);
 
-  /**
-   * Retrieves Clients by rating.
-   *
-   * @param rating the client rating to filter by
-   * @param pageable pagination information
-   * @return paginated list of Clients with specified rating
-   */
-  Page<Client> getClientsByRating(ClientRating rating, Pageable pageable);
+    /**
+     * Retrieves Clients by rating.
+     *
+     * @param rating
+     *            the client rating to filter by
+     * @param pageable
+     *            pagination information
+     * @return paginated list of Clients with specified rating
+     */
+    Page<Client> getClientsByRating(ClientRating rating, Pageable pageable);
 
-  /**
-   * Retrieves Clients by province.
-   *
-   * @param province the province to filter by
-   * @param pageable pagination information
-   * @return paginated list of Clients in the specified province
-   */
-  Page<Client> getClientsByProvince(String province, Pageable pageable);
+    /**
+     * Retrieves Clients by province.
+     *
+     * @param province
+     *            the province to filter by
+     * @param pageable
+     *            pagination information
+     * @return paginated list of Clients in the specified province
+     */
+    Page<Client> getClientsByProvince(String province, Pageable pageable);
 
-  /**
-   * Retrieves all active Clients.
-   *
-   * @return list of all active Clients
-   */
-  List<Client> getAllActiveClients();
+    /**
+     * Retrieves all active Clients.
+     *
+     * @return list of all active Clients
+     */
+    List<Client> getAllActiveClients();
 
   /**
    * Updates a Client's rating.
@@ -169,10 +176,14 @@ public interface ClientService {
 
   void archive(Client client);
 
-  /**
-   * Gets the repository instance for direct access.
-   *
-   * @return the ClientRepository instance
-   */
-  ClientRepository getRepository();
+    /**
+     * Gets the repository instance for direct access.
+     * 
+     * @return the ClientRepository instance
+     */
+    ClientRepository getRepository();
+
+    //List<Client> findAllByIds(List<Long> ids);
+    List<Client> findAllActiveByIds(List<Long> ids);
+
 }
