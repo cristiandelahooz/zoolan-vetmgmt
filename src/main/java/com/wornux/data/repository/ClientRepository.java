@@ -2,19 +2,18 @@ package com.wornux.data.repository;
 
 import com.wornux.data.entity.Client;
 import com.wornux.data.enums.ClientRating;
-
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 @Repository
-public interface ClientRepository
-        extends JpaRepository<Client, Long>, JpaSpecificationExecutor<Client> {
+public interface ClientRepository extends JpaRepository<Client, Long>, JpaSpecificationExecutor<Client> {
     Optional<Client> findByCedula(String cedula);
 
     Optional<Client> findByCedulaAndIdNot(String cedula, Long id);
@@ -38,6 +37,11 @@ public interface ClientRepository
     Page<Client> findByProvince(String province, Pageable pageable);
 
     List<Client> findAllByActiveTrue();
+
+    //List<Client> findByIdIn(Collection<Long> ids);
+
+    List<Client> findByIdInAndActiveTrue(Collection<Long> ids); // si solo permites dueños activos
+
 
     Optional<Client> findByEmail(String email);
 }
