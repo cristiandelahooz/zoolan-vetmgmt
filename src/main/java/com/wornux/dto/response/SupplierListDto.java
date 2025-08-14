@@ -10,16 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SupplierListDto {
-    private Long id;
-    private String rnc;
-    private String companyName;
-    private String contactPerson;
-    private String contactPhone;
-    private String contactEmail;
-    private String province;
-    private String municipality;
-    private String sector;
-    private String streetAddress;
-    private boolean active;
-
+  private Long id;
+  private String rnc;
+  private String companyName;
+  private String contactPerson;
+  private String contactPhone;
+  private String contactEmail;
+  private String province;
+  private String municipality;
+  private String sector;
+  private String streetAddress;
+  private boolean active;
 }

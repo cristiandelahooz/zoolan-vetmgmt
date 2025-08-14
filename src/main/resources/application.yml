@@ -57,7 +57,7 @@ spring:
     locations: [ classpath:db/migration/prod, classpath:db/migration/dev ] #, filesystem:./sql
   sql:
     init:
-      mode: always
+      mode: embedded
   jpa:
     hibernate:
       ddl-auto: update

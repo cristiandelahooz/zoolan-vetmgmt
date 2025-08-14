@@ -1,4 +1,2 @@
-/**
- * Custom validation annotations and validators for the application.
- */
+/** Custom validation annotations and validators for the application. */
 package com.wornux.validation;

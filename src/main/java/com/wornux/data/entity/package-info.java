@@ -1,4 +1,2 @@
-/**
- * JPA Entities for the application.
- */
+/** JPA Entities for the application. */
 package com.wornux.data.entity;

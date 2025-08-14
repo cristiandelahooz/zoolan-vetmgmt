@@ -15,7 +15,6 @@ import org.hibernate.envers.RevisionEntity;
 @RevisionEntity(RevisionListenerImpl.class)
 public class Revision extends DefaultRevisionEntity {
 
-    protected String modifierUser;
-    protected String ipAddress;
-
+  protected String modifierUser;
+  protected String ipAddress;
 }

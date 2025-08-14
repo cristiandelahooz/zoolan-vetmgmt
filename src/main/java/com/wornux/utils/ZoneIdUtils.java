@@ -7,17 +7,19 @@ import java.util.List;
 
 public class ZoneIdUtils {
 
-    private ZoneIdUtils() {
+  private ZoneIdUtils() {}
 
-    }
+  public static List<String> zonesWithOffset() {
 
-    public static List<String> zonesWithOffset() {
-
-        return ZoneId.getAvailableZoneIds().stream().sorted().map(id -> {
-            ZoneId zoneId = ZoneId.of(id);
-            ZonedDateTime now = ZonedDateTime.now(zoneId);
-            ZoneOffset offset = now.getOffset();
-            return String.format("%s (UTC%s)", id, offset);
-        }).toList();
-    }
+    return ZoneId.getAvailableZoneIds().stream()
+        .sorted()
+        .map(
+            id -> {
+              ZoneId zoneId = ZoneId.of(id);
+              ZonedDateTime now = ZonedDateTime.now(zoneId);
+              ZoneOffset offset = now.getOffset();
+              return String.format("%s (UTC%s)", id, offset);
+            })
+        .toList();
+  }
 }

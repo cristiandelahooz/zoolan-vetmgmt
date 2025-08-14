@@ -17,213 +17,214 @@ import com.wornux.dto.request.WarehouseCreateRequestDto;
 import com.wornux.dto.request.WarehouseUpdateRequestDto;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import lombok.Setter;
 
 public class WarehouseForm extends Dialog {
 
-    private final TextField name = new TextField("Warehouse Name");
-    private final ComboBox<WarehouseType> warehouseType = new ComboBox<>("Warehouse Type");
-    private final ComboBox<Boolean> availableForSale = new ComboBox<>("Available for Sale");
-    private final ComboBox<Boolean> status = new ComboBox<>("Status");
+  private final TextField name = new TextField("Warehouse Name");
+  private final ComboBox<WarehouseType> warehouseType = new ComboBox<>("Warehouse Type");
+  private final ComboBox<Boolean> availableForSale = new ComboBox<>("Available for Sale");
+  private final ComboBox<Boolean> status = new ComboBox<>("Status");
 
-    private final Button saveButton = new Button("Save");
-    private final Button cancelButton = new Button("Cancel");
+  private final Button saveButton = new Button("Save");
+  private final Button cancelButton = new Button("Cancel");
 
-    private final transient WarehouseService warehouseService;
+  private final transient WarehouseService warehouseService;
 
-    @Setter
-    private transient Runnable onSaveCallback;
+  @Setter private transient Runnable onSaveCallback;
 
-    private final List<Consumer<Warehouse>> warehouseSavedListeners = new ArrayList<>();
-    private final List<Runnable> warehouseCancelledListeners = new ArrayList<>();
+  private final List<Consumer<Warehouse>> warehouseSavedListeners = new ArrayList<>();
+  private final List<Runnable> warehouseCancelledListeners = new ArrayList<>();
 
-    private transient Warehouse currentWarehouse;
-    private boolean isEditMode = false;
+  private transient Warehouse currentWarehouse;
+  private boolean isEditMode = false;
 
-    public WarehouseForm(WarehouseService warehouseService) {
-        this.warehouseService = warehouseService;
+  public WarehouseForm(WarehouseService warehouseService) {
+    this.warehouseService = warehouseService;
 
-        setHeaderTitle("New Warehouse");
-        setModal(true);
-        setWidth("500px");
-        setHeight("400px");
+    setHeaderTitle("New Warehouse");
+    setModal(true);
+    setWidth("500px");
+    setHeight("400px");
 
-        createForm();
-        setupEventListeners();
-    }
+    createForm();
+    setupEventListeners();
+  }
 
-    private void createForm() {
-        FormLayout formLayout = new FormLayout();
-        formLayout.add(name, warehouseType, availableForSale, status);
-        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("500px", 2));
+  private void createForm() {
+    FormLayout formLayout = new FormLayout();
+    formLayout.add(name, warehouseType, availableForSale, status);
+    formLayout.setResponsiveSteps(
+        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
-        name.setRequired(true);
-        name.setRequiredIndicatorVisible(true);
+    name.setRequired(true);
+    name.setRequiredIndicatorVisible(true);
 
-        warehouseType.setItems(WarehouseType.values());
-        warehouseType.setRequired(true);
-        warehouseType.setRequiredIndicatorVisible(true);
+    warehouseType.setItems(WarehouseType.values());
+    warehouseType.setRequired(true);
+    warehouseType.setRequiredIndicatorVisible(true);
 
-        availableForSale.setItems(true, false);
-        availableForSale.setItemLabelGenerator(val -> val ? "Yes" : "No");
-        availableForSale.setRequired(true);
-        availableForSale.setRequiredIndicatorVisible(true);
+    availableForSale.setItems(true, false);
+    availableForSale.setItemLabelGenerator(val -> val ? "Yes" : "No");
+    availableForSale.setRequired(true);
+    availableForSale.setRequiredIndicatorVisible(true);
 
-        status.setItems(true, false);
-        status.setItemLabelGenerator(val -> val ? "Active" : "Inactive");
-        status.setRequired(true);
-        status.setRequiredIndicatorVisible(true);
+    status.setItems(true, false);
+    status.setItemLabelGenerator(val -> val ? "Active" : "Inactive");
+    status.setRequired(true);
+    status.setRequiredIndicatorVisible(true);
 
-        VerticalLayout content = new VerticalLayout();
-        content.add(new H3("Warehouse Information"), formLayout);
-        content.addClassNames(LumoUtility.Padding.MEDIUM);
+    VerticalLayout content = new VerticalLayout();
+    content.add(new H3("Warehouse Information"), formLayout);
+    content.addClassNames(LumoUtility.Padding.MEDIUM);
 
-        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+    saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
-        buttonLayout.addClassNames(LumoUtility.JustifyContent.END, LumoUtility.Gap.MEDIUM);
+    HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
+    buttonLayout.addClassNames(LumoUtility.JustifyContent.END, LumoUtility.Gap.MEDIUM);
 
-        add(content, buttonLayout);
-    }
+    add(content, buttonLayout);
+  }
 
-    private void setupEventListeners() {
-        saveButton.addClickListener(this::save);
-        cancelButton.addClickListener(e -> {
-            fireWarehouseCancelledEvent();
-            close();
+  private void setupEventListeners() {
+    saveButton.addClickListener(this::save);
+    cancelButton.addClickListener(
+        e -> {
+          fireWarehouseCancelledEvent();
+          close();
         });
+  }
+
+  private void save(ClickEvent<Button> event) {
+    if (!validateForm()) {
+      NotificationUtils.error("Please complete all required fields");
+      return;
     }
 
-    private void save(ClickEvent<Button> event) {
-        if (!validateForm()) {
-            NotificationUtils.error("Please complete all required fields");
-            return;
-        }
+    if (isEditMode && currentWarehouse != null) {
+      updateWarehouse();
+    } else {
+      createWarehouse();
+    }
+  }
 
-        if (isEditMode && currentWarehouse != null) {
-            updateWarehouse();
-        } else {
-            createWarehouse();
-        }
+  private void createWarehouse() {
+    WarehouseCreateRequestDto dto =
+        WarehouseCreateRequestDto.builder()
+            .name(name.getValue())
+            .warehouseType(warehouseType.getValue())
+            .availableForSale(availableForSale.getValue())
+            .status(status.getValue())
+            .build();
+
+    warehouseService.createWarehouse(dto);
+    NotificationUtils.success("Warehouse created successfully");
+
+    fireWarehouseSavedEvent(null);
+
+    if (onSaveCallback != null) {
+      onSaveCallback.run();
     }
 
-    private void createWarehouse() {
-        WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder()
-                .name(name.getValue())
-                .warehouseType(warehouseType.getValue())
-                .availableForSale(availableForSale.getValue())
-                .status(status.getValue())
-                .build();
+    close();
+  }
 
-        warehouseService.createWarehouse(dto);
-        NotificationUtils.success("Warehouse created successfully");
+  private void updateWarehouse() {
+    WarehouseUpdateRequestDto dto =
+        WarehouseUpdateRequestDto.builder()
+            .name(name.getValue())
+            .warehouseType(warehouseType.getValue())
+            .availableForSale(availableForSale.getValue())
+            .status(status.getValue())
+            .build();
 
-        fireWarehouseSavedEvent(null);
+    Warehouse updatedWarehouse = warehouseService.updateWarehouse(currentWarehouse.getId(), dto);
+    NotificationUtils.success("Warehouse updated successfully");
 
-        if (onSaveCallback != null) {
-            onSaveCallback.run();
-        }
+    fireWarehouseSavedEvent(updatedWarehouse);
 
-        close();
+    if (onSaveCallback != null) {
+      onSaveCallback.run();
     }
 
-    private void updateWarehouse() {
-        WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder()
-                .name(name.getValue())
-                .warehouseType(warehouseType.getValue())
-                .availableForSale(availableForSale.getValue())
-                .status(status.getValue())
-                .build();
+    close();
+  }
 
-        Warehouse updatedWarehouse = warehouseService.updateWarehouse(currentWarehouse.getId(), dto);
-        NotificationUtils.success("Warehouse updated successfully");
+  private boolean validateForm() {
+    boolean isValid = true;
 
-        fireWarehouseSavedEvent(updatedWarehouse);
-
-        if (onSaveCallback != null) {
-            onSaveCallback.run();
-        }
-
-        close();
+    if (name.isEmpty()) {
+      name.setInvalid(true);
+      isValid = false;
+    } else {
+      name.setInvalid(false);
     }
 
-    private boolean validateForm() {
-        boolean isValid = true;
-
-        if (name.isEmpty()) {
-            name.setInvalid(true);
-            isValid = false;
-        } else {
-            name.setInvalid(false);
-        }
-
-        if (warehouseType.isEmpty()) {
-            warehouseType.setInvalid(true);
-            isValid = false;
-        } else {
-            warehouseType.setInvalid(false);
-        }
-
-        if (availableForSale.isEmpty()) {
-            availableForSale.setInvalid(true);
-            isValid = false;
-        } else {
-            availableForSale.setInvalid(false);
-        }
-
-        return isValid;
+    if (warehouseType.isEmpty()) {
+      warehouseType.setInvalid(true);
+      isValid = false;
+    } else {
+      warehouseType.setInvalid(false);
     }
 
-    public void openForNew() {
-        setHeaderTitle("New Warehouse");
-        isEditMode = false;
-        currentWarehouse = null;
-        clearForm();
-        name.focus();
-        open();
+    if (availableForSale.isEmpty()) {
+      availableForSale.setInvalid(true);
+      isValid = false;
+    } else {
+      availableForSale.setInvalid(false);
     }
 
-    public void openForEdit(Warehouse warehouse) {
-        setHeaderTitle("Edit Warehouse");
-        isEditMode = true;
-        currentWarehouse = warehouse;
-        clearForm();
-        populateForm(warehouse);
-        name.focus();
-        open();
-    }
+    return isValid;
+  }
 
-    private void populateForm(Warehouse warehouse) {
-        name.setValue(warehouse.getName());
-        warehouseType.setValue(warehouse.getWarehouseType());
-        availableForSale.setValue(warehouse.isAvailableForSale());
-    }
+  public void openForNew() {
+    setHeaderTitle("New Warehouse");
+    isEditMode = false;
+    currentWarehouse = null;
+    clearForm();
+    name.focus();
+    open();
+  }
 
-    private void clearForm() {
-        name.clear();
-        warehouseType.clear();
-        availableForSale.clear();
-    }
+  public void openForEdit(Warehouse warehouse) {
+    setHeaderTitle("Edit Warehouse");
+    isEditMode = true;
+    currentWarehouse = warehouse;
+    clearForm();
+    populateForm(warehouse);
+    name.focus();
+    open();
+  }
 
-    public void addWarehouseSavedListener(Consumer<Warehouse> listener) {
-        warehouseSavedListeners.add(listener);
-    }
+  private void populateForm(Warehouse warehouse) {
+    name.setValue(warehouse.getName());
+    warehouseType.setValue(warehouse.getWarehouseType());
+    availableForSale.setValue(warehouse.isAvailableForSale());
+  }
 
-    public void addWarehouseCancelledListener(Runnable listener) {
-        warehouseCancelledListeners.add(listener);
-    }
+  private void clearForm() {
+    name.clear();
+    warehouseType.clear();
+    availableForSale.clear();
+  }
 
-    private void fireWarehouseSavedEvent(Warehouse warehouse) {
-        warehouseSavedListeners.forEach(listener -> listener.accept(warehouse));
-    }
+  public void addWarehouseSavedListener(Consumer<Warehouse> listener) {
+    warehouseSavedListeners.add(listener);
+  }
 
-    private void fireWarehouseCancelledEvent() {
-        warehouseCancelledListeners.forEach(Runnable::run);
-    }
+  public void addWarehouseCancelledListener(Runnable listener) {
+    warehouseCancelledListeners.add(listener);
+  }
+
+  private void fireWarehouseSavedEvent(Warehouse warehouse) {
+    warehouseSavedListeners.forEach(listener -> listener.accept(warehouse));
+  }
+
+  private void fireWarehouseCancelledEvent() {
+    warehouseCancelledListeners.forEach(Runnable::run);
+  }
 }

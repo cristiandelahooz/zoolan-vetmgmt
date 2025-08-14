@@ -1,4 +1,2 @@
-/**
- * Constants for the application.
- */
+/** Constants for the application. */
 package com.wornux.constants;

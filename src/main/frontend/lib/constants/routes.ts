@@ -42,7 +42,7 @@ export const ROUTES = {
   PRODUCT_NEW: '/products/new',
 
   //Warehouse routes
-    WAREHOUSE: '/warehouses',
+  WAREHOUSE: '/warehouses',
 
   //supplier routes
   SUPPLIERS: '/proveedores',

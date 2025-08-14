@@ -4,18 +4,17 @@ import com.vaadin.flow.component.page.WebStorage;
 
 public final class WebStorageUtils {
 
-    private WebStorageUtils() {
-    }
+  private WebStorageUtils() {}
 
-    public static void setItem(StorageKey key, String value) {
-        WebStorage.setItem(key.name(), value);
-    }
+  public static void setItem(StorageKey key, String value) {
+    WebStorage.setItem(key.name(), value);
+  }
 
-    public static void getItem(StorageKey key, WebStorage.Callback callback) {
-        WebStorage.getItem(key.name(), callback);
-    }
+  public static void getItem(StorageKey key, WebStorage.Callback callback) {
+    WebStorage.getItem(key.name(), callback);
+  }
 
-    public enum StorageKey {
-        CUSTOMER_RECENT
-    }
+  public enum StorageKey {
+    CUSTOMER_RECENT
+  }
 }

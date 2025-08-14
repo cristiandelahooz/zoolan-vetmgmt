@@ -193,7 +193,7 @@ export default function AppointmentsCalendarView() {
 
       <FullCalendar
         ref={calendarRef}
-       headerToolbar={{
+        headerToolbar={{
           left: 'prev,next today',
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay',

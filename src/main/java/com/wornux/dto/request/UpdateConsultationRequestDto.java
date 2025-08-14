@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateConsultationRequestDto {
 
-    private String notes;
-    private String diagnosis;
-    private String treatment;
-    private String prescription;
-    private Long petId;
-    private Long veterinarianId;
-    private String consultationDate;
-    private boolean active;
+  private String notes;
+  private String diagnosis;
+  private String treatment;
+  private String prescription;
+  private Long petId;
+  private Long veterinarianId;
+  private String consultationDate;
+  private boolean active;
 }

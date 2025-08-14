@@ -9,19 +9,13 @@ import lombok.Setter;
 @Setter
 public class WaitingRoomFormModel {
 
-    private Long clientId;
-    private Long petId;
-    private String reasonForVisit;
-    private Priority priority;
-    private String notes;
+  private Long clientId;
+  private Long petId;
+  private String reasonForVisit;
+  private Priority priority;
+  private String notes;
 
-    public WaitingRoomCreateRequestDto toDto() {
-        return new WaitingRoomCreateRequestDto(
-                clientId,
-                petId,
-                reasonForVisit,
-                priority,
-                notes
-        );
-    }
+  public WaitingRoomCreateRequestDto toDto() {
+    return new WaitingRoomCreateRequestDto(clientId, petId, reasonForVisit, priority, notes);
+  }
 }

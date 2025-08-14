@@ -35,7 +35,7 @@ export const menuConfig: MenuItemConfig[] = [
         path: ROUTES.WAREHOUSE,
         title: 'Almacenes',
         icon: 'vaadin:truck',
-      }
+      },
     ],
   },
   {

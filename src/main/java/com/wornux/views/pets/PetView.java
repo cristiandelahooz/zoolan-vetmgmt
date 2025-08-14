@@ -1,5 +1,8 @@
 package com.wornux.views.pets;
 
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+import static com.wornux.utils.PredicateUtils.predicateForTextField;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -27,159 +30,185 @@ import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.GridUtils;
 import jakarta.persistence.criteria.*;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.util.Optional;
 import java.util.Set;
-
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
-import static com.wornux.utils.PredicateUtils.predicateForTextField;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @Route("mascotas")
 @PageTitle("Mascotas")
 public class PetView extends Div {
 
-    private final Grid<Pet> grid = new Grid<>(Pet.class, false);
-    private final TextField searchField = new TextField("Buscar mascotas");
-    private final MultiSelectComboBox<PetType> typeFilter = new MultiSelectComboBox<>("Tipo");
-    private final MultiSelectComboBox<Gender> genderFilter = new MultiSelectComboBox<>("Género");
-    private final MultiSelectComboBox<PetSize> sizeFilter = new MultiSelectComboBox<>("Tamaño");
-    private final Span quantity = new Span();
+  private final Grid<Pet> grid = new Grid<>(Pet.class, false);
+  private final TextField searchField = new TextField("Buscar mascotas");
+  private final MultiSelectComboBox<PetType> typeFilter = new MultiSelectComboBox<>("Tipo");
+  private final MultiSelectComboBox<Gender> genderFilter = new MultiSelectComboBox<>("Género");
+  private final MultiSelectComboBox<PetSize> sizeFilter = new MultiSelectComboBox<>("Tamaño");
+  private final Span quantity = new Span();
 
-    private final Button create = new Button();
-    private final PetService petService;
-    private final PetForm petForm;
+  private final Button create = new Button();
+  private final PetService petService;
+  private final PetForm petForm;
 
-    public PetView(@Qualifier("petServiceImpl") PetService petService, @Qualifier("clientServiceImpl") ClientService clientService) {
-        this.petService = petService;
-        this.petForm = new PetForm(petService, clientService);
+  public PetView(
+      @Qualifier("petServiceImpl") PetService petService,
+      @Qualifier("clientServiceImpl") ClientService clientService) {
+    this.petService = petService;
+    this.petForm = new PetForm(petService, clientService);
 
-        setId("pet-view");
+    setId("pet-view");
 
-        // Configure listeners
-        petForm.addPetSavedListener(pet -> {
-            refreshAll();
-            petForm.close();
+    // Configure listeners
+    petForm.addPetSavedListener(
+        pet -> {
+          refreshAll();
+          petForm.close();
         });
 
-        petForm.addPetCancelledListener(petForm::close);
+    petForm.addPetCancelledListener(petForm::close);
 
-        createGrid(petService, createFilterSpecification());
+    createGrid(petService, createFilterSpecification());
 
-        final Div gridLayout = new Div(grid);
-        gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
+    final Div gridLayout = new Div(grid);
+    gridLayout.addClassNames(
+        LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
 
-        add(createTitle(), createFilter(), gridLayout);
-        addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
-        setSizeFull();
+    add(createTitle(), createFilter(), gridLayout);
+    addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
+    setSizeFull();
 
-        create.addClickListener(event -> petForm.openForNew());
+    create.addClickListener(event -> petForm.openForNew());
 
-        add(petForm);
-    }
+    add(petForm);
+  }
 
-    private void createGrid(PetService service, Specification<Pet> specification) {
-        GridUtils.configureGrid(grid, specification, service.getRepository());
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+  private void createGrid(PetService service, Specification<Pet> specification) {
+    GridUtils.configureGrid(grid, specification, service.getRepository());
+    grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
-        GridUtils.addColumn(grid, Pet::getName, "Nombre", "name");
-        GridUtils.addColumn(grid, pet -> pet.getType().name(), "Tipo", "type");
-        GridUtils.addColumn(grid, Pet::getBreed, "Raza", "breed");
-        GridUtils.addColumn(grid, pet -> pet.getGender() != null ? pet.getGender().name() : "", "Género", "gender");
-        GridUtils.addColumn(grid, Pet::getColor, "Color", "color");
-        GridUtils.addColumn(grid, pet -> pet.getSize() != null ? pet.getSize().name() : "", "Tamaño", "size");
+    GridUtils.addColumn(grid, Pet::getName, "Nombre", "name");
+    GridUtils.addColumn(grid, pet -> pet.getType().name(), "Tipo", "type");
+    GridUtils.addColumn(grid, Pet::getBreed, "Raza", "breed");
+    GridUtils.addColumn(
+        grid, pet -> pet.getGender() != null ? pet.getGender().name() : "", "Género", "gender");
+    GridUtils.addColumn(grid, Pet::getColor, "Color", "color");
+    GridUtils.addColumn(
+        grid, pet -> pet.getSize() != null ? pet.getSize().name() : "", "Tamaño", "size");
 
-        GridUtils.addColumn(grid,
-                pet -> pet.getOwners().isEmpty()
-                        ? "Sin dueño"
-                        : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName(),
-                "Dueño", "owners");
+    GridUtils.addColumn(
+        grid,
+        pet ->
+            pet.getOwners().isEmpty()
+                ? "Sin dueño"
+                : pet.getOwners().get(0).getFirstName()
+                    + " "
+                    + pet.getOwners().get(0).getLastName(),
+        "Dueño",
+        "owners");
+  }
 
-    }
+  public Specification<Pet> createFilterSpecification() {
+    return (root, query, builder) -> {
+      Predicate searchPredicate =
+          predicateForTextField(
+              root, builder, new String[] {"name", "breed", "color"}, searchField.getValue());
 
-    public Specification<Pet> createFilterSpecification() {
-        return (root, query, builder) -> {
+      Predicate typePredicate =
+          createPredicateForSelectedItems(
+              Optional.ofNullable(typeFilter.getSelectedItems()),
+              items -> root.get("type").in(items),
+              builder);
 
+      Predicate genderPredicate =
+          createPredicateForSelectedItems(
+              Optional.ofNullable(genderFilter.getSelectedItems()),
+              items -> root.get("gender").in(items),
+              builder);
 
-            Predicate searchPredicate = predicateForTextField(root, builder,
-                    new String[]{"name", "breed", "color"}, searchField.getValue());
+      Predicate sizePredicate =
+          createPredicateForSelectedItems(
+              Optional.ofNullable(sizeFilter.getSelectedItems()),
+              items -> root.get("size").in(items),
+              builder);
 
-            Predicate typePredicate = createPredicateForSelectedItems(Optional.ofNullable(typeFilter.getSelectedItems()),
-                    items -> root.get("type").in(items), builder);
+      return builder.and(searchPredicate, typePredicate, genderPredicate, sizePredicate);
+    };
+  }
 
-            Predicate genderPredicate = createPredicateForSelectedItems(Optional.ofNullable(genderFilter.getSelectedItems()),
-                    items -> root.get("gender").in(items), builder);
+  private void refreshAll() {
+    grid.getDataProvider().refreshAll();
+    Pageable pageable = Pageable.unpaged(); // O usa PageRequest.of(...) si quieres paginar
+    long count =
+        petService.getAllPets(pageable).stream().filter(PetSummaryResponseDto::active).count();
+    quantity.setText("Mascotas activas: " + count);
+  }
 
-            Predicate sizePredicate = createPredicateForSelectedItems(Optional.ofNullable(sizeFilter.getSelectedItems()),
-                    items -> root.get("size").in(items), builder);
+  private Component createFilter() {
+    searchField.setClearButtonVisible(true);
+    searchField.setPlaceholder("Buscar por nombre, raza, color...");
+    searchField.setPrefixComponent(LumoIcon.SEARCH.create());
+    searchField.setValueChangeMode(ValueChangeMode.EAGER);
+    searchField.addValueChangeListener(e -> refreshAll());
 
-            return builder.and(searchPredicate, typePredicate, genderPredicate, sizePredicate);
-        };
-    }
+    typeFilter.setItems(PetType.values());
+    genderFilter.setItems(Gender.values());
+    sizeFilter.setItems(PetSize.values());
 
-    private void refreshAll() {
-        grid.getDataProvider().refreshAll();
-        Pageable pageable = Pageable.unpaged(); // O usa PageRequest.of(...) si quieres paginar
-        long count = petService.getAllPets(pageable).stream()
-                .filter(PetSummaryResponseDto::active)
-                .count();
-        quantity.setText("Mascotas activas: " + count);
-    }
+    Set.of(typeFilter, genderFilter, sizeFilter)
+        .forEach(
+            combo -> {
+              combo.setClearButtonVisible(true);
+              combo.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+              combo.addValueChangeListener(e -> refreshAll());
+            });
 
+    HorizontalLayout toolbar =
+        new HorizontalLayout(searchField, typeFilter, genderFilter, sizeFilter, quantity);
+    toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+    toolbar.setAlignItems(FlexComponent.Alignment.END);
+    toolbar.addClassNames(
+        LumoUtility.Margin.Horizontal.MEDIUM,
+        LumoUtility.Margin.Top.SMALL,
+        LumoUtility.Padding.MEDIUM,
+        LumoUtility.Gap.MEDIUM);
 
-    private Component createFilter() {
-        searchField.setClearButtonVisible(true);
-        searchField.setPlaceholder("Buscar por nombre, raza, color...");
-        searchField.setPrefixComponent(LumoIcon.SEARCH.create());
-        searchField.setValueChangeMode(ValueChangeMode.EAGER);
-        searchField.addValueChangeListener(e -> refreshAll());
+    refreshAll();
 
-        typeFilter.setItems(PetType.values());
-        genderFilter.setItems(Gender.values());
-        sizeFilter.setItems(PetSize.values());
+    return toolbar;
+  }
 
-        Set.of(typeFilter, genderFilter, sizeFilter).forEach(combo -> {
-            combo.setClearButtonVisible(true);
-            combo.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
-            combo.addValueChangeListener(e -> refreshAll());
-        });
+  private Div createTitle() {
+    final Breadcrumb breadcrumb = new Breadcrumb();
 
-        HorizontalLayout toolbar = new HorizontalLayout(searchField, typeFilter, genderFilter, sizeFilter, quantity);
-        toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        toolbar.setAlignItems(FlexComponent.Alignment.END);
-        toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL,
-                LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM);
+    breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
+    breadcrumb.add(new BreadcrumbItem("Mascotas", PetView.class));
 
-        refreshAll();
+    Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar mascotas registradas en el sistema.");
 
-        return toolbar;
-    }
+    Div headerLayout = new Div(breadcrumb, icon);
+    headerLayout.addClassNames(
+        LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Margin.Top.SMALL);
 
-    private Div createTitle() {
-        final Breadcrumb breadcrumb = new Breadcrumb();
+    create.setText("Nueva Mascota");
+    create.addThemeVariants(
+        ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
+    create.addClassNames(LumoUtility.Width.AUTO);
 
-        breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(new BreadcrumbItem("Mascotas", PetView.class));
+    Div layout = new Div(headerLayout, create);
+    layout.addClassNames(
+        LumoUtility.Display.FLEX,
+        LumoUtility.FlexDirection.COLUMN,
+        LumoUtility.FlexDirection.Breakpoint.Large.ROW,
+        LumoUtility.JustifyContent.BETWEEN,
+        LumoUtility.Margin.Horizontal.MEDIUM,
+        LumoUtility.Margin.Top.SMALL,
+        LumoUtility.Gap.XSMALL,
+        LumoUtility.AlignItems.STRETCH,
+        LumoUtility.AlignItems.Breakpoint.Large.END);
 
-        Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar mascotas registradas en el sistema.");
-
-        Div headerLayout = new Div(breadcrumb, icon);
-        headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Margin.Top.SMALL);
-
-        create.setText("Nueva Mascota");
-        create.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
-        create.addClassNames(LumoUtility.Width.AUTO);
-
-        Div layout = new Div(headerLayout, create);
-        layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
-                LumoUtility.FlexDirection.Breakpoint.Large.ROW, LumoUtility.JustifyContent.BETWEEN,
-                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Gap.XSMALL,
-                LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
-
-        return layout;
-    }
+    return layout;
+  }
 }

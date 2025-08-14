@@ -1,15 +1,15 @@
 package com.wornux.dto.response;
 
 import com.wornux.data.enums.ProductCategory;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 /**
- * DTO usado para enviar información básica de un producto al frontend en operaciones de listado o consulta.
+ * DTO usado para enviar información básica de un producto al frontend en operaciones de listado o
+ * consulta.
  */
 @Data
 @Builder
@@ -17,17 +17,17 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ProductListDto {
 
-    private Long id;
+  private Long id;
 
-    private String name;
+  private String name;
 
-    private String description;
+  private String description;
 
-    private BigDecimal price;
+  private BigDecimal price;
 
-    private int stock;
+  private int stock;
 
-    private ProductCategory category;
+  private ProductCategory category;
 
-    private String supplierName;
+  private String supplierName;
 }

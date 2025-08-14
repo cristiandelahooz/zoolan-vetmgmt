@@ -1,4 +1,2 @@
-/**
- * Data Transfer Objects (DTOs) for the application.
- */
+/** Data Transfer Objects (DTOs) for the application. */
 package com.wornux.dto;
