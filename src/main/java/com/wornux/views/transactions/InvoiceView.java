@@ -3,7 +3,6 @@ package com.wornux.views.transactions;
 import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 import static com.wornux.utils.PredicateUtils.predicateForNumericField;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
@@ -38,7 +37,11 @@ import com.vaadin.flow.server.streams.DownloadResponse;
 import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.*;
+import com.wornux.components.BoardCard;
+import com.wornux.components.BoardCards;
+import com.wornux.components.Breadcrumb;
+import com.wornux.components.BreadcrumbItem;
+import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Invoice;
 import com.wornux.data.enums.InvoiceStatus;
@@ -123,7 +126,6 @@ public class InvoiceView extends Div {
     customer.setItems(
         comboBoxItemFilter(c -> c.getFirstName() + " " + c.getStreetAddress(), String::contains),
         allCustomerByDisabledIsFalse);
-
     recreateBoardCards();
   }
 

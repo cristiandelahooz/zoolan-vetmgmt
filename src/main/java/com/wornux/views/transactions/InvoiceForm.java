@@ -18,7 +18,11 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
@@ -39,10 +43,15 @@ import com.vaadin.flow.server.streams.DownloadResponse;
 import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.*;
-import com.wornux.data.entity.*;
+import com.wornux.components.ConfirmationDialog;
+import com.wornux.components.DecimalField;
+import com.wornux.components.Sidebar;
+import com.wornux.data.entity.Client;
+import com.wornux.data.entity.Invoice;
+import com.wornux.data.entity.InvoiceProduct;
+import com.wornux.data.entity.Product;
 import com.wornux.mapper.ClientMapper;
-import com.wornux.services.*;
+import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
@@ -59,7 +68,12 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -297,7 +311,9 @@ public class InvoiceForm extends Div {
     add.getStyle().set("cursor", "pointer");
     add.addClickListener(e -> createDialog(item));
 
-    if (item.getProduct() == null) return add;
+    if (item.getProduct() == null) {
+      return add;
+    }
 
     Button edit = new Button(VaadinIcon.MINUS_CIRCLE_O.create());
     edit.addClassNames(LumoUtility.Width.AUTO, LumoUtility.Margin.NONE);
@@ -725,6 +741,13 @@ public class InvoiceForm extends Div {
           }
 
           populateInvoiceLinesFromCustomer(event.getValue());
+        });
+    customer.addFocusListener(
+        event -> {
+          if (customer.getValue() == null) {
+            NotificationUtils.error(
+                "No hay clientes registrados. Debe crear al menos un cliente antes de generar una factura.");
+          }
         });
     add.addClickListener(
         event -> {
