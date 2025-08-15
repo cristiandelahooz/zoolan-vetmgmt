@@ -67,8 +67,8 @@ public class MiniCalendarRange extends CustomField<DateRange>
   @Override
   protected void setPresentationValue(DateRange dateRange) {
     if (dateRange != null) {
-      this.startDate = dateRange.getStartDate();
-      this.endDate = dateRange.getEndDate();
+      this.startDate = dateRange.startDate();
+      this.endDate = dateRange.endDate();
       applyRangeStyles();
     } else {
       this.startDate = null;
@@ -204,6 +204,7 @@ public class MiniCalendarRange extends CustomField<DateRange>
   }
 
   private static class YearMonthHolder {
+
     private final List<ValueChangeListener<? super ValueChangeEvent<YearMonth>>> listeners =
         new ArrayList<>();
     private YearMonth value;
