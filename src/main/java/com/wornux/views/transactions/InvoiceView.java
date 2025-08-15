@@ -50,6 +50,7 @@ import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.report.InvoiceReportService;
 import com.wornux.services.report.pdf.JasperReportFactory;
 import com.wornux.services.report.pdf.ReportService;
 import com.wornux.services.report.pdf.ReportServiceDatabase;
@@ -94,17 +95,20 @@ public class InvoiceView extends Div {
 
   private final transient InvoiceService service;
   private final InvoiceForm invoiceForm;
+  private final InvoiceReportService invoiceReportService;
 
   public InvoiceView(InvoiceService service,
       @Qualifier("clientServiceImpl") ClientService customerService, ProductService productService,
-      AuditService auditService, ClientMapper clientMapper, JasperReportFactory reportFactory) {
+      AuditService auditService, ClientMapper clientMapper, JasperReportFactory reportFactory,
+      InvoiceReportService invoiceReportService) {
     this.reportFactory = reportFactory;
     this.service = service;
+    this.invoiceReportService = invoiceReportService;
 
     setId("invoices-view");
 
     invoiceForm = new InvoiceForm(service, customerService, productService, auditService,
-        clientMapper, reportFactory);
+        clientMapper, reportFactory, invoiceReportService);
 
     createGrid(service, createFilterSpecification());
 
@@ -142,9 +146,7 @@ public class InvoiceView extends Div {
   }
 
   static void exportInvoiceInPdfFormat(String fileName,
-      ReportService<ReportServiceDatabase> reportService) throws IOException {
-    byte[] data = reportService.execute();
-
+      byte[] data) {
     UI.getCurrent().access(() -> {
       InputStreamDownloadHandler downloadHandler = DownloadHandler.fromInputStream(event -> {
         try {
@@ -307,9 +309,10 @@ public class InvoiceView extends Div {
     try {
       var fileName = "Invoice_" + invoice.getCode();
 
-      var reportService = reportFactory.getServiceFromDatabase();
+      // Usar el nuevo servicio con MapStruct para preparar el reporte con datos reales
+      var data = invoiceReportService.generateInvoicePdf(invoice);
 
-      exportInvoiceInPdfFormat(fileName, reportService);
+      exportInvoiceInPdfFormat(fileName, data);
 
     } catch (Exception e) {
       log.error("Error al generar el PDF de la factura: {}", invoice.getCode(), e);
