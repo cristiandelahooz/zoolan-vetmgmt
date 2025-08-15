@@ -51,16 +51,12 @@ import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.report.InvoiceReportService;
-import com.wornux.services.report.pdf.JasperReportFactory;
-import com.wornux.services.report.pdf.ReportService;
-import com.wornux.services.report.pdf.ReportServiceDatabase;
 import com.wornux.utils.GridUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
@@ -88,7 +84,6 @@ public class InvoiceView extends Div {
   private final DatePicker fromPeriod = new DatePicker("Desde");
   private final DatePicker toPeriod = new DatePicker("Hasta");
   private final Span quantity = new Span();
-  private final JasperReportFactory reportFactory;
 
   private final BoardCards boardCards = new BoardCards();
   private final Button create = new Button();
@@ -99,16 +94,15 @@ public class InvoiceView extends Div {
 
   public InvoiceView(InvoiceService service,
       @Qualifier("clientServiceImpl") ClientService customerService, ProductService productService,
-      AuditService auditService, ClientMapper clientMapper, JasperReportFactory reportFactory,
+      AuditService auditService, ClientMapper clientMapper,
       InvoiceReportService invoiceReportService) {
-    this.reportFactory = reportFactory;
     this.service = service;
     this.invoiceReportService = invoiceReportService;
 
     setId("invoices-view");
 
     invoiceForm = new InvoiceForm(service, customerService, productService, auditService,
-        clientMapper, reportFactory, invoiceReportService);
+        clientMapper, invoiceReportService);
 
     createGrid(service, createFilterSpecification());
 
