@@ -51,4 +51,7 @@ export const ROUTES = {
 
   //inventory routes
   INVENTORY: '/inventario',
+
+  //medical history routes
+  MEDICAL_HISTORY: '/historial-medico',
 } as const
