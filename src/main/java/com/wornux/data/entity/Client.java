@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 @AllArgsConstructor
 @Audited(withModifiedFlag = true)
 public class Client extends User {
+
   @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
   @Column(
       name = "cedula",
@@ -88,7 +89,7 @@ public class Client extends User {
   @Builder.Default
   private Integer paymentTermsDays = 0;
 
-  @Column(name = "notes", length = 1000)
+  @Column(name = "notes", length = 500)
   @ColumnTransformer(write = "UPPER(?)")
   @Nullable
   private String notes;
@@ -110,16 +111,23 @@ public class Client extends User {
     boolean hasRnc = rnc != null && !rnc.trim().isEmpty();
 
     int filledFields = 0;
-    if (hasCedula) filledFields++;
-    if (hasPassport) filledFields++;
-    if (hasRnc) filledFields++;
+    if (hasCedula) {
+      filledFields++;
+    }
+    if (hasPassport) {
+      filledFields++;
+    }
+    if (hasRnc) {
+      filledFields++;
+    }
 
     return filledFields == MAX_IDENTIFICATION_DOCUMENT_COUNT;
   }
 
   public String getFullName() {
-    if (firstName == null || lastName == null)
+    if (firstName == null || lastName == null) {
       return companyName != null ? companyName : "Cliente Sin Nombre";
+    }
     return String.format("%s %s", firstName, lastName);
   }
 }
