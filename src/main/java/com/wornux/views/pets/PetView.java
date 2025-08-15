@@ -191,11 +191,15 @@ public class PetView extends Div {
 
     private Component createFilter() {
         searchField.setClearButtonVisible(true);
-        searchField.setPlaceholder("Buscar por nombre, raza, color...");
+        searchField.setPlaceholder("Buscar por nombre, raza, color");
+        searchField.setWidth("350px");
         searchField.setPrefixComponent(LumoIcon.SEARCH.create());
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
         searchField.addValueChangeListener(e -> refreshAll());
 
+        typeFilter.setWidth("200px");
+        genderFilter.setWidth("200px");
+        sizeFilter.setWidth("200px");
         typeFilter.setItems(PetType.values());
         genderFilter.setItems(Gender.values());
         sizeFilter.setItems(PetSize.values());
