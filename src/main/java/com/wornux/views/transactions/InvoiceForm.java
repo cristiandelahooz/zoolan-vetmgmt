@@ -4,10 +4,8 @@ import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
 import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
 import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
 import static com.wornux.utils.CommonUtils.createIconItem;
-
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -36,11 +34,6 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.server.StreamRegistration;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.streams.DownloadHandler;
-import com.vaadin.flow.server.streams.DownloadResponse;
-import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.ConfirmationDialog;
@@ -56,15 +49,11 @@ import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.report.InvoiceReportService;
-import com.wornux.services.report.pdf.JasperReportFactory;
 import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
 import com.wornux.views.customers.ClientCreationDialog;
-import com.wornux.views.products.ProductServiceForm;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -108,11 +97,9 @@ public class InvoiceForm extends Div {
   private final Div footer = new Div();
   private final InvoiceService service;
   private final ClientService customerService;
-  private final JasperReportFactory reportFactory;
   private final InvoiceReportService invoiceReportService;
   private final RevisionView<Invoice> revisionView;
   private final ClientCreationDialog clientCreationDialog;
-  private final ProductServiceForm productServiceForm;
   private final List<Product> products;
   private Invoice element;
   @Setter
@@ -124,11 +111,9 @@ public class InvoiceForm extends Div {
       ProductService productService,
       AuditService auditService,
       ClientMapper clientMapper,
-      JasperReportFactory reportFactory,
       InvoiceReportService invoiceReportService) {
     this.service = service;
     this.customerService = customerService;
-    this.reportFactory = reportFactory;
     this.invoiceReportService = invoiceReportService;
 
     CommonUtils.commentsFormat(notes, 10000);
@@ -142,8 +127,6 @@ public class InvoiceForm extends Div {
     revisionView.configureGridRevision();
 
     clientCreationDialog = new ClientCreationDialog(customerService, clientMapper);
-    productServiceForm = new ProductServiceForm(productService);
-    productServiceForm.setConsumer(products::add);
 
     docNum.setEnabled(false);
     total.setEnabled(false);
@@ -197,7 +180,7 @@ public class InvoiceForm extends Div {
 
     sidebar.getSave().setText("Guardar y continuar");
 
-    add(sidebar, clientCreationDialog, productServiceForm);
+    add(sidebar, clientCreationDialog);
 
     invoiceProducts.add(new InvoiceProduct());
     gridProductService.getDataProvider().refreshAll();
@@ -356,9 +339,7 @@ public class InvoiceForm extends Div {
     final ComboBox<Product> fieldProduct = getProductComboBox(fieldQty, fieldPrice);
 
     final Button apply = new Button("Aplicar", VaadinIcon.CHECK_CIRCLE.create());
-    final Button add = new Button("Crear nuevo producto", VaadinIcon.PLUS_CIRCLE.create());
     apply.addClassNames(LumoUtility.Width.AUTO);
-    add.addClassNames(LumoUtility.Width.AUTO);
 
     BeanValidationBinder<InvoiceProduct> binderLine =
         new BeanValidationBinder<>(InvoiceProduct.class);
@@ -383,12 +364,6 @@ public class InvoiceForm extends Div {
         .bind(
             invoiceProduct -> Optional.ofNullable(invoiceProduct.getQuantity()).orElse(1.0),
             InvoiceProduct::setQuantity);
-
-    add.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
-    add.addClickListener(
-        event -> {
-          productServiceForm.open();
-        });
 
     apply.addThemeVariants(
         ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
@@ -430,7 +405,7 @@ public class InvoiceForm extends Div {
     dialogLayout.getStyle().set("min-width", "500px").set("height", "250px");
 
     d.setHeaderTitle("Productos y Servicios");
-    d.getFooter().add(add, apply);
+    d.getFooter().add(apply);
 
     d.setCloseOnOutsideClick(true);
     d.setDraggable(true);
@@ -746,13 +721,6 @@ public class InvoiceForm extends Div {
           }
 
           populateInvoiceLinesFromCustomer(event.getValue());
-        });
-    customer.addFocusListener(
-        event -> {
-          if (customer.getValue() == null) {
-            NotificationUtils.error(
-                "No hay clientes registrados. Debe crear al menos un cliente antes de generar una factura.");
-          }
         });
     add.addClickListener(
         event -> {
