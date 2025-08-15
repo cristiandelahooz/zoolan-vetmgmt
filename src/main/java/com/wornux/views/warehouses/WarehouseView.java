@@ -31,10 +31,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public class WarehouseView extends VerticalLayout {
 
     private final WarehouseGrid warehouseGrid;
-    private final Button newButton = new Button("Nuevo", new Icon(VaadinIcon.PLUS_CIRCLE));
-    private final Button deleteButton = new Button("Eliminar", new Icon(VaadinIcon.TRASH));
     private final Button saveButton = new Button("Guardar", new Icon(VaadinIcon.CHECK_CIRCLE));
-    private final Button toggleGridButton = new Button("Mostrar Grid", new Icon(VaadinIcon.EYE));
+    private final Button cancelButton = new Button("Cancelar", new Icon(VaadinIcon.CLOSE_CIRCLE));
+    private final Button deleteButton = new Button("Eliminar", new Icon(VaadinIcon.TRASH));
+    private final Button toggleGridButton = new Button("Ocultar Grid", new Icon(VaadinIcon.EYE));
     private final TextField searchField = new TextField("Buscar Almacén");
     private final ComboBox<String> statusFilter = new ComboBox<>("Estado");
 
@@ -56,12 +56,9 @@ public class WarehouseView extends VerticalLayout {
         this.warehouseService = warehouseService;
         var warehouses = warehouseService.getAllWarehouses();
         warehouseDataProvider = new ListDataProvider<>(warehouses);
-        this.warehouseGrid = new WarehouseGrid(warehouseDataProvider, warehouse -> {
-            selectedWarehouse = warehouse;
-            populateForm(warehouse);
-            isEditMode = true;
-            deleteButton.setEnabled(true);
-        });
+        this.warehouseGrid = new WarehouseGrid(warehouseDataProvider,
+                this::editWarehouse,
+                this::deleteWarehouse);
 
         gridFilters = createGridFilters();
         contentLayout = new VerticalLayout();
@@ -77,12 +74,11 @@ public class WarehouseView extends VerticalLayout {
         setSpacing(true);
 
         warehouseGrid.setWidthFull();
-        warehouseGrid.setHeight("450px");
-        deleteButton.setEnabled(false);
+        warehouseGrid.setHeight("480px");
+        warehouseGrid.addClassNames(LumoUtility.Margin.Bottom.SMALL);
 
-        // Start with grid and filters hidden
-        warehouseGrid.setVisible(false);
-        gridFilters.setVisible(false);
+        warehouseGrid.setVisible(true);
+        gridFilters.setVisible(true);
 
         contentLayout.setPadding(false);
         contentLayout.setSpacing(false);
@@ -92,6 +88,13 @@ public class WarehouseView extends VerticalLayout {
 
         removeAll();
         add(contentLayout);
+        addClassNames(
+                LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.Display.FLEX,
+                LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.Height.FULL,
+                LumoUtility.Overflow.HIDDEN
+        );
     }
 
     private void setupComponents() {
@@ -106,6 +109,8 @@ public class WarehouseView extends VerticalLayout {
                 searchField.focus();
             }
         });
+
+        cancelButton.setEnabled(false);
 
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -136,16 +141,32 @@ public class WarehouseView extends VerticalLayout {
     }
 
     private void setupEventListeners() {
-        newButton.addClickListener(e -> {
+        cancelButton.addClickListener(e -> {
             clearForm();
             isEditMode = false;
             selectedWarehouse = null;
-            deleteButton.setEnabled(false);
+            updateCancelButtonState();
         });
 
         saveButton.addClickListener(e -> saveOrUpdateWarehouse());
 
-        deleteButton.addClickListener(e -> deleteWarehouse());
+        name.addValueChangeListener(e -> validateForm());
+        warehouseType.addValueChangeListener(e -> validateForm());
+        availableForSale.addValueChangeListener(e -> validateForm());
+        status.addValueChangeListener(e -> validateForm());
+
+        name.addValueChangeListener(e -> updateCancelButtonState());
+        warehouseType.addValueChangeListener(e -> updateCancelButtonState());
+        availableForSale.addValueChangeListener(e -> updateCancelButtonState());
+        status.addValueChangeListener(e -> updateCancelButtonState());
+    }
+
+    private void updateCancelButtonState() {
+        boolean hasContent = !name.isEmpty() ||
+                !warehouseType.isEmpty() ||
+                !availableForSale.isEmpty() ||
+                !status.isEmpty();
+        cancelButton.setEnabled(hasContent);
     }
 
     private HorizontalLayout createGridFilters() {
@@ -177,7 +198,7 @@ public class WarehouseView extends VerticalLayout {
     }
 
     private HorizontalLayout createFooterBar() {
-        HorizontalLayout buttonLayout = new HorizontalLayout(saveButton, newButton, deleteButton);
+        HorizontalLayout buttonLayout = new HorizontalLayout(saveButton, cancelButton);
         buttonLayout.addClassNames(LumoUtility.FlexWrap.WRAP, LumoUtility.Padding.MEDIUM);
         buttonLayout.setJustifyContentMode(HorizontalLayout.JustifyContentMode.END);
         buttonLayout.setWidthFull();
@@ -242,17 +263,20 @@ public class WarehouseView extends VerticalLayout {
         }
     }
 
-    private void deleteWarehouse() {
+    private void editWarehouse(Warehouse warehouse) {
+        selectedWarehouse = warehouse;
+        populateForm(warehouse);
+        isEditMode = true;
+    }
+
+    private void deleteWarehouse(Warehouse warehouse) {
         try {
-            if (selectedWarehouse != null) {
-                warehouseService.deleteWarehouse(selectedWarehouse.getId());
-                NotificationUtils.success("Almacén eliminado exitosamente");
-                clearForm();
-                selectedWarehouse = null;
-                isEditMode = false;
-                deleteButton.setEnabled(false);
-                refreshAll();
-            }
+            warehouseService.deleteWarehouse(warehouse.getId());
+            NotificationUtils.success("Almacén eliminado exitosamente");
+            clearForm();
+            selectedWarehouse = null;
+            isEditMode = false;
+            refreshAll();
         } catch (Exception ex) {
             log.error(ex.getLocalizedMessage());
             NotificationUtils.error("Error al eliminar el almacén: " + ex.getMessage());
@@ -264,6 +288,8 @@ public class WarehouseView extends VerticalLayout {
         warehouseType.setValue(warehouse.getWarehouseType());
         availableForSale.setValue(warehouse.isAvailableForSale());
         status.setValue(warehouse.isStatus());
+
+        updateCancelButtonState();
     }
 
     private void clearForm() {
@@ -276,30 +302,36 @@ public class WarehouseView extends VerticalLayout {
         warehouseType.setInvalid(false);
         availableForSale.setInvalid(false);
         status.setInvalid(false);
+
+        updateCancelButtonState();
     }
 
     private boolean validateForm() {
         boolean isValid = true;
         if (name.isEmpty()) {
             name.setInvalid(true);
+            name.setErrorMessage("El nombre del almacén es obligatorio");
             isValid = false;
         } else {
             name.setInvalid(false);
         }
         if (warehouseType.isEmpty()) {
             warehouseType.setInvalid(true);
+            warehouseType.setErrorMessage("El tipo de almacén es obligatorio");
             isValid = false;
         } else {
             warehouseType.setInvalid(false);
         }
         if (availableForSale.isEmpty()) {
             availableForSale.setInvalid(true);
+            availableForSale.setErrorMessage("El campo 'Disponible para Venta' es obligatorio");
             isValid = false;
         } else {
             availableForSale.setInvalid(false);
         }
         if (status.isEmpty()) {
             status.setInvalid(true);
+            status.setErrorMessage("El estado del almacén es obligatorio");
             isValid = false;
         } else {
             status.setInvalid(false);
