@@ -43,14 +43,12 @@ public class WarehouseView extends VerticalLayout {
   private final ComboBox<WarehouseType> warehouseType = new ComboBox<>("Tipo de Almacén");
   private final ComboBox<Boolean> availableForSale = new ComboBox<>("Disponible para Venta");
   private final ComboBox<Boolean> status = new ComboBox<>("Estado");
-
-  private transient Warehouse selectedWarehouse;
   private final transient WarehouseService warehouseService;
-  private boolean isEditMode = false;
-  private ListDataProvider<Warehouse> warehouseDataProvider;
-
+  private final ListDataProvider<Warehouse> warehouseDataProvider;
   private final HorizontalLayout gridFilters;
   private final VerticalLayout contentLayout;
+  private transient Warehouse selectedWarehouse;
+  private boolean isEditMode = false;
 
   public WarehouseView(@Qualifier("warehouseServiceImpl") WarehouseService warehouseService) {
     this.warehouseService = warehouseService;
@@ -332,7 +330,7 @@ public class WarehouseView extends VerticalLayout {
               search.isEmpty()
                   || warehouse.getName().toLowerCase().contains(search)
                   || (warehouse.getWarehouseType() != null
-                      && warehouse.getWarehouseType().name().toLowerCase().contains(search));
+                  && warehouse.getWarehouseType().name().toLowerCase().contains(search));
           boolean matchesStatus =
               "Todos".equals(status)
                   || ("Activo".equals(status) && warehouse.isStatus())
