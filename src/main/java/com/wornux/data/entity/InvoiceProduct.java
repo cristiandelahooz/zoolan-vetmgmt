@@ -26,19 +26,26 @@ public class InvoiceProduct extends Auditable implements Serializable {
   private Invoice invoice;
 
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
-  @JoinColumn(name = "product_id", referencedColumnName = "product_id", nullable = false)
+  @JoinColumn(name = "product", referencedColumnName = "product_id", nullable = false)
   private Product product;
 
-  @NotNull private Double quantity;
+  @NotNull
+  private Double quantity;
 
-  @NotNull private BigDecimal price;
+  @NotNull
+  private BigDecimal price;
 
-  @NotNull private BigDecimal amount;
+  @NotNull
+  private BigDecimal amount;
 
   @Override
   public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null) {
+      return false;
+    }
     Class<?> oEffectiveClass =
         o instanceof HibernateProxy
             ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
@@ -47,7 +54,9 @@ public class InvoiceProduct extends Auditable implements Serializable {
         this instanceof HibernateProxy
             ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
             : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
+    if (thisEffectiveClass != oEffectiveClass) {
+      return false;
+    }
     InvoiceProduct that = (InvoiceProduct) o;
     return getProduct() != null && Objects.equals(getProduct(), that.getProduct());
   }
