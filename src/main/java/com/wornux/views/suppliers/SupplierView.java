@@ -108,8 +108,10 @@ public class SupplierView extends Div {
     private Component createFilter() {
         searchField.setClearButtonVisible(true);
         searchField.setPlaceholder("Buscar por empresa, contacto o email...");
+        searchField.setWidth("400px");
         searchField.setPrefixComponent(LumoIcon.SEARCH.create());
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
+
         searchField.addValueChangeListener(e -> refreshAll());
 
         quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM, LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL, LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL, LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY);
