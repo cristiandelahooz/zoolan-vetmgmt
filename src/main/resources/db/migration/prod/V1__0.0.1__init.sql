@@ -252,7 +252,7 @@ CREATE TABLE invoices
     tax                 DECIMAL                                 NOT NULL,
     total               DECIMAL                                 NOT NULL,
     paid_to_date        DECIMAL                                 NOT NULL,
-    notes               VARCHAR(10000),
+    notes               VARCHAR(500),
     CONSTRAINT pk_invoices PRIMARY KEY (code)
 );
 
@@ -285,7 +285,7 @@ CREATE TABLE invoices_log
     total_mod               BOOLEAN,
     paid_to_date            DECIMAL,
     paid_to_date_mod        BOOLEAN,
-    notes                   VARCHAR(255),
+    notes                   VARCHAR(500),
     notes_mod               BOOLEAN,
     CONSTRAINT pk_invoices_log PRIMARY KEY (rev, code)
 );
@@ -347,7 +347,7 @@ CREATE TABLE payments
     method             VARCHAR(255)                            NOT NULL,
     status             VARCHAR(255)                            NOT NULL,
     reference_number   VARCHAR(250),
-    notes              VARCHAR(10000),
+    notes              VARCHAR(500),
     CONSTRAINT pk_payments PRIMARY KEY (code)
 );
 
@@ -367,7 +367,7 @@ CREATE TABLE payments_log
     status_mod           BOOLEAN,
     reference_number     VARCHAR(255),
     reference_number_mod BOOLEAN,
-    notes                VARCHAR(255),
+    notes                VARCHAR(500),
     notes_mod            BOOLEAN,
     CONSTRAINT pk_payments_log PRIMARY KEY (rev, code)
 );
