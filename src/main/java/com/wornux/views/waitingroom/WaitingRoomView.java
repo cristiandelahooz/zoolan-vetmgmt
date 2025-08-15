@@ -89,6 +89,7 @@ public class WaitingRoomView extends VerticalLayout {
 
         searchField.setClearButtonVisible(true);
         searchField.setPlaceholder("Buscar por cliente o mascota...");
+        searchField.setWidth("350px");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
         searchField.addValueChangeListener(e -> refreshGrid());
