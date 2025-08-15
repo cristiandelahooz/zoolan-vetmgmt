@@ -57,7 +57,7 @@ public class Payment extends Auditable implements Serializable {
   @Size(max = 250)
   private String referenceNumber;
 
-  @Size(max = 10000)
+  @Size(max = 500)
   private String notes;
 
   public void addPaymentDetail(PaymentDetail detail) {
