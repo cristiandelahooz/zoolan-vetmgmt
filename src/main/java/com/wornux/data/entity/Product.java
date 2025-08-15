@@ -18,7 +18,6 @@ import org.hibernate.envers.Audited;
 @NoArgsConstructor
 @AllArgsConstructor
 @Audited(withModifiedFlag = true)
-@EqualsAndHashCode(exclude = "supplier")
 @ToString(exclude = "supplier")
 public class Product {
 
