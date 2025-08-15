@@ -1,25 +1,31 @@
 package com.wornux.services.report.pdf;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import lombok.Builder;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 @Slf4j
 @Builder
 public class ReportServiceDatabase implements ReportService<ReportServiceDatabase> {
 
   private final Map<String, Object> parameters = new HashMap<>();
-  @Setter private String jasperResource;
+  private ResourceLoader resourceLoader;
   private DataSource dataSource;
   private String version;
 
@@ -41,14 +47,8 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     return this;
   }
 
-  public ReportServiceDatabase version(String version) {
-    this.version = version;
-    return this;
-  }
-
   @Override
-  public InputStream execute() throws ReportErrorException {
-    validateJasperResource();
+  public byte[] execute() throws ReportErrorException {
     try (Connection connection = establishDatabaseConnection()) {
       JasperReport jasperReport = loadJasperReport();
       return generatePdfReport(jasperReport, connection);
@@ -58,13 +58,6 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
       handleUnexpectedError(ex);
       throw new ReportErrorException("Failed to generate report: " + ex.getMessage(), ex);
     }
-  }
-
-  private void validateJasperResource() {
-    if (jasperResource == null || jasperResource.trim().isEmpty()) {
-      throw new ReportErrorException("Jasper resource path cannot be null or empty");
-    }
-    log.info("Processing jasper resource: {}", jasperResource);
   }
 
   private Connection establishDatabaseConnection() throws Exception {
@@ -78,39 +71,59 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
       JasperReport jasperReport = loadAndValidateJasperReport(resourceStream);
       log.info("Jasper report loaded successfully: {}", jasperReport.getName());
       return jasperReport;
+    } catch (IOException ex) {
+      throw new ReportErrorException("Error loading resource: " + ex.getMessage(), ex);
     }
   }
 
-  private InputStream loadResourceStream() {
-    InputStream resourceStream = ReportServiceDatabase.class.getResourceAsStream(jasperResource);
-    if (resourceStream == null) {
-      throw new ReportErrorException("Jasper resource not found: " + jasperResource);
-    }
-    return resourceStream;
+  private InputStream loadResourceStream() throws IOException {
+    Resource resource = resourceLoader.getResource("classpath:./report/Invoice.jrxml");
+    return resource.getInputStream();
   }
 
   private JasperReport loadAndValidateJasperReport(InputStream resourceStream)
       throws ReportErrorException, JRException {
-    Object loadedObject = JRLoader.loadObject(resourceStream);
-    if (!(loadedObject instanceof JasperReport jasperReport)) {
-      String actualType = loadedObject != null ? loadedObject.getClass().getSimpleName() : "null";
-      throw new ReportErrorException(
-          "Invalid jasper file format. Expected JasperReport but got: " + actualType);
-    }
-    return jasperReport;
+    return JasperCompileManager.compileReport(resourceStream);
   }
 
-  private InputStream generatePdfReport(JasperReport jasperReport, Connection connection)
+  private byte[] generatePdfReport(JasperReport jasperReport, Connection connection)
       throws Exception {
     JasperPrint jasperPrint = fillReportWithData(jasperReport, connection);
     byte[] pdfBytes = exportReportToPdf(jasperPrint);
     validateGeneratedPdf(pdfBytes);
-    return new ByteArrayInputStream(pdfBytes);
+    return pdfBytes;
   }
 
   private JasperPrint fillReportWithData(JasperReport jasperReport, Connection connection)
       throws Exception {
-    JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, connection);
+    //TODO: Remover prueba de data
+    parameters.put("orderId", "1");
+    parameters.put("orderDate", "20/10/2025");
+
+    // User information
+    parameters.put("userEmail", "cristiandelahooz@gmail.com");
+
+    // Prepare book data for the report
+    List<Map<String, Object>> bookData = List.of(
+        new HashMap<>() {{
+          put("title", "title");
+          put("author", "author");
+          put("price", 15.3);
+          put("quantity", 1); // Quantity is always 1
+          put("totalPrice", 20.0); // Price * Quantity
+        }}
+    );
+    // Create a JRBeanCollectionDataSource from the list
+    JRBeanCollectionDataSource bookDataSource = new JRBeanCollectionDataSource(bookData);
+
+    // Pass the books datasource as a parameter
+    parameters.put("bookDataSource", bookDataSource);
+
+    // Total Invoice (sum of all book prices)
+    double totalInvoice = 202.0;
+    parameters.put("totalInvoice", String.format("%.2f", totalInvoice));
+    JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters,
+        bookDataSource);
     log.info("Report filled successfully with {} parameters", parameters.size());
     return jasperPrint;
   }

@@ -113,7 +113,8 @@ public class InvoiceForm extends Div {
   private final ProductServiceForm productServiceForm;
   private final List<Product> products;
   private Invoice element;
-  @Setter private Runnable callable;
+  @Setter
+  private Runnable callable;
 
   public InvoiceForm(
       InvoiceService service,
@@ -816,39 +817,9 @@ public class InvoiceForm extends Div {
 
     try {
       var fileName = "Invoice_" + element.getCode();
-      var reportService = reportFactory.getServiceFromDatabase("/report/Invoice.jasper");
+      var reportService = reportFactory.getServiceFromDatabase();
 
-      // Add invoice ID as parameter for the report
-      reportService.put("INVOICE_ID", element.getCode());
-
-      try (InputStream inputStream = reportService.execute()) {
-        byte[] data = inputStream.readAllBytes();
-        UI.getCurrent()
-            .access(
-                () -> {
-                  InputStreamDownloadHandler downloadHandler =
-                      DownloadHandler.fromInputStream(
-                          (event) -> {
-                            try {
-                              return new DownloadResponse(
-                                  new ByteArrayInputStream(data),
-                                  "%s.pdf".formatted(fileName),
-                                  "application/pdf",
-                                  data.length);
-                            } catch (Exception e) {
-                              return DownloadResponse.error(500);
-                            }
-                          });
-
-                  final StreamRegistration registration =
-                      VaadinSession.getCurrent()
-                          .getResourceRegistry()
-                          .registerResource(downloadHandler);
-                  UI.getCurrent()
-                      .getPage()
-                      .open(registration.getResourceUri().toString(), "_blank");
-                });
-      }
+      InvoiceView.exportInvoiceInPdfFormat(fileName, reportService);
 
       NotificationUtils.success("PDF generado exitosamente.");
 

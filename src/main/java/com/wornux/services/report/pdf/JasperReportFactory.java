@@ -3,6 +3,7 @@ package com.wornux.services.report.pdf;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,14 +11,15 @@ import org.springframework.stereotype.Service;
 public class JasperReportFactory {
 
   private final DataSource dataSource;
+  private final ResourceLoader resourceLoader;
 
   @Value("${application.version:unknown}")
   private String version;
 
-  public ReportService<ReportServiceDatabase> getServiceFromDatabase(String resourcePath) {
+  public ReportService<ReportServiceDatabase> getServiceFromDatabase() {
     return ReportServiceDatabase.builder()
         .dataSource(dataSource)
-        .jasperResource(resourcePath)
+        .resourceLoader(resourceLoader)
         .version(version)
         .build();
   }
