@@ -24,9 +24,9 @@ import org.hibernate.proxy.HibernateProxy;
 @Table(
     name = "invoices",
     indexes = {
-      @Index(columnList = "issuedDate"),
-      @Index(columnList = "paymentDate"),
-      @Index(columnList = "status")
+        @Index(columnList = "issuedDate"),
+        @Index(columnList = "paymentDate"),
+        @Index(columnList = "status")
     })
 public class Invoice extends Auditable implements Serializable {
 
@@ -56,9 +56,11 @@ public class Invoice extends Auditable implements Serializable {
       mappedBy = "invoice")
   private Set<PaymentDetail> paymentDetails = new HashSet<>();
 
-  @NotNull private LocalDate issuedDate;
+  @NotNull
+  private LocalDate issuedDate;
 
-  @NotNull private LocalDate paymentDate;
+  @NotNull
+  private LocalDate paymentDate;
 
   @Size(max = 100)
   private String salesOrder;
@@ -67,19 +69,23 @@ public class Invoice extends Auditable implements Serializable {
   @Enumerated(EnumType.STRING)
   private InvoiceStatus status = InvoiceStatus.DRAFT;
 
-  @NotNull private BigDecimal subtotal;
+  @NotNull
+  private BigDecimal subtotal;
 
   private BigDecimal discountPercentage;
 
   private BigDecimal discount;
 
-  @NotNull private BigDecimal tax;
+  @NotNull
+  private BigDecimal tax;
 
-  @NotNull private BigDecimal total;
+  @NotNull
+  private BigDecimal total;
 
-  @NotNull private BigDecimal paidToDate = BigDecimal.ZERO;
+  @NotNull
+  private BigDecimal paidToDate = BigDecimal.ZERO;
 
-  @Size(max = 10000)
+  @Size(max = 500)
   private String notes;
 
   public void markAsPaid(BigDecimal paymentAmount, LocalDate paymentDate) {
@@ -120,8 +126,12 @@ public class Invoice extends Auditable implements Serializable {
 
   @Override
   public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null) {
+      return false;
+    }
     Class<?> oEffectiveClass =
         o instanceof HibernateProxy
             ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
@@ -130,7 +140,9 @@ public class Invoice extends Auditable implements Serializable {
         this instanceof HibernateProxy
             ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
             : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
+    if (thisEffectiveClass != oEffectiveClass) {
+      return false;
+    }
     Invoice that = (Invoice) o;
     return getCode() != null && Objects.equals(getCode(), that.getCode());
   }
