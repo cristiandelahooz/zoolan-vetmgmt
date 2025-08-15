@@ -1,6 +1,6 @@
-import { ROUTES } from '@/lib/constants/routes'
+import {ROUTES} from '@/lib/constants/routes'
 import petsIcon from '@/public/icons/pets.svg'
-import type { IconProps } from '@vaadin/react-components'
+import type {IconProps} from '@vaadin/react-components'
 
 export interface MenuItemConfig {
   path: string | undefined
@@ -51,7 +51,7 @@ export const menuConfig: MenuItemConfig[] = [
       {
         path: '/invoices',
         title: 'Facturas',
-        icon: 'lumo:align-left',
+        icon: 'vaadin:file-text',
       },
     ],
   },
