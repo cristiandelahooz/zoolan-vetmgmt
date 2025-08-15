@@ -3,10 +3,12 @@ package com.wornux.services.report.pdf;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -15,20 +17,39 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+/**
+ * Servicio para generar reportes PDF usando JasperReports. Implementa el patrón Builder para
+ * configuración fluida.
+ */
 @Slf4j
 @Builder
 public class ReportServiceDatabase implements ReportService<ReportServiceDatabase> {
+
+  private static final String REPORT_PATH = "classpath:./report/Invoice.jrxml";
 
   private final Map<String, Object> parameters = new HashMap<>();
   private ResourceLoader resourceLoader;
   private String version;
 
+  @Setter
+  private List<Map<String, Object>> productsData; // Cambio: bookData → productsData
+
   @Override
   public ReportServiceDatabase put(String key, Object value) {
     parameters.put(key, value);
+    return this;
+  }
+
+  /**
+   * Configura los datos de productos para el reporte.
+   *
+   * @param productsData Lista de Maps con los datos de cada producto
+   * @return this para encadenamiento fluido
+   */
+  public ReportServiceDatabase withProductsData(List<Map<String, Object>> productsData) {
+    this.productsData = productsData;
     return this;
   }
 
@@ -40,70 +61,54 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     } catch (ReportErrorException ex) {
       throw ex;
     } catch (Exception ex) {
-      handleUnexpectedError(ex);
+      log.error("Error generating report: {}", ex.getMessage(), ex);
       throw new ReportErrorException("Failed to generate report: " + ex.getMessage(), ex);
     }
   }
 
-  private JasperReport loadJasperReport() throws Exception {
+  private JasperReport loadJasperReport() throws ReportErrorException {
     try (InputStream resourceStream = loadResourceStream()) {
-      JasperReport jasperReport = loadAndValidateJasperReport(resourceStream);
+      JasperReport jasperReport = JasperCompileManager.compileReport(resourceStream);
       log.info("Jasper report loaded successfully: {}", jasperReport.getName());
       return jasperReport;
     } catch (IOException ex) {
       throw new ReportErrorException("Error loading resource: " + ex.getMessage(), ex);
+    } catch (JRException ex) {
+      throw new ReportErrorException("Error compiling report: " + ex.getMessage(), ex);
     }
   }
 
   private InputStream loadResourceStream() throws IOException {
-    Resource resource = resourceLoader.getResource("classpath:./report/Invoice.jrxml");
-    return resource.getInputStream();
+    return resourceLoader.getResource(REPORT_PATH).getInputStream();
   }
 
-  private JasperReport loadAndValidateJasperReport(InputStream resourceStream)
-      throws ReportErrorException, JRException {
-    return JasperCompileManager.compileReport(resourceStream);
+  private byte[] generatePdfReport(JasperReport jasperReport) throws ReportErrorException {
+    try {
+      JasperPrint jasperPrint = fillReportWithData(jasperReport);
+      byte[] pdfBytes = exportReportToPdf(jasperPrint);
+      validateGeneratedPdf(pdfBytes);
+      return pdfBytes;
+    } catch (Exception ex) {
+      throw new ReportErrorException("Error generating PDF: " + ex.getMessage(), ex);
+    }
   }
 
-  private byte[] generatePdfReport(JasperReport jasperReport)
-      throws Exception {
-    JasperPrint jasperPrint = fillReportWithData(jasperReport);
-    byte[] pdfBytes = exportReportToPdf(jasperPrint);
-    validateGeneratedPdf(pdfBytes);
-    return pdfBytes;
-  }
+  private JasperPrint fillReportWithData(JasperReport jasperReport) throws JRException {
+    if (productsData != null) {
+      log.info("Filling report with {} products", productsData.size());
+    } else {
+      log.warn("No product data provided, filling report with empty dataset");
+    }
+    JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(
+        productsData != null ? productsData : new ArrayList<>());
 
-  private JasperPrint fillReportWithData(JasperReport jasperReport)
-      throws Exception {
-    //TODO: Remover prueba de data
-    parameters.put("orderId", "1");
-    parameters.put("orderDate", "20/10/2025");
+    parameters.put("productsDataSource", dataSource);
 
-    // User information
-    parameters.put("userEmail", "cristiandelahooz@gmail.com");
+    JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
 
-    // Prepare book data for the report
-    List<Map<String, Object>> bookData = List.of(
-        new HashMap<>() {{
-          put("title", "title");
-          put("author", "author");
-          put("price", 15.3);
-          put("quantity", 1); // Quantity is always 1
-          put("totalPrice", 20.0); // Price * Quantity
-        }}
-    );
-    // Create a JRBeanCollectionDataSource from the list
-    JRBeanCollectionDataSource bookDataSource = new JRBeanCollectionDataSource(bookData);
+    log.info("Report filled successfully with {} parameters and {} products", parameters.size(),
+        productsData != null ? productsData.size() : 0);
 
-    // Pass the books datasource as a parameter
-    parameters.put("bookDataSource", bookDataSource);
-
-    // Total Invoice (sum of all book prices)
-    double totalInvoice = 202.0;
-    parameters.put("totalInvoice", String.format("%.2f", totalInvoice));
-    JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters,
-        bookDataSource);
-    log.info("Report filled successfully with {} parameters", parameters.size());
     return jasperPrint;
   }
 
@@ -114,14 +119,10 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     }
   }
 
-  private void validateGeneratedPdf(byte[] pdfBytes) {
+  private void validateGeneratedPdf(byte[] pdfBytes) throws ReportErrorException {
     if (pdfBytes.length == 0) {
       throw new ReportErrorException("Generated PDF is empty");
     }
     log.info("PDF generated successfully, size: {} bytes", pdfBytes.length);
-  }
-
-  private void handleUnexpectedError(Exception ex) {
-    log.error("Error generating report: {}", ex.getMessage(), ex);
   }
 }
