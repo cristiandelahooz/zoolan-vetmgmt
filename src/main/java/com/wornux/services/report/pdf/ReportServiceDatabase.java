@@ -3,11 +3,9 @@ package com.wornux.services.report.pdf;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.sql.DataSource;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
@@ -26,7 +24,6 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
 
   private final Map<String, Object> parameters = new HashMap<>();
   private ResourceLoader resourceLoader;
-  private DataSource dataSource;
   private String version;
 
   @Override
@@ -35,35 +32,17 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     return this;
   }
 
-  public ReportServiceDatabase putAll(Map<String, Object> values) {
-    if (values != null) {
-      parameters.putAll(values);
-    }
-    return this;
-  }
-
-  public ReportServiceDatabase clearAll() {
-    parameters.clear();
-    return this;
-  }
-
   @Override
   public byte[] execute() throws ReportErrorException {
-    try (Connection connection = establishDatabaseConnection()) {
+    try {
       JasperReport jasperReport = loadJasperReport();
-      return generatePdfReport(jasperReport, connection);
+      return generatePdfReport(jasperReport);
     } catch (ReportErrorException ex) {
       throw ex;
     } catch (Exception ex) {
       handleUnexpectedError(ex);
       throw new ReportErrorException("Failed to generate report: " + ex.getMessage(), ex);
     }
-  }
-
-  private Connection establishDatabaseConnection() throws Exception {
-    Connection connection = dataSource.getConnection();
-    log.info("Database connection established successfully");
-    return connection;
   }
 
   private JasperReport loadJasperReport() throws Exception {
@@ -86,15 +65,15 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     return JasperCompileManager.compileReport(resourceStream);
   }
 
-  private byte[] generatePdfReport(JasperReport jasperReport, Connection connection)
+  private byte[] generatePdfReport(JasperReport jasperReport)
       throws Exception {
-    JasperPrint jasperPrint = fillReportWithData(jasperReport, connection);
+    JasperPrint jasperPrint = fillReportWithData(jasperReport);
     byte[] pdfBytes = exportReportToPdf(jasperPrint);
     validateGeneratedPdf(pdfBytes);
     return pdfBytes;
   }
 
-  private JasperPrint fillReportWithData(JasperReport jasperReport, Connection connection)
+  private JasperPrint fillReportWithData(JasperReport jasperReport)
       throws Exception {
     //TODO: Remover prueba de data
     parameters.put("orderId", "1");
