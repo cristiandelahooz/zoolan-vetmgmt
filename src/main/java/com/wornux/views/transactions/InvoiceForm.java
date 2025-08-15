@@ -116,7 +116,7 @@ public class InvoiceForm extends Div {
     this.customerService = customerService;
     this.invoiceReportService = invoiceReportService;
 
-    CommonUtils.commentsFormat(notes, 10000);
+    CommonUtils.commentsFormat(notes, 500);
 
     notes.setMinRows(4);
     notes.setMaxRows(4);
