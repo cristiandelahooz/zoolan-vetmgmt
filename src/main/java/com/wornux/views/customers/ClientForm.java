@@ -49,15 +49,17 @@ public class ClientForm extends Div {
   private final ClientService service;
   private final Binder<Client> binder = new BeanValidationBinder<>(Client.class);
   private Client element;
-  @Setter private Runnable callable;
+  @Setter
+  private Runnable callable;
 
-  @Setter private Consumer<Client> consumer;
+  @Setter
+  private Consumer<Client> consumer;
 
   public ClientForm(ClientService service) {
     this.service = service;
 
     CommonUtils.commentsFormat(address, 250);
-    CommonUtils.commentsFormat(notes, 10000);
+    CommonUtils.commentsFormat(notes, 500);
 
     Arrays.asList(address, notes)
         .forEach(
