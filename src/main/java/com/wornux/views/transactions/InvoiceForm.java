@@ -55,6 +55,7 @@ import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.report.InvoiceReportService;
 import com.wornux.services.report.pdf.JasperReportFactory;
 import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
@@ -108,6 +109,7 @@ public class InvoiceForm extends Div {
   private final InvoiceService service;
   private final ClientService customerService;
   private final JasperReportFactory reportFactory;
+  private final InvoiceReportService invoiceReportService;
   private final RevisionView<Invoice> revisionView;
   private final ClientCreationDialog clientCreationDialog;
   private final ProductServiceForm productServiceForm;
@@ -122,10 +124,12 @@ public class InvoiceForm extends Div {
       ProductService productService,
       AuditService auditService,
       ClientMapper clientMapper,
-      JasperReportFactory reportFactory) {
+      JasperReportFactory reportFactory,
+      InvoiceReportService invoiceReportService) {
     this.service = service;
     this.customerService = customerService;
     this.reportFactory = reportFactory;
+    this.invoiceReportService = invoiceReportService;
 
     CommonUtils.commentsFormat(notes, 10000);
 
@@ -817,9 +821,10 @@ public class InvoiceForm extends Div {
 
     try {
       var fileName = "Invoice_" + element.getCode();
-      var reportService = reportFactory.getServiceFromDatabase();
 
-      InvoiceView.exportInvoiceInPdfFormat(fileName, reportService);
+      var data = invoiceReportService.generateInvoicePdf(element);
+
+      InvoiceView.exportInvoiceInPdfFormat(fileName, data);
 
       NotificationUtils.success("PDF generado exitosamente.");
 
