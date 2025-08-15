@@ -29,7 +29,7 @@ CREATE TABLE appointments
     CONSTRAINT pk_appointments PRIMARY KEY (id)
 );
 
-CREATE TABLE appointments_aud
+CREATE TABLE appointments_log
 (
     rev                        INTEGER NOT NULL,
     revtype                    SMALLINT,
@@ -64,7 +64,7 @@ CREATE TABLE appointments_aud
     guest_client_name          VARCHAR(255),
     guest_client_phone         VARCHAR(255),
     guest_client_email         VARCHAR(255),
-    CONSTRAINT pk_appointments_aud PRIMARY KEY (rev, id)
+    CONSTRAINT pk_appointments_log PRIMARY KEY (rev, id)
 );
 
 CREATE TABLE client
@@ -87,7 +87,7 @@ CREATE TABLE client
     CONSTRAINT pk_client PRIMARY KEY (client_id)
 );
 
-CREATE TABLE client_aud
+CREATE TABLE client_log
 (
     rev                          INTEGER NOT NULL,
     client_id                    BIGINT  NOT NULL,
@@ -138,7 +138,7 @@ CREATE TABLE consultations
     CONSTRAINT pk_consultations PRIMARY KEY (id)
 );
 
-CREATE TABLE consultations_aud
+CREATE TABLE consultations_log
 (
     rev                    INTEGER NOT NULL,
     revtype                SMALLINT,
@@ -165,7 +165,7 @@ CREATE TABLE consultations_aud
     updated_at_mod         BOOLEAN,
     active                 BOOLEAN,
     active_mod             BOOLEAN,
-    CONSTRAINT pk_consultations_aud PRIMARY KEY (rev, id)
+    CONSTRAINT pk_consultations_log PRIMARY KEY (rev, id)
 );
 
 CREATE TABLE employee
@@ -181,7 +181,7 @@ CREATE TABLE employee
     CONSTRAINT pk_employee PRIMARY KEY (employee_id)
 );
 
-CREATE TABLE employee_aud
+CREATE TABLE employee_log
 (
     rev                         INTEGER NOT NULL,
     employee_id                 BIGINT  NOT NULL,
@@ -209,29 +209,29 @@ CREATE TABLE invoice_product
     last_modified_by   VARCHAR(255)                            NOT NULL,
     last_modified_date TIMESTAMP WITHOUT TIME ZONE             NOT NULL,
     invoice            BIGINT                                  NOT NULL,
-    product_id         BIGINT                                  NOT NULL,
+    product            BIGINT                                  NOT NULL,
     quantity           DOUBLE PRECISION                        NOT NULL,
     price              DECIMAL                                 NOT NULL,
     amount             DECIMAL                                 NOT NULL,
     CONSTRAINT pk_invoice_product PRIMARY KEY (code)
 );
 
-CREATE TABLE invoice_product_aud
+CREATE TABLE invoice_product_log
 (
-    rev            INTEGER NOT NULL,
-    revtype        SMALLINT,
-    code           BIGINT  NOT NULL,
-    invoice        BIGINT,
-    invoice_mod    BOOLEAN,
-    product_id     BIGINT,
-    product_id_mod BOOLEAN,
-    quantity       DOUBLE PRECISION,
-    quantity_mod   BOOLEAN,
-    price          DECIMAL,
-    price_mod      BOOLEAN,
-    amount         DECIMAL,
-    amount_mod     BOOLEAN,
-    CONSTRAINT pk_invoice_product_aud PRIMARY KEY (rev, code)
+    rev          INTEGER NOT NULL,
+    revtype      SMALLINT,
+    code         BIGINT  NOT NULL,
+    invoice      BIGINT,
+    invoice_mod  BOOLEAN,
+    product      BIGINT,
+    product_mod  BOOLEAN,
+    quantity     DOUBLE PRECISION,
+    quantity_mod BOOLEAN,
+    price        DECIMAL,
+    price_mod    BOOLEAN,
+    amount       DECIMAL,
+    amount_mod   BOOLEAN,
+    CONSTRAINT pk_invoice_product_log PRIMARY KEY (rev, code)
 );
 
 CREATE TABLE invoices
@@ -256,7 +256,7 @@ CREATE TABLE invoices
     CONSTRAINT pk_invoices PRIMARY KEY (code)
 );
 
-CREATE TABLE invoices_aud
+CREATE TABLE invoices_log
 (
     rev                     INTEGER NOT NULL,
     revtype                 SMALLINT,
@@ -287,7 +287,7 @@ CREATE TABLE invoices_aud
     paid_to_date_mod        BOOLEAN,
     notes                   VARCHAR(255),
     notes_mod               BOOLEAN,
-    CONSTRAINT pk_invoices_aud PRIMARY KEY (rev, code)
+    CONSTRAINT pk_invoices_log PRIMARY KEY (rev, code)
 );
 
 CREATE TABLE medical_histories
@@ -306,7 +306,7 @@ CREATE TABLE medical_histories
     CONSTRAINT pk_medical_histories PRIMARY KEY (id)
 );
 
-CREATE TABLE medical_histories_aud
+CREATE TABLE medical_histories_log
 (
     rev                    INTEGER NOT NULL,
     revtype                SMALLINT,
@@ -332,7 +332,7 @@ CREATE TABLE medical_histories_aud
     updated_at_mod         BOOLEAN,
     active                 BOOLEAN,
     active_mod             BOOLEAN,
-    CONSTRAINT pk_medical_histories_aud PRIMARY KEY (rev, id)
+    CONSTRAINT pk_medical_histories_log PRIMARY KEY (rev, id)
 );
 
 CREATE TABLE payments
@@ -351,7 +351,7 @@ CREATE TABLE payments
     CONSTRAINT pk_payments PRIMARY KEY (code)
 );
 
-CREATE TABLE payments_aud
+CREATE TABLE payments_log
 (
     rev                  INTEGER NOT NULL,
     revtype              SMALLINT,
@@ -369,7 +369,7 @@ CREATE TABLE payments_aud
     reference_number_mod BOOLEAN,
     notes                VARCHAR(255),
     notes_mod            BOOLEAN,
-    CONSTRAINT pk_payments_aud PRIMARY KEY (rev, code)
+    CONSTRAINT pk_payments_log PRIMARY KEY (rev, code)
 );
 
 CREATE TABLE payments_detail
@@ -385,7 +385,7 @@ CREATE TABLE payments_detail
     CONSTRAINT pk_payments_detail PRIMARY KEY (code)
 );
 
-CREATE TABLE payments_detail_aud
+CREATE TABLE payments_detail_log
 (
     rev         INTEGER NOT NULL,
     revtype     SMALLINT,
@@ -396,7 +396,7 @@ CREATE TABLE payments_detail_aud
     invoice_mod BOOLEAN,
     amount      DECIMAL,
     amount_mod  BOOLEAN,
-    CONSTRAINT pk_payments_detail_aud PRIMARY KEY (rev, code)
+    CONSTRAINT pk_payments_detail_log PRIMARY KEY (rev, code)
 );
 
 CREATE TABLE pet_owners
@@ -405,13 +405,13 @@ CREATE TABLE pet_owners
     pet_id    BIGINT NOT NULL
 );
 
-CREATE TABLE pet_owners_aud
+CREATE TABLE pet_owners_log
 (
     owners_user_id BIGINT  NOT NULL,
     pet_id         BIGINT  NOT NULL,
     rev            INTEGER NOT NULL,
     revtype        SMALLINT,
-    CONSTRAINT pk_pet_owners_aud PRIMARY KEY (owners_user_id, pet_id, rev)
+    CONSTRAINT pk_pet_owners_log PRIMARY KEY (owners_user_id, pet_id, rev)
 );
 
 CREATE TABLE pets
@@ -429,7 +429,7 @@ CREATE TABLE pets
     CONSTRAINT pk_pets PRIMARY KEY (id)
 );
 
-CREATE TABLE pets_aud
+CREATE TABLE pets_log
 (
     rev                 INTEGER NOT NULL,
     revtype             SMALLINT,
@@ -454,7 +454,7 @@ CREATE TABLE pets_aud
     size_mod            BOOLEAN,
     fur_type            VARCHAR(255),
     fur_type_mod        BOOLEAN,
-    CONSTRAINT pk_pets_aud PRIMARY KEY (rev, id)
+    CONSTRAINT pk_pets_log PRIMARY KEY (rev, id)
 );
 
 CREATE TABLE products
@@ -474,7 +474,7 @@ CREATE TABLE products
     CONSTRAINT pk_products PRIMARY KEY (product_id)
 );
 
-CREATE TABLE products_aud
+CREATE TABLE products_log
 (
     rev                  INTEGER NOT NULL,
     revtype              SMALLINT,
@@ -501,7 +501,7 @@ CREATE TABLE products_aud
     category_mod         BOOLEAN,
     warehouse_id         BIGINT,
     warehouse_id_mod     BOOLEAN,
-    CONSTRAINT pk_products_aud PRIMARY KEY (rev, product_id)
+    CONSTRAINT pk_products_log PRIMARY KEY (rev, product_id)
 );
 
 CREATE TABLE revision
@@ -529,7 +529,7 @@ CREATE TABLE suppliers
     CONSTRAINT pk_suppliers PRIMARY KEY (supplier_id)
 );
 
-CREATE TABLE suppliers_aud
+CREATE TABLE suppliers_log
 (
     rev                INTEGER NOT NULL,
     revtype            SMALLINT,
@@ -555,7 +555,7 @@ CREATE TABLE suppliers_aud
     active             BOOLEAN,
     active_mod         BOOLEAN,
     products_mod       BOOLEAN,
-    CONSTRAINT pk_suppliers_aud PRIMARY KEY (rev, supplier_id)
+    CONSTRAINT pk_suppliers_log PRIMARY KEY (rev, supplier_id)
 );
 
 CREATE TABLE tokens
@@ -594,7 +594,7 @@ CREATE TABLE users
     CONSTRAINT pk_users PRIMARY KEY (user_id)
 );
 
-CREATE TABLE users_aud
+CREATE TABLE users_log
 (
     rev                     INTEGER NOT NULL,
     revtype                 SMALLINT,
@@ -637,7 +637,7 @@ CREATE TABLE users_aud
     updated_at_mod          BOOLEAN,
     system_role             VARCHAR(255),
     system_role_mod         BOOLEAN,
-    CONSTRAINT pk_users_aud PRIMARY KEY (rev, user_id)
+    CONSTRAINT pk_users_log PRIMARY KEY (rev, user_id)
 );
 
 CREATE TABLE waiting_room
@@ -655,7 +655,7 @@ CREATE TABLE waiting_room
     CONSTRAINT pk_waiting_room PRIMARY KEY (id)
 );
 
-CREATE TABLE waiting_room_aud
+CREATE TABLE waiting_room_log
 (
     rev                         INTEGER NOT NULL,
     revtype                     SMALLINT,
@@ -678,7 +678,7 @@ CREATE TABLE waiting_room_aud
     consultation_started_at_mod BOOLEAN,
     completed_at                TIMESTAMP WITHOUT TIME ZONE,
     completed_at_mod            BOOLEAN,
-    CONSTRAINT pk_waiting_room_aud PRIMARY KEY (rev, id)
+    CONSTRAINT pk_waiting_room_log PRIMARY KEY (rev, id)
 );
 
 CREATE TABLE warehouses
@@ -691,7 +691,7 @@ CREATE TABLE warehouses
     CONSTRAINT pk_warehouses PRIMARY KEY (id)
 );
 
-CREATE TABLE warehouses_aud
+CREATE TABLE warehouses_log
 (
     rev                       INTEGER NOT NULL,
     revtype                   SMALLINT,
@@ -705,14 +705,14 @@ CREATE TABLE warehouses_aud
     is_available_for_sale     BOOLEAN,
     is_available_for_sale_mod BOOLEAN,
     products_mod              BOOLEAN,
-    CONSTRAINT pk_warehouses_aud PRIMARY KEY (rev, id)
+    CONSTRAINT pk_warehouses_log PRIMARY KEY (rev, id)
 );
 
-ALTER TABLE client_aud
-    ADD CONSTRAINT pk_client_aud PRIMARY KEY (client_id, rev);
+ALTER TABLE client_log
+    ADD CONSTRAINT pk_client_log PRIMARY KEY (client_id, rev);
 
-ALTER TABLE employee_aud
-    ADD CONSTRAINT pk_employee_aud PRIMARY KEY (employee_id, rev);
+ALTER TABLE employee_log
+    ADD CONSTRAINT pk_employee_log PRIMARY KEY (employee_id, rev);
 
 ALTER TABLE client
     ADD CONSTRAINT uc_client_cedula UNIQUE (cedula);
@@ -756,8 +756,8 @@ CREATE INDEX idx_e5b53b0d0fb3e61490fc91393 ON invoices (status);
 
 CREATE INDEX idx_e9928a68da841455a0156907a ON tokens (refresh_token);
 
-ALTER TABLE appointments_aud
-    ADD CONSTRAINT FK_APPOINTMENTS_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE appointments_log
+    ADD CONSTRAINT FK_APPOINTMENTS_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE appointments
     ADD CONSTRAINT FK_APPOINTMENTS_ON_CLIENT FOREIGN KEY (client_id) REFERENCES client (client_id);
@@ -768,14 +768,14 @@ ALTER TABLE appointments
 ALTER TABLE appointments
     ADD CONSTRAINT FK_APPOINTMENTS_ON_PET FOREIGN KEY (pet_id) REFERENCES pets (id);
 
-ALTER TABLE client_aud
-    ADD CONSTRAINT FK_CLIENT_AUD_ON_CLIDRE FOREIGN KEY (client_id, rev) REFERENCES users_aud (user_id, rev);
+ALTER TABLE client_log
+    ADD CONSTRAINT FK_CLIENT_log_ON_CLIDRE FOREIGN KEY (client_id, rev) REFERENCES users_log (user_id, rev);
 
 ALTER TABLE client
     ADD CONSTRAINT FK_CLIENT_ON_CLIENT FOREIGN KEY (client_id) REFERENCES users (user_id);
 
-ALTER TABLE consultations_aud
-    ADD CONSTRAINT FK_CONSULTATIONS_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE consultations_log
+    ADD CONSTRAINT FK_CONSULTATIONS_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE consultations
     ADD CONSTRAINT FK_CONSULTATIONS_ON_MEDICAL_HISTORY FOREIGN KEY (medical_history_id) REFERENCES medical_histories (id);
@@ -786,38 +786,38 @@ ALTER TABLE consultations
 ALTER TABLE consultations
     ADD CONSTRAINT FK_CONSULTATIONS_ON_VETERINARIAN FOREIGN KEY (veterinarian_id) REFERENCES employee (employee_id);
 
-ALTER TABLE employee_aud
-    ADD CONSTRAINT FK_EMPLOYEE_AUD_ON_EMIDRE FOREIGN KEY (employee_id, rev) REFERENCES users_aud (user_id, rev);
+ALTER TABLE employee_log
+    ADD CONSTRAINT FK_EMPLOYEE_log_ON_EMIDRE FOREIGN KEY (employee_id, rev) REFERENCES users_log (user_id, rev);
 
 ALTER TABLE employee
     ADD CONSTRAINT FK_EMPLOYEE_ON_EMPLOYEE FOREIGN KEY (employee_id) REFERENCES users (user_id);
 
-ALTER TABLE invoices_aud
-    ADD CONSTRAINT FK_INVOICES_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE invoices_log
+    ADD CONSTRAINT FK_INVOICES_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE invoices
     ADD CONSTRAINT FK_INVOICES_ON_CLIENT FOREIGN KEY (client) REFERENCES client (client_id);
 
-ALTER TABLE invoice_product_aud
-    ADD CONSTRAINT FK_INVOICE_PRODUCT_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE invoice_product_log
+    ADD CONSTRAINT FK_INVOICE_PRODUCT_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE invoice_product
     ADD CONSTRAINT FK_INVOICE_PRODUCT_ON_INVOICE FOREIGN KEY (invoice) REFERENCES invoices (code);
 
 ALTER TABLE invoice_product
-    ADD CONSTRAINT FK_INVOICE_PRODUCT_ON_PRODUCT FOREIGN KEY (product_id) REFERENCES products (product_id);
+    ADD CONSTRAINT FK_INVOICE_PRODUCT_ON_PRODUCT FOREIGN KEY (product) REFERENCES products (product_id);
 
-ALTER TABLE medical_histories_aud
-    ADD CONSTRAINT FK_MEDICAL_HISTORIES_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE medical_histories_log
+    ADD CONSTRAINT FK_MEDICAL_HISTORIES_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE medical_histories
     ADD CONSTRAINT FK_MEDICAL_HISTORIES_ON_PET FOREIGN KEY (pet_id) REFERENCES pets (id);
 
-ALTER TABLE payments_aud
-    ADD CONSTRAINT FK_PAYMENTS_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE payments_log
+    ADD CONSTRAINT FK_PAYMENTS_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
-ALTER TABLE payments_detail_aud
-    ADD CONSTRAINT FK_PAYMENTS_DETAIL_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE payments_detail_log
+    ADD CONSTRAINT FK_PAYMENTS_DETAIL_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE payments_detail
     ADD CONSTRAINT FK_PAYMENTS_DETAIL_ON_INVOICE FOREIGN KEY (invoice) REFERENCES invoices (code);
@@ -825,11 +825,11 @@ ALTER TABLE payments_detail
 ALTER TABLE payments_detail
     ADD CONSTRAINT FK_PAYMENTS_DETAIL_ON_PAYMENT FOREIGN KEY (payment) REFERENCES payments (code);
 
-ALTER TABLE pets_aud
-    ADD CONSTRAINT FK_PETS_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE pets_log
+    ADD CONSTRAINT FK_PETS_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
-ALTER TABLE products_aud
-    ADD CONSTRAINT FK_PRODUCTS_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE products_log
+    ADD CONSTRAINT FK_PRODUCTS_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE products
     ADD CONSTRAINT FK_PRODUCTS_ON_SUPPLIER FOREIGN KEY (supplier_id) REFERENCES suppliers (supplier_id);
@@ -837,14 +837,14 @@ ALTER TABLE products
 ALTER TABLE products
     ADD CONSTRAINT FK_PRODUCTS_ON_WAREHOUSE FOREIGN KEY (warehouse_id) REFERENCES warehouses (id);
 
-ALTER TABLE suppliers_aud
-    ADD CONSTRAINT FK_SUPPLIERS_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE suppliers_log
+    ADD CONSTRAINT FK_SUPPLIERS_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
-ALTER TABLE users_aud
-    ADD CONSTRAINT FK_USERS_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE users_log
+    ADD CONSTRAINT FK_USERS_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
-ALTER TABLE waiting_room_aud
-    ADD CONSTRAINT FK_WAITING_ROOM_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE waiting_room_log
+    ADD CONSTRAINT FK_WAITING_ROOM_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE waiting_room
     ADD CONSTRAINT FK_WAITING_ROOM_ON_CLIENT FOREIGN KEY (client_id) REFERENCES client (client_id);
@@ -852,11 +852,11 @@ ALTER TABLE waiting_room
 ALTER TABLE waiting_room
     ADD CONSTRAINT FK_WAITING_ROOM_ON_PET FOREIGN KEY (pet_id) REFERENCES pets (id);
 
-ALTER TABLE warehouses_aud
-    ADD CONSTRAINT FK_WAREHOUSES_AUD_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE warehouses_log
+    ADD CONSTRAINT FK_WAREHOUSES_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
 
-ALTER TABLE pet_owners_aud
-    ADD CONSTRAINT fk_pet_owners_aud_on_rev FOREIGN KEY (rev) REFERENCES revision (id);
+ALTER TABLE pet_owners_log
+    ADD CONSTRAINT fk_pet_owners_log_on_rev FOREIGN KEY (rev) REFERENCES revision (id);
 
 ALTER TABLE pet_owners
     ADD CONSTRAINT fk_petown_on_client FOREIGN KEY (client_id) REFERENCES client (client_id);
