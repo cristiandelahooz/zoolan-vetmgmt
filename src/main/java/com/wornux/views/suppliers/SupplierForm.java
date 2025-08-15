@@ -39,7 +39,8 @@ public class SupplierForm extends Dialog {
     private final Binder<SupplierCreateRequestDto> binder = new BeanValidationBinder<>(SupplierCreateRequestDto.class);
     private final SupplierService supplierService;
 
-    @Setter private Runnable onSaveCallback;
+    @Setter
+    private Runnable onSaveCallback;
 
     private boolean isEditing = false;
     private Long supplierIdToEdit;
@@ -58,22 +59,15 @@ public class SupplierForm extends Dialog {
 
     private void createForm() {
         FormLayout formLayout = new FormLayout();
-        formLayout.add(rnc, companyName, contactPerson, contactPhone, contactEmail,
-                province, municipality, sector, streetAddress);
+        formLayout.add(rnc, companyName, contactPerson, contactPhone, contactEmail, province, municipality, sector,
+                streetAddress);
 
-        formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("500px", 2)
-        );
+        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
         HorizontalLayout buttons = new HorizontalLayout(cancelButton, saveButton);
         buttons.addClassNames(LumoUtility.JustifyContent.END, LumoUtility.Gap.MEDIUM);
 
-        VerticalLayout content = new VerticalLayout(
-                new H3("Información del Proveedor"),
-                formLayout,
-                buttons
-        );
+        VerticalLayout content = new VerticalLayout(new H3("Información del Proveedor"), formLayout, buttons);
         content.addClassNames(LumoUtility.Padding.MEDIUM);
 
         add(content);
@@ -172,7 +166,8 @@ public class SupplierForm extends Dialog {
                 NotificationUtils.success("Proveedor creado exitosamente");
             }
 
-            if (onSaveCallback != null) onSaveCallback.run();
+            if (onSaveCallback != null)
+                onSaveCallback.run();
             close();
         } catch (Exception e) {
             log.error("Error al guardar proveedor", e);
@@ -187,36 +182,57 @@ public class SupplierForm extends Dialog {
             rnc.setInvalid(true);
             rnc.setErrorMessage("RNC requerido (11 dígitos)");
             ok = false;
-        } else rnc.setInvalid(false);
+        } else
+            rnc.setInvalid(false);
 
         if (companyName.isEmpty()) {
             companyName.setInvalid(true);
             companyName.setErrorMessage("El nombre de la empresa es requerido");
             ok = false;
-        } else companyName.setInvalid(false);
+        } else
+            companyName.setInvalid(false);
 
         if (contactPerson.isEmpty()) {
             contactPerson.setInvalid(true);
             contactPerson.setErrorMessage("El nombre del contacto es requerido");
             ok = false;
-        } else contactPerson.setInvalid(false);
+        } else
+            contactPerson.setInvalid(false);
 
         if (contactPhone.isEmpty() || !contactPhone.getValue().matches(DOMINICAN_PHONE_PATTERN)) {
             contactPhone.setInvalid(true);
             contactPhone.setErrorMessage("El teléfono debe ser dominicano (809/849/829 + 7 dígitos)");
             ok = false;
-        } else contactPhone.setInvalid(false);
+        } else
+            contactPhone.setInvalid(false);
 
         if (!contactEmail.isEmpty() && !contactEmail.getValue().matches(EMAIL_PATTERN)) {
             contactEmail.setInvalid(true);
             contactEmail.setErrorMessage("Correo electrónico inválido");
             ok = false;
-        } else contactEmail.setInvalid(false);
+        } else
+            contactEmail.setInvalid(false);
 
-        if (province.isEmpty()) { province.setInvalid(true); ok = false; } else province.setInvalid(false);
-        if (municipality.isEmpty()) { municipality.setInvalid(true); ok = false; } else municipality.setInvalid(false);
-        if (sector.isEmpty()) { sector.setInvalid(true); ok = false; } else sector.setInvalid(false);
-        if (streetAddress.isEmpty()) { streetAddress.setInvalid(true); ok = false; } else streetAddress.setInvalid(false);
+        if (province.isEmpty()) {
+            province.setInvalid(true);
+            ok = false;
+        } else
+            province.setInvalid(false);
+        if (municipality.isEmpty()) {
+            municipality.setInvalid(true);
+            ok = false;
+        } else
+            municipality.setInvalid(false);
+        if (sector.isEmpty()) {
+            sector.setInvalid(true);
+            ok = false;
+        } else
+            sector.setInvalid(false);
+        if (streetAddress.isEmpty()) {
+            streetAddress.setInvalid(true);
+            ok = false;
+        } else
+            streetAddress.setInvalid(false);
 
         return ok;
     }

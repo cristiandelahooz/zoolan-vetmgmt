@@ -31,20 +31,23 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public Warehouse updateWarehouse(Long id, WarehouseUpdateRequestDto updateDTO) {
-        Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new WarehouseNotFoundException(id));
-        if (updateDTO.getName() != null) warehouse.setName(updateDTO.getName());
-        if (updateDTO.getWarehouseType() != null) warehouse.setWarehouseType(updateDTO.getWarehouseType());
-        if (updateDTO.getStatus() != null) warehouse.setStatus(updateDTO.getStatus());
-        if (updateDTO.getAvailableForSale() != null) warehouse.setAvailableForSale(updateDTO.getAvailableForSale());
-        if (updateDTO.getProducts() != null) warehouse.setProducts(updateDTO.getProducts());
+        Warehouse warehouse = warehouseRepository.findById(id).orElseThrow(() -> new WarehouseNotFoundException(id));
+        if (updateDTO.getName() != null)
+            warehouse.setName(updateDTO.getName());
+        if (updateDTO.getWarehouseType() != null)
+            warehouse.setWarehouseType(updateDTO.getWarehouseType());
+        if (updateDTO.getStatus() != null)
+            warehouse.setStatus(updateDTO.getStatus());
+        if (updateDTO.getAvailableForSale() != null)
+            warehouse.setAvailableForSale(updateDTO.getAvailableForSale());
+        if (updateDTO.getProducts() != null)
+            warehouse.setProducts(updateDTO.getProducts());
         return warehouseRepository.save(warehouse);
     }
 
     @Override
     public WarehouseResponseDto getWarehouseById(Long id) {
-        Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new WarehouseNotFoundException(id));
+        Warehouse warehouse = warehouseRepository.findById(id).orElseThrow(() -> new WarehouseNotFoundException(id));
         return warehouseMapper.toResponseDto(warehouse);
     }
 

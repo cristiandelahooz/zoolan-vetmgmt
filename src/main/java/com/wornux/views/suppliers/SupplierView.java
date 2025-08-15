@@ -60,7 +60,8 @@ public class SupplierView extends Div {
         createGrid();
 
         Div gridLayout = new Div(grid);
-        gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
+        gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL,
+                LumoUtility.Height.FULL);
 
         add(createTitle(), createFilter(), gridLayout);
 
@@ -75,7 +76,8 @@ public class SupplierView extends Div {
         GridUtils.addColumn(grid, Supplier::getContactPerson, "Contacto");
         GridUtils.addColumn(grid, Supplier::getContactPhone, "Teléfono");
         GridUtils.addColumn(grid, Supplier::getContactEmail, "Email");
-        grid.addComponentColumn(this::renderStatus).setHeader("Estado").setTextAlign(ColumnTextAlign.CENTER).setAutoWidth(true);
+        grid.addComponentColumn(this::renderStatus).setHeader("Estado").setTextAlign(ColumnTextAlign.CENTER)
+                .setAutoWidth(true);
         grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -114,12 +116,16 @@ public class SupplierView extends Div {
 
         searchField.addValueChangeListener(e -> refreshAll());
 
-        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM, LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL, LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL, LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY);
+        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
+                LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY);
 
         HorizontalLayout toolbar = new HorizontalLayout(searchField, quantity);
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         toolbar.setAlignItems(FlexComponent.Alignment.END);
-        toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM);
+        toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM);
 
         refreshAll();
 
@@ -135,14 +141,18 @@ public class SupplierView extends Div {
         Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar proveedores activos e inactivos.");
 
         Div headerLayout = new Div(breadcrumb, icon);
-        headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Margin.Top.SMALL);
+        headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW,
+                LumoUtility.Margin.Top.SMALL);
 
         create.setText("Nuevo Proveedor");
         create.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
         create.addClassNames(LumoUtility.Width.AUTO);
 
         Div layout = new Div(headerLayout, create);
-        layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.FlexDirection.Breakpoint.Large.ROW, LumoUtility.JustifyContent.BETWEEN, LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Gap.XSMALL, LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
+        layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.FlexDirection.Breakpoint.Large.ROW, LumoUtility.JustifyContent.BETWEEN,
+                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Gap.XSMALL,
+                LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
 
         return layout;
     }
@@ -160,7 +170,8 @@ public class SupplierView extends Div {
         edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
+        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL,
+                ButtonVariant.LUMO_ERROR);
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 

@@ -39,7 +39,6 @@ import java.util.List;
 
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 
-
 @Route("sala-espera")
 @PageTitle("Sala de Espera")
 public class WaitingRoomView extends VerticalLayout {
@@ -71,7 +70,8 @@ public class WaitingRoomView extends VerticalLayout {
 
         Icon infoIcon = VaadinIcon.INFO_CIRCLE_O.create();
         infoIcon.getStyle().set("cursor", "pointer").set("color", "var(--lumo-primary-color)");
-        infoIcon.getElement().setProperty("title", "Aquí puedes gestionar las mascotas que están esperando ser atendidas.");
+        infoIcon.getElement().setProperty("title",
+                "Aquí puedes gestionar las mascotas que están esperando ser atendidas.");
 
         HorizontalLayout titleWithInfo = new HorizontalLayout(title, infoIcon);
         titleWithInfo.setAlignItems(Alignment.CENTER);
@@ -94,7 +94,6 @@ public class WaitingRoomView extends VerticalLayout {
         searchField.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
         searchField.addValueChangeListener(e -> refreshGrid());
 
-
         statusFilter.setItems(WaitingRoomStatus.values());
         statusFilter.setClearButtonVisible(true);
         statusFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
@@ -106,7 +105,8 @@ public class WaitingRoomView extends VerticalLayout {
         filters.setSpacing(true);
 
         Button newEntryButton = new Button("Nueva Entrada", e -> openForm());
-        newEntryButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
+        newEntryButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST,
+                ButtonVariant.LUMO_SMALL);
 
         HorizontalLayout header = new HorizontalLayout(titleWithInfo, newEntryButton);
         header.setWidthFull();
@@ -136,8 +136,8 @@ public class WaitingRoomView extends VerticalLayout {
 
         grid.addComponentColumn(this::renderPriority).setHeader("Prioridad");
 
-
-        grid.addColumn(wr -> wr.getArrivalTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).setHeader("Hora de Llegada");
+        grid.addColumn(wr -> wr.getArrivalTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+                .setHeader("Hora de Llegada");
 
         grid.addComponentColumn(this::renderStatus).setHeader("Estado");
 
@@ -162,15 +162,14 @@ public class WaitingRoomView extends VerticalLayout {
         grid.setItems(filtered);
     }
 
-
     private Component renderPriority(WaitingRoom wr) {
         Span badge = new Span(wr.getPriority().name());
         badge.getElement().getThemeList().add("badge pill");
 
         switch (wr.getPriority()) {
-            case URGENTE -> badge.getElement().getThemeList().add("error");
-            case EMERGENCIA -> badge.getElement().getThemeList().add("warning");
-            case NORMAL -> badge.getElement().getThemeList().add("success");
+        case URGENTE -> badge.getElement().getThemeList().add("error");
+        case EMERGENCIA -> badge.getElement().getThemeList().add("warning");
+        case NORMAL -> badge.getElement().getThemeList().add("success");
         }
 
         return badge;
@@ -185,11 +184,11 @@ public class WaitingRoomView extends VerticalLayout {
         badge.getElement().getThemeList().add("badge pill");
 
         switch (wr.getStatus()) {
-            case ESPERANDO -> badge.getElement().getThemeList().add("primary");
-            case EN_CONSULTA -> badge.getElement().getThemeList().add("success");
-            case COMPLETADO -> badge.getElement().getThemeList().add("contrast");
-            case CANCELADO -> badge.getElement().getThemeList().add("error");
-            default -> badge.getElement().getThemeList().add("badge");
+        case ESPERANDO -> badge.getElement().getThemeList().add("primary");
+        case EN_CONSULTA -> badge.getElement().getThemeList().add("success");
+        case COMPLETADO -> badge.getElement().getThemeList().add("contrast");
+        case CANCELADO -> badge.getElement().getThemeList().add("error");
+        default -> badge.getElement().getThemeList().add("badge");
         }
 
         return badge;
@@ -205,7 +204,8 @@ public class WaitingRoomView extends VerticalLayout {
 
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
-        layout.getStyle().set("padding", "1.5rem").set("border-radius", "10px").set("background-color", "var(--lumo-base-color)").set("box-shadow", "var(--lumo-box-shadow-m)");
+        layout.getStyle().set("padding", "1.5rem").set("border-radius", "10px")
+                .set("background-color", "var(--lumo-base-color)").set("box-shadow", "var(--lumo-box-shadow-m)");
         layout.setSpacing(true);
         layout.setPadding(false);
 
@@ -213,18 +213,18 @@ public class WaitingRoomView extends VerticalLayout {
         Span priority = new Span(wr.getPriority().name());
         priority.getElement().getThemeList().add("badge pill");
         switch (wr.getPriority()) {
-            case URGENTE -> priority.getElement().getThemeList().add("error");
-            case EMERGENCIA -> priority.getElement().getThemeList().add("warning");
-            case NORMAL -> priority.getElement().getThemeList().add("success");
+        case URGENTE -> priority.getElement().getThemeList().add("error");
+        case EMERGENCIA -> priority.getElement().getThemeList().add("warning");
+        case NORMAL -> priority.getElement().getThemeList().add("success");
         }
 
         Span status = new Span(wr.getStatus().name().replace("_", " "));
         status.getElement().getThemeList().add("badge pill");
         switch (wr.getStatus()) {
-            case EN_CONSULTA -> status.getElement().getThemeList().add("success");
-            case COMPLETADO -> status.getElement().getThemeList().add("contrast");
-            case CANCELADO -> status.getElement().getThemeList().add("error");
-            default -> status.getElement().getThemeList().add("primary");
+        case EN_CONSULTA -> status.getElement().getThemeList().add("success");
+        case COMPLETADO -> status.getElement().getThemeList().add("contrast");
+        case CANCELADO -> status.getElement().getThemeList().add("error");
+        default -> status.getElement().getThemeList().add("primary");
         }
 
         HorizontalLayout header = new HorizontalLayout(priority, status);
@@ -250,8 +250,10 @@ public class WaitingRoomView extends VerticalLayout {
         contactInfo.setSpacing(true);
 
         // Datos del animal
-        Span petInfo = new Span(wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • " + wr.getPet().getBreed() + " • " + wr.getPet().getGender());
-        petInfo.getElement().getStyle().set("font-weight", "600").set("color", "var(--lumo-primary-text-color)").set("font-size", "1.05em");
+        Span petInfo = new Span(wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • "
+                + wr.getPet().getBreed() + " • " + wr.getPet().getGender());
+        petInfo.getElement().getStyle().set("font-weight", "600").set("color", "var(--lumo-primary-text-color)")
+                .set("font-size", "1.05em");
 
         // Datos de visita
 
@@ -262,14 +264,15 @@ public class WaitingRoomView extends VerticalLayout {
 
         Icon notesIcon = VaadinIcon.NOTEBOOK.create();
         notesIcon.setColor("var(--lumo-secondary-text-color)");
-        Span notesText = new Span("Notas: " + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr.getNotes() : "N/A"));
+        Span notesText = new Span(
+                "Notas: " + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr.getNotes() : "N/A"));
         HorizontalLayout notes = new HorizontalLayout(notesIcon, notesText);
 
         Icon arrivalIcon = VaadinIcon.CLOCK.create();
         arrivalIcon.setColor("var(--lumo-secondary-text-color)");
-        Span arrivalText = new Span("Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
+        Span arrivalText = new Span(
+                "Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
         HorizontalLayout arrival = new HorizontalLayout(arrivalIcon, arrivalText);
-
 
         Icon motivoIcon = VaadinIcon.CLIPBOARD_TEXT.create();
         motivoIcon.setColor("var(--lumo-secondary-text-color)");
@@ -326,7 +329,7 @@ public class WaitingRoomView extends VerticalLayout {
             dialogConfirm.setConfirmText("Sí, cancelar");
 
             dialogConfirm.addConfirmListener(event -> {
-                if(wr.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
+                if (wr.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
                     NotificationUtils.error("No se puede cancelar una entrada que está en consulta.");
                     return;
                 }
@@ -363,12 +366,18 @@ public class WaitingRoomView extends VerticalLayout {
             if (searchTerm != null && !searchTerm.trim().isEmpty()) {
                 String likeSearch = "%" + searchTerm.toLowerCase() + "%";
 
-                searchPredicate = builder.or(builder.like(builder.lower(clientJoin.get("firstName")), likeSearch), builder.like(builder.lower(clientJoin.get("lastName")), likeSearch), builder.like(builder.lower(petJoin.get("name")), likeSearch));
+                searchPredicate = builder.or(builder.like(builder.lower(clientJoin.get("firstName")), likeSearch),
+                        builder.like(builder.lower(clientJoin.get("lastName")), likeSearch),
+                        builder.like(builder.lower(petJoin.get("name")), likeSearch));
             }
 
-            Predicate priorityPredicate = createPredicateForSelectedItems(Optional.ofNullable(priorityFilter.getSelectedItems()), items -> root.get("priority").in(items), builder);
+            Predicate priorityPredicate = createPredicateForSelectedItems(
+                    Optional.ofNullable(priorityFilter.getSelectedItems()), items -> root.get("priority").in(items),
+                    builder);
 
-            Predicate statusPredicate = createPredicateForSelectedItems(Optional.ofNullable(statusFilter.getSelectedItems()), items -> root.get("status").in(items), builder);
+            Predicate statusPredicate = createPredicateForSelectedItems(
+                    Optional.ofNullable(statusFilter.getSelectedItems()), items -> root.get("status").in(items),
+                    builder);
 
             return builder.and(searchPredicate, priorityPredicate, statusPredicate);
         };
@@ -381,13 +390,14 @@ public class WaitingRoomView extends VerticalLayout {
         edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
+        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL,
+                ButtonVariant.LUMO_ERROR);
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         edit.addClickListener(e -> form.openForEdit(waitingRoom));
         delete.addClickListener(e -> {
-            if(waitingRoom.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
+            if (waitingRoom.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
                 NotificationUtils.error("No se puede eliminar una entrada que está en consulta.");
                 return;
             }

@@ -1,6 +1,5 @@
 package com.wornux.data.entity;
 
-
 import com.wornux.data.enums.WarehouseType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

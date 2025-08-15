@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -80,8 +79,7 @@ public class PetMergeView extends Div {
                 box.getStyle().set("fontStyle", "italic").set("color", "#666");
                 return box;
             }
-            String txt = owners.stream()
-                    .map(o -> (nvl(o.getFirstName()) + " " + nvl(o.getLastName())).trim())
+            String txt = owners.stream().map(o -> (nvl(o.getFirstName()) + " " + nvl(o.getLastName())).trim())
                     .collect(Collectors.joining(", "));
             box.setText(txt);
             return box;
@@ -93,10 +91,8 @@ public class PetMergeView extends Div {
         head.setPadding(true);
         head.setSpacing(false);
         head.add(new H2("Fusionar Mascotas Duplicadas"));
-        Paragraph p = new Paragraph(
-                "Busca mascotas por nombre para encontrar posibles duplicados. " +
-                        "Selecciona cuál mantener y cuál eliminar; los dueños se trasladarán a la mascota a mantener."
-        );
+        Paragraph p = new Paragraph("Busca mascotas por nombre para encontrar posibles duplicados. "
+                + "Selecciona cuál mantener y cuál eliminar; los dueños se trasladarán a la mascota a mantener.");
         p.getStyle().set("color", "#666");
         head.add(p);
         return head;
@@ -141,74 +137,57 @@ public class PetMergeView extends Div {
         grid.addColumn(p -> p.getBirthDate() != null ? DATE_FMT.format(p.getBirthDate()) : "")
                 .setHeader("F. Nacimiento").setAutoWidth(true);
         grid.addColumn(Pet::getColor).setHeader("Color").setAutoWidth(true);
-        grid.addColumn(p -> p.getSize() != null ? p.getSize().name() : "")
-                .setHeader("Tamaño").setAutoWidth(true);
+        grid.addColumn(p -> p.getSize() != null ? p.getSize().name() : "").setHeader("Tamaño").setAutoWidth(true);
         grid.addColumn(ownersRenderer()).setHeader("Dueños").setAutoWidth(true);
 
         grid.addColumn(new ComponentRenderer<>(pet -> {
 
-                    Button keepBtn = new Button(isKeep(pet) ? "✓ Mantener" : "Mantener");
-                    keepBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
-                    if (isKeep(pet)) keepBtn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-                    keepBtn.setEnabled(!isKeep(pet));
-                    keepBtn.addClickListener(e -> {
-                        keepPet = pet;
-                        updateMergeButtonState();
-                        grid.getDataProvider().refreshAll();
-                        refreshCards();
-                    });
+            Button keepBtn = new Button(isKeep(pet) ? "✓ Mantener" : "Mantener");
+            keepBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
+            if (isKeep(pet))
+                keepBtn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+            keepBtn.setEnabled(!isKeep(pet));
+            keepBtn.addClickListener(e -> {
+                keepPet = pet;
+                updateMergeButtonState();
+                grid.getDataProvider().refreshAll();
+                refreshCards();
+            });
 
-                    keepBtn.getStyle()
-                            .set("width", "100px")
-                            .set("minWidth", "100px")
-                            .set("height", "32px")
-                            .set("padding", "0");
+            keepBtn.getStyle().set("width", "100px").set("minWidth", "100px").set("height", "32px").set("padding", "0");
 
+            Button removeBtn = new Button(VaadinIcon.TRASH.create());
+            removeBtn.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY_INLINE,
+                    ButtonVariant.LUMO_SMALL);
 
-                    Button removeBtn = new Button(VaadinIcon.TRASH.create());
-                    removeBtn.addThemeVariants(
-                            ButtonVariant.LUMO_ERROR,
-                            ButtonVariant.LUMO_TERTIARY_INLINE,
-                            ButtonVariant.LUMO_SMALL
-                    );
+            removeBtn.getStyle().set("width", "36px").set("minWidth", "36px").set("height", "32px").set("padding", "0");
 
-                    removeBtn.getStyle()
-                            .set("width", "36px")
-                            .set("minWidth", "36px")
-                            .set("height", "32px")
-                            .set("padding", "0");
+            removeBtn.getElement().setProperty("title", "Eliminar");
+            removeBtn.setAriaLabel("Eliminar");
 
-                    removeBtn.getElement().setProperty("title", "Eliminar");
-                    removeBtn.setAriaLabel("Eliminar");
+            if (isRemove(pet)) {
+                removeBtn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+                removeBtn.setEnabled(false);
+                removeBtn.getElement().setProperty("title", "Seleccionado para eliminar");
+            } else {
+                removeBtn.setEnabled(true);
+            }
 
-                    if (isRemove(pet)) {
-                        removeBtn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-                        removeBtn.setEnabled(false);
-                        removeBtn.getElement().setProperty("title", "Seleccionado para eliminar");
-                    } else {
-                        removeBtn.setEnabled(true);
-                    }
+            removeBtn.addClickListener(e -> {
+                removePet = pet;
+                updateMergeButtonState();
+                grid.getDataProvider().refreshAll();
+                refreshCards();
+            });
 
-                    removeBtn.addClickListener(e -> {
-                        removePet = pet;
-                        updateMergeButtonState();
-                        grid.getDataProvider().refreshAll();
-                        refreshCards();
-                    });
-
-                    HorizontalLayout hl = new HorizontalLayout(keepBtn, removeBtn);
-                    hl.setSpacing(true);
-                    hl.setPadding(false);
-                    hl.setAlignItems(FlexComponent.Alignment.CENTER);
-                    hl.getStyle().set("gap", "0.25rem");
-                    return hl;
-                }))
-                .setHeader("Acciones")
-                .setTextAlign(ColumnTextAlign.CENTER)
-                .setAutoWidth(false)
-                .setWidth("200px")
+            HorizontalLayout hl = new HorizontalLayout(keepBtn, removeBtn);
+            hl.setSpacing(true);
+            hl.setPadding(false);
+            hl.setAlignItems(FlexComponent.Alignment.CENTER);
+            hl.getStyle().set("gap", "0.25rem");
+            return hl;
+        })).setHeader("Acciones").setTextAlign(ColumnTextAlign.CENTER).setAutoWidth(false).setWidth("200px")
                 .setFlexGrow(0);
-
 
         Div wrapper = new Div(grid);
         wrapper.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
@@ -233,31 +212,21 @@ public class PetMergeView extends Div {
         confirmDialog.setHeaderTitle("¡Confirmar Fusión de Mascotas!");
         confirmDialog.setHeight("920px");
 
-
         VerticalLayout content = new VerticalLayout();
         content.setSpacing(true);
         content.setPadding(true);
         content.setWidth("480px");
 
         Div willKeep = new Div();
-        willKeep.getStyle()
-                .set("border", "2px solid #86efac")
-                .set("background", "#f0fdf4")
-                .set("borderRadius", "8px")
+        willKeep.getStyle().set("border", "2px solid #86efac").set("background", "#f0fdf4").set("borderRadius", "8px")
                 .set("padding", "12px");
 
         Div willRemove = new Div();
-        willRemove.getStyle()
-                .set("border", "2px solid #fecaca")
-                .set("background", "#fef2f2")
-                .set("borderRadius", "8px")
+        willRemove.getStyle().set("border", "2px solid #fecaca").set("background", "#fef2f2").set("borderRadius", "8px")
                 .set("padding", "12px");
 
         Div resultInfo = new Div();
-        resultInfo.getStyle()
-                .set("background", "#eff6ff")
-                .set("border", "1px solid #bfdbfe")
-                .set("borderRadius", "6px")
+        resultInfo.getStyle().set("background", "#eff6ff").set("border", "1px solid #bfdbfe").set("borderRadius", "6px")
                 .set("padding", "10px");
         resultInfo.setText("Resultado: La mascota a mantener conservará/recibirá todos los dueños de ambas mascotas.");
 
@@ -274,7 +243,6 @@ public class PetMergeView extends Div {
 
         confirmDialog.add(content, footer);
 
-
         confirmDialog.addOpenedChangeListener(ev -> {
             if (ev.isOpened()) {
                 willKeep.removeAll();
@@ -288,8 +256,6 @@ public class PetMergeView extends Div {
         add(confirmDialog);
     }
 
-
-
     private void handleSearch() {
         String term = searchField.getValue() != null ? searchField.getValue().trim() : "";
         if (term.isEmpty()) {
@@ -302,7 +268,8 @@ public class PetMergeView extends Div {
             if (results.isEmpty()) {
                 Notification.show("No se encontraron mascotas con ese nombre", 3000, Notification.Position.MIDDLE);
             } else if (results.size() == 1) {
-                Notification.show("Solo se encontró una mascota. Necesitas al menos 2 para fusionar.", 3500, Notification.Position.MIDDLE);
+                Notification.show("Solo se encontró una mascota. Necesitas al menos 2 para fusionar.", 3500,
+                        Notification.Position.MIDDLE);
             }
             grid.getDataProvider().refreshAll();
         } catch (Exception ex) {
@@ -313,7 +280,8 @@ public class PetMergeView extends Div {
     }
 
     private void doMerge() {
-        if (keepPet == null || removePet == null) return;
+        if (keepPet == null || removePet == null)
+            return;
         if (Objects.equals(keepPet.getId(), removePet.getId())) {
             Notification.show("Debes seleccionar dos mascotas distintas", 3000, Notification.Position.MIDDLE);
             return;
@@ -331,11 +299,8 @@ public class PetMergeView extends Div {
         }
     }
 
-
-
     private void updateMergeButtonState() {
-        boolean canMerge = keepPet != null && removePet != null
-                && !Objects.equals(idOf(keepPet), idOf(removePet));
+        boolean canMerge = keepPet != null && removePet != null && !Objects.equals(idOf(keepPet), idOf(removePet));
         openMergeDialogBtn.setEnabled(canMerge);
     }
 
@@ -347,19 +312,13 @@ public class PetMergeView extends Div {
     }
 
     private void styleKeepCard() {
-        keepCard.getStyle().set("border", "2px solid #86efac")
-                .set("background", "#f0fdf4")
-                .set("borderRadius", "8px")
-                .set("padding", "12px")
-                .set("flex", "1");
+        keepCard.getStyle().set("border", "2px solid #86efac").set("background", "#f0fdf4").set("borderRadius", "8px")
+                .set("padding", "12px").set("flex", "1");
     }
 
     private void styleRemoveCard() {
-        removeCard.getStyle().set("border", "2px solid #fecaca")
-                .set("background", "#fef2f2")
-                .set("borderRadius", "8px")
-                .set("padding", "12px")
-                .set("flex", "1");
+        removeCard.getStyle().set("border", "2px solid #fecaca").set("background", "#fef2f2").set("borderRadius", "8px")
+                .set("padding", "12px").set("flex", "1");
     }
 
     private void refreshCards() {
@@ -374,7 +333,7 @@ public class PetMergeView extends Div {
 
         keepCard.add(keepHeader);
         keepCard.add(keepPet != null ? summaryBlock(keepPet) : new Paragraph("Sin seleccionar"));
-        
+
         Icon closeIcon = VaadinIcon.CLOSE.create();
         closeIcon.setColor("red");
         Paragraph removeText = new Paragraph("Mascota a eliminar:");
@@ -398,31 +357,39 @@ public class PetMergeView extends Div {
             d.add(new Paragraph("Sin seleccionar"));
             return d;
         }
-        d.add(
-                new Paragraph("Nombre: " + nvl(p.getName())),
-                new Paragraph("Tipo: " + getTypeLabel(p.getType())),
+        d.add(new Paragraph("Nombre: " + nvl(p.getName())), new Paragraph("Tipo: " + getTypeLabel(p.getType())),
                 new Paragraph("Raza: " + nvl(p.getBreed())),
-                new Paragraph("Dueños: " + (p.getOwners() != null ? p.getOwners().size() : 0))
-        );
+                new Paragraph("Dueños: " + (p.getOwners() != null ? p.getOwners().size() : 0)));
         return d;
     }
 
-    private boolean isKeep(Pet p) { return keepPet != null && Objects.equals(idOf(keepPet), idOf(p)); }
-    private boolean isRemove(Pet p) { return removePet != null && Objects.equals(idOf(removePet), idOf(p)); }
-    private Long idOf(Pet p) { return p != null ? p.getId() : null; }
+    private boolean isKeep(Pet p) {
+        return keepPet != null && Objects.equals(idOf(keepPet), idOf(p));
+    }
+
+    private boolean isRemove(Pet p) {
+        return removePet != null && Objects.equals(idOf(removePet), idOf(p));
+    }
+
+    private Long idOf(Pet p) {
+        return p != null ? p.getId() : null;
+    }
 
     private String getTypeLabel(PetType type) {
-        if (type == null) return "";
+        if (type == null)
+            return "";
         return switch (type) {
-            case PERRO -> "Perro";
-            case GATO -> "Gato";
-            case AVE -> "Ave";
-            case CONEJO -> "Conejo";
-            case HAMSTER -> "Hámster";
-            case REPTIL -> "Reptil";
-            case OTRO -> "Otro";
+        case PERRO -> "Perro";
+        case GATO -> "Gato";
+        case AVE -> "Ave";
+        case CONEJO -> "Conejo";
+        case HAMSTER -> "Hámster";
+        case REPTIL -> "Reptil";
+        case OTRO -> "Otro";
         };
     }
 
-    private static String nvl(String s) { return s == null ? "" : s; }
+    private static String nvl(String s) {
+        return s == null ? "" : s;
+    }
 }

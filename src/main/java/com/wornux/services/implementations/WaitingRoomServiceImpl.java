@@ -64,8 +64,7 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
             }
         }
 
-        List<WaitingRoom> existing = waitingRoomRepository
-                .findWaitingByClientAndPet(dto.getClientId(), dto.getPetId());
+        List<WaitingRoom> existing = waitingRoomRepository.findWaitingByClientAndPet(dto.getClientId(), dto.getPetId());
         if (!existing.isEmpty()) {
             throw new IllegalStateException("El cliente y mascota ya están en la sala de espera");
         }
@@ -74,7 +73,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         log.info("WaitingRoom saved with ID: {}", saved.getId());
         return saved;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -320,8 +318,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         }
     }
 
-
-
     @Override
     public void delete(Long id) {
         log.debug("Request to soft delete WaitingRoom: {}", id);
@@ -338,8 +334,6 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         log.info("WaitingRoom soft deleted with ID: {}", id);
     }
-
-
 
     @Override
     public void update(WaitingRoom waitingRoom) {

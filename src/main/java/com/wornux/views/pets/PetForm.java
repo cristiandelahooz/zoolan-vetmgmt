@@ -113,10 +113,7 @@ public class PetForm extends Dialog {
 
         FormLayout layout = new FormLayout();
         layout.add(name, type, breed, birthDate, gender, color, size, furType);
-        layout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("500px", 2)
-        );
+        layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
         ownerCreateLayout = new HorizontalLayout(ownerName, selectOwnerButton);
         ownerCreateLayout.setAlignItems(FlexComponent.Alignment.END);
@@ -124,12 +121,8 @@ public class PetForm extends Dialog {
         ownersLayout.add(ownersChips, selectOwnersButton);
         ownersLayout.setVisible(false);
 
-        VerticalLayout content = new VerticalLayout(
-                new H3("Información de la Mascota"),
-                layout,
-                ownerCreateLayout,
-                ownersLayout
-        );
+        VerticalLayout content = new VerticalLayout(new H3("Información de la Mascota"), layout, ownerCreateLayout,
+                ownersLayout);
         content.addClassNames(LumoUtility.Padding.MEDIUM);
 
         HorizontalLayout buttons = new HorizontalLayout(cancelButton, saveButton);
@@ -197,7 +190,8 @@ public class PetForm extends Dialog {
             petService.updatePet(petIdToEdit, dto);
             NotificationUtils.success("Mascota actualizada exitosamente");
             firePetSavedEvent(null);
-            if (onSaveCallback != null) onSaveCallback.run();
+            if (onSaveCallback != null)
+                onSaveCallback.run();
             close();
             return;
         }
@@ -223,20 +217,53 @@ public class PetForm extends Dialog {
         petService.createPet(createDto);
         NotificationUtils.success("Mascota creada exitosamente");
         firePetSavedEvent(null);
-        if (onSaveCallback != null) onSaveCallback.run();
+        if (onSaveCallback != null)
+            onSaveCallback.run();
         close();
     }
 
     private boolean validateForm() {
         boolean ok = true;
-        if (name.isEmpty()) { name.setInvalid(true); ok = false; } else name.setInvalid(false);
-        if (type.isEmpty()) { type.setInvalid(true); ok = false; } else type.setInvalid(false);
-        if (breed.isEmpty()) { breed.setInvalid(true); ok = false; } else breed.setInvalid(false);
-        if (birthDate.isEmpty()) { birthDate.setInvalid(true); ok = false; } else birthDate.setInvalid(false);
-        if (gender.isEmpty()) { gender.setInvalid(true); ok = false; } else gender.setInvalid(false);
-        if (color.isEmpty()) { color.setInvalid(true); ok = false; } else color.setInvalid(false);
-        if (size.isEmpty()) { size.setInvalid(true); ok = false; } else size.setInvalid(false);
-        if (furType.isEmpty()) { furType.setInvalid(true); ok = false; } else furType.setInvalid(false);
+        if (name.isEmpty()) {
+            name.setInvalid(true);
+            ok = false;
+        } else
+            name.setInvalid(false);
+        if (type.isEmpty()) {
+            type.setInvalid(true);
+            ok = false;
+        } else
+            type.setInvalid(false);
+        if (breed.isEmpty()) {
+            breed.setInvalid(true);
+            ok = false;
+        } else
+            breed.setInvalid(false);
+        if (birthDate.isEmpty()) {
+            birthDate.setInvalid(true);
+            ok = false;
+        } else
+            birthDate.setInvalid(false);
+        if (gender.isEmpty()) {
+            gender.setInvalid(true);
+            ok = false;
+        } else
+            gender.setInvalid(false);
+        if (color.isEmpty()) {
+            color.setInvalid(true);
+            ok = false;
+        } else
+            color.setInvalid(false);
+        if (size.isEmpty()) {
+            size.setInvalid(true);
+            ok = false;
+        } else
+            size.setInvalid(false);
+        if (furType.isEmpty()) {
+            furType.setInvalid(true);
+            ok = false;
+        } else
+            furType.setInvalid(false);
 
         if (!isEditing && ownerId == null) {
             ownerName.setInvalid(true);
@@ -308,7 +335,8 @@ public class PetForm extends Dialog {
     }
 
     private String safeBreedValue(String currentBreed, PetType currentType) {
-        if (currentBreed == null || currentType == null) return null;
+        if (currentBreed == null || currentType == null)
+            return null;
         return currentType.getBreeds().contains(currentBreed) ? currentBreed : null;
     }
 

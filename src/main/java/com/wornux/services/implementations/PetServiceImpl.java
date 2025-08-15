@@ -79,8 +79,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public Pet updatePet(Long id, @Valid PetUpdateRequestDto dto) {
         log.debug("Request to update Pet : {}", dto);
 
-        Pet existing = petRepository.findById(id)
-                .orElseThrow(() -> new PetNotFoundException(id));
+        Pet existing = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException(id));
 
         petMapper.updatePetFromDTO(dto, existing);
 
@@ -89,7 +88,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
             existing.getOwners().clear();
             existing.getOwners().addAll(owners);
         }
-        
+
         Pet saved = petRepository.save(existing);
 
         if (log.isInfoEnabled()) {
@@ -100,8 +99,6 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         }
         return saved;
     }
-
-
 
     @Override
     @Transactional(readOnly = true)
@@ -120,15 +117,8 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Transactional(readOnly = true)
     public List<PetSummaryResponseDto> getAllPets(Pageable pageable) {
         return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
-                .map(pet -> new PetSummaryResponseDto(
-                        pet.getId(),
-                        pet.getName(),
-                        pet.getType(),
-                        pet.getBreed(),
-                        pet.getBirthDate(),
-                        pet.getColor(),
-                        pet.getSize(),
-                        pet.getFurType(),
+                .map(pet -> new PetSummaryResponseDto(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
+                        pet.getBirthDate(), pet.getColor(), pet.getSize(), pet.getFurType(),
                         pet.getOwners().isEmpty()
                                 ? "Sin dueño"
                                 : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName(),
@@ -152,7 +142,6 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public List<Pet> getPetsByOwnerId2(Long ownerId) {
         return petRepository.findByOwnerId2(ownerId);
     }
-
 
     @Override
     @Transactional
@@ -240,7 +229,5 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public PetRepository getRepository() {
         return petRepository;
     }
-
-
 
 }

@@ -14,8 +14,6 @@ import lombok.Data;
 import com.wornux.data.enums.FurType;
 import com.wornux.data.enums.PetSize;
 
-
-
 @Data
 @ValidPetBreed
 public class PetUpdateRequestDto implements PetBreedValidatable {

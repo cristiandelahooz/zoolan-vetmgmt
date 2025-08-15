@@ -34,26 +34,20 @@ public class SelectOwnersMultiDialog extends Dialog {
         TextField firstNameFilter = new TextField();
         firstNameFilter.setPlaceholder("Filtrar por nombre");
         firstNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        firstNameFilter.addValueChangeListener(e ->
-                dataProvider.setFilter(Client::getFirstName,
-                        name -> name != null && name.toLowerCase().contains(firstNameFilter.getValue().toLowerCase()))
-        );
+        firstNameFilter.addValueChangeListener(e -> dataProvider.setFilter(Client::getFirstName,
+                name -> name != null && name.toLowerCase().contains(firstNameFilter.getValue().toLowerCase())));
 
         TextField lastNameFilter = new TextField();
         lastNameFilter.setPlaceholder("Filtrar por apellido");
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        lastNameFilter.addValueChangeListener(e ->
-                dataProvider.setFilter(Client::getLastName,
-                        last -> last != null && last.toLowerCase().contains(lastNameFilter.getValue().toLowerCase()))
-        );
+        lastNameFilter.addValueChangeListener(e -> dataProvider.setFilter(Client::getLastName,
+                last -> last != null && last.toLowerCase().contains(lastNameFilter.getValue().toLowerCase())));
 
         TextField cedulaFilter = new TextField();
         cedulaFilter.setPlaceholder("Filtrar por cédula");
         cedulaFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        cedulaFilter.addValueChangeListener(e ->
-                dataProvider.setFilter(Client::getCedula,
-                        ced -> ced != null && ced.contains(cedulaFilter.getValue()))
-        );
+        cedulaFilter.addValueChangeListener(e -> dataProvider.setFilter(Client::getCedula,
+                ced -> ced != null && ced.contains(cedulaFilter.getValue())));
 
         HorizontalLayout filterBar = new HorizontalLayout(firstNameFilter, lastNameFilter, cedulaFilter);
 
@@ -83,11 +77,10 @@ public class SelectOwnersMultiDialog extends Dialog {
         add(content);
     }
 
-    /*public void open(Consumer<List<Client>> selectionCallback) {
-        this.selectionCallback = selectionCallback;
-        grid.deselectAll();
-        open();
-    }*/
+    /*
+     * public void open(Consumer<List<Client>> selectionCallback) { this.selectionCallback = selectionCallback;
+     * grid.deselectAll(); open(); }
+     */
 
     public void open(List<Client> preSelectedOwners, Consumer<List<Client>> selectionCallback) {
         this.selectionCallback = selectionCallback;
@@ -96,9 +89,7 @@ public class SelectOwnersMultiDialog extends Dialog {
 
         if (preSelectedOwners != null && !preSelectedOwners.isEmpty()) {
             preSelectedOwners.forEach(owner -> {
-                dataProvider.getItems().stream()
-                        .filter(c -> c.getId().equals(owner.getId()))
-                        .findFirst()
+                dataProvider.getItems().stream().filter(c -> c.getId().equals(owner.getId())).findFirst()
                         .ifPresent(grid::select);
             });
         }

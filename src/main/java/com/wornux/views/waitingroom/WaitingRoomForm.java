@@ -29,7 +29,8 @@ public class WaitingRoomForm extends Dialog {
     private final TextField reasonField = new TextField("Razón de Visita");
     private final ComboBox<Priority> priorityField = new ComboBox<>("Prioridad");
     private final TextArea notesField = new TextArea("Notas");
-    private final com.vaadin.flow.component.datetimepicker.DateTimePicker arrivalTimeField = new DateTimePicker("Hora de Llegada");
+    private final com.vaadin.flow.component.datetimepicker.DateTimePicker arrivalTimeField = new DateTimePicker(
+            "Hora de Llegada");
 
     private final Button saveButton = new Button("Guardar");
     private final Button cancelButton = new Button("Cancelar");
@@ -58,7 +59,8 @@ public class WaitingRoomForm extends Dialog {
         petField.setItemLabelGenerator(Pet::getName);
         priorityField.setItems(Priority.values());
 
-        FormLayout formLayout = new FormLayout(clientField, petField, reasonField, priorityField, notesField, arrivalTimeField);
+        FormLayout formLayout = new FormLayout(clientField, petField, reasonField, priorityField, notesField,
+                arrivalTimeField);
 
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -75,7 +77,10 @@ public class WaitingRoomForm extends Dialog {
             return;
         }
 
-        WaitingRoomCreateRequestDto dto = WaitingRoomCreateRequestDto.builder().clientId(clientField.getValue().getId()).petId(petField.getValue().getId()).reasonForVisit(reasonField.getValue()).priority(priorityField.getValue()).notes(notesField.getValue()).arrivalTime(arrivalTimeField.getValue()).build();
+        WaitingRoomCreateRequestDto dto = WaitingRoomCreateRequestDto.builder().clientId(clientField.getValue().getId())
+                .petId(petField.getValue().getId()).reasonForVisit(reasonField.getValue())
+                .priority(priorityField.getValue()).notes(notesField.getValue())
+                .arrivalTime(arrivalTimeField.getValue()).build();
 
         if (editingWaitingRoom == null) {
             waitingRoomService.save(dto);
@@ -90,7 +95,8 @@ public class WaitingRoomForm extends Dialog {
             waitingRoomService.update(editingWaitingRoom);
             NotificationUtils.success("Entrada actualizada exitosamente.");
         }
-        if (onSave != null) onSave.accept(dto);
+        if (onSave != null)
+            onSave.accept(dto);
         close();
     }
 
@@ -99,22 +105,26 @@ public class WaitingRoomForm extends Dialog {
         if (clientField.isEmpty()) {
             clientField.setInvalid(true);
             valid = false;
-        } else clientField.setInvalid(false);
+        } else
+            clientField.setInvalid(false);
 
         if (petField.isEmpty()) {
             petField.setInvalid(true);
             valid = false;
-        } else petField.setInvalid(false);
+        } else
+            petField.setInvalid(false);
 
         if (reasonField.isEmpty()) {
             reasonField.setInvalid(true);
             valid = false;
-        } else reasonField.setInvalid(false);
+        } else
+            reasonField.setInvalid(false);
 
         if (priorityField.isEmpty()) {
             priorityField.setInvalid(true);
             valid = false;
-        } else priorityField.setInvalid(false);
+        } else
+            priorityField.setInvalid(false);
 
         if (arrivalTimeField.isEmpty() || arrivalTimeField.getValue() == null) {
             arrivalTimeField.setInvalid(true);
