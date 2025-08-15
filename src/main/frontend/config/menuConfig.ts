@@ -99,4 +99,9 @@ export const menuConfig: MenuItemConfig[] = [
     title: 'Suplidores',
     icon: 'vaadin:truck',
   },
+  {
+    path: ROUTES.MEDICAL_HISTORY,
+    title: 'Historial Médico',
+    icon: 'vaadin:clipboard-text',
+  },
 ]
