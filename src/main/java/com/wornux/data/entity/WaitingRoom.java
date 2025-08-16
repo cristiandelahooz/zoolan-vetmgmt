@@ -25,12 +25,12 @@ public class WaitingRoom {
   private Long id;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "client_id", nullable = false)
+  @JoinColumn(name = "client", nullable = false)
   @NotNull
   private Client client;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "pet_id", nullable = false)
+  @JoinColumn(name = "pet", nullable = false)
   @NotNull
   private Pet pet;
 
