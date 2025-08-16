@@ -33,7 +33,7 @@ export const ROUTES = {
   WAITING_ROOM_LIVE: '/waitingroom/live',
 
   //Consultations routes
-  CONSULTATIONS: '/consultas',
+  CONSULTATIONS: '/consultations',
   CONSULTATION_NEW: '/consultations/new',
 
   //product routes
