@@ -5,12 +5,14 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Menu;
@@ -187,29 +189,69 @@ public class InventoryView extends Div {
 
     private Component createActionsColumn(Product product) {
         Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.addThemeVariants(
+                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
         edit.getElement().setProperty("title", "Editar");
         edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
+        delete.addThemeVariants(
+                ButtonVariant.LUMO_ICON,
+                ButtonVariant.LUMO_TERTIARY_INLINE,
+                ButtonVariant.LUMO_SMALL,
+                ButtonVariant.LUMO_ERROR);
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         edit.addClickListener(e -> productForm.openForEdit(product));
-        delete.addClickListener(e -> {
-            productService.delete(product.getId());
-            NotificationUtils.success("Producto eliminado");
-            refreshGrid();
-        });
+        delete.addClickListener(e -> showDeleteConfirmationDialog(product));
 
         HorizontalLayout actions = new HorizontalLayout(edit, delete);
-        actions.addClassName("actions-blur");
         actions.setSpacing(true);
         actions.setPadding(false);
         actions.setMargin(false);
         actions.setWidth(null);
         return actions;
+    }
+
+    private void showDeleteConfirmationDialog(Product product) {
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setHeaderTitle("Confirmar eliminación");
+        confirmDialog.setModal(true);
+        confirmDialog.setWidth("400px");
+
+        Span message = new Span("¿Está seguro de que desea eliminar el producto \"" +
+                (product.getName() != null ? product.getName() : "") +
+                "\"? Esta acción no se puede deshacer.");
+        message.getStyle().set("margin-bottom", "20px");
+
+        Button confirmButton = new Button("Eliminar");
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        confirmButton.addClickListener(e -> {
+            try {
+                productService.delete(product.getId());
+                NotificationUtils.success("Producto eliminado exitosamente");
+                refreshGrid();
+                confirmDialog.close();
+            } catch (Exception ex) {
+                NotificationUtils.error("Error al eliminar el producto: " + ex.getMessage());
+            }
+        });
+
+        Button cancelButton = new Button("Cancelar");
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelButton.addClickListener(e -> confirmDialog.close());
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, confirmButton);
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        buttonLayout.setSpacing(true);
+
+        VerticalLayout content = new VerticalLayout(message, buttonLayout);
+        content.setPadding(false);
+        content.setSpacing(true);
+
+        confirmDialog.add(content);
+        confirmDialog.open();
     }
 
     private String getCategoryDisplayName(ProductCategory category) {
