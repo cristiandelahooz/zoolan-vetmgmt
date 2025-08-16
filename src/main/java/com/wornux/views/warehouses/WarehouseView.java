@@ -272,7 +272,6 @@ public class WarehouseView extends VerticalLayout {
     private void deleteWarehouse(Warehouse warehouse) {
         try {
             warehouseService.deleteWarehouse(warehouse.getId());
-            NotificationUtils.success("Almacén eliminado exitosamente");
             clearForm();
             selectedWarehouse = null;
             isEditMode = false;
