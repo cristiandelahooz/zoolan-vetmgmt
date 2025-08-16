@@ -3,6 +3,7 @@ package com.wornux.views.consultations;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -11,6 +12,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -207,37 +209,72 @@ public class ConsultationsView extends Div {
     grid.setItems(consultations);
   }
 
-  private Component createActionsColumn(Consultation consultation) {
-    Button edit = new Button(new Icon(VaadinIcon.EDIT));
-    edit.addThemeVariants(
-        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-    edit.getElement().setProperty("title", "Editar");
-    edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+    private Component createActionsColumn(Consultation consultation) {
+        Button edit = new Button(new Icon(VaadinIcon.EDIT));
+        edit.addThemeVariants(
+                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.getElement().setProperty("title", "Editar");
+        edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
-    Button delete = new Button(new Icon(VaadinIcon.TRASH));
-    delete.addThemeVariants(
-        ButtonVariant.LUMO_ICON,
-        ButtonVariant.LUMO_TERTIARY_INLINE,
-        ButtonVariant.LUMO_SMALL,
-        ButtonVariant.LUMO_ERROR);
-    delete.getElement().setProperty("title", "Eliminar");
-    delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+        Button delete = new Button(new Icon(VaadinIcon.TRASH));
+        delete.addThemeVariants(
+                ButtonVariant.LUMO_ICON,
+                ButtonVariant.LUMO_TERTIARY_INLINE,
+                ButtonVariant.LUMO_SMALL,
+                ButtonVariant.LUMO_ERROR);
+        delete.getElement().setProperty("title", "Eliminar");
+        delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
-    edit.addClickListener(e -> consultationsForm.openForEdit(consultation));
-    delete.addClickListener(
-        e -> {
-          consultationService.delete(consultation.getId());
-          NotificationUtils.success("Consulta eliminada");
-          refreshAll();
+        edit.addClickListener(e -> consultationsForm.openForEdit(consultation));
+        delete.addClickListener(e -> showDeleteConfirmationDialog(consultation));
+
+        HorizontalLayout actions = new HorizontalLayout(edit, delete);
+        actions.setSpacing(true);
+        actions.setPadding(false);
+        actions.setMargin(false);
+        actions.setWidth(null);
+        return actions;
+    }
+
+    private void showDeleteConfirmationDialog(Consultation consultation) {
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setHeaderTitle("Confirmar eliminación");
+        confirmDialog.setModal(true);
+        confirmDialog.setWidth("400px");
+
+        Span message = new Span("¿Está seguro de que desea eliminar la consulta de la mascota \"" +
+                (consultation.getPet() != null ? consultation.getPet().getName() : "") +
+                "\"? Esta acción no se puede deshacer.");
+        message.getStyle().set("margin-bottom", "20px");
+
+        Button confirmButton = new Button("Eliminar");
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        confirmButton.addClickListener(e -> {
+            try {
+                consultationService.delete(consultation.getId());
+                NotificationUtils.success("Consulta eliminada exitosamente");
+                refreshAll();
+                confirmDialog.close();
+            } catch (Exception ex) {
+                NotificationUtils.error("Error al eliminar la consulta: " + ex.getMessage());
+            }
         });
 
-    HorizontalLayout actions = new HorizontalLayout(edit, delete);
-    actions.setSpacing(true);
-    actions.setPadding(false);
-    actions.setMargin(false);
-    actions.setWidth(null);
-    return actions;
-  }
+        Button cancelButton = new Button("Cancelar");
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelButton.addClickListener(e -> confirmDialog.close());
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, confirmButton);
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        buttonLayout.setSpacing(true);
+
+        VerticalLayout content = new VerticalLayout(message, buttonLayout);
+        content.setPadding(false);
+        content.setSpacing(true);
+
+        confirmDialog.add(content);
+        confirmDialog.open();
+    }
 
   private Component renderStatus(Consultation consultation) {
     boolean isActive = consultation.isActive();
