@@ -4,8 +4,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -19,6 +21,7 @@ import com.wornux.data.entity.Warehouse;
 import com.wornux.data.enums.WarehouseType;
 import com.wornux.dto.request.WarehouseCreateRequestDto;
 import com.wornux.dto.request.WarehouseUpdateRequestDto;
+import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +40,14 @@ public class WarehouseView extends VerticalLayout {
     private final Button toggleGridButton = new Button("Ocultar Grid", new Icon(VaadinIcon.EYE));
     private final TextField searchField = new TextField("Buscar Almacén");
     private final ComboBox<String> statusFilter = new ComboBox<>("Estado");
+    private final Span quantity = new Span();
 
     // Form fields
     private final TextField name = new TextField("Nombre del Almacén");
     private final ComboBox<WarehouseType> warehouseType = new ComboBox<>("Tipo de Almacén");
     private final ComboBox<Boolean> availableForSale = new ComboBox<>("Disponible para Venta");
     private final ComboBox<Boolean> status = new ComboBox<>("Estado");
+    private final ProductService productService;
 
     private transient Warehouse selectedWarehouse;
     private final transient WarehouseService warehouseService;
@@ -52,7 +57,7 @@ public class WarehouseView extends VerticalLayout {
     private final HorizontalLayout gridFilters;
     private final VerticalLayout contentLayout;
 
-    public WarehouseView(@Qualifier("warehouseServiceImpl") WarehouseService warehouseService) {
+    public WarehouseView(@Qualifier("warehouseServiceImpl") WarehouseService warehouseService, ProductService productService) {
         this.warehouseService = warehouseService;
         var warehouses = warehouseService.getAllWarehouses();
         warehouseDataProvider = new ListDataProvider<>(warehouses);
@@ -66,6 +71,7 @@ public class WarehouseView extends VerticalLayout {
         setupComponents();
         setupEventListeners();
         setupLayout();
+        this.productService = productService;
     }
 
     private void setupLayout() {
@@ -170,12 +176,33 @@ public class WarehouseView extends VerticalLayout {
     }
 
     private HorizontalLayout createGridFilters() {
-        searchField.setWidth("100%");
-        statusFilter.setWidth("100%");
-        HorizontalLayout filters = new HorizontalLayout(searchField, statusFilter);
+        searchField.setWidth("50%");
+        statusFilter.setWidth("45%");
+        quantity.addClassNames(
+                LumoUtility.BorderRadius.SMALL,
+                LumoUtility.Height.XSMALL,
+                LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.JustifyContent.CENTER,
+                LumoUtility.AlignItems.CENTER,
+                LumoUtility.Padding.XSMALL,
+                LumoUtility.Padding.Horizontal.SMALL,
+                LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.Margin.Bottom.XSMALL,
+                LumoUtility.TextColor.PRIMARY_CONTRAST,
+                LumoUtility.Background.PRIMARY);
+        quantity.setWidth("15%");
+        updateQuantity();
+
+        HorizontalLayout filters = new HorizontalLayout(searchField, statusFilter, quantity);
         filters.setWidthFull();
-        filters.setFlexGrow(1, searchField, statusFilter);
-        filters.addClassNames(LumoUtility.Gap.MEDIUM);
+        filters.setFlexGrow(1, searchField, statusFilter, quantity);
+        filters.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        filters.setAlignItems(FlexComponent.Alignment.END);
+        filters.addClassNames(
+                LumoUtility.Margin.Horizontal.MEDIUM,
+                LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Padding.MEDIUM,
+                LumoUtility.Gap.MEDIUM, LumoUtility.Width.FULL);
         return filters;
     }
 
@@ -355,5 +382,16 @@ public class WarehouseView extends VerticalLayout {
             boolean matchesStatus = "Todos".equals(status) || ("Activo".equals(status) && warehouse.isStatus()) || ("Inactivo".equals(status) && !warehouse.isStatus());
             return matchesSearch && matchesStatus;
         });
+    }
+
+    private void updateQuantity() {
+        try {
+            long count = warehouseService.getAllWarehouses().stream().filter(Warehouse::isStatus).count();
+            quantity.setText("Almacenes (" + count + ")");
+        } catch (Exception e) {
+            log.warn("Error getting warehouses" +
+                    " count", e);
+            quantity.setText("Almacenes (0)");
+        }
     }
 }
