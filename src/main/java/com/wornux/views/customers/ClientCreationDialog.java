@@ -13,6 +13,7 @@ import com.wornux.data.entity.Client;
 import com.wornux.dto.request.ClientCreateRequestDto;
 import com.wornux.mapper.ClientMapper;
 import com.wornux.services.interfaces.ClientService;
+import com.wornux.services.interfaces.UserService;
 import com.wornux.views.clients.CompanyClientForm;
 import com.wornux.views.clients.IndividualClientForm;
 import java.util.function.Consumer;
@@ -22,17 +23,19 @@ import lombok.Setter;
 public class ClientCreationDialog extends Dialog {
 
   private final ClientService clientService;
+  private final UserService userService;
   private final IndividualClientForm individualClientForm;
   private final CompanyClientForm companyClientForm;
   private final ClientMapper clientMapper;
 
   @Setter private Consumer<Client> onClientCreated;
 
-  public ClientCreationDialog(ClientService clientService, ClientMapper clientMapper) {
+  public ClientCreationDialog(ClientService clientService, ClientMapper clientMapper, UserService userService) {
+    this.userService = userService;
     this.clientService = clientService;
     this.clientMapper = clientMapper;
-    this.individualClientForm = new IndividualClientForm(clientService);
-    this.companyClientForm = new CompanyClientForm(clientService);
+    this.individualClientForm = new IndividualClientForm(clientService, userService);
+    this.companyClientForm = new CompanyClientForm(clientService, userService);
 
     setupDialog();
     setupEventListeners();
