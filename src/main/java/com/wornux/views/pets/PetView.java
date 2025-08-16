@@ -9,6 +9,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -156,6 +157,8 @@ public class PetView extends Div {
             }
         });
 
+        grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+
     }
 
     public Specification<Pet> createFilterSpecification() {
@@ -186,7 +189,7 @@ public class PetView extends Div {
         grid.getDataProvider().refreshAll();
         Pageable pageable = Pageable.unpaged(); // O usa PageRequest.of(...) si quieres paginar
         long count = petService.getAllPets(pageable).stream().filter(PetSummaryResponseDto::active).count();
-        quantity.setText("Mascotas activas: " + count);
+        quantity.setText("Mascotas activas (" + count + ")");
     }
 
     private Component createFilter() {
@@ -213,6 +216,7 @@ public class PetView extends Div {
         quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
                 LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
                 LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.Margin.Bottom.XSMALL,
                 LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY);
 
         HorizontalLayout toolbar = new HorizontalLayout(searchField, typeFilter, genderFilter, sizeFilter, quantity);
@@ -249,5 +253,35 @@ public class PetView extends Div {
                 LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
 
         return layout;
+    }
+
+    public Component createActionsColumn(Pet pet) {
+        Button edit = new Button(new Icon(VaadinIcon.EDIT));
+        edit.addThemeVariants(
+                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.getElement().setProperty("title", "Editar");
+        edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+        Button delete = new Button(new Icon(VaadinIcon.TRASH));
+        delete.addThemeVariants(
+                ButtonVariant.LUMO_ICON,
+                ButtonVariant.LUMO_TERTIARY_INLINE,
+                ButtonVariant.LUMO_SMALL,
+                ButtonVariant.LUMO_ERROR);
+        delete.getElement().setProperty("title", "Eliminar");
+        delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+        edit.addClickListener(e -> petForm.openForEdit(pet));
+        delete.addClickListener(e -> {
+            petService.delete(pet.getId());
+            refreshAll();
+        });
+
+        HorizontalLayout actions = new HorizontalLayout(edit, delete);
+        actions.setSpacing(true);
+        actions.setPadding(false);
+        actions.setMargin(false);
+        actions.setWidth(null);
+        return actions;
     }
 }
