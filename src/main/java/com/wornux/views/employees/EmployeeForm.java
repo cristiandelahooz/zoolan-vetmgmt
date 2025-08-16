@@ -1,12 +1,8 @@
 package com.wornux.views.employees;
 
-import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
-import static com.wornux.constants.ValidationConstants.EMAIL_PATTERN;
-import static com.wornux.constants.ValidationConstants.MAX_USERNAME_LENGTH;
-import static com.wornux.constants.ValidationConstants.MIN_PASSWORD_LENGTH;
-import static com.wornux.constants.ValidationConstants.MIN_USERNAME_LENGTH;
-
 import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.HasValidation;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -14,511 +10,705 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.EmailField;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.component.textfield.*;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.constants.ValidationConstants;
+import com.wornux.data.entity.Employee;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.Gender;
 import com.wornux.dto.request.EmployeeCreateRequestDto;
+import com.wornux.dto.request.EmployeeUpdateRequestDto;
+import com.wornux.exception.DuplicateEmployeeException;
 import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.utils.NotificationUtils;
+import jakarta.validation.ValidationException;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Stream;
+
+import static com.wornux.constants.ValidationConstants.*;
 
 @Slf4j
 public class EmployeeForm extends Dialog {
 
-  private static final String RESPONSIVE_STEP_WIDTH = "500px";
-  // User Information
-  private final TextField username = new TextField("Usuario");
-  private final PasswordField password = new PasswordField("Contraseña");
-  private final TextField firstName = new TextField("Nombre");
-  private final TextField lastName = new TextField("Apellido");
-  private final EmailField email = new EmailField("Correo Electrónico");
-  private final TextField phoneNumber = new TextField("Teléfono");
-  private final DatePicker birthDate = new DatePicker("Fecha de Nacimiento");
-  private final ComboBox<Gender> gender = new ComboBox<>("Género");
-  private final TextField nationality = new TextField("Nacionalidad");
-  // Address Information
-  private final TextField province = new TextField("Provincia");
-  private final TextField municipality = new TextField("Municipio");
-  private final TextField sector = new TextField("Sector");
-  private final TextField streetAddress = new TextField("Dirección");
-  // Employee Information
-  private final ComboBox<EmployeeRole> employeeRole = new ComboBox<>("Rol");
-  private final NumberField salary = new NumberField("Salario");
-  private final DatePicker hireDate = new DatePicker("Fecha de Contratación");
-  private final TextField workSchedule = new TextField("Horario Laboral");
-  // Emergency Contact
-  private final TextField emergencyContactName = new TextField("Nombre de Contacto de Emergencia");
-  private final TextField emergencyContactPhone =
-      new TextField("Teléfono de Contacto de Emergencia");
-  private final Button saveButton = new Button("Guardar");
-  private final Button cancelButton = new Button("Cancelar");
-  private final Binder<EmployeeCreateRequestDto> binder =
-      new BeanValidationBinder<>(EmployeeCreateRequestDto.class);
-  private final List<Consumer<EmployeeCreateRequestDto>> employeeSavedListeners = new ArrayList<>();
-  private final List<Runnable> employeeCancelledListeners = new ArrayList<>();
-  private final transient EmployeeService employeeService;
-  @Setter private transient Runnable onSaveCallback;
+    // Form Components
+    private final TextField username = new TextField("Usuario");
+    private final PasswordField password = new PasswordField("Contraseña");
+    private final TextField firstName = new TextField("Nombre");
+    private final TextField lastName = new TextField("Apellido");
+    private final EmailField email = new EmailField("Correo Electrónico");
+    private final TextField phoneNumber = new TextField("Teléfono");
+    private final DatePicker birthDate = new DatePicker("Fecha de Nacimiento");
+    private final ComboBox<Gender> gender = new ComboBox<>("Género");
+    private final TextField nationality = new TextField("Nacionalidad");
+    private final TextField province = new TextField("Provincia");
+    private final TextField municipality = new TextField("Municipio");
+    private final TextField sector = new TextField("Sector");
+    private final TextField streetAddress = new TextField("Dirección");
+    private final ComboBox<EmployeeRole> employeeRole = new ComboBox<>("Rol de Empleado");
+    private final NumberField salary = new NumberField("Salario");
+    private final DatePicker hireDate = new DatePicker("Fecha de Contratación");
+    private final TextField workSchedule = new TextField("Horario de Trabajo");
+    private final TextField emergencyContactName = new TextField("Nombre Contacto de Emergencia");
+    private final TextField emergencyContactPhone = new TextField("Teléfono Contacto de Emergencia");
 
-  public EmployeeForm(EmployeeService employeeService) {
-    this.employeeService = employeeService;
+    // Form buttons
+    private final Button saveButton = new Button("Guardar");
+    private final Button cancelButton = new Button("Cancelar");
 
-    setHeaderTitle("Nuevo Empleado");
-    setModal(true);
-    setWidth("900px");
-    setHeight("80vh");
+    // Header
+    private final H3 headerTitle = new H3();
 
-    createForm();
-    setupValidation();
-    setupEventListeners();
-  }
+    // Binders
+    private final Binder<ValidationBean> binder = new Binder<>(ValidationBean.class);
+    private final Binder<EmployeeUpdateRequestDto> binderUpdate = new Binder<>(EmployeeUpdateRequestDto.class);
 
-  private void createForm() {
-    FormLayout userInfo = new FormLayout();
-    userInfo.add(
-        username,
-        password,
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
-        birthDate,
-        gender,
-        nationality);
-    userInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1),
-        new FormLayout.ResponsiveStep(RESPONSIVE_STEP_WIDTH, 2));
+    // Services
+    private final transient EmployeeService employeeService;
 
-    FormLayout addressInfo = new FormLayout();
-    addressInfo.add(province, municipality, sector, streetAddress);
-    addressInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1),
-        new FormLayout.ResponsiveStep(RESPONSIVE_STEP_WIDTH, 2));
+    // State
+    private boolean isEditMode = false;
+    private Employee currentEmployee;
+    private ValidationBean validationBean;
+    private Runnable onSaveCallback;
 
-    FormLayout employeeInfo = new FormLayout();
-    employeeInfo.add(employeeRole, salary, hireDate, workSchedule);
-    employeeInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1),
-        new FormLayout.ResponsiveStep(RESPONSIVE_STEP_WIDTH, 2));
+    // Event listeners
+    private final List<Consumer<EmployeeCreateRequestDto>> employeeSavedListeners = new ArrayList<>();
+    private final List<Runnable> employeeCancelledListeners = new ArrayList<>();
 
-    FormLayout emergencyInfo = new FormLayout();
-    emergencyInfo.add(emergencyContactName, emergencyContactPhone);
-    emergencyInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1),
-        new FormLayout.ResponsiveStep(RESPONSIVE_STEP_WIDTH, 2));
+    public EmployeeForm(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+        this.validationBean = new ValidationBean();
 
-    // Setup combo boxes
-    gender.setItems(Gender.values());
-    gender.setItemLabelGenerator(Gender::name);
+        setupDialog();
+        setupForm();
+        setupBinders();
+        setupEventListeners();
+        configureFieldValidation();
+    }
 
-    employeeRole.setItems(EmployeeRole.values());
-    employeeRole.setItemLabelGenerator(EmployeeRole::getDisplayName);
+    private void setupDialog() {
+        setModal(true);
+        setDraggable(false);
+        setResizable(false);
+        setWidth("800px");
+        setMaxWidth("90vw");
+        addClassNames(LumoUtility.Padding.NONE);
+    }
 
-    // Configure number fields
-    salary.setMin(0);
-    salary.setValue(0.0);
-    salary.setSuffixComponent(new TextField().getPrefixComponent());
+    private void setupForm() {
+        setupFormComponents();
+        FormLayout formLayout = createFormLayout();
 
-    // Configure text fields
-    username.setPlaceholder("Ej: john.doe");
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        buttonLayout.setSpacing(true);
+        buttonLayout.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.JustifyContent.END);
 
-    phoneNumber.setPlaceholder("Ej: 809-555-5555");
+        VerticalLayout content = new VerticalLayout(headerTitle, formLayout, buttonLayout);
+        content.setPadding(false);
+        content.setSpacing(false);
 
-    VerticalLayout content = new VerticalLayout();
-    content.add(
-        new H3("Información del Usuario"),
-        userInfo,
-        new H3("Dirección"),
-        addressInfo,
-        new H3("Información del Empleado"),
-        employeeInfo,
-        new H3("Contacto de Emergencia"),
-        emergencyInfo);
+        add(content);
+    }
 
-    content.addClassNames(LumoUtility.Padding.MEDIUM);
+    private void setupFormComponents() {
+        username.setPrefixComponent(VaadinIcon.USER.create());
+        username.setRequiredIndicatorVisible(true);
 
-    // Configure buttons
-    saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-    cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        password.setPrefixComponent(VaadinIcon.LOCK.create());
+        password.setRequiredIndicatorVisible(true);
 
-    HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
-    buttonLayout.addClassNames(LumoUtility.JustifyContent.END, LumoUtility.Gap.MEDIUM);
+        email.setPrefixComponent(VaadinIcon.ENVELOPE.create());
+        email.setRequiredIndicatorVisible(true);
 
-    add(content, buttonLayout);
-  }
+        firstName.setPrefixComponent(VaadinIcon.USER.create());
+        firstName.setRequiredIndicatorVisible(true);
 
-  private void setupValidation() {
-    // Setup basic field requirements without binding
-    username.setRequired(true);
-    username.setRequiredIndicatorVisible(true);
-    username.setMinLength(MIN_USERNAME_LENGTH);
-    username.setMaxLength(MAX_USERNAME_LENGTH);
-    username.setErrorMessage(
-        "El nombre de usario es requerido y debe tener entre "
-            + MIN_USERNAME_LENGTH
-            + " y "
-            + MAX_USERNAME_LENGTH
-            + " caracteres");
+        lastName.setPrefixComponent(VaadinIcon.USER.create());
+        lastName.setRequiredIndicatorVisible(true);
 
-    password.setRequired(true);
-    password.setRequiredIndicatorVisible(true);
-    password.setMinLength(MIN_PASSWORD_LENGTH);
-    password.setErrorMessage(
-        "La contraseña es requerida y debe tener al menos " + MIN_PASSWORD_LENGTH + " caracteres");
+        phoneNumber.setPrefixComponent(VaadinIcon.PHONE.create());
 
-    firstName.setRequired(true);
-    firstName.setRequiredIndicatorVisible(true);
-    firstName.setErrorMessage("El nombre es requerido");
+        province.setRequiredIndicatorVisible(true);
+        municipality.setRequiredIndicatorVisible(true);
+        sector.setRequiredIndicatorVisible(true);
+        streetAddress.setRequiredIndicatorVisible(true);
 
-    lastName.setRequired(true);
-    lastName.setRequiredIndicatorVisible(true);
-    lastName.setErrorMessage("El apellido es requerido");
+        employeeRole.setItems(EmployeeRole.values());
+        employeeRole.setItemLabelGenerator(EmployeeRole::getDisplayName);
+        employeeRole.setRequiredIndicatorVisible(true);
 
-    email.setRequired(true);
-    email.setRequiredIndicatorVisible(true);
-    email.setPattern(EMAIL_PATTERN);
-    email.setErrorMessage("El correo electrónico es requerido y debe ser válido");
+        gender.setItems(Gender.values());
+        gender.setItemLabelGenerator(Gender::name);
 
-    phoneNumber.setRequired(true);
-    phoneNumber.setRequiredIndicatorVisible(true);
-    phoneNumber.setPattern(DOMINICAN_PHONE_PATTERN);
-    phoneNumber.setErrorMessage("El teléfono debe ser en formato dominicano");
+        salary.setPrefixComponent(VaadinIcon.DOLLAR.create());
+        salary.setRequiredIndicatorVisible(true);
+        salary.setMin(0);
 
-    birthDate.setRequired(true);
-    birthDate.setRequiredIndicatorVisible(true);
-    birthDate.setErrorMessage("La fecha de nacimiento es requerida");
+        hireDate.setRequiredIndicatorVisible(true);
+        workSchedule.setRequiredIndicatorVisible(true);
 
-    gender.setRequired(true);
-    gender.setRequiredIndicatorVisible(true);
-    gender.setErrorMessage("El género es requerido");
+        emergencyContactPhone.setPrefixComponent(VaadinIcon.PHONE.create());
 
-    sector.setRequired(true);
-    sector.setRequiredIndicatorVisible(true);
-    sector.setErrorMessage("El sector es requerido");
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+    }
 
-    streetAddress.setRequired(true);
-    streetAddress.setRequiredIndicatorVisible(true);
-    streetAddress.setErrorMessage("La dirección es requerida");
+    private FormLayout createFormLayout() {
+        FormLayout formLayout = new FormLayout();
+        formLayout.addClassNames(LumoUtility.Padding.MEDIUM);
 
-    employeeRole.setRequired(true);
-    employeeRole.setRequiredIndicatorVisible(true);
-    employeeRole.setErrorMessage("El rol es requerido");
+        formLayout.add(
+                username, password,
+                firstName, lastName,
+                email, phoneNumber,
+                birthDate, gender,
+                nationality,
+                province, municipality,
+                sector, streetAddress,
+                employeeRole, salary,
+                hireDate, workSchedule,
+                emergencyContactName, emergencyContactPhone
+        );
 
-    salary.setRequired(true);
-    salary.setRequiredIndicatorVisible(true);
-    salary.setErrorMessage("El salario es requerido");
+        formLayout.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("500px", 2)
+        );
 
-    hireDate.setRequired(true);
-    hireDate.setRequiredIndicatorVisible(true);
-    hireDate.setErrorMessage("La fecha de contratación es requerida");
+        formLayout.setColspan(streetAddress, 2);
+        formLayout.setColspan(workSchedule, 2);
 
-    workSchedule.setRequired(true);
-    workSchedule.setRequiredIndicatorVisible(true);
-    workSchedule.setErrorMessage("El horario laboral es requerido");
-  }
+        return formLayout;
+    }
 
-  private void setupEventListeners() {
-    saveButton.addClickListener(this::save);
-    cancelButton.addClickListener(
-        e -> {
-          fireEmployeeCancelledEvent();
-          close();
+    public void setOnSaveCallback(Runnable callback) {
+        this.onSaveCallback = callback;
+    }
+
+    public void updateHeaderTitle(String title) {
+        headerTitle.setText(title);
+        headerTitle.addClassNames(LumoUtility.Margin.NONE, LumoUtility.Padding.MEDIUM);
+    }
+
+    private void setupBinders() {
+        setupCreateBinder();
+        setupUpdateBinder();
+    }
+
+    private void setupCreateBinder() {
+        binder.forField(username)
+                .withValidator(new StringLengthValidator("El usuario debe tener entre 3 y 50 caracteres", MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH))
+                .bind(ValidationBean::getUsername, ValidationBean::setUsername);
+
+        binder.forField(password)
+                .withValidator(new StringLengthValidator("La contraseña debe tener al menos 8 caracteres", MIN_PASSWORD_LENGTH, null))
+                .bind(ValidationBean::getPassword, ValidationBean::setPassword);
+
+        binder.forField(firstName)
+                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
+                .bind(ValidationBean::getFirstName, ValidationBean::setFirstName);
+
+        binder.forField(lastName)
+                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
+                .bind(ValidationBean::getLastName, ValidationBean::setLastName);
+
+        binder.forField(email)
+                .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
+                .bind(ValidationBean::getEmail, ValidationBean::setEmail);
+
+        binder.forField(phoneNumber)
+                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido", DOMINICAN_PHONE_PATTERN, true))
+                .bind(ValidationBean::getPhoneNumber, ValidationBean::setPhoneNumber);
+
+        binder.forField(birthDate)
+                .withValidator(this::validateBirthDate)
+                .bind(ValidationBean::getBirthDate, ValidationBean::setBirthDate);
+
+        binder.forField(gender)
+                .bind(ValidationBean::getGender, ValidationBean::setGender);
+
+        binder.forField(nationality)
+                .bind(ValidationBean::getNationality, ValidationBean::setNationality);
+
+        binder.forField(province)
+                .asRequired("La provincia es requerida")
+                .bind(ValidationBean::getProvince, ValidationBean::setProvince);
+
+        binder.forField(municipality)
+                .asRequired("El municipio es requerido")
+                .bind(ValidationBean::getMunicipality, ValidationBean::setMunicipality);
+
+        binder.forField(sector)
+                .asRequired("El sector es requerido")
+                .bind(ValidationBean::getSector, ValidationBean::setSector);
+
+        binder.forField(streetAddress)
+                .asRequired("La dirección es requerida")
+                .bind(ValidationBean::getStreetAddress, ValidationBean::setStreetAddress);
+
+        binder.forField(employeeRole)
+                .asRequired("El rol de empleado es requerido")
+                .bind(ValidationBean::getEmployeeRole, ValidationBean::setEmployeeRole);
+
+        binder.forField(salary)
+                .withValidator(this::validateSalary)
+                .bind(ValidationBean::getSalary, ValidationBean::setSalary);
+
+        binder.forField(hireDate)
+                .asRequired("La fecha de contratación es requerida")
+                .bind(ValidationBean::getHireDate, ValidationBean::setHireDate);
+
+        binder.forField(workSchedule)
+                .asRequired("El horario de trabajo es requerido")
+                .bind(ValidationBean::getWorkSchedule, ValidationBean::setWorkSchedule);
+
+        binder.forField(emergencyContactName)
+                .bind(ValidationBean::getEmergencyContactName, ValidationBean::setEmergencyContactName);
+
+        binder.forField(emergencyContactPhone)
+                .bind(ValidationBean::getEmergencyContactPhone, ValidationBean::setEmergencyContactPhone);
+    }
+
+    private void setupUpdateBinder() {
+        binderUpdate.forField(username)
+                .withValidator(new StringLengthValidator("El usuario debe tener entre 3 y 50 caracteres", MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH))
+                .bind(EmployeeUpdateRequestDto::getUsername, EmployeeUpdateRequestDto::setUsername);
+
+        binderUpdate.forField(firstName)
+                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
+                .bind(EmployeeUpdateRequestDto::getFirstName, EmployeeUpdateRequestDto::setFirstName);
+
+        binderUpdate.forField(lastName)
+                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
+                .bind(EmployeeUpdateRequestDto::getLastName, EmployeeUpdateRequestDto::setLastName);
+
+        binderUpdate.forField(email)
+                .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
+                .bind(EmployeeUpdateRequestDto::getEmail, EmployeeUpdateRequestDto::setEmail);
+
+        binderUpdate.forField(phoneNumber)
+                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido", DOMINICAN_PHONE_PATTERN, true))
+                .bind(EmployeeUpdateRequestDto::getPhoneNumber, EmployeeUpdateRequestDto::setPhoneNumber);
+
+        binderUpdate.forField(birthDate)
+                .withValidator(this::validateBirthDate)
+                .bind(EmployeeUpdateRequestDto::getBirthDate, EmployeeUpdateRequestDto::setBirthDate);
+
+        binderUpdate.forField(gender)
+                .bind(EmployeeUpdateRequestDto::getGender, EmployeeUpdateRequestDto::setGender);
+
+        binderUpdate.forField(nationality)
+                .bind(EmployeeUpdateRequestDto::getNationality, EmployeeUpdateRequestDto::setNationality);
+
+        binderUpdate.forField(province)
+                .asRequired("La provincia es requerida")
+                .bind(EmployeeUpdateRequestDto::getProvince, EmployeeUpdateRequestDto::setProvince);
+
+        binderUpdate.forField(municipality)
+                .asRequired("El municipio es requerido")
+                .bind(EmployeeUpdateRequestDto::getMunicipality, EmployeeUpdateRequestDto::setMunicipality);
+
+        binderUpdate.forField(sector)
+                .asRequired("El sector es requerido")
+                .bind(EmployeeUpdateRequestDto::getSector, EmployeeUpdateRequestDto::setSector);
+
+        binderUpdate.forField(streetAddress)
+                .asRequired("La dirección es requerida")
+                .bind(EmployeeUpdateRequestDto::getStreetAddress, EmployeeUpdateRequestDto::setStreetAddress);
+
+        binderUpdate.forField(employeeRole)
+                .asRequired("El rol de empleado es requerido")
+                .bind(EmployeeUpdateRequestDto::getEmployeeRole, EmployeeUpdateRequestDto::setEmployeeRole);
+
+        binderUpdate.forField(salary)
+                .withValidator(this::validateSalary)
+                .bind(EmployeeUpdateRequestDto::getSalary, EmployeeUpdateRequestDto::setSalary);
+
+        binderUpdate.forField(hireDate)
+                .asRequired("La fecha de contratación es requerida")
+                .bind(EmployeeUpdateRequestDto::getHireDate, EmployeeUpdateRequestDto::setHireDate);
+
+        binderUpdate.forField(workSchedule)
+                .asRequired("El horario de trabajo es requerido")
+                .bind(EmployeeUpdateRequestDto::getWorkSchedule, EmployeeUpdateRequestDto::setWorkSchedule);
+
+        binderUpdate.forField(emergencyContactName)
+                .bind(EmployeeUpdateRequestDto::getEmergencyContactName, EmployeeUpdateRequestDto::setEmergencyContactName);
+
+        binderUpdate.forField(emergencyContactPhone)
+                .bind(EmployeeUpdateRequestDto::getEmergencyContactPhone, EmployeeUpdateRequestDto::setEmergencyContactPhone);
+    }
+
+    private ValidationResult validateBirthDate(LocalDate value, ValueContext context) {
+        if (value != null && value.isAfter(LocalDate.now().minusYears(16))) {
+            return ValidationResult.error("El empleado debe tener al menos 16 años");
+        }
+        return ValidationResult.ok();
+    }
+
+    private ValidationResult validateSalary(Double value, ValueContext context) {
+        if (value == null) {
+            return ValidationResult.error("El salario es requerido");
+        }
+        if (value < 0) {
+            return ValidationResult.error("El salario no puede ser negativo");
+        }
+        return ValidationResult.ok();
+    }
+
+    private void setupEventListeners() {
+        saveButton.addClickListener(this::save);
+        cancelButton.addClickListener(e -> {
+            close();
+            fireEmployeeCancelledEvent();
         });
-  }
-
-  private void save(ClickEvent<Button> event) {
-    try {
-      // Manual validation
-      if (!validateForm()) {
-        NotificationUtils.error("Por favor, complete todos los campos requeridos");
-        return;
-      }
-
-      EmployeeCreateRequestDto dto =
-          EmployeeCreateRequestDto.builder()
-              .username(username.getValue())
-              .password(password.getValue())
-              .firstName(firstName.getValue())
-              .lastName(lastName.getValue())
-              .email(email.getValue())
-              .phoneNumber(phoneNumber.getValue())
-              .birthDate(birthDate.getValue())
-              .gender(gender.getValue())
-              .nationality(nationality.getValue())
-              .province(province.getValue())
-              .municipality(municipality.getValue())
-              .sector(sector.getValue())
-              .streetAddress(streetAddress.getValue())
-              .employeeRole(employeeRole.getValue())
-              .salary(salary.getValue())
-              .hireDate(hireDate.getValue())
-              .workSchedule(workSchedule.getValue())
-              .emergencyContactName(emergencyContactName.getValue())
-              .emergencyContactPhone(emergencyContactPhone.getValue())
-              .build();
-
-      employeeService.save(dto);
-      NotificationUtils.success("Empleado creado exitosamente");
-
-      // Fire the event with the created DTO
-      fireEmployeeSavedEvent(dto);
-
-      if (onSaveCallback != null) {
-        onSaveCallback.run();
-      }
-
-      close();
-    } catch (Exception e) {
-      log.error("Error creating employee", e);
-      NotificationUtils.error("Error al crear empleado: " + e.getMessage());
-    }
-  }
-
-  /**
-   * Validates all required form fields
-   *
-   * @return true if all required fields are valid, false otherwise
-   */
-  private boolean validateForm() {
-    boolean isValid = true;
-
-    // Validate required fields
-    if (username.isEmpty()
-        || username.getValue().length() < MIN_USERNAME_LENGTH
-        || username.getValue().length() > MAX_USERNAME_LENGTH) {
-      username.setInvalid(true);
-      isValid = false;
-    } else {
-      username.setInvalid(false);
     }
 
-    if (password.isEmpty() || password.getValue().length() < MIN_PASSWORD_LENGTH) {
-      password.setInvalid(true);
-      isValid = false;
-    } else {
-      password.setInvalid(false);
+    private void save(ClickEvent<Button> event) {
+        if (isEditMode) {
+            saveUpdate();
+        } else {
+            saveNew();
+        }
     }
 
-    if (firstName.isEmpty()) {
-      firstName.setInvalid(true);
-      isValid = false;
-    } else {
-      firstName.setInvalid(false);
+    private void saveNew() {
+        if (!binder.isValid()) {
+            NotificationUtils.error("Por favor, corrija los errores en el formulario");
+            return;
+        }
+
+        try {
+            EmployeeCreateRequestDto dto = EmployeeCreateRequestDto.builder()
+                    .username(validationBean.getUsername())
+                    .password(validationBean.getPassword())
+                    .firstName(validationBean.getFirstName())
+                    .lastName(validationBean.getLastName())
+                    .email(validationBean.getEmail())
+                    .phoneNumber(validationBean.getPhoneNumber())
+                    .birthDate(validationBean.getBirthDate())
+                    .gender(validationBean.getGender())
+                    .nationality(validationBean.getNationality())
+                    .province(validationBean.getProvince())
+                    .municipality(validationBean.getMunicipality())
+                    .sector(validationBean.getSector())
+                    .streetAddress(validationBean.getStreetAddress())
+                    .employeeRole(validationBean.getEmployeeRole())
+                    .salary(validationBean.getSalary())
+                    .hireDate(validationBean.getHireDate())
+                    .workSchedule(validationBean.getWorkSchedule())
+                    .emergencyContactName(validationBean.getEmergencyContactName())
+                    .emergencyContactPhone(validationBean.getEmergencyContactPhone())
+                    .build();
+
+            employeeService.save(dto);
+            NotificationUtils.success("Empleado creado exitosamente");
+            close();
+            fireEmployeeSavedEvent(dto);
+            if (onSaveCallback != null) {
+                onSaveCallback.run();
+            }
+        } catch (Exception e) {
+            log.error("Error saving employee", e);
+            NotificationUtils.error("Error al guardar el empleado: " + e.getMessage());
+        }
     }
 
-    if (lastName.isEmpty()) {
-      lastName.setInvalid(true);
-      isValid = false;
-    } else {
-      lastName.setInvalid(false);
+    private void saveUpdate() {
+        if (!binderUpdate.isValid()) {
+            NotificationUtils.error("Por favor, corrija los errores en el formulario");
+            return;
+        }
+
+        try {
+            EmployeeUpdateRequestDto updateDto = binderUpdate.getBean();
+            employeeService.updateEmployee(currentEmployee.getId(), updateDto);
+            NotificationUtils.success("Empleado actualizado exitosamente");
+            close();
+            if (onSaveCallback != null) {
+                onSaveCallback.run();
+            }
+        } catch (ValidationException e) {
+            log.error("Validation error updating employee", e);
+            NotificationUtils.error("Error de validación: " + e.getMessage());
+        } catch (DuplicateEmployeeException e) {
+            log.error("Duplicate employee error", e);
+            NotificationUtils.error("Empleado duplicado: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Error updating employee", e);
+            NotificationUtils.error("Error al actualizar el empleado: " + e.getMessage());
+        }
     }
 
-    if (email.isEmpty() || !email.getValue().contains("@")) {
-      email.setInvalid(true);
-      isValid = false;
-    } else {
-      email.setInvalid(false);
+    public void openForNew() {
+        isEditMode = false;
+        clearAllValidationErrors();
+        currentEmployee = null;
+        validationBean = new ValidationBean();
+
+        updateHeaderTitle("Nuevo Empleado");
+        clearForm();
+        binder.readBean(validationBean);
+
+        password.setVisible(true);
+        password.setRequiredIndicatorVisible(true);
+        hireDate.setValue(LocalDate.now());
+
+        firstName.focus();
+        open();
     }
 
-    if (phoneNumber.isEmpty()) {
-      phoneNumber.setInvalid(true);
-      isValid = false;
-    } else {
-      phoneNumber.setInvalid(false);
+    public void openForEdit(Employee employee) {
+        clearAllValidationErrors();
+        isEditMode = true;
+        currentEmployee = employee;
+
+        updateHeaderTitle("Editar Empleado: " + employee.getFirstName() + " " + employee.getLastName());
+
+        password.setVisible(false);
+        password.setRequiredIndicatorVisible(false);
+
+        populateForm(employee);
+        EmployeeUpdateRequestDto updateDto = createUpdateDtoFromEmployee(employee);
+        binderUpdate.setBean(updateDto);
+
+        username.focus();
+        open();
     }
 
-    if (birthDate.isEmpty()) {
-      birthDate.setInvalid(true);
-      isValid = false;
-    } else {
-      birthDate.setInvalid(false);
+    private void clearForm() {
+        username.clear();
+        password.clear();
+        firstName.clear();
+        lastName.clear();
+        email.clear();
+        phoneNumber.clear();
+        birthDate.clear();
+        gender.clear();
+        nationality.clear();
+        province.clear();
+        municipality.clear();
+        sector.clear();
+        streetAddress.clear();
+        employeeRole.clear();
+        salary.clear();
+        hireDate.clear();
+        workSchedule.clear();
+        emergencyContactName.clear();
+        emergencyContactPhone.clear();
     }
 
-    if (gender.isEmpty()) {
-      gender.setInvalid(true);
-      isValid = false;
-    } else {
-      gender.setInvalid(false);
+    private void populateForm(Employee employee) {
+        username.setValue(employee.getUsername());
+        firstName.setValue(employee.getFirstName());
+        lastName.setValue(employee.getLastName());
+        email.setValue(employee.getEmail() != null ? employee.getEmail() : "");
+        phoneNumber.setValue(employee.getPhoneNumber() != null ? employee.getPhoneNumber() : "");
+        birthDate.setValue(employee.getBirthDate());
+        gender.setValue(employee.getGender());
+        nationality.setValue(employee.getNationality() != null ? employee.getNationality() : "");
+        province.setValue(employee.getProvince());
+        municipality.setValue(employee.getMunicipality());
+        sector.setValue(employee.getSector());
+        streetAddress.setValue(employee.getStreetAddress());
+        employeeRole.setValue(employee.getEmployeeRole());
+        salary.setValue(employee.getSalary());
+        hireDate.setValue(employee.getHireDate());
+        workSchedule.setValue(employee.getWorkSchedule());
+        emergencyContactName.setValue(employee.getEmergencyContactName() != null ? employee.getEmergencyContactName() : "");
+        emergencyContactPhone.setValue(employee.getEmergencyContactPhone() != null ? employee.getEmergencyContactPhone() : "");
     }
 
-    if (province.isEmpty()) {
-      province.setInvalid(true);
-      isValid = false;
-    } else {
-      province.setInvalid(false);
+    private void configureFieldValidation() {
+        // Validación para campos requeridos
+        Stream.of(firstName, lastName, username, email, phoneNumber, province, municipality, sector, streetAddress, workSchedule)
+                .forEach(this::setupRequiredFieldValidation);
+
+        // Validación específica para email
+        email.addValueChangeListener(event -> validateEmailFormat(event.getValue()));
+
+        // Validación específica para username
+        username.addValueChangeListener(event -> validateUsernameLength(event.getValue()));
+
+        // Validación específica para teléfono
+        phoneNumber.addValueChangeListener(event -> validatePhoneFormat(event.getValue()));
+        emergencyContactPhone.addValueChangeListener(event -> validateEmergencyPhoneFormat(event.getValue()));
+
+        // Validación para campos numéricos
+        salary.addValueChangeListener(event -> validateSalaryValue(event.getValue()));
     }
 
-    if (municipality.isEmpty()) {
-      municipality.setInvalid(true);
-      isValid = false;
-    } else {
-      municipality.setInvalid(false);
+    private void validateEmailFormat(String emailValue) {
+        if (emailValue != null && !emailValue.trim().isEmpty()) {
+            if (!isValidEmail(emailValue)) {
+                email.setInvalid(true);
+                email.setErrorMessage("Formato de email inválido");
+            } else {
+                email.setInvalid(false);
+                email.setErrorMessage(null);
+            }
+        }
     }
 
-    if (sector.isEmpty()) {
-      sector.setInvalid(true);
-      isValid = false;
-    } else {
-      sector.setInvalid(false);
+    private void validateUsernameLength(String usernameValue) {
+        if (usernameValue != null) {
+            if (usernameValue.length() < 3) {
+                username.setInvalid(true);
+                username.setErrorMessage("El usuario debe tener al menos 3 caracteres");
+            } else {
+                username.setInvalid(false);
+                username.setErrorMessage(null);
+            }
+        }
     }
 
-    if (streetAddress.isEmpty()) {
-      streetAddress.setInvalid(true);
-      isValid = false;
-    } else {
-      streetAddress.setInvalid(false);
+    private void validatePhoneFormat(String phoneValue) {
+        if (phoneValue != null && !phoneValue.trim().isEmpty()) {
+            if (!phoneValue.matches(DOMINICAN_PHONE_PATTERN)) {
+                phoneNumber.setInvalid(true);
+                phoneNumber.setErrorMessage("Formato de teléfono inválido (809, 849 o 829 + 7 dígitos)");
+            } else {
+                phoneNumber.setInvalid(false);
+                phoneNumber.setErrorMessage(null);
+            }
+        }
     }
 
-    if (employeeRole.isEmpty()) {
-      employeeRole.setInvalid(true);
-      isValid = false;
-    } else {
-      employeeRole.setInvalid(false);
+    private void validateEmergencyPhoneFormat(String phoneValue) {
+        if (phoneValue != null && !phoneValue.trim().isEmpty()) {
+            if (!phoneValue.matches(DOMINICAN_PHONE_PATTERN)) {
+                emergencyContactPhone.setInvalid(true);
+                emergencyContactPhone.setErrorMessage("Formato de teléfono inválido (809, 849 o 829 + 7 dígitos)");
+            } else {
+                emergencyContactPhone.setInvalid(false);
+                emergencyContactPhone.setErrorMessage(null);
+            }
+        }
     }
 
-    if (salary.isEmpty() || salary.getValue() < 0) {
-      salary.setInvalid(true);
-      isValid = false;
-    } else {
-      salary.setInvalid(false);
+    private void validateSalaryValue(Double salaryValue) {
+        if (salaryValue != null && salaryValue < 0) {
+            salary.setInvalid(true);
+            salary.setErrorMessage("El salario no puede ser negativo");
+        } else {
+            salary.setInvalid(false);
+            salary.setErrorMessage(null);
+        }
     }
 
-    if (hireDate.isEmpty()) {
-      hireDate.setInvalid(true);
-      isValid = false;
-    } else {
-      hireDate.setInvalid(false);
+    private boolean isValidEmail(String email) {
+        return email.matches(EMAIL_PATTERN);
     }
 
-    if (workSchedule.isEmpty()) {
-      workSchedule.setInvalid(true);
-      isValid = false;
-    } else {
-      workSchedule.setInvalid(false);
+    private void clearAllValidationErrors() {
+        Stream.of(firstName, lastName, username, email, phoneNumber, province, municipality, sector, streetAddress, workSchedule)
+                .forEach(field -> {
+                    if (field instanceof HasValidation hasValidation) {
+                        hasValidation.setInvalid(false);
+                        hasValidation.setErrorMessage(null);
+                    }
+                });
+
+        salary.setInvalid(false);
+        salary.setErrorMessage(null);
+        emergencyContactPhone.setInvalid(false);
+        emergencyContactPhone.setErrorMessage(null);
     }
 
-    return isValid;
-  }
+    private void setupRequiredFieldValidation(HasValue<?, String> field) {
+        if (field instanceof HasValidation hasValidation) {
+            hasValidation.setInvalid(true);
+            field.addValueChangeListener(event -> {
+                String value = event.getValue();
+                if (value == null || value.trim().isEmpty()) {
+                    hasValidation.setInvalid(true);
+                    hasValidation.setErrorMessage("Este campo es requerido");
+                } else {
+                    hasValidation.setInvalid(false);
+                    hasValidation.setErrorMessage(null);
+                }
+            });
+        }
+    }
 
-  public void openForNew() {
-    // Clear all fields and reset form
-    clearForm();
-    // Enable all fields explicitly
-    enableAllFields();
-    // Reset any invalid states
-    resetValidationStates();
-    // Set focus on first field
-    username.focus();
-    open();
-  }
+    private EmployeeUpdateRequestDto createUpdateDtoFromEmployee(Employee employee) {
+        return new EmployeeUpdateRequestDto(
+                employee.getUsername(),
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getEmail(),
+                employee.getPhoneNumber(),
+                employee.getBirthDate(),
+                employee.getGender(),
+                employee.getNationality(),
+                employee.getProvince(),
+                employee.getMunicipality(),
+                employee.getSector(),
+                employee.getStreetAddress(),
+                employee.getEmployeeRole(),
+                employee.getSalary(),
+                employee.getHireDate(),
+                employee.getWorkSchedule(),
+                employee.getEmergencyContactName(),
+                employee.getEmergencyContactPhone()
+        );
+    }
 
-  /** Clears all form fields */
-  private void clearForm() {
-    username.clear();
-    password.clear();
-    firstName.clear();
-    lastName.clear();
-    email.clear();
-    phoneNumber.clear();
-    birthDate.clear();
-    gender.clear();
-    nationality.clear();
-    province.clear();
-    municipality.clear();
-    sector.clear();
-    streetAddress.clear();
-    employeeRole.clear();
-    salary.setValue(0.0);
-    hireDate.clear();
-    workSchedule.clear();
-    emergencyContactName.clear();
-    emergencyContactPhone.clear();
-  }
+    public void addEmployeeSavedListener(Consumer<EmployeeCreateRequestDto> listener) {
+        employeeSavedListeners.add(listener);
+    }
 
-  /** Enables all form fields for data entry */
-  private void enableAllFields() {
-    username.setEnabled(true);
-    password.setEnabled(true);
-    firstName.setEnabled(true);
-    lastName.setEnabled(true);
-    email.setEnabled(true);
-    phoneNumber.setEnabled(true);
-    birthDate.setEnabled(true);
-    gender.setEnabled(true);
-    nationality.setEnabled(true);
-    province.setEnabled(true);
-    municipality.setEnabled(true);
-    sector.setEnabled(true);
-    streetAddress.setEnabled(true);
-    employeeRole.setEnabled(true);
-    salary.setEnabled(true);
-    hireDate.setEnabled(true);
-    workSchedule.setEnabled(true);
-    emergencyContactName.setEnabled(true);
-    emergencyContactPhone.setEnabled(true);
-    saveButton.setEnabled(true);
-  }
+    public void addEmployeeCancelledListener(Runnable listener) {
+        employeeCancelledListeners.add(listener);
+    }
 
-  /** Resets validation states for all fields */
-  private void resetValidationStates() {
-    username.setInvalid(false);
-    password.setInvalid(false);
-    firstName.setInvalid(false);
-    lastName.setInvalid(false);
-    email.setInvalid(false);
-    phoneNumber.setInvalid(false);
-    birthDate.setInvalid(false);
-    gender.setInvalid(false);
-    province.setInvalid(false);
-    municipality.setInvalid(false);
-    sector.setInvalid(false);
-    streetAddress.setInvalid(false);
-    employeeRole.setInvalid(false);
-    salary.setInvalid(false);
-    hireDate.setInvalid(false);
-    workSchedule.setInvalid(false);
-  }
+    private void fireEmployeeSavedEvent(EmployeeCreateRequestDto dto) {
+        employeeSavedListeners.forEach(listener -> listener.accept(dto));
+    }
 
-  /**
-   * Adds a listener that will be called when an employee is successfully saved.
-   *
-   * @param listener Consumer that receives the saved employee DTO
-   */
-  public void addEmployeeSavedListener(Consumer<EmployeeCreateRequestDto> listener) {
-    employeeSavedListeners.add(listener);
-  }
+    private void fireEmployeeCancelledEvent() {
+        employeeCancelledListeners.forEach(Runnable::run);
+    }
 
-  /**
-   * Adds a listener that will be called when the form is cancelled.
-   *
-   * @param listener Runnable to execute on cancel
-   */
-  public void addEmployeeCancelledListener(Runnable listener) {
-    employeeCancelledListeners.add(listener);
-  }
-
-  /**
-   * Notifies all saved listeners that an employee was successfully saved.
-   *
-   * @param dto The saved employee DTO
-   */
-  private void fireEmployeeSavedEvent(EmployeeCreateRequestDto dto) {
-    employeeSavedListeners.forEach(listener -> listener.accept(dto));
-  }
-
-  /** Notifies all cancelled listeners that the form was cancelled. */
-  private void fireEmployeeCancelledEvent() {
-    employeeCancelledListeners.forEach(Runnable::run);
-  }
+    @Getter
+    @Setter
+    public static class ValidationBean {
+        private String username;
+        private String password;
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String phoneNumber;
+        private LocalDate birthDate;
+        private Gender gender;
+        private String nationality;
+        private String province;
+        private String municipality;
+        private String sector;
+        private String streetAddress;
+        private EmployeeRole employeeRole;
+        private Double salary;
+        private LocalDate hireDate;
+        private String workSchedule;
+        private String emergencyContactName;
+        private String emergencyContactPhone;
+    }
 }
