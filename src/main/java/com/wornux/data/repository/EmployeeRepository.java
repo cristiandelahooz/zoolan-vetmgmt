@@ -100,4 +100,8 @@ public interface EmployeeRepository
   @Query(
       "SELECT e FROM Employee e WHERE e.employeeRole = :role AND e.available = true AND e.active = true")
   List<Employee> findAvailableEmployeesByRole(@Param("employeeRole") EmployeeRole employeeRole);
+
+    Optional<Employee> findByEmail(String email);
+    Optional<Employee> findByEmailAndIdNot(String email, Long id);
+    Optional<Employee> findByUsernameAndIdNot(String username, Long id);
 }
