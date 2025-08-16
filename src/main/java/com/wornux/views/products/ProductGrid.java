@@ -1,12 +1,22 @@
 package com.wornux.views.products;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.wornux.data.entity.Product;
 import com.wornux.data.enums.ProductCategory;
 import com.wornux.services.interfaces.ProductService;
+import com.wornux.utils.NotificationUtils;
 import org.springframework.data.domain.PageRequest;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.springframework.data.jpa.domain.Specification;
@@ -100,5 +110,80 @@ public class ProductGrid extends Grid<Product> {
             );
             return products.stream().filter(Product::isActive);
         });
+    }
+
+    // Add this method to ProductGrid.java
+    private Component createActionsColumn(Product product) {
+        Button edit = new Button(new Icon(VaadinIcon.EDIT));
+        edit.addThemeVariants(
+                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.getElement().setProperty("title", "Editar");
+        edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+        Button delete = new Button(new Icon(VaadinIcon.TRASH));
+        delete.addThemeVariants(
+                ButtonVariant.LUMO_ICON,
+                ButtonVariant.LUMO_TERTIARY_INLINE,
+                ButtonVariant.LUMO_SMALL,
+                ButtonVariant.LUMO_ERROR);
+        delete.getElement().setProperty("title", "Eliminar");
+        delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+        delete.addClickListener(e -> showDeleteConfirmationDialog(product));
+
+        HorizontalLayout actions = new HorizontalLayout(edit, delete);
+        actions.setSpacing(true);
+        actions.setPadding(false);
+        actions.setMargin(false);
+        actions.setWidth(null);
+        return actions;
+    }
+
+    private void showDeleteConfirmationDialog(Product product) {
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setHeaderTitle("Confirmar eliminación");
+        confirmDialog.setModal(true);
+        confirmDialog.setWidth("400px");
+
+        Span message = new Span("¿Está seguro de que desea eliminar el producto \"" +
+                product.getName() + "\"? Esta acción no se puede deshacer.");
+        message.getStyle().set("margin-bottom", "20px");
+
+        Button confirmButton = new Button("Eliminar");
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        confirmButton.addClickListener(e -> {
+            try {
+                deleteProduct(product);
+                confirmDialog.close();
+            } catch (Exception ex) {
+                NotificationUtils.error("Error al eliminar el producto: " + ex.getMessage());
+            }
+        });
+
+        Button cancelButton = new Button("Cancelar");
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelButton.addClickListener(e -> confirmDialog.close());
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, confirmButton);
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        buttonLayout.setSpacing(true);
+
+        VerticalLayout content = new VerticalLayout(message, buttonLayout);
+        content.setPadding(false);
+        content.setSpacing(true);
+
+        confirmDialog.add(content);
+        confirmDialog.open();
+    }
+
+    private void deleteProduct(Product product) {
+        try {
+            // Assuming you have a soft delete method in ProductService
+            productService.delete(product.getId());
+            NotificationUtils.success("Producto eliminado exitosamente");
+            getDataProvider().refreshAll();
+        } catch (Exception e) {
+            NotificationUtils.error("Error al eliminar producto: " + e.getMessage());
+        }
     }
 }
