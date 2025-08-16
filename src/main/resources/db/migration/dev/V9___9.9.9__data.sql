@@ -295,7 +295,7 @@ VALUES (1, 'Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE
 -- (40, 'Nala', 'Cat', 'Abyssinian', '2023-11-20', 'FEMALE', TRUE);
 --
 -- -- Data for pet_owners table (40 rows)
-INSERT INTO pet_owners (client_id, pet_id)
+INSERT INTO pet_owners (owners, pet_id)
 VALUES (6, 1),
        (7, 2),
        (8, 3),
@@ -311,7 +311,7 @@ VALUES (6, 1),
 -- (16, 31), (16, 32), (17, 33), (17, 34), (18, 35), (18, 36), (19, 37), (19, 38), (20, 39), (20, 40);
 --
 -- -- Data for medical_histories table (40 rows)
-INSERT INTO medical_histories (id, pet_id, allergies, medications, vaccinations,
+INSERT INTO medical_histories (id, pet, allergies, medications, vaccinations,
                                surgeries, chronic_conditions, notes, created_at,
                                updated_at, active)
 VALUES (1, 1, 'Pollen', 'None', 'Up to date', 'None', 'None',
@@ -439,7 +439,7 @@ VALUES (1, 'Annual check-up.', 'Healthy', 'N/A', 'N/A', '2024-06-01 10:00:00',
 -- (40, '2024-08-21 11:00:00', '2024-08-21 11:45:00', 'Emergency', 'Scheduled', 'Ingested foreign object', 'Needs endoscopy.', 20, 40, 2, NOW(), NOW(), 'admin', NULL, NULL, NULL, NULL);
 --
 -- -- Data for waiting_room table (10 rows)
-INSERT INTO waiting_room (id, client_id, pet_id, arrival_time, status, reason_for_visit, priority, notes,
+INSERT INTO waiting_room (id, client, pet, arrival_time, status, reason_for_visit, priority, notes,
                           consultation_started_at, completed_at)
 VALUES (1, 6, 1, '2024-07-05 09:00:00', 'ESPERANDO', 'Check-up', 'NORMAL', 'N/A', NULL, NULL),
        (2, 7, 2, '2024-07-05 09:15:00', 'ESPERANDO', 'Vaccination', 'URGENTE', 'N/A', NULL, NULL),
@@ -457,19 +457,19 @@ VALUES (1, 6, 1, '2024-07-05 09:00:00', 'ESPERANDO', 'Check-up', 'NORMAL', 'N/A'
 INSERT INTO suppliers (supplier_id, rnc, company_name, contact_person,
                        contact_phone, contact_email, province, municipality,
                        sector, street_address, active)
-VALUES (1, '123456789', 'Pets & Suppliers Co.', 'John Doe', '809-123-4567',
+VALUES (1, '12345678900', 'Pets & Suppliers Co.', 'John Doe', '8091234567',
         'johndoe@example.com', 'Santo Domingo', 'Santo Domingo Este',
         'Los Mina', '123 Main St.', TRUE),
-       (2, '987654321', 'Pet Supplies Inc.', 'Jane Smith', '809-987-6543',
+       (2, '98765432100', 'Pet Supplies Inc.', 'Jane Smith', '8099876543',
         'janesmith@example.com', 'Santiago', 'Santiago de los Caballeros',
         'Los Jardines', '456 Elm St.', TRUE),
-       (3, '456789123', 'Animal Care Supplies', 'Carlos Perez', '809-456-7890',
+       (3, '45678912300', 'Animal Care Supplies', 'Carlos Perez', '8094567890',
         'carlosperez@example.com', 'La Romana', 'La Romana', 'Villa Verde',
         '789 Oak St.', TRUE),
-       (4, '321654987', 'Pet Food & More', 'Maria Lopez', '809-321-6543',
+       (4, '32165498700', 'Pet Food & More', 'Maria Lopez', '8093216543',
         'marialopez@example.com', 'Puerto Plata', 'Puerto Plata', 'El Pueblito',
         '321 Pine St.', TRUE),
-       (5, '654321789', 'Vet Supplies Dominican', 'Luis Garcia', '809-654-3210',
+       (5, '65432178900', 'Vet Supplies Dominican', 'Luis Garcia', '8096543210',
         'luisgarcia@example', 'San Cristobal', 'San Cristobal',
         'Villa Altagracia', '654 Maple St.', TRUE);
 
