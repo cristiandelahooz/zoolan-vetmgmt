@@ -48,6 +48,7 @@ import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.interfaces.UserService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
@@ -97,6 +98,7 @@ public class InvoiceForm extends Div {
   private final Div footer = new Div();
   private final InvoiceService service;
   private final ClientService customerService;
+  private final UserService userService;
   private final InvoiceReportService invoiceReportService;
   private final RevisionView<Invoice> revisionView;
   private final ClientCreationDialog clientCreationDialog;
@@ -111,9 +113,11 @@ public class InvoiceForm extends Div {
       ProductService productService,
       AuditService auditService,
       ClientMapper clientMapper,
-      InvoiceReportService invoiceReportService) {
+      InvoiceReportService invoiceReportService,
+      UserService userService) {
     this.service = service;
     this.customerService = customerService;
+    this.userService = userService;
     this.invoiceReportService = invoiceReportService;
 
     CommonUtils.commentsFormat(notes, 500);
@@ -126,7 +130,7 @@ public class InvoiceForm extends Div {
     this.revisionView = new RevisionView<>(auditService, Invoice.class);
     revisionView.configureGridRevision();
 
-    clientCreationDialog = new ClientCreationDialog(customerService, clientMapper);
+    clientCreationDialog = new ClientCreationDialog(customerService, clientMapper, userService);
 
     docNum.setEnabled(false);
     total.setEnabled(false);
