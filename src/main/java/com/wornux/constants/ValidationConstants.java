@@ -16,6 +16,7 @@ public class ValidationConstants {
 
   // Phone patterns
   public static final String DOMINICAN_PHONE_PATTERN = "^(809|849|829)\\d{7}$";
+    public static final String DOMINICAN_PHONE_PATTERN_OPTIONAL = "^(809|849|829)\\d{7}$|^$";
 
   // Document patterns
   public static final String CEDULA_PATTERN = "\\d{11}$";
