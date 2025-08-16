@@ -59,8 +59,6 @@ public class EmployeeCreateRequestDto {
   @NotNull(message = "La dirección es requerida")
   private String streetAddress;
 
-  private String profilePicture;
-
   @NotNull(message = "Employee role is required")
   private EmployeeRole employeeRole;
 
