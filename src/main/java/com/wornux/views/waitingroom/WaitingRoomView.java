@@ -27,6 +27,7 @@ import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.GridUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 
@@ -39,6 +40,7 @@ import java.util.List;
 
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 
+@Slf4j
 @Route("sala-espera")
 @PageTitle("Sala de Espera")
 public class WaitingRoomView extends VerticalLayout {
@@ -54,6 +56,8 @@ public class WaitingRoomView extends VerticalLayout {
     TextField searchField = new TextField();
     private final MultiSelectComboBox<Priority> priorityFilter = new MultiSelectComboBox<>("Prioridad");
     private final MultiSelectComboBox<WaitingRoomStatus> statusFilter = new MultiSelectComboBox<>("Estado");
+    private final Span quantity = new Span();
+
 
     public WaitingRoomView(WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {
         this.waitingRoomService = waitingRoomService;
@@ -89,17 +93,33 @@ public class WaitingRoomView extends VerticalLayout {
 
         searchField.setClearButtonVisible(true);
         searchField.setPlaceholder("Buscar por cliente o mascota...");
-        searchField.setWidth("350px");
+        searchField.setWidth("50%");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
         searchField.addValueChangeListener(e -> refreshGrid());
+
+        quantity.addClassNames(
+                LumoUtility.BorderRadius.SMALL,
+                LumoUtility.Height.XSMALL,
+                LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.TextAlignment.CENTER,
+                LumoUtility.JustifyContent.CENTER,
+                LumoUtility.AlignItems.CENTER,
+                LumoUtility.Padding.XSMALL,
+                LumoUtility.Padding.Horizontal.SMALL,
+                LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.Margin.Bottom.XSMALL,
+                LumoUtility.TextColor.PRIMARY_CONTRAST,
+                LumoUtility.Background.PRIMARY);
+        quantity.setWidth("15%");
+        updateQuantity();
 
         statusFilter.setItems(WaitingRoomStatus.values());
         statusFilter.setClearButtonVisible(true);
         statusFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
         statusFilter.addValueChangeListener(e -> refreshGrid());
 
-        HorizontalLayout filters = new HorizontalLayout(searchField, priorityFilter, statusFilter);
+        HorizontalLayout filters = new HorizontalLayout(searchField, priorityFilter, statusFilter, quantity);
         filters.setAlignItems(Alignment.END);
         filters.setWidthFull();
         filters.setSpacing(true);
@@ -417,6 +437,17 @@ public class WaitingRoomView extends VerticalLayout {
     public void refreshAll() {
         form.close();
         refreshGrid();
+        updateQuantity();
+    }
+
+    private void updateQuantity() {
+        try{
+            long count = waitingRoomService.getWaitingCount() + waitingRoomService.getInConsultationCount();
+            quantity.setText("En sala de espera (" + count + ")");
+        }catch (Exception e) {
+            log.warn("Error getting employee count", e);
+            quantity.setText("En sala de espera:");
+        }
     }
 
 }
