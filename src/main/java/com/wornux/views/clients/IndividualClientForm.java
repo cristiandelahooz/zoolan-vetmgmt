@@ -15,364 +15,723 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
+import com.vaadin.flow.data.validator.StringLengthValidator;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.data.entity.Client;
 import com.wornux.data.enums.*;
 import com.wornux.dto.request.ClientCreateRequestDto;
+import com.wornux.dto.request.ClientUpdateRequestDto;
+import com.wornux.exception.DuplicateIdentificationException;
 import com.wornux.services.interfaces.ClientService;
+import com.wornux.services.interfaces.UserService;
 import com.wornux.utils.NotificationUtils;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+
+import static com.wornux.constants.ValidationConstants.*;
 
 @Slf4j
 public class IndividualClientForm extends Dialog {
 
-  // Personal Information
-  private final TextField firstName = new TextField("Nombre");
-  private final TextField lastName = new TextField("Apellido");
-  private final EmailField email = new EmailField("Correo Electrónico");
-  private final TextField phoneNumber = new TextField("Teléfono");
-  private final DatePicker birthDate = new DatePicker("Fecha de Nacimiento");
-  private final ComboBox<Gender> gender = new ComboBox<>("Género");
-  private final TextField nationality = new TextField("Nacionalidad");
+    // Personal Information
+    private final TextField firstName = new TextField("Nombre");
+    private final TextField lastName = new TextField("Apellido");
+    private final EmailField email = new EmailField("Correo Electrónico");
+    private final TextField phoneNumber = new TextField("Teléfono");
+    private final DatePicker birthDate = new DatePicker("Fecha de Nacimiento");
+    private final TextField nationality = new TextField("Nacionalidad");
 
-  // Identification (Individual)
-  private final TextField cedula = new TextField("Cédula");
-  private final TextField passport = new TextField("Pasaporte");
+    // Identification (Individual)
+    private final TextField cedula = new TextField("Cédula");
+    private final TextField passport = new TextField("Pasaporte");
 
-  // Contact Information
-  private final ComboBox<PreferredContactMethod> preferredContactMethod =
-      new ComboBox<>("Método de Contacto Preferido");
-  private final TextField emergencyContactName = new TextField("Nombre del Contacto de Emergencia");
-  private final TextField emergencyContactNumber = new TextField("Teléfono de Emergencia");
+    // Contact Information
+    private final ComboBox<PreferredContactMethod> preferredContactMethod =
+            new ComboBox<>("Método de Contacto Preferido");
+    private final TextField emergencyContactName = new TextField("Nombre del Contacto de Emergencia");
+    private final TextField emergencyContactNumber = new TextField("Teléfono de Emergencia");
 
-  // Address Information
-  private final TextField province = new TextField("Provincia");
-  private final TextField municipality = new TextField("Municipio");
-  private final TextField sector = new TextField("Sector");
-  private final TextField streetAddress = new TextField("Dirección");
-  private final TextArea referencePoints = new TextArea("Puntos de Referencia");
+    // Address Information
+    private final TextField province = new TextField("Provincia");
+    private final TextField municipality = new TextField("Municipio");
+    private final TextField sector = new TextField("Sector");
+    private final TextField streetAddress = new TextField("Dirección");
+    private final TextArea referencePoints = new TextArea("Puntos de Referencia");
 
-  // Additional Information
-  private final ComboBox<ClientRating> rating = new ComboBox<>("Calificación");
-  private final ComboBox<ReferenceSource> referenceSource = new ComboBox<>("Fuente de Referencia");
-  private final TextArea notes = new TextArea("Notas");
+    // Additional Information
+    private final ComboBox<ClientRating> rating = new ComboBox<>("Calificación");
+    private final ComboBox<ReferenceSource> referenceSource = new ComboBox<>("Fuente de Referencia");
+    private final TextArea notes = new TextArea("Notas");
 
-  private final Button saveButton = new Button("Guardar");
-  private final Button cancelButton = new Button("Cancelar");
+    private final Button saveButton = new Button("Guardar");
+    private final Button cancelButton = new Button("Cancelar");
 
-  private final Binder<ClientCreateRequestDto> binder =
-      new BeanValidationBinder<>(ClientCreateRequestDto.class);
-  private final ClientService clientService;
-  private final List<Consumer<ClientCreateRequestDto>> clientSavedListeners = new ArrayList<>();
-  private final List<Runnable> clientCancelledListeners = new ArrayList<>();
-  @Setter private Runnable onSaveCallback;
+    private final Binder<ValidationBean> binder = new BeanValidationBinder<>(ValidationBean.class);
+    private final Binder<ClientUpdateRequestDto> binderUpdate = new BeanValidationBinder<>(ClientUpdateRequestDto.class);
+    private ValidationBean validationBean = new ValidationBean();
+    private final transient ClientService clientService;
+    private final transient UserService userService;
+    private final List<Consumer<ClientCreateRequestDto>> clientSavedListeners = new ArrayList<>();
+    private final List<Runnable> clientCancelledListeners = new ArrayList<>();
+    @Setter
+    private Runnable onSaveCallback;
 
-  public IndividualClientForm(ClientService clientService) {
-    this.clientService = clientService;
+    // Track current mode
+    private boolean isEditMode = false;
+    private Client currentClient = null;
 
-    setHeaderTitle("Nuevo Cliente Individual");
-    setModal(true);
-    setWidth("900px");
-    setMaxWidth("95vw");
-    setHeight("85vh");
-    setMaxHeight("95vh");
+    public IndividualClientForm(ClientService clientService, UserService userService) {
+        this.clientService = clientService;
+        this.userService = userService;
 
-    // Add header styling similar to ClientForm
-    getHeader()
-        .getElement()
-        .getStyle()
-        .set("background", "var(--lumo-primary-color-10pct)")
-        .set("color", "var(--lumo-primary-text-color)");
+        setHeaderTitle("Nuevo Cliente Individual");
+        setModal(true);
+        setWidth("900px");
+        setMaxWidth("95vw");
+        setHeight("85vh");
+        setMaxHeight("95vh");
 
-    createForm();
-    setupValidation();
-    setupEventListeners();
-  }
+        getHeader()
+                .getElement()
+                .getStyle()
+                .set("background", "var(--lumo-primary-color-10pct)")
+                .set("color", "var(--lumo-primary-text-color)");
 
-  private void createForm() {
-    FormLayout personalInfo = new FormLayout();
-    personalInfo.add(firstName, lastName, email, phoneNumber, birthDate, gender, nationality);
-    personalInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
-
-    FormLayout identificationInfo = new FormLayout();
-    identificationInfo.add(cedula, passport);
-    identificationInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
-
-    FormLayout contactInfo = new FormLayout();
-    contactInfo.add(preferredContactMethod, emergencyContactName, emergencyContactNumber);
-    contactInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
-
-    FormLayout addressInfo = new FormLayout();
-    addressInfo.add(province, municipality, sector, streetAddress);
-    addressInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
-
-    FormLayout additionalInfo = new FormLayout();
-    additionalInfo.add(rating, referenceSource);
-    additionalInfo.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
-
-    // Setup combo boxes
-    gender.setItems(Gender.values());
-    gender.setItemLabelGenerator(Gender::name);
-
-    preferredContactMethod.setItems(PreferredContactMethod.values());
-    preferredContactMethod.setItemLabelGenerator(PreferredContactMethod::name);
-
-    rating.setItems(ClientRating.values());
-    rating.setItemLabelGenerator(ClientRating::name);
-    rating.setValue(ClientRating.BUENO); // Default value
-
-    referenceSource.setItems(ReferenceSource.values());
-    referenceSource.setItemLabelGenerator(ReferenceSource::name);
-
-    // Set default values
-    nationality.setValue("Dominicana");
-
-    // Configure text areas
-    referencePoints.setMaxLength(500);
-    notes.setMaxLength(1000);
-
-    // Add icons to fields
-    firstName.setPrefixComponent(VaadinIcon.USER.create());
-    lastName.setPrefixComponent(VaadinIcon.USER.create());
-    email.setPrefixComponent(VaadinIcon.ENVELOPE.create());
-    phoneNumber.setPrefixComponent(VaadinIcon.PHONE.create());
-    birthDate.setPrefixComponent(VaadinIcon.CALENDAR.create());
-    gender.setPrefixComponent(VaadinIcon.USER_CHECK.create());
-    nationality.setPrefixComponent(VaadinIcon.FLAG.create());
-    cedula.setPrefixComponent(VaadinIcon.CREDIT_CARD.create());
-    passport.setPrefixComponent(VaadinIcon.AIRPLANE.create());
-    preferredContactMethod.setPrefixComponent(VaadinIcon.CONNECT.create());
-    emergencyContactName.setPrefixComponent(VaadinIcon.USERS.create());
-    emergencyContactNumber.setPrefixComponent(VaadinIcon.PHONE_LANDLINE.create());
-    province.setPrefixComponent(VaadinIcon.LOCATION_ARROW.create());
-    municipality.setPrefixComponent(VaadinIcon.HOME.create());
-    sector.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
-    streetAddress.setPrefixComponent(VaadinIcon.ROAD.create());
-    referencePoints.setPrefixComponent(VaadinIcon.INFO_CIRCLE.create());
-    rating.setPrefixComponent(VaadinIcon.STAR.create());
-    referenceSource.setPrefixComponent(VaadinIcon.QUESTION_CIRCLE.create());
-    notes.setPrefixComponent(VaadinIcon.EDIT.create());
-
-    VerticalLayout content = new VerticalLayout();
-    content.add(
-        new H3("Información Personal"),
-        personalInfo,
-        new H3("Identificación"),
-        identificationInfo,
-        new H3("Información de Contacto"),
-        contactInfo,
-        new H3("Dirección"),
-        addressInfo,
-        referencePoints,
-        new H3("Información Adicional"),
-        additionalInfo,
-        notes);
-
-    content.addClassNames(LumoUtility.Padding.MEDIUM);
-
-    HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
-    buttonLayout.addClassNames(LumoUtility.JustifyContent.END, LumoUtility.Gap.MEDIUM);
-
-    add(content, buttonLayout);
-  }
-
-  private void setupValidation() {
-    binder
-        .forField(firstName)
-        .asRequired("El nombre es requerido")
-        .bind(ClientCreateRequestDto::firstName, null);
-
-    binder
-        .forField(lastName)
-        .asRequired("El apellido es requerido")
-        .bind(ClientCreateRequestDto::lastName, null);
-
-    binder
-        .forField(email)
-        .asRequired("El correo electrónico es requerido")
-        .bind(ClientCreateRequestDto::email, null);
-
-    binder
-        .forField(phoneNumber)
-        .asRequired("El teléfono es requerido")
-        .bind(ClientCreateRequestDto::phoneNumber, null);
-
-    binder.forField(birthDate).bind(ClientCreateRequestDto::birthDate, null);
-
-    binder.forField(gender).bind(ClientCreateRequestDto::gender, null);
-
-    binder
-        .forField(nationality)
-        .asRequired("La nacionalidad es requerida")
-        .bind(ClientCreateRequestDto::nationality, null);
-
-    binder.forField(cedula).bind(ClientCreateRequestDto::cedula, null);
-
-    binder.forField(passport).bind(ClientCreateRequestDto::passport, null);
-
-    binder
-        .forField(preferredContactMethod)
-        .bind(ClientCreateRequestDto::preferredContactMethod, null);
-
-    binder.forField(emergencyContactName).bind(ClientCreateRequestDto::emergencyContactName, null);
-
-    binder
-        .forField(emergencyContactNumber)
-        .bind(ClientCreateRequestDto::emergencyContactNumber, null);
-
-    binder.forField(rating).bind(ClientCreateRequestDto::rating, null);
-
-    binder.forField(referenceSource).bind(ClientCreateRequestDto::referenceSource, null);
-
-    binder
-        .forField(province)
-        .asRequired("La provincia es requerida")
-        .bind(ClientCreateRequestDto::province, null);
-
-    binder
-        .forField(municipality)
-        .asRequired("El municipio es requerido")
-        .bind(ClientCreateRequestDto::municipality, null);
-
-    binder
-        .forField(sector)
-        .asRequired("El sector es requerido")
-        .bind(ClientCreateRequestDto::sector, null);
-
-    binder
-        .forField(streetAddress)
-        .asRequired("La dirección es requerida")
-        .bind(ClientCreateRequestDto::streetAddress, null);
-
-    binder.forField(referencePoints).bind(ClientCreateRequestDto::referencePoints, null);
-
-    binder.forField(notes).bind(ClientCreateRequestDto::notes, null);
-  }
-
-  private void setupEventListeners() {
-    saveButton.addClickListener(this::save);
-    cancelButton.addClickListener(
-        e -> {
-          fireClientCancelledEvent();
-          close();
-        });
-
-    // Add validation for identification documents
-    cedula.addValueChangeListener(
-        e -> {
-          if (!e.getValue().isEmpty()) {
-            passport.clear();
-          }
-        });
-
-    passport.addValueChangeListener(
-        e -> {
-          if (!e.getValue().isEmpty()) {
-            cedula.clear();
-          }
-        });
-  }
-
-  private void save(ClickEvent<Button> event) {
-    try {
-      // Validate that at least one identification document is provided
-      String cedulaValue = cedula.getValue();
-      String passportValue = passport.getValue();
-
-      if ((cedulaValue == null || cedulaValue.trim().isEmpty())
-          && (passportValue == null || passportValue.trim().isEmpty())) {
-        NotificationUtils.error("Debe proporcionar cédula o pasaporte");
-        return;
-      }
-
-      ClientCreateRequestDto dto =
-          new ClientCreateRequestDto(
-              email.getValue(),
-              firstName.getValue(),
-              lastName.getValue(),
-              phoneNumber.getValue(),
-              birthDate.getValue(),
-              gender.getValue(),
-              nationality.getValue(),
-              cedulaValue,
-              passportValue,
-              null, // RNC is null for individual clients
-              null, // companyName is null for individual clients
-              preferredContactMethod.getValue(),
-              emergencyContactName.getValue(),
-              emergencyContactNumber.getValue(),
-              rating.getValue(),
-              null, // creditLimit
-              null, // paymentTermsDays
-              notes.getValue(),
-              referenceSource.getValue(),
-              province.getValue(),
-              municipality.getValue(),
-              sector.getValue(),
-              streetAddress.getValue(),
-              referencePoints.getValue());
-
-      clientService.createClient(dto);
-      NotificationUtils.success("Cliente individual creado exitosamente");
-
-      // Fire the event with the created DTO
-      fireClientSavedEvent(dto);
-
-      if (onSaveCallback != null) {
-        onSaveCallback.run();
-      }
-
-      close();
-    } catch (Exception e) {
-      log.error("Error creating individual client", e);
-      NotificationUtils.error("Error al crear cliente: " + e.getMessage());
+        createForm();
+        setupValidation();
+        setupDynamicFieldValidation();
+        setupEventListeners();
     }
-  }
 
-  public void openForNew() {
-    // Clear all fields
-    binder.readBean(null);
-    firstName.focus();
-    open();
-  }
+    private void createForm() {
+        FormLayout personalInfo = new FormLayout();
+        personalInfo.add(firstName, lastName, email, phoneNumber, birthDate, nationality);
+        personalInfo.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
-  /**
-   * Adds a listener that will be called when a client is successfully saved.
-   *
-   * @param listener Consumer that receives the saved client DTO
-   */
-  public void addClientSavedListener(Consumer<ClientCreateRequestDto> listener) {
-    clientSavedListeners.add(listener);
-  }
+        FormLayout identificationInfo = new FormLayout();
+        identificationInfo.add(cedula, passport);
+        identificationInfo.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
-  /**
-   * Adds a listener that will be called when the form is cancelled.
-   *
-   * @param listener Runnable to execute on cancel
-   */
-  public void addClientCancelledListener(Runnable listener) {
-    clientCancelledListeners.add(listener);
-  }
+        FormLayout contactInfo = new FormLayout();
+        contactInfo.add(preferredContactMethod, emergencyContactName, emergencyContactNumber);
+        contactInfo.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
-  /**
-   * Notifies all saved listeners that a client was successfully saved.
-   *
-   * @param dto The saved client DTO
-   */
-  private void fireClientSavedEvent(ClientCreateRequestDto dto) {
-    clientSavedListeners.forEach(listener -> listener.accept(dto));
-  }
+        FormLayout addressInfo = new FormLayout();
+        addressInfo.add(province, municipality, sector, streetAddress);
+        addressInfo.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
-  /** Notifies all cancelled listeners that the form was cancelled. */
-  private void fireClientCancelledEvent() {
-    clientCancelledListeners.forEach(Runnable::run);
-  }
+        FormLayout additionalInfo = new FormLayout();
+        additionalInfo.add(rating, referenceSource);
+        additionalInfo.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
+
+
+        preferredContactMethod.setItems(PreferredContactMethod.values());
+        preferredContactMethod.setItemLabelGenerator(PreferredContactMethod::name);
+
+        rating.setItems(ClientRating.values());
+        rating.setItemLabelGenerator(ClientRating::name);
+        rating.setValue(ClientRating.BUENO);
+
+        referenceSource.setItems(ReferenceSource.values());
+        referenceSource.setItemLabelGenerator(ReferenceSource::name);
+
+        // Configure text areas
+        referencePoints.setMaxLength(500);
+        notes.setMaxLength(1000);
+
+        // Set default values
+        nationality.setValue("Dominicana");
+
+        // Configure fields for real-time validation
+        configureFieldsForRealTimeValidation();
+
+        // Add icons to fields
+        addIconsToFields();
+
+        VerticalLayout content = new VerticalLayout();
+        content.add(
+                new H3("Información Personal"),
+                personalInfo,
+                new H3("Identificación"),
+                identificationInfo,
+                new H3("Información de Contacto"),
+                contactInfo,
+                new H3("Dirección"),
+                addressInfo,
+                referencePoints,
+                new H3("Información Adicional"),
+                additionalInfo,
+                notes);
+
+        content.addClassNames(LumoUtility.Padding.MEDIUM);
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, saveButton);
+        buttonLayout.addClassNames(LumoUtility.JustifyContent.END, LumoUtility.Gap.MEDIUM);
+
+        add(content, buttonLayout);
+    }
+
+    private void configureFieldsForRealTimeValidation() {
+        // Configure ValueChangeMode for immediate validation feedback
+        firstName.setValueChangeMode(ValueChangeMode.EAGER);
+        lastName.setValueChangeMode(ValueChangeMode.EAGER);
+        email.setValueChangeMode(ValueChangeMode.EAGER);
+        phoneNumber.setValueChangeMode(ValueChangeMode.EAGER);
+        nationality.setValueChangeMode(ValueChangeMode.EAGER);
+        cedula.setValueChangeMode(ValueChangeMode.EAGER);
+        passport.setValueChangeMode(ValueChangeMode.EAGER);
+        emergencyContactName.setValueChangeMode(ValueChangeMode.EAGER);
+        emergencyContactNumber.setValueChangeMode(ValueChangeMode.EAGER);
+        province.setValueChangeMode(ValueChangeMode.EAGER);
+        municipality.setValueChangeMode(ValueChangeMode.EAGER);
+        sector.setValueChangeMode(ValueChangeMode.EAGER);
+        streetAddress.setValueChangeMode(ValueChangeMode.EAGER);
+        referencePoints.setValueChangeMode(ValueChangeMode.EAGER);
+        notes.setValueChangeMode(ValueChangeMode.EAGER);
+
+        // Set required indicators
+        firstName.setRequiredIndicatorVisible(true);
+        lastName.setRequiredIndicatorVisible(true);
+        email.setRequiredIndicatorVisible(true);
+        phoneNumber.setRequiredIndicatorVisible(true);
+        nationality.setRequiredIndicatorVisible(true);
+        province.setRequiredIndicatorVisible(true);
+        municipality.setRequiredIndicatorVisible(true);
+        sector.setRequiredIndicatorVisible(true);
+        streetAddress.setRequiredIndicatorVisible(true);
+
+        // Configure field placeholders and helper text
+        cedula.setPlaceholder("Ej: 40212345678");
+        cedula.setHelperText("11 dígitos");
+        passport.setPlaceholder("Ej: A12345678");
+        passport.setHelperText("Formato internacional");
+
+        // Enable error message display
+        email.setErrorMessage("Proporcione un correo electrónico válido");
+        province.setErrorMessage("La provincia es requerida");
+        municipality.setErrorMessage("El municipio es requerido");
+        sector.setErrorMessage("El sector es requerido");
+        streetAddress.setErrorMessage("La dirección es requerida");
+    }
+
+    private void addIconsToFields() {
+        firstName.setPrefixComponent(VaadinIcon.USER.create());
+        lastName.setPrefixComponent(VaadinIcon.USER.create());
+        email.setPrefixComponent(VaadinIcon.ENVELOPE.create());
+        phoneNumber.setPrefixComponent(VaadinIcon.PHONE.create());
+        birthDate.setPrefixComponent(VaadinIcon.CALENDAR.create());
+        nationality.setPrefixComponent(VaadinIcon.FLAG.create());
+        cedula.setPrefixComponent(VaadinIcon.CREDIT_CARD.create());
+        passport.setPrefixComponent(VaadinIcon.AIRPLANE.create());
+        preferredContactMethod.setPrefixComponent(VaadinIcon.CONNECT.create());
+        emergencyContactName.setPrefixComponent(VaadinIcon.USERS.create());
+        emergencyContactNumber.setPrefixComponent(VaadinIcon.PHONE_LANDLINE.create());
+        province.setPrefixComponent(VaadinIcon.LOCATION_ARROW.create());
+        municipality.setPrefixComponent(VaadinIcon.HOME.create());
+        sector.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
+        streetAddress.setPrefixComponent(VaadinIcon.ROAD.create());
+        referencePoints.setPrefixComponent(VaadinIcon.INFO_CIRCLE.create());
+        rating.setPrefixComponent(VaadinIcon.STAR.create());
+        referenceSource.setPrefixComponent(VaadinIcon.QUESTION_CIRCLE.create());
+        notes.setPrefixComponent(VaadinIcon.EDIT.create());
+    }
+
+    private void setupValidation() {
+        setupCreateBinder();
+        setupUpdateBinder();
+    }
+
+    private void setupCreateBinder() {
+        // Personal information validation
+        binder.forField(firstName)
+                .asRequired("El nombre es requerido")
+                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
+                .bind(ValidationBean::getFirstName, ValidationBean::setFirstName);
+
+        binder.forField(lastName)
+                .asRequired("El apellido es requerido")
+                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
+                .bind(ValidationBean::getLastName, ValidationBean::setLastName);
+
+        binder.forField(email)
+                .asRequired("El correo electrónico es requerido")
+                .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
+                .bind(ValidationBean::getEmail, ValidationBean::setEmail);
+
+        binder.forField(phoneNumber)
+                .asRequired("El teléfono es requerido")
+                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)", DOMINICAN_PHONE_PATTERN))
+                .bind(ValidationBean::getPhoneNumber, ValidationBean::setPhoneNumber);
+
+        binder.forField(nationality)
+                .asRequired("La nacionalidad es requerida")
+                .withValidator(new StringLengthValidator("La nacionalidad no puede estar vacía", 1, null))
+                .bind(ValidationBean::getNationality, ValidationBean::setNationality);
+
+        // Modified identification validation - conditional requirement
+        binder.forField(cedula)
+                .withValidator(this::validateCedulaConditional)
+                .bind(ValidationBean::getCedula, ValidationBean::setCedula);
+
+        binder.forField(passport)
+                .withValidator(this::validatePassportConditional)
+                .bind(ValidationBean::getPassport, ValidationBean::setPassport);
+
+        // Emergency contact validation (optional)
+        binder.forField(emergencyContactNumber)
+                .withValidator(this::validateEmergencyPhone)
+                .bind(ValidationBean::getEmergencyContactNumber, ValidationBean::setEmergencyContactNumber);
+
+        // Address validations
+        binder.forField(province)
+                .asRequired("La provincia es requerida")
+                .withValidator(new StringLengthValidator("La provincia no puede estar vacía", 1, null))
+                .bind(ValidationBean::getProvince, ValidationBean::setProvince);
+
+        binder.forField(municipality)
+                .asRequired("El municipio es requerido")
+                .withValidator(new StringLengthValidator("El municipio no puede estar vacío", 1, null))
+                .bind(ValidationBean::getMunicipality, ValidationBean::setMunicipality);
+
+        binder.forField(sector)
+                .asRequired("El sector es requerido")
+                .withValidator(new StringLengthValidator("El sector no puede estar vacío", 1, null))
+                .bind(ValidationBean::getSector, ValidationBean::setSector);
+
+        binder.forField(streetAddress)
+                .asRequired("La dirección es requerida")
+                .withValidator(new StringLengthValidator("La dirección no puede estar vacía", 1, null))
+                .bind(ValidationBean::getStreetAddress, ValidationBean::setStreetAddress);
+
+        // Optional fields
+        binder.forField(birthDate)
+                .bind(ValidationBean::getBirthDate, ValidationBean::setBirthDate);
+
+
+        binder.forField(preferredContactMethod)
+                .bind(ValidationBean::getPreferredContactMethod, ValidationBean::setPreferredContactMethod);
+
+        binder.forField(emergencyContactName)
+                .bind(ValidationBean::getEmergencyContactName, ValidationBean::setEmergencyContactName);
+
+        binder.forField(rating)
+                .bind(ValidationBean::getRating, ValidationBean::setRating);
+
+        binder.forField(referenceSource)
+                .bind(ValidationBean::getReferenceSource, ValidationBean::setReferenceSource);
+
+        binder.forField(referencePoints)
+                .withValidator(new StringLengthValidator("Los puntos de referencia no pueden exceder 500 caracteres", 0, 500))
+                .bind(ValidationBean::getReferencePoints, ValidationBean::setReferencePoints);
+
+        binder.forField(notes)
+                .withValidator(new StringLengthValidator("Las notas no pueden exceder 1000 caracteres", 0, 1000))
+                .bind(ValidationBean::getNotes, ValidationBean::setNotes);
+    }
+
+    private void setupUpdateBinder() {
+        // Similar setup for update binder with same validation rules
+        binderUpdate.forField(firstName)
+                .asRequired("El nombre es requerido")
+                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
+                .bind(ClientUpdateRequestDto::getFirstName, ClientUpdateRequestDto::setFirstName);
+
+        binderUpdate.forField(lastName)
+                .asRequired("El apellido es requerido")
+                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
+                .bind(ClientUpdateRequestDto::getLastName, ClientUpdateRequestDto::setLastName);
+
+        binderUpdate.forField(email)
+                .asRequired("El correo electrónico es requerido")
+                .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
+                .bind(ClientUpdateRequestDto::getEmail, ClientUpdateRequestDto::setEmail);
+
+        binderUpdate.forField(phoneNumber)
+                .asRequired("El teléfono es requerido")
+                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido", DOMINICAN_PHONE_PATTERN))
+                .bind(ClientUpdateRequestDto::getPhoneNumber, ClientUpdateRequestDto::setPhoneNumber);
+
+        binderUpdate.forField(nationality)
+                .asRequired("La nacionalidad es requerida")
+                .withValidator(new StringLengthValidator("La nacionalidad no puede estar vacía", 1, null))
+                .bind(ClientUpdateRequestDto::getNationality, ClientUpdateRequestDto::setNationality);
+
+        // Modified identification validation for update - conditional requirement
+        binderUpdate.forField(cedula)
+                .withValidator(this::validateCedulaConditional)
+                .bind(ClientUpdateRequestDto::getCedula, ClientUpdateRequestDto::setCedula);
+
+        binderUpdate.forField(passport)
+                .withValidator(this::validatePassportConditional)
+                .bind(ClientUpdateRequestDto::getPassport, ClientUpdateRequestDto::setPassport);
+
+        binderUpdate.forField(emergencyContactNumber)
+                .withValidator(this::validateEmergencyPhone)
+                .bind(ClientUpdateRequestDto::getEmergencyContactNumber, ClientUpdateRequestDto::setEmergencyContactNumber);
+
+        binderUpdate.forField(province)
+                .asRequired("La provincia es requerida")
+                .withValidator(new StringLengthValidator("La provincia no puede estar vacía", 1, null))
+                .bind(ClientUpdateRequestDto::getProvince, ClientUpdateRequestDto::setProvince);
+
+        binderUpdate.forField(municipality)
+                .asRequired("El municipio es requerido")
+                .withValidator(new StringLengthValidator("El municipio no puede estar vacío", 1, null))
+                .bind(ClientUpdateRequestDto::getMunicipality, ClientUpdateRequestDto::setMunicipality);
+
+        binderUpdate.forField(sector)
+                .asRequired("El sector es requerido")
+                .withValidator(new StringLengthValidator("El sector no puede estar vacío", 1, null))
+                .bind(ClientUpdateRequestDto::getSector, ClientUpdateRequestDto::setSector);
+
+        binderUpdate.forField(streetAddress)
+                .asRequired("La dirección es requerida")
+                .withValidator(new StringLengthValidator("La dirección no puede estar vacía", 1, null))
+                .bind(ClientUpdateRequestDto::getStreetAddress, ClientUpdateRequestDto::setStreetAddress);
+
+        // Optional fields
+        binderUpdate.forField(birthDate)
+                .bind(ClientUpdateRequestDto::getBirthDate, ClientUpdateRequestDto::setBirthDate);
+
+
+        binderUpdate.forField(preferredContactMethod)
+                .bind(ClientUpdateRequestDto::getPreferredContactMethod, ClientUpdateRequestDto::setPreferredContactMethod);
+
+        binderUpdate.forField(emergencyContactName)
+                .bind(ClientUpdateRequestDto::getEmergencyContactName, ClientUpdateRequestDto::setEmergencyContactName);
+
+        binderUpdate.forField(rating)
+                .bind(ClientUpdateRequestDto::getRating, ClientUpdateRequestDto::setRating);
+
+        binderUpdate.forField(referenceSource)
+                .bind(ClientUpdateRequestDto::getReferenceSource, ClientUpdateRequestDto::setReferenceSource);
+
+        binderUpdate.forField(referencePoints)
+                .withValidator(new StringLengthValidator("Los puntos de referencia no pueden exceder 500 caracteres", 0, 500))
+                .bind(ClientUpdateRequestDto::getReferencePoints, ClientUpdateRequestDto::setReferencePoints);
+
+        binderUpdate.forField(notes)
+                .withValidator(new StringLengthValidator("Las notas no pueden exceder 1000 caracteres", 0, 1000))
+                .bind(ClientUpdateRequestDto::getNotes, ClientUpdateRequestDto::setNotes);
+    }
+
+    // New conditional validation methods
+    private ValidationResult validateCedulaConditional(String value, ValueContext context) {
+        String cedulaValue = value != null ? value.trim() : "";
+        String passportValue = passport.getValue() != null ? passport.getValue().trim() : "";
+
+        // If both are empty, at least one is required
+        if (cedulaValue.isEmpty() && passportValue.isEmpty()) {
+            return ValidationResult.error("Debe proporcionar cédula o pasaporte");
+        }
+
+        // If cedula has value, validate format
+        if (!cedulaValue.isEmpty()) {
+            if (!cedulaValue.matches(CEDULA_PATTERN)) {
+                return ValidationResult.error("La cédula debe contener exactamente 11 dígitos");
+            }
+        }
+
+        return ValidationResult.ok();
+    }
+
+    private ValidationResult validatePassportConditional(String value, ValueContext context) {
+        String passportValue = value != null ? value.trim() : "";
+        String cedulaValue = cedula.getValue() != null ? cedula.getValue().trim() : "";
+
+        // If both are empty, at least one is required
+        if (passportValue.isEmpty() && cedulaValue.isEmpty()) {
+            return ValidationResult.error("Debe proporcionar cédula o pasaporte");
+        }
+
+        // If passport has value, validate format
+        if (!passportValue.isEmpty()) {
+            if (!passportValue.matches(PASSPORT_PATTERN)) {
+                return ValidationResult.error("Formato de pasaporte inválido");
+            }
+        }
+
+        return ValidationResult.ok();
+    }
+
+    private void setupEventListeners() {
+        saveButton.addClickListener(this::save);
+        cancelButton.addClickListener(e -> {
+            fireClientCancelledEvent();
+            close();
+        });
+
+        // Modified validation for identification documents
+        cedula.addValueChangeListener(e -> {
+            // Re-validate both fields when cedula changes
+            binder.validate();
+            binderUpdate.validate();
+        });
+
+        passport.addValueChangeListener(e -> {
+            // Re-validate both fields when passport changes
+            binder.validate();
+            binderUpdate.validate();
+        });
+
+        email.addValueChangeListener(e -> binder.validate());
+        province.addValueChangeListener(e -> binder.validate());
+        municipality.addValueChangeListener(e -> binder.validate());
+        sector.addValueChangeListener(e -> binder.validate());
+        streetAddress.addValueChangeListener(e -> binder.validate());
+    }
+
+    private ValidationResult validateEmergencyPhone(String value, ValueContext context) {
+        if (value == null || value.trim().isEmpty()) {
+            return ValidationResult.ok();
+        }
+        if (value.matches(DOMINICAN_PHONE_PATTERN)) {
+            return ValidationResult.ok();
+        }
+        return ValidationResult.error("Proporcione un número de emergencia válido (809, 849 o 829 seguido de 7 dígitos)");
+    }
+
+    private void setupDynamicFieldValidation() {
+        // Add listeners to handle mutual exclusion
+        cedula.addValueChangeListener(e -> {
+            String cedulaValue = e.getValue();
+            if (cedulaValue != null && !cedulaValue.trim().isEmpty()) {
+                passport.setEnabled(false);
+                passport.clear();
+                passport.setRequiredIndicatorVisible(false);
+            } else {
+                passport.setEnabled(true);
+                passport.setRequiredIndicatorVisible(true);
+            }
+        });
+
+        passport.addValueChangeListener(e -> {
+            String passportValue = e.getValue();
+            if (passportValue != null && !passportValue.trim().isEmpty()) {
+                cedula.setEnabled(false);
+                cedula.clear();
+                cedula.setRequiredIndicatorVisible(false);
+            } else {
+                cedula.setEnabled(true);
+                cedula.setRequiredIndicatorVisible(true);
+            }
+        });
+    }
+
+    private void save(ClickEvent<Button> event) {
+        try {
+            if (isEditMode) {
+                saveUpdate();
+            } else {
+                saveNew();
+            }
+        } catch (Exception e) {
+            log.error("Error saving individual client", e);
+            NotificationUtils.error("Error al guardar cliente: " + e.getMessage());
+        }
+    }
+
+    private void saveNew() {
+        if (!binder.isValid()) {
+            NotificationUtils.error("Por favor, corrija los errores en el formulario");
+            binder.validate();
+            return;
+        }
+
+        ClientCreateRequestDto dto = new ClientCreateRequestDto(
+                email.getValue(),
+                firstName.getValue(),
+                lastName.getValue(),
+                phoneNumber.getValue(),
+                birthDate.getValue(),
+                null,
+                nationality.getValue(),
+                convertEmptyToNull(cedula.getValue()),
+                convertEmptyToNull(passport.getValue()),
+                null, // rnc is null for individuals
+                null, // companyName is null for individuals
+                preferredContactMethod.getValue(),
+                convertEmptyToNull(emergencyContactName.getValue()),
+                convertEmptyToNull(emergencyContactNumber.getValue()),
+                rating.getValue(),
+                null,
+                null,
+                convertEmptyToNull(notes.getValue()),
+                referenceSource.getValue(),
+                province.getValue(),
+                municipality.getValue(),
+                sector.getValue(),
+                streetAddress.getValue(),
+                convertEmptyToNull(referencePoints.getValue()));
+
+        clientService.createClient(dto);
+        NotificationUtils.success("Cliente creado exitosamente");
+        fireClientSavedEvent(dto);
+
+        if (onSaveCallback != null) {
+            onSaveCallback.run();
+        }
+        close();
+    }
+
+    private String convertEmptyToNull(String value) {
+        return (value == null || value.trim().isEmpty()) ? null : value;
+    }
+
+    private void saveUpdate() {
+        if (!binderUpdate.isValid()) {
+            NotificationUtils.error("Por favor, corrija los errores en el formulario");
+            binderUpdate.validate();
+            return;
+        }
+
+        ClientUpdateRequestDto dto = new ClientUpdateRequestDto(
+                email.getValue(),
+                firstName.getValue(),
+                lastName.getValue(),
+                phoneNumber.getValue(),
+                birthDate.getValue(),
+                null,
+                nationality.getValue(),
+                convertEmptyToNull(cedula.getValue()),
+                convertEmptyToNull(passport.getValue()),
+                null, // rnc
+                null, // companyName
+                preferredContactMethod.getValue(),
+                convertEmptyToNull(emergencyContactName.getValue()),
+                convertEmptyToNull(emergencyContactNumber.getValue()),
+                rating.getValue(),
+                null,
+                null,
+                convertEmptyToNull(notes.getValue()),
+                referenceSource.getValue(),
+                province.getValue(),
+                municipality.getValue(),
+                sector.getValue(),
+                streetAddress.getValue(),
+                convertEmptyToNull(referencePoints.getValue()));
+
+        clientService.updateClient(currentClient.getId(), dto);
+        NotificationUtils.success("Cliente actualizado exitosamente");
+
+        if (onSaveCallback != null) {
+            onSaveCallback.run();
+        }
+        close();
+    }
+
+    public void openForNew() {
+        isEditMode = false;
+        currentClient = null;
+        setHeaderTitle("Nuevo Cliente Individual");
+
+        // Reset validation bean
+        validationBean = new ValidationBean();
+        validationBean.setRating(ClientRating.BUENO);
+        validationBean.setNationality("Dominicana");
+
+        binder.readBean(validationBean);
+
+        // Reset UI values and enable all identification fields
+        rating.setValue(ClientRating.BUENO);
+        nationality.setValue("Dominicana");
+        cedula.setEnabled(true);
+        passport.setEnabled(true);
+        cedula.setRequiredIndicatorVisible(true);
+        passport.setRequiredIndicatorVisible(true);
+
+        firstName.focus();
+        open();
+    }
+
+    public void openForEdit(Client client) {
+        isEditMode = true;
+        currentClient = client;
+        setHeaderTitle("Editar Cliente Individual");
+
+        ClientUpdateRequestDto dto = new ClientUpdateRequestDto(
+                client.getEmail(),
+                client.getFirstName(),
+                client.getLastName(),
+                client.getPhoneNumber(),
+                client.getBirthDate(),
+                null,
+                client.getNationality(),
+                client.getCedula(),
+                client.getPassport(),
+                null, // rnc
+                null, // companyName
+                client.getPreferredContactMethod(),
+                client.getEmergencyContactName(),
+                client.getEmergencyContactNumber(),
+                client.getRating(),
+                null, // creditLimit
+                null, // paymentTermsDays
+                client.getNotes(),
+                client.getReferenceSource(),
+                client.getProvince(),
+                client.getMunicipality(),
+                client.getSector(),
+                client.getStreetAddress(),
+                client.getReferencePoints());
+
+        binderUpdate.readBean(dto);
+        firstName.focus();
+        open();
+    }
+
+    public void addClientSavedListener(Consumer<ClientCreateRequestDto> listener) {
+        clientSavedListeners.add(listener);
+    }
+
+    public void addClientCancelledListener(Runnable listener) {
+        clientCancelledListeners.add(listener);
+    }
+
+    private void fireClientSavedEvent(ClientCreateRequestDto dto) {
+        clientSavedListeners.forEach(listener -> listener.accept(dto));
+    }
+
+    private void fireClientCancelledEvent() {
+        clientCancelledListeners.forEach(Runnable::run);
+    }
+
+    @Getter
+    @Setter
+    public static class ValidationBean {
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String phoneNumber;
+        private java.time.LocalDate birthDate;
+        private String nationality;
+        private String cedula;
+        private String passport;
+        private PreferredContactMethod preferredContactMethod;
+        private String emergencyContactName;
+        private String emergencyContactNumber;
+        private ClientRating rating;
+        private ReferenceSource referenceSource;
+        private String province;
+        private String municipality;
+        private String sector;
+        private String streetAddress;
+        private String referencePoints;
+        private String notes;
+    }
 }
