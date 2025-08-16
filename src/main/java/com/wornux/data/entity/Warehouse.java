@@ -25,7 +25,7 @@ public class Warehouse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "warehouse_name", nullable = false, length = MAX_WAREHOUSE_NAME_LENGTH)
+    @Column(name = "name", nullable = false, length = MAX_WAREHOUSE_NAME_LENGTH)
     @Size(min = 1, max = MAX_WAREHOUSE_NAME_LENGTH, message = "El nombre del almacén debe tener entre {min} y {max} caracteres")
     private String name;
     @Column(name = "warehouse_type", nullable = false)
@@ -34,7 +34,7 @@ public class Warehouse {
     @Column(name = "status", nullable = false)
     @Builder.Default
     private boolean status = true;
-    @Column(name = "is_available_for_sale")
+    @Column(name = "available_for_sale")
     private boolean availableForSale;
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
