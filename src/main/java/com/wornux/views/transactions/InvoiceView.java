@@ -50,6 +50,7 @@ import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.interfaces.UserService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.GridUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -95,14 +96,14 @@ public class InvoiceView extends Div {
   public InvoiceView(InvoiceService service,
       @Qualifier("clientServiceImpl") ClientService customerService, ProductService productService,
       AuditService auditService, ClientMapper clientMapper,
-      InvoiceReportService invoiceReportService) {
+      InvoiceReportService invoiceReportService, UserService userService) {
     this.service = service;
     this.invoiceReportService = invoiceReportService;
 
     setId("invoices-view");
 
     invoiceForm = new InvoiceForm(service, customerService, productService, auditService,
-        clientMapper, invoiceReportService);
+        clientMapper, invoiceReportService, userService);
 
     createGrid(service, createFilterSpecification());
 
