@@ -116,15 +116,6 @@ public interface UserService {
       Long userId, @NotBlank String currentPassword, @NotBlank @Size(min = 8) String newPassword);
 
   /**
-   * Updates a user's profile picture
-   *
-   * @param userId the ID of the user
-   * @param profilePictureUrl the URL of the new profile picture
-   */
-  @Secured({"ROLE_ADMIN", "ROLE_USER"})
-  void updateProfilePicture(Long userId, @Nullable String profilePictureUrl);
-
-  /**
    * Searches for users based on various criteria
    *
    * @param searchTerm the search term to match against name, email, or username
