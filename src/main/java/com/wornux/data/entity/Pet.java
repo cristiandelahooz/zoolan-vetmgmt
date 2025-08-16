@@ -39,7 +39,7 @@ public class Pet {
   @JoinTable(
       name = "pet_owners",
       joinColumns = @JoinColumn(name = "pet_id"),
-      inverseJoinColumns = @JoinColumn(name = "client_id"))
+      inverseJoinColumns = @JoinColumn(name = "owners"))
   @Builder.Default
   private List<Client> owners = new ArrayList<>();
 
