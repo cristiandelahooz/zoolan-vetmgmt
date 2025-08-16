@@ -14,7 +14,11 @@ import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
 @Entity
-@Table(name = "client")
+@Table(name = "client", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"cedula"}),
+    @UniqueConstraint(columnNames = {"passport"}),
+    @UniqueConstraint(columnNames = {"rnc"})
+})
 @PrimaryKeyJoinColumn(name = "client_id")
 @Getter
 @Setter
@@ -28,8 +32,6 @@ public class Client extends User {
   @Column(
       name = "cedula",
       length = 11,
-      nullable = true,
-      unique = true,
       columnDefinition = "CHAR(11)")
   @Nullable
   private String cedula;
@@ -40,14 +42,12 @@ public class Client extends User {
   @Column(
       name = "passport",
       length = 9,
-      nullable = true,
-      unique = true,
       columnDefinition = "CHAR(9)")
   @Nullable
   private String passport;
 
   @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
-  @Column(name = "rnc", length = 9, nullable = true, unique = true, columnDefinition = "CHAR(9)")
+  @Column(name = "rnc", length = 9, columnDefinition = "CHAR(9)")
   @Nullable
   private String rnc;
 
@@ -64,7 +64,7 @@ public class Client extends User {
   private String emergencyContactName;
 
   @Pattern(
-      regexp = DOMINICAN_PHONE_PATTERN,
+      regexp = DOMINICAN_PHONE_PATTERN_OPTIONAL,
       message =
           "Proporcione un número de teléfono de emergencia válido (809, 849 o 829 seguido de 7"
               + " dígitos)")
