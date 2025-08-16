@@ -16,11 +16,11 @@ public class ValidationConstants {
 
     // Phone patterns
     public static final String DOMINICAN_PHONE_PATTERN = "^(809|849|829)\\d{7}$";
+    public static final String DOMINICAN_PHONE_PATTERN_OPTIONAL = "^(809|849|829)\\d{7}$|^$";
 
     // Document patterns
     public static final String CEDULA_PATTERN = "\\d{11}$";
     public static final String PASSPORT_PATTERN = "^[0-9A-Z]{9}$";
-    //public static final String RNC_PATTERN = "\\d{9}$";
     public static final String RNC_PATTERN = "^(\\d{9}|\\d{11})$";
 
     public static final String DATE_PATTERN = "mm/dd/yyyy";
