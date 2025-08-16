@@ -18,6 +18,4 @@ public interface EmployeeMapper {
 
   EmployeeCreateRequestDto toDTO(Employee employee);
 
-  @Mapping(target = "id", source = "id")
-  EmployeeUpdateRequestDto toUpdateDTO(Employee employee);
 }
