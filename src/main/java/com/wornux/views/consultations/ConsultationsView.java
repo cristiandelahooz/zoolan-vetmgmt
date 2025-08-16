@@ -30,10 +30,13 @@ import com.wornux.utils.NotificationUtils;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+@Slf4j
 @Route(value = "consultations")
 @PageTitle("Consultas")
 public class ConsultationsView extends Div {
@@ -72,6 +75,7 @@ public class ConsultationsView extends Div {
     add(createTitle(), createFilter(), gridLayout);
     addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
     setSizeFull();
+    updateQuantity();
 
     create.addClickListener(event -> consultationsForm.openForNew());
   }
@@ -171,8 +175,24 @@ public class ConsultationsView extends Div {
     searchField.setValueChangeMode(ValueChangeMode.EAGER);
     searchField.setWidthFull();
     searchField.addValueChangeListener(e -> refreshAll());
+    searchField.setWidth("50%");
 
-    HorizontalLayout toolbar = new HorizontalLayout(searchField);
+      quantity.addClassNames(
+              LumoUtility.BorderRadius.SMALL,
+              LumoUtility.Height.XSMALL,
+              LumoUtility.FontWeight.MEDIUM,
+              LumoUtility.TextAlignment.CENTER,
+              LumoUtility.JustifyContent.CENTER,
+              LumoUtility.AlignItems.CENTER,
+              LumoUtility.Padding.XSMALL,
+              LumoUtility.Padding.Horizontal.SMALL,
+              LumoUtility.Margin.Horizontal.SMALL,
+              LumoUtility.Margin.Bottom.XSMALL,
+              LumoUtility.TextColor.PRIMARY_CONTRAST,
+              LumoUtility.Background.PRIMARY);
+      quantity.setWidth("15%");
+
+    HorizontalLayout toolbar = new HorizontalLayout(searchField, quantity);
     toolbar.setWidthFull();
     toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
     toolbar.setAlignItems(FlexComponent.Alignment.END);
@@ -180,7 +200,7 @@ public class ConsultationsView extends Div {
         LumoUtility.Margin.Horizontal.MEDIUM,
         LumoUtility.Margin.Top.SMALL,
         LumoUtility.Padding.MEDIUM,
-        LumoUtility.Gap.MEDIUM);
+        LumoUtility.Gap.MEDIUM, LumoUtility.Width.FULL);
 
     return toolbar;
   }
@@ -207,6 +227,7 @@ public class ConsultationsView extends Div {
               .toList();
     }
     grid.setItems(consultations);
+    updateQuantity();
   }
 
     private Component createActionsColumn(Consultation consultation) {
@@ -283,4 +304,14 @@ public class ConsultationsView extends Div {
     badge.getElement().getThemeList().add(isActive ? "success" : "error");
     return badge;
   }
+
+    private void updateQuantity() {
+        try {
+            long count = consultationService.getRepository().count();
+            quantity.setText("Consultas (" + count + ")");
+        } catch (Exception e) {
+            log.warn("Error getting consultations count", e);
+            quantity.setText("Consultas");
+        }
+    }
 }
