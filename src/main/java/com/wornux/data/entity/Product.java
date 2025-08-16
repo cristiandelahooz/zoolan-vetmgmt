@@ -59,7 +59,7 @@ public class Product {
   private int reorderLevel = 5;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "supplier_id")
+  @JoinColumn(name = "supplier")
   @JsonManagedReference
   private Supplier supplier;
 
@@ -68,6 +68,6 @@ public class Product {
   private ProductCategory category;
 
   @ManyToOne
-  @JoinColumn(name = "warehouse_id")
+  @JoinColumn(name = "warehouse")
   private Warehouse warehouse;
 }
