@@ -1,79 +1,73 @@
 package com.wornux.dto.request;
 
-import static com.wornux.constants.ValidationConstants.*;
-import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.Gender;
 import jakarta.validation.constraints.*;
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-/** DTO for updating an existing Employee All fields are nullable to allow partial updates */
+import java.time.LocalDate;
+
+import static com.wornux.constants.ValidationConstants.*;
+
 @Data
+@AllArgsConstructor
 public class EmployeeUpdateRequestDto {
 
-  private Long id;
+    @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH, message = "El usuario debe tener entre 3 y 50 caracteres")
+    private String username;
 
-  @NotBlank(message = "El nombre de usuario es obligatorio")
-  @Size(
-      min = MIN_USERNAME_LENGTH,
-      max = MAX_USERNAME_LENGTH,
-      message = "El nombre de usuario debe tener entre 3 y 20 caracteres")
-  private String username;
+    @Size(min = 2, message = "El nombre debe tener al menos 2 caracteres")
+    private String firstName;
 
-  @NotBlank
-  @Email(message = "El correo electrónico debe ser válido")
-  private String email;
+    @Size(min = 2, message = "El apellido debe tener al menos 2 caracteres")
+    private String lastName;
 
-  @NotBlank(message = "El nombre es obligatorio")
-  private String firstName;
+    @Email(message = "Proporcione un correo electrónico válido")
+    private String email;
 
-  @NotBlank(message = "El apellido es obligatorio")
-  private String lastName;
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de teléfono válido")
+    private String phoneNumber;
 
-  @NotBlank(message = "El numero de teléfono es obligatorio")
-  @Pattern(
-      regexp = DOMINICAN_PHONE_PATTERN,
-      message = "El número de teléfono debe ser un número válido de la República Dominicana")
-  private String phoneNumber;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate birthDate;
 
-  @NotNull(message = "La fecha de nacimiento es obligatoria")
-  private LocalDate birthDate;
+    private Gender gender;
 
-  @NotNull(message = "El rol del empleado es obligatorio")
-  private EmployeeRole employeeRole;
+    private String nationality;
 
-  private String nationality;
-  private String province;
-  private String municipality;
+    @NotBlank(message = "La provincia es requerida")
+    private String province;
 
-  @NotBlank(message = "El sector es obligatorio")
-  private String sector;
+    @NotBlank(message = "El municipio es requerido")
+    private String municipality;
 
-  private String streetAddress;
+    @NotBlank(message = "El sector es requerido")
+    private String sector;
 
-  private String profilePicture;
+    @NotBlank(message = "La dirección es requerida")
+    private String streetAddress;
 
-  @NotNull(message = "El salario es obligatorio")
-  @Positive(message = "El salario debe ser mayor que cero")
-  private Double salary;
 
-  @NotNull(message = "La fecha de contratación es obligatoria")
-  private LocalDate hireDate;
+    @NotNull(message = "Employee role is required")
+    private EmployeeRole employeeRole;
 
-  @NotBlank(message = "El horario de trabajo es obligatorio")
-  private String workSchedule;
+    @NotNull(message = "Salary is required")
+    @DecimalMin(value = "0.0", message = "Salary must be greater than or equal to 0")
+    private Double salary;
 
-  @Nullable private String emergencyContactName;
+    @NotNull(message = "Hire date is required")
+    private LocalDate hireDate;
 
-  @Nullable
-  @Pattern(
-      regexp = DOMINICAN_PHONE_PATTERN,
-      message =
-          "El número de teléfono de emergencia debe ser un número válido de la República Dominicana")
-  private String emergencyContactPhone;
+    @NotBlank(message = "Work schedule is required")
+    private String workSchedule;
 
-  private boolean available;
-  private boolean active;
+    @Nullable
+    private String emergencyContactName;
+
+    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de emergencia válido")
+    @Nullable
+    private String emergencyContactPhone;
 }
