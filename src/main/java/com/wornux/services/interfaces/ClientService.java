@@ -54,7 +54,6 @@ public interface ClientService {
     Optional<Client> getClientById(Long id);
 
     Client getClientByIdMandatory(Long id);
-]
 
     /**
      * Retrieves a Client by cédula.
