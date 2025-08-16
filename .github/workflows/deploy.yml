@@ -1,50 +1,74 @@
-name: Deploy to DigitalOcean
+name: Deploy to Server
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-    
-    - name: Build with Maven
-      run: ./mvnw clean package -Pproduction -DskipTests
-    
-    - name: Build Docker image
-      run: docker build -t petcare .
-    
-    - name: Save Docker image
-      run: docker save petcare > petcare.tar
-    
-    - name: Deploy to server
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        source: "petcare.tar,docker-compose.prod.yml"
-        target: "/home/app/"
-    
-    - name: Run deployment
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd /home/app
-          docker load < petcare.tar
-          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          docker-compose -f docker-compose.prod.yml down -v
-          docker-compose -f docker-compose.prod.yml up -d
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      
+      - name: Set up Temurin JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: maven
+      
+      - name: Verify Maven installation
+        run: mvn -version
+      
+      - name: Get product name and version
+        run: |
+          echo "VERSION=$(mvn help:evaluate -q -DforceStdout -D"expression=project.version")" >> $GITHUB_ENV
+          echo "NAME=$(mvn help:evaluate -q -DforceStdout -D"expression=project.name")" >> $GITHUB_ENV
+      
+      - name: Build Java project with Maven
+        run: |
+          mvn dependency:go-offline -Pproduction
+          mvn clean package -DskipTests -Pproduction
+      
+      - name: Build and push Docker image
+        run: |
+          docker build -t cristiandelahooz/${NAME}:latest .
+          docker push cristiandelahooz/${NAME}:latest
+      
+      - name: SSH into the server and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /home/petcare
+            docker compose pull
+            docker compose down -v
+            docker compose up -d
+      
+      - name: Get last commit message
+        run: |
+          LAST_COMMIT_MESSAGE=$(git show -s --format='%h %s')
+          echo "LAST_COMMIT_MESSAGE=$LAST_COMMIT_MESSAGE" >> $GITHUB_ENV
+      
+      - name: Send Telegram Notification
+        if: success()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "text=✅ PetCare was successfully deployed 🎉: $LAST_COMMIT_MESSAGE"
+      
+      - name: Send Failure Notification
+        if: failure()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "text=❌ PetCare Build Failed on $(git rev-parse --abbrev-ref HEAD) 🚨: $LAST_COMMIT_MESSAGE"
