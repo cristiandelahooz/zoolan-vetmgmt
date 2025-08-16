@@ -37,15 +37,15 @@ public class Consultation {
   private LocalDateTime consultationDate;
 
   @ManyToOne
-  @JoinColumn(name = "pet_id", nullable = false)
+  @JoinColumn(name = "pet", nullable = false)
   private Pet pet;
 
   @ManyToOne
-  @JoinColumn(name = "veterinarian_id", nullable = false)
+  @JoinColumn(name = "veterinarian", nullable = false)
   private Employee veterinarian;
 
   @ManyToOne
-  @JoinColumn(name = "medical_history_id")
+  @JoinColumn(name = "medical_history")
   @JsonIgnore
   @Setter
   private MedicalHistory medicalHistory;
