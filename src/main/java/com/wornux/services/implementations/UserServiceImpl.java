@@ -6,6 +6,7 @@ import com.wornux.data.entity.User;
 import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.SystemRole;
 import com.wornux.data.repository.UserRepository;
+import com.wornux.exception.DuplicateIdentificationException;
 import com.wornux.services.interfaces.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
@@ -215,25 +216,6 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  @Secured({"ROLE_ADMIN", "ROLE_USER"})
-  public void updateProfilePicture(Long userId, @Nullable String profilePictureUrl) {
-    var currentUser = SecurityContextHolder.getContext().getAuthentication();
-    var user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
-    if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
-        && !user.getUsername().equals(currentUser.getName())) {
-      throw new SecurityException("You can only update your own profile picture");
-    }
-
-    user.setProfilePicture(profilePictureUrl);
-    user.setUpdatedAt(LocalDateTime.now(clock));
-    userRepository.save(user);
-  }
-
-  @Override
   @Secured("ROLE_ADMIN")
   public List<User> searchUsers(
       @Nullable String searchTerm,
@@ -269,4 +251,5 @@ public class UserServiceImpl implements UserService {
 
     return userRepository.findAll(spec, pageable).getContent();
   }
+
 }
