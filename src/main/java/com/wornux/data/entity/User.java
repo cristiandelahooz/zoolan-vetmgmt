@@ -17,7 +17,10 @@ import org.jspecify.annotations.Nullable;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"username"}),
+    @UniqueConstraint(columnNames = {"email"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,7 +34,7 @@ public class User {
   protected Long id;
 
   @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-  @Column(name = "username", unique = true)
+  @Column(name = "username")
   protected String username;
 
   @Size(min = 8, message = "Password must be at least 8 characters long")
@@ -40,7 +43,7 @@ public class User {
   protected String password;
 
   @Email(message = "Please provide a valid email address")
-  @Column(name = "email", unique = true)
+  @Column(name = "email")
   @Nullable
   protected String email;
 
@@ -89,10 +92,6 @@ public class User {
   @Column(name = "reference_points", length = 500)
   @Nullable
   protected String referencePoints;
-
-  @Column(name = "profile_picture_url")
-  @Nullable
-  protected String profilePicture;
 
   @Column(name = "active")
   @Builder.Default
