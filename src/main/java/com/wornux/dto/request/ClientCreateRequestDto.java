@@ -37,7 +37,7 @@ public record ClientCreateRequestDto(
     PreferredContactMethod preferredContactMethod,
     @Nullable String emergencyContactName,
     @Pattern(
-            regexp = DOMINICAN_PHONE_PATTERN,
+            regexp = DOMINICAN_PHONE_PATTERN_OPTIONAL,
             message = "Proporcione un número de emergencia válido")
         @Nullable String emergencyContactNumber,
     @Nullable ClientRating rating,
@@ -54,11 +54,19 @@ public record ClientCreateRequestDto(
     @NotBlank(message = "La dirección es requerida") String streetAddress,
     @Size(max = 500, message = "Los puntos de referencia no pueden exceder 500 caracteres")
         @Nullable String referencePoints) {
-  @AssertTrue(
-      message = "Debe proporcionar exactamente uno de los siguientes: cédula, pasaporte o RNC")
-  private boolean isValidIdentification() {
-    return countProvidedIdentificationDocuments() == MAX_IDENTIFICATION_DOCUMENT_COUNT;
-  }
+    @AssertTrue(message = "Debe proporcionar exactamente uno de los siguientes: cédula, pasaporte o RNC")
+    public boolean isValidIdentification() {
+        boolean hasCedula = cedula != null && !cedula.trim().isEmpty();
+        boolean hasPassport = passport != null && !passport.trim().isEmpty();
+        boolean hasRnc = rnc != null && !rnc.trim().isEmpty();
+
+        int filledFields = 0;
+        if (hasCedula) filledFields++;
+        if (hasPassport) filledFields++;
+        if (hasRnc) filledFields++;
+
+        return filledFields == MAX_IDENTIFICATION_DOCUMENT_COUNT;
+    }
 
   private int countProvidedIdentificationDocuments() {
     return (int) getIdentificationDocuments().filter(this::isDocumentProvided).count();
