@@ -93,7 +93,7 @@ public class SupplierView extends Div {
         return (root, query, builder) -> {
             Predicate predicate = builder.conjunction();
 
-            searchField.setWidth("300px");
+            searchField.setWidth("50%");
 
             if (!searchField.isEmpty()) {
                 String value = "%" + searchField.getValue().toLowerCase() + "%";
