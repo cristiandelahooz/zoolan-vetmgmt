@@ -50,6 +50,7 @@ public class InventoryView extends Div {
     private final MultiSelectComboBox<ProductCategory> categoryFilter = new MultiSelectComboBox<>("Filtrar por Categoría");
     private final ComboBox<Warehouse> warehouseFilter = new ComboBox<>("Filtrar por Almacén");
     private final Button newButton = new Button("Nuevo Producto");
+    private final Span quantity = new Span();
 
     private final transient ProductService productService;
     private final transient WarehouseService warehouseService;
@@ -126,13 +127,29 @@ public class InventoryView extends Div {
         searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
         searchField.addValueChangeListener(e -> refreshGrid());
+        searchField.setWidth("50%");
 
         categoryFilter.setItems(ProductCategory.values());
         categoryFilter.setItemLabelGenerator(this::getCategoryDisplayName);
         categoryFilter.setClearButtonVisible(true);
         categoryFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
         categoryFilter.addValueChangeListener(e -> refreshGrid());
+        categoryFilter.setWidth("20%");
 
+        quantity.addClassNames(
+                LumoUtility.BorderRadius.SMALL,
+                LumoUtility.Height.XSMALL,
+                LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.JustifyContent.CENTER,
+                LumoUtility.AlignItems.CENTER,
+                LumoUtility.Padding.XSMALL,
+                LumoUtility.Padding.Horizontal.SMALL,
+                LumoUtility.Margin.Horizontal.MEDIUM,
+                LumoUtility.Margin.Bottom.XSMALL,
+                LumoUtility.TextColor.PRIMARY_CONTRAST,
+                LumoUtility.Background.PRIMARY);
+        quantity.setWidth("10%");
+        updateQuantity();
 
         warehouseFilter.setItems(warehouseService.getAllWarehouses().stream().map(dto -> {
             Warehouse w = new Warehouse();
@@ -143,10 +160,18 @@ public class InventoryView extends Div {
         warehouseFilter.setItemLabelGenerator(Warehouse::getName);
         warehouseFilter.setClearButtonVisible(true);
         warehouseFilter.addValueChangeListener(e -> refreshGrid());
+        warehouseFilter.setWidth("15%");
 
-        HorizontalLayout toolbar = new HorizontalLayout(searchField, categoryFilter, warehouseFilter);
-        toolbar.setWidthFull();
-        toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        HorizontalLayout toolbar = new HorizontalLayout(searchField, categoryFilter, warehouseFilter, quantity);
+        toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        toolbar.setAlignItems(FlexComponent.Alignment.END);
+        toolbar.addClassNames(
+                LumoUtility.Margin.Horizontal.MEDIUM,
+                LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Margin.Right.MEDIUM,
+                LumoUtility.Padding.MEDIUM,
+                LumoUtility.Gap.MEDIUM, LumoUtility.Width.FULL);
+
         return toolbar;
     }
 
@@ -263,5 +288,15 @@ public class InventoryView extends Div {
             case HIGIENE -> "Higiene";
             case OTRO -> "Otro";
         };
+    }
+
+    private void updateQuantity() {
+        try {
+            long count = productService.getAllProducts().stream().filter(Product::isActive).count();
+            quantity.setText("Productos (" + count + ")");
+        } catch (Exception e) {
+            log.warn("Error getting products count", e);
+            quantity.setText("Productos (0)");
+        }
     }
 }
