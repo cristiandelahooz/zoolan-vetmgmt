@@ -1,0 +1,50 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build with Maven
+      run: ./mvnw clean package -Pproduction -DskipTests
+    
+    - name: Build Docker image
+      run: docker build -t petcare .
+    
+    - name: Save Docker image
+      run: docker save petcare > petcare.tar
+    
+    - name: Deploy to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        source: "petcare.tar,docker-compose.prod.yml"
+        target: "/home/app/"
+    
+    - name: Run deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd /home/app
+          docker load < petcare.tar
+          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          docker-compose -f docker-compose.prod.yml down -v
+          docker-compose -f docker-compose.prod.yml up -d
