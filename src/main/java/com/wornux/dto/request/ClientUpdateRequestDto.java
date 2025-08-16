@@ -1,14 +1,19 @@
 package com.wornux.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
+import static com.wornux.constants.ValidationConstants.*;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class ClientUpdateRequestDto {
   @Email(message = "Please provide a valid email address")
   private String email;
@@ -19,7 +24,7 @@ public class ClientUpdateRequestDto {
   @Size(min = 2, message = "Last name must be at least 2 characters")
   private String lastName;
 
-  @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Please provide a valid phone number")
+  @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Please provide a valid phone number")
   private String phoneNumber;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -29,15 +34,15 @@ public class ClientUpdateRequestDto {
 
   private String nationality;
 
-  @Pattern(regexp = "^[0-9]{11}$", message = "La cédula debe contener exactamente 11 dígitos")
+  @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
   private String cedula;
 
   @Pattern(
-      regexp = "^[0-9A-Z]{9}$",
+      regexp = PASSPORT_PATTERN,
       message = "El pasaporte debe contener 9 caracteres alfanuméricos")
   private String passport;
 
-  @Pattern(regexp = "^[0-9]{9}$", message = "El RNC debe contener exactamente 9 dígitos")
+  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
   private String rnc;
 
   private String companyName;
@@ -46,8 +51,10 @@ public class ClientUpdateRequestDto {
 
   private String emergencyContactName;
 
-  @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Proporcione un número de emergencia válido")
+  @Pattern(regexp = DOMINICAN_PHONE_PATTERN_OPTIONAL, message = "Proporcione un número de emergencia válido")
   private String emergencyContactNumber;
+
+  private ClientRating rating;
 
   @PositiveOrZero(message = "El límite de crédito no puede ser negativo")
   private Double creditLimit;
