@@ -358,7 +358,7 @@ public class EmployeeView extends Div {
     private void updateQuantity() {
         try {
             long count = employeeService.getRepository().count();
-            quantity.setText(count + " empleados");
+            quantity.setText("Empleados (" + count + ")");
         } catch (Exception e) {
             log.warn("Error getting employee count", e);
             quantity.setText("Empleados");
