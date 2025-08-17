@@ -1,9 +1,11 @@
 package com.wornux.views.pets;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -12,26 +14,33 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.Breadcrumb;
 import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
+import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
 import com.wornux.data.enums.*;
 import com.wornux.dto.response.PetSummaryResponseDto;
 import com.wornux.services.interfaces.ClientService;
+import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.GridUtils;
+import com.wornux.views.medicalhistory.MedicalHistoryView;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -55,11 +64,14 @@ public class PetView extends Div {
     private final Button create = new Button();
     private final PetService petService;
     private final PetForm petForm;
+    private final ConsultationService consultationService;
 
     public PetView(@Qualifier("petServiceImpl") PetService petService,
-            @Qualifier("clientServiceImpl") ClientService clientService) {
+            @Qualifier("clientServiceImpl") ClientService clientService,
+                   @Qualifier("consultationServiceImpl") ConsultationService consultationService) {
         this.petService = petService;
         this.petForm = new PetForm(petService, clientService);
+        this.consultationService = consultationService;
 
         setId("pet-view");
 
@@ -150,12 +162,20 @@ public class PetView extends Div {
                         : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName(),
                 "Dueño", "owners");
 
-        grid.asSingleSelect().addValueChangeListener(event -> {
+       /* grid.asSingleSelect().addValueChangeListener(event -> {
             Pet selected = event.getValue();
             if (selected != null) {
                 petForm.openForEdit(selected);
             }
+        });*/
+
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            Pet selected = event.getValue();
+            if (selected != null) {
+                new PetDetailDialog(selected, consultationService).open();
+            }
         });
+
 
         grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
 
@@ -284,4 +304,7 @@ public class PetView extends Div {
         actions.setWidth(null);
         return actions;
     }
+
+
+
 }
