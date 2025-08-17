@@ -8,8 +8,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
@@ -19,9 +18,33 @@ import com.wornux.views.pets.SelectPetDialog;
 
 import java.util.List;
 
-@PageTitle("Historial Médico")
 @Route(value = "historial-medico")
-public class MedicalHistoryView extends VerticalLayout {
+@PageTitle("Historial Médico")
+public class MedicalHistoryView extends VerticalLayout implements HasUrlParameter<Long> {
+
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter Long petId) {
+        if (petId == null) {
+            // Intentamos leer de query param
+            String idFromQuery = event.getLocation()
+                    .getQueryParameters()
+                    .getParameters()
+                    .getOrDefault("petId", List.of())
+                    .stream().findFirst().orElse(null);
+
+            if (idFromQuery != null) {
+                petId = Long.valueOf(idFromQuery);
+            }
+        }
+
+        if (petId != null) {
+            selectedPet = petService.getPetById(petId).orElse(null);
+            if (selectedPet != null) {
+                loadMedicalHistory(petId);
+            }
+        }
+    }
+
 
     private final PetService petService;
     private final ConsultationService consultationService;
@@ -74,6 +97,8 @@ public class MedicalHistoryView extends VerticalLayout {
         add(title, petSelector, consultationsGrid);
         setFlexGrow(1, consultationsGrid);
     }
+
+
 
     private void openPetSelectionDialog() {
         SelectPetDialog dialog = new SelectPetDialog(petService);
