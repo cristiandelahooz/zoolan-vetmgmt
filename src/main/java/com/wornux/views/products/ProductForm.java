@@ -17,16 +17,20 @@ import com.wornux.data.entity.Product;
 import com.wornux.data.entity.Supplier;
 import com.wornux.data.entity.Warehouse;
 import com.wornux.data.enums.ProductCategory;
+import com.wornux.data.enums.ProductUnit;
+import com.wornux.data.enums.ProductUsageType;
 import com.wornux.dto.request.ProductCreateRequestDto;
 import com.wornux.dto.request.ProductUpdateRequestDto;
 import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.SupplierService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +48,8 @@ public class ProductForm extends Dialog {
   private final ComboBox<ProductCategory> category = new ComboBox<>("Categoría");
   private final ComboBox<Supplier> supplier = new ComboBox<>("Proveedor");
   private final ComboBox<Warehouse> warehouse = new ComboBox<>("Almacén");
+  private final ComboBox<ProductUnit> unit = new ComboBox<>("Unidad de Medida");
+  private final ComboBox<ProductUsageType> usageType = new ComboBox<>("Tipo de Uso");
 
   private final Button saveButton = new Button("Guardar");
   private final Button cancelButton = new Button("Cancelar");
@@ -52,7 +58,8 @@ public class ProductForm extends Dialog {
   private final transient SupplierService supplierService;
   private final transient WarehouseService warehouseService;
 
-  @Setter private transient Runnable onSaveCallback;
+  @Setter
+  private transient Runnable onSaveCallback;
 
   private final List<Consumer<Product>> productSavedListeners = new ArrayList<>();
   private final List<Runnable> productCancelledListeners = new ArrayList<>();
@@ -90,9 +97,12 @@ public class ProductForm extends Dialog {
         accountingStock,
         availableStock,
         reorderLevel,
+        unit,           // Nuevo campo
+        usageType,      // Nuevo campo
         category,
         supplier,
         warehouse);
+
     productInfo.setResponsiveSteps(
         new FormLayout.ResponsiveStep("0", 1),
         new FormLayout.ResponsiveStep(RESPONSIVE_STEP_WIDTH, 2));
@@ -187,6 +197,18 @@ public class ProductForm extends Dialog {
     warehouse.setRequiredIndicatorVisible(true);
     warehouse.setErrorMessage("El almacén es requerido");
 
+    unit.setItems(ProductUnit.values());
+    unit.setItemLabelGenerator(ProductUnit::getDisplayName);
+    unit.setRequired(true);
+    unit.setRequiredIndicatorVisible(true);
+    unit.setErrorMessage("La unidad de medida es requerida");
+
+    usageType.setItems(ProductUsageType.values());
+    usageType.setItemLabelGenerator(ProductUsageType::getDisplayName);
+    usageType.setRequired(true);
+    usageType.setRequiredIndicatorVisible(true);
+    usageType.setErrorMessage("El tipo de uso es requerido");
+
     productInfo.setColspan(description, 2);
   }
 
@@ -263,6 +285,8 @@ public class ProductForm extends Dialog {
             .supplierId(supplier.getValue().getId())
             .category(category.getValue())
             .warehouseId(warehouse.getValue().getId())
+            .unit(unit.getValue())
+            .usageType(usageType.getValue())
             .build();
 
     productService.createProduct(dto);
@@ -290,6 +314,8 @@ public class ProductForm extends Dialog {
             .supplierId(supplier.getValue().getId())
             .category(category.getValue())
             .warehouseId(warehouse.getValue().getId())
+            .unit(unit.getValue())
+            .usageType(usageType.getValue())
             .build();
 
     Product updatedProduct = productService.update(currentProduct.getId(), dto);
@@ -402,6 +428,8 @@ public class ProductForm extends Dialog {
     category.setValue(product.getCategory());
     supplier.setValue(product.getSupplier());
     warehouse.setValue(product.getWarehouse());
+    unit.setValue(product.getUnit());
+    usageType.setValue(product.getUsageType());
   }
 
   private void clearForm() {
@@ -415,6 +443,8 @@ public class ProductForm extends Dialog {
     category.clear();
     supplier.clear();
     warehouse.clear();
+    unit.clear();
+    usageType.clear();
   }
 
   private void enableAllFields() {
