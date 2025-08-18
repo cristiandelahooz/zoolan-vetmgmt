@@ -215,20 +215,24 @@ public class EmployeeForm extends Dialog {
 
     private void setupCreateBinder() {
         binder.forField(username)
-                .withValidator(new StringLengthValidator("El usuario debe tener entre 3 y 50 caracteres", MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH))
-                .bind(ValidationBean::getUsername, ValidationBean::setUsername);
+            .asRequired("El usuario es requerido")
+            .withValidator(new StringLengthValidator("El usuario debe tener entre 3 y 50 caracteres", MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH))
+            .bind(ValidationBean::getUsername, ValidationBean::setUsername);
 
         binder.forField(password)
-                .withValidator(new StringLengthValidator("La contraseña debe tener al menos 8 caracteres", MIN_PASSWORD_LENGTH, null))
-                .bind(ValidationBean::getPassword, ValidationBean::setPassword);
+            .asRequired("La contraseña es requerida")
+            .withValidator(new StringLengthValidator("La contraseña debe tener al menos 8 caracteres", MIN_PASSWORD_LENGTH, null))
+            .bind(ValidationBean::getPassword, ValidationBean::setPassword);
 
         binder.forField(firstName)
-                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
-                .bind(ValidationBean::getFirstName, ValidationBean::setFirstName);
+            .asRequired("El nombre es requerido")
+            .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
+            .bind(ValidationBean::getFirstName, ValidationBean::setFirstName);
 
         binder.forField(lastName)
-                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
-                .bind(ValidationBean::getLastName, ValidationBean::setLastName);
+            .asRequired("El apellido es requerido")
+            .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
+            .bind(ValidationBean::getLastName, ValidationBean::setLastName);
 
         binder.forField(email)
                 .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
@@ -391,33 +395,53 @@ public class EmployeeForm extends Dialog {
     }
 
     private void saveNew() {
-        if (!binder.isValid()) {
+        // Primero, forzar la escritura de todos los valores del formulario al bean
+        if (!binder.writeBeanIfValid(validationBean)) {
             NotificationUtils.error("Por favor, corrija los errores en el formulario");
             return;
         }
 
         try {
+            // Validar campos críticos antes de proceder
+            if (validationBean.getUsername() == null || validationBean.getUsername().trim().isEmpty()) {
+                NotificationUtils.error("El nombre de usuario es requerido");
+                username.focus();
+                return;
+            }
+
+            if (validationBean.getPassword() == null || validationBean.getPassword().trim().isEmpty()) {
+                NotificationUtils.error("La contraseña es requerida");
+                password.focus();
+                return;
+            }
+
+            // Log para debugging
+            log.debug("Creating employee with username: '{}', firstName: '{}', lastName: '{}'",
+                validationBean.getUsername(),
+                validationBean.getFirstName(),
+                validationBean.getLastName());
+
             EmployeeCreateRequestDto dto = EmployeeCreateRequestDto.builder()
-                    .username(validationBean.getUsername())
-                    .password(validationBean.getPassword())
-                    .firstName(validationBean.getFirstName())
-                    .lastName(validationBean.getLastName())
-                    .email(validationBean.getEmail())
-                    .phoneNumber(validationBean.getPhoneNumber())
-                    .birthDate(validationBean.getBirthDate())
-                    .gender(validationBean.getGender())
-                    .nationality(validationBean.getNationality())
-                    .province(validationBean.getProvince())
-                    .municipality(validationBean.getMunicipality())
-                    .sector(validationBean.getSector())
-                    .streetAddress(validationBean.getStreetAddress())
-                    .employeeRole(validationBean.getEmployeeRole())
-                    .salary(validationBean.getSalary())
-                    .hireDate(validationBean.getHireDate())
-                    .workSchedule(validationBean.getWorkSchedule())
-                    .emergencyContactName(validationBean.getEmergencyContactName())
-                    .emergencyContactPhone(validationBean.getEmergencyContactPhone())
-                    .build();
+                .username(validationBean.getUsername().trim())
+                .password(validationBean.getPassword())
+                .firstName(validationBean.getFirstName() != null ? validationBean.getFirstName().trim() : null)
+                .lastName(validationBean.getLastName() != null ? validationBean.getLastName().trim() : null)
+                .email(validationBean.getEmail() != null ? validationBean.getEmail().trim() : null)
+                .phoneNumber(validationBean.getPhoneNumber() != null ? validationBean.getPhoneNumber().trim() : null)
+                .birthDate(validationBean.getBirthDate())
+                .gender(validationBean.getGender())
+                .nationality(validationBean.getNationality() != null ? validationBean.getNationality().trim() : null)
+                .province(validationBean.getProvince() != null ? validationBean.getProvince().trim() : null)
+                .municipality(validationBean.getMunicipality() != null ? validationBean.getMunicipality().trim() : null)
+                .sector(validationBean.getSector() != null ? validationBean.getSector().trim() : null)
+                .streetAddress(validationBean.getStreetAddress() != null ? validationBean.getStreetAddress().trim() : null)
+                .employeeRole(validationBean.getEmployeeRole())
+                .salary(validationBean.getSalary())
+                .hireDate(validationBean.getHireDate())
+                .workSchedule(validationBean.getWorkSchedule() != null ? validationBean.getWorkSchedule().trim() : null)
+                .emergencyContactName(validationBean.getEmergencyContactName() != null ? validationBean.getEmergencyContactName().trim() : null)
+                .emergencyContactPhone(validationBean.getEmergencyContactPhone() != null ? validationBean.getEmergencyContactPhone().trim() : null)
+                .build();
 
             employeeService.save(dto);
             NotificationUtils.success("Empleado creado exitosamente");
@@ -426,6 +450,13 @@ public class EmployeeForm extends Dialog {
             if (onSaveCallback != null) {
                 onSaveCallback.run();
             }
+        } catch (DuplicateEmployeeException e) {
+            log.error("Duplicate employee error", e);
+            NotificationUtils.error("Ya existe un empleado con ese nombre de usuario");
+            username.focus();
+        } catch (ValidationException e) {
+            log.error("Validation error saving employee", e);
+            NotificationUtils.error("Error de validación: " + e.getMessage());
         } catch (Exception e) {
             log.error("Error saving employee", e);
             NotificationUtils.error("Error al guardar el empleado: " + e.getMessage());
@@ -466,12 +497,14 @@ public class EmployeeForm extends Dialog {
 
         updateHeaderTitle("Nuevo Empleado");
         clearForm();
-        binder.readBean(validationBean);
+
+        binder.setBean(validationBean);
 
         password.setVisible(true);
         password.setRequiredIndicatorVisible(true);
         hireDate.setValue(LocalDate.now());
 
+        log.debug("Opening form for new employee. ValidationBean initialized: {}", validationBean);
         firstName.focus();
         open();
     }
