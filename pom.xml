@@ -1,520 +1,521 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <artifactId>petcare</artifactId>
+    <modelVersion>4.0.0</modelVersion>
 
-  <!-- ====================================================================== -->
-  <!-- PROJECT INFORMATION                                                   -->
-  <!-- ====================================================================== -->
-  <build>
-    <defaultGoal>spring-boot:run</defaultGoal>
-    <finalName>${project.name}</finalName>
+    <!-- ====================================================================== -->
+    <!-- PROJECT INFORMATION                                                   -->
+    <!-- ====================================================================== -->
+    <groupId>com.wornux</groupId>
+    <artifactId>petcare</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
 
-    <plugins>
-      <!-- ============================================================== -->
-      <!-- Spring Boot Maven Plugin                                      -->
-      <!-- ============================================================== -->
-      <plugin>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <!-- Exclude Lombok from final JAR -->
-          <excludes>
-            <exclude>
-              <artifactId>lombok</artifactId>
-              <groupId>org.projectlombok</groupId>
-            </exclude>
-          </excludes>
-          <!-- JVM Debug Configuration for Development -->
-          <jvmArguments>
-            -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5630
-          </jvmArguments>
-          <!-- Spring Boot DevTools Configuration -->
-          <maxAttempts>240</maxAttempts>
-          <profiles>
-            <profile>dev</profile>
-          </profiles>
-          <wait>500</wait>
-        </configuration>
+    <name>petcare</name>
+    <description>Veterinary Management System - PetCare Application
+    </description>
+
+    <!-- ====================================================================== -->
+    <!-- PROPERTIES                                                            -->
+    <!-- ====================================================================== -->
+    <properties>
+        <!-- Java Version -->
+        <java.version>21</java.version>
+        <!-- Project Encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8
+        </project.reporting.outputEncoding>
+        <!-- Framework Versions -->
+        <vaadin.version>24.8.3</vaadin.version>
+        <hibernate.version>6.6.4.Final</hibernate.version>
+        <!-- Library Versions -->
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+        <jasperreports.version>7.0.3</jasperreports.version>
+        <archunit.version>1.4.1</archunit.version>
+        <!-- Vaadin Addons -->
+        <line-awesome.version>2.1.0</line-awesome.version>
+        <fullcalendar.version>7.0.0</fullcalendar.version>
+        <!-- Build Plugin Versions -->
+        <spotless.version>2.44.4</spotless.version>
+        <maven-wrapper.version>3.3.2</maven-wrapper.version>
+        <lombok-mapstruct-binding.version>0.2.0
+        </lombok-mapstruct-binding.version>
+    </properties>
+
+    <!-- ====================================================================== -->
+    <!-- PARENT POM                                                            -->
+    <!-- ====================================================================== -->
+    <parent>
         <groupId>org.springframework.boot</groupId>
-      </plugin>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
-      <!-- ============================================================== -->
-      <!-- Maven Compiler Plugin                                         -->
-      <!-- ============================================================== -->
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <!-- Annotation Processor Configuration -->
-          <annotationProcessorPaths>
-            <!-- Lombok-MapStruct Binding -->
+    <!-- ====================================================================== -->
+    <!-- REPOSITORIES                                                          -->
+    <!-- ====================================================================== -->
+    <repositories>
+        <!-- Vaadin Add-ons Repository -->
+        <repository>
+            <id>vaadin-directory</id>
+            <url>https://maven.vaadin.com/vaadin-addons</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- ====================================================================== -->
+    <!-- DEPENDENCY MANAGEMENT                                                 -->
+    <!-- ====================================================================== -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Vaadin BOM for version management -->
             <dependency>
-              <artifactId>lombok-mapstruct-binding</artifactId>
-              <groupId>org.projectlombok</groupId>
-              <version>${lombok-mapstruct-binding.version}</version>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <!-- Lombok Processor -->
-            <path>
-              <artifactId>lombok</artifactId>
-              <groupId>org.projectlombok</groupId>
-              <version>${lombok.version}</version>
-            </path>
-            <!-- MapStruct Processor -->
-            <path>
-              <artifactId>mapstruct-processor</artifactId>
-              <groupId>org.mapstruct</groupId>
-              <version>${org.mapstruct.version}</version>
-            </path>
-          </annotationProcessorPaths>
-          <!-- MapStruct Configuration -->
-          <compilerArgs>
-            <compilerArg>-Amapstruct.defaultComponentModel=spring</compilerArg>
-          </compilerArgs>
-        </configuration>
-        <groupId>org.apache.maven.plugins</groupId>
-      </plugin>
+        </dependencies>
+    </dependencyManagement>
 
-      <!-- ============================================================== -->
-      <!-- Vaadin Maven Plugin                                           -->
-      <!-- ============================================================== -->
-      <plugin>
-        <artifactId>vaadin-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-frontend</goal>
-            </goals>
-          </execution>
-        </executions>
-        <groupId>com.vaadin</groupId>
-        <version>${vaadin.version}</version>
-      </plugin>
 
-      <!-- ============================================================== -->
-      <!-- Code Formatting Plugin                                        -->
-      <!-- ============================================================== -->
-      <plugin>
-        <artifactId>spotless-maven-plugin</artifactId>
-        <configuration>
-          <!-- Java Code Formatting -->
-          <java>
-            <googleJavaFormat>
-              <style>GOOGLE</style>
-              <version>1.19.2</version>
-            </googleJavaFormat>
-            <toggleOffOn/>
-          </java>
-          <!-- TypeScript Code Formatting -->
-          <typescript>
-            <biome>
-              <version>1.9.4</version>
-            </biome>
-            <excludes>
-              <exclude>src/main/frontend/generated/**</exclude>
-            </excludes>
-            <includes>
-              <include>src/main/frontend/**/*.ts</include>
-              <include>src/main/frontend/**/*.tsx</include>
-            </includes>
-          </typescript>
-        </configuration>
-        <groupId>com.diffplug.spotless</groupId>
-        <version>${spotless.version}</version>
-      </plugin>
-
-      <!-- ============================================================== -->
-      <!-- Maven Wrapper Plugin                                          -->
-      <!-- ============================================================== -->
-      <plugin>
-        <artifactId>maven-wrapper-plugin</artifactId>
-        <groupId>org.apache.maven.plugins</groupId>
-        <version>${maven-wrapper.version}</version>
-      </plugin>
-    </plugins>
-  </build>
-  <dependencies>
-
-    <!-- ================================================================== -->
-    <!-- VAADIN FRAMEWORK                                                  -->
-    <!-- ================================================================== -->
-    <dependency>
-      <artifactId>vaadin</artifactId>
-      <groupId>com.vaadin</groupId>
-    </dependency>
-
-    <dependency>
-      <artifactId>vaadin-spring-boot-starter</artifactId>
-      <groupId>com.vaadin</groupId>
-    </dependency>
-
-    <!-- Vaadin UI Components -->
-    <dependency>
-      <artifactId>line-awesome</artifactId>
-      <groupId>org.parttio</groupId>
-      <version>${line-awesome.version}</version>
-    </dependency>
-
-    <!-- FullCalendar Components for Scheduling -->
-    <dependency>
-      <artifactId>fullcalendar2</artifactId>
-      <groupId>org.vaadin.stefan</groupId>
-      <version>${fullcalendar.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>fullcalendar2-scheduler</artifactId>
-      <groupId>org.vaadin.stefan</groupId>
-      <version>${fullcalendar.version}</version>
-    </dependency>
-
-    <!-- ================================================================== -->
-    <!-- SPRING BOOT STARTERS                                              -->
-    <!-- ================================================================== -->
-
-    <!-- JPA and Database -->
-    <dependency>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-
-    <!-- Validation -->
-    <dependency>
-      <artifactId>spring-boot-starter-validation</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-
-    <!-- Security -->
-    <dependency>
-      <artifactId>spring-boot-starter-security</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-
-    <!-- Actuator for Production Monitoring -->
-    <dependency>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-
-    <!-- Development Tools (excluded in production) -->
-    <dependency>
-      <artifactId>spring-boot-devtools</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- ================================================================== -->
-    <!-- PERSISTENCE LAYER                                                 -->
-    <!-- ================================================================== -->
-
-    <!-- Hibernate ORM -->
-    <dependency>
-      <artifactId>hibernate-core</artifactId>
-      <groupId>org.hibernate.orm</groupId>
-      <version>${hibernate.version}</version>
-    </dependency>
-
-    <!-- Hibernate Envers for Auditing -->
-    <dependency>
-      <artifactId>hibernate-envers</artifactId>
-      <groupId>org.hibernate.orm</groupId>
-      <version>${hibernate.version}</version>
-    </dependency>
-
-    <!-- PostgreSQL Driver -->
-    <dependency>
-      <artifactId>postgresql</artifactId>
-      <groupId>org.postgresql</groupId>
-      <scope>runtime</scope>
-    </dependency>
-
-    <!-- Database Migration -->
-    <dependency>
-      <artifactId>flyway-core</artifactId>
-      <groupId>org.flywaydb</groupId>
-      <version>${flyway.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>flyway-database-postgresql</artifactId>
-      <groupId>org.flywaydb</groupId>
-    </dependency>
-
-    <!-- ================================================================== -->
-    <!-- REPORTING                                                         -->
-    <!-- ================================================================== -->
-
-    <!-- JasperReports Core -->
-    <dependency>
-      <artifactId>jasperreports</artifactId>
-      <exclusions>
-        <!-- Exclude vulnerable dependencies -->
-        <exclusion>
-          <artifactId>itext</artifactId>
-          <groupId>com.lowagie</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>groovy-sandbox</artifactId>
-          <groupId>org.kohsuke</groupId>
-        </exclusion>
-      </exclusions>
-      <groupId>net.sf.jasperreports</groupId>
-      <version>${jasperreports.version}</version>
-    </dependency>
-
-    <!-- JasperReports PDF Support -->
-    <dependency>
-      <artifactId>jasperreports-pdf</artifactId>
-      <groupId>net.sf.jasperreports</groupId>
-      <version>${jasperreports.version}</version>
-    </dependency>
-
-    <!-- JasperReports Fonts -->
-    <dependency>
-      <artifactId>jasperreports-fonts</artifactId>
-      <groupId>net.sf.jasperreports</groupId>
-      <version>${jasperreports.version}</version>
-    </dependency>
-
-    <!-- ================================================================== -->
-    <!-- UTILITIES                                                         -->
-    <!-- ================================================================== -->
-
-    <!-- MapStruct for Object Mapping -->
-    <dependency>
-      <artifactId>mapstruct</artifactId>
-      <groupId>org.mapstruct</groupId>
-      <version>${org.mapstruct.version}</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>mapstruct-processor</artifactId>
-      <groupId>org.mapstruct</groupId>
-      <version>${org.mapstruct.version}</version>
-    </dependency>
-
-    <!-- HTTP Client -->
-    <dependency>
-      <artifactId>httpclient5</artifactId>
-      <groupId>org.apache.httpcomponents.client5</groupId>
-    </dependency>
-
-    <!-- Lombok for Boilerplate Reduction -->
-    <dependency>
-      <artifactId>lombok</artifactId>
-      <groupId>org.projectlombok</groupId>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- ================================================================== -->
-    <!-- TESTING DEPENDENCIES                                              -->
-    <!-- ================================================================== -->
-
-    <!-- Spring Boot Test Starter -->
-    <dependency>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Spring Security Test -->
-    <dependency>
-      <artifactId>spring-security-test</artifactId>
-      <groupId>org.springframework.security</groupId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Testcontainers for Integration Testing -->
-    <dependency>
-      <artifactId>spring-boot-testcontainers</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <artifactId>junit-jupiter</artifactId>
-      <groupId>org.testcontainers</groupId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Architecture Testing -->
-    <dependency>
-      <artifactId>archunit-junit5</artifactId>
-      <groupId>com.tngtech.archunit</groupId>
-      <scope>test</scope>
-      <version>${archunit.version}</version>
-    </dependency>
-  </dependencies>
-  <dependencyManagement>
+    <!-- ====================================================================== -->
+    <!-- DEPENDENCIES                                                          -->
+    <!-- ====================================================================== -->
     <dependencies>
-      <!-- Vaadin BOM for version management -->
-      <dependency>
-        <artifactId>vaadin-bom</artifactId>
-        <groupId>com.vaadin</groupId>
-        <scope>import</scope>
-        <type>pom</type>
-        <version>${vaadin.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-  <description>Veterinary Management System - PetCare Application</description>
 
-  <groupId>com.wornux</groupId>
-  <modelVersion>4.0.0</modelVersion>
-
-  <!-- ====================================================================== -->
-  <!-- PARENT POM                                                            -->
-  <!-- ====================================================================== -->
-  <name>petcare</name>
-
-  <!-- ====================================================================== -->
-  <!-- PROPERTIES                                                            -->
-  <!-- ====================================================================== -->
-  <packaging>jar</packaging>
-
-  <!-- ====================================================================== -->
-  <!-- DEPENDENCY MANAGEMENT                                                 -->
-  <!-- ====================================================================== -->
-  <parent>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <groupId>org.springframework.boot</groupId>
-    <relativePath/>
-    <version>3.5.0</version> <!-- lookup parent from repository -->
-  </parent>
-
-  <!-- ====================================================================== -->
-  <!-- DEPENDENCIES                                                          -->
-  <!-- ====================================================================== -->
-  <profiles>
-    <!-- ================================================================== -->
-    <!-- Production Profile                                                -->
-    <!-- ================================================================== -->
-    <profile>
-      <activation>
-        <property>
-          <name>production</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <!-- Build Vaadin production bundle -->
-          <plugin>
-            <artifactId>vaadin-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>build-frontend</goal>
-                </goals>
-                <phase>compile</phase>
-              </execution>
-            </executions>
-            <groupId>com.vaadin</groupId>
-            <version>${vaadin.version}</version>
-          </plugin>
-        </plugins>
-      </build>
-
-      <dependencies>
-        <!-- Exclude Vaadin development mode utilities in production -->
+        <!-- ================================================================== -->
+        <!-- VAADIN FRAMEWORK                                                  -->
+        <!-- ================================================================== -->
         <dependency>
-          <artifactId>vaadin-core</artifactId>
-          <exclusions>
-            <exclusion>
-              <artifactId>vaadin-dev</artifactId>
-              <groupId>com.vaadin</groupId>
-            </exclusion>
-          </exclusions>
-          <groupId>com.vaadin</groupId>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin</artifactId>
         </dependency>
-      </dependencies>
 
-      <id>production</id>
-    </profile>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spring-boot-starter</artifactId>
+        </dependency>
 
-    <!-- ================================================================== -->
-    <!-- Integration Test Profile                                          -->
-    <!-- ================================================================== -->
-    <profile>
-      <activation>
-        <property>
-          <name>integration-test</name>
-        </property>
-      </activation>
-      <build>
+        <!-- Vaadin UI Components -->
+        <dependency>
+            <groupId>org.parttio</groupId>
+            <artifactId>line-awesome</artifactId>
+            <version>${line-awesome.version}</version>
+        </dependency>
+
+        <!-- FullCalendar Components for Scheduling -->
+        <dependency>
+            <groupId>org.vaadin.stefan</groupId>
+            <artifactId>fullcalendar2</artifactId>
+            <version>${fullcalendar.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.vaadin.stefan</groupId>
+            <artifactId>fullcalendar2-scheduler</artifactId>
+            <version>${fullcalendar.version}</version>
+        </dependency>
+
+        <!-- ================================================================== -->
+        <!-- SPRING BOOT STARTERS                                              -->
+        <!-- ================================================================== -->
+
+        <!-- JPA and Database -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Actuator for Production Monitoring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Development Tools (excluded in production) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- ================================================================== -->
+        <!-- PERSISTENCE LAYER                                                 -->
+        <!-- ================================================================== -->
+
+        <!-- Hibernate ORM -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <!-- Hibernate Envers for Auditing -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-envers</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <!-- PostgreSQL Driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Database Migration -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+        <!-- ================================================================== -->
+        <!-- REPORTING                                                         -->
+        <!-- ================================================================== -->
+
+        <!-- JasperReports Core -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+            <version>${jasperreports.version}</version>
+            <exclusions>
+                <!-- Exclude vulnerable dependencies -->
+                <exclusion>
+                    <groupId>com.lowagie</groupId>
+                    <artifactId>itext</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.kohsuke</groupId>
+                    <artifactId>groovy-sandbox</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- JasperReports PDF Support -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-pdf</artifactId>
+            <version>${jasperreports.version}</version>
+        </dependency>
+
+        <!-- JasperReports Fonts -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-fonts</artifactId>
+            <version>${jasperreports.version}</version>
+        </dependency>
+
+        <!-- ================================================================== -->
+        <!-- UTILITIES                                                         -->
+        <!-- ================================================================== -->
+
+        <!-- MapStruct for Object Mapping -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
+        <!-- HTTP Client -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+
+        <!-- Lombok for Boilerplate Reduction -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- ================================================================== -->
+        <!-- TESTING DEPENDENCIES                                              -->
+        <!-- ================================================================== -->
+
+        <!-- Spring Boot Test Starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Spring Security Test -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Testcontainers for Integration Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Architecture Testing -->
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- ====================================================================== -->
+    <!-- BUILD CONFIGURATION                                                   -->
+    <!-- ====================================================================== -->
+    <build>
+        <defaultGoal>spring-boot:run</defaultGoal>
+        <finalName>${project.name}</finalName>
+
         <plugins>
-          <!-- Failsafe Plugin for Integration Tests -->
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <enableAssertions>true</enableAssertions>
-              <trimStackTrace>false</trimStackTrace>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
-            <groupId>org.apache.maven.plugins</groupId>
-          </plugin>
+            <!-- ============================================================== -->
+            <!-- Spring Boot Maven Plugin                                      -->
+            <!-- ============================================================== -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Exclude Lombok from final JAR -->
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                    <!-- JVM Debug Configuration for Development -->
+                    <jvmArguments>
+                        -Xdebug
+                        -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5630
+                    </jvmArguments>
+                    <!-- Spring Boot DevTools Configuration -->
+                    <maxAttempts>240</maxAttempts>
+                    <wait>500</wait>
+                    <profiles>
+                        <profile>dev</profile>
+                    </profiles>
+                </configuration>
+            </plugin>
+
+            <!-- ============================================================== -->
+            <!-- Maven Compiler Plugin                                         -->
+            <!-- ============================================================== -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!-- Annotation Processor Configuration -->
+                    <annotationProcessorPaths>
+                        <!-- Lombok-MapStruct Binding -->
+                        <dependency>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}
+                            </version>
+                        </dependency>
+                        <!-- Lombok Processor -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <!-- MapStruct Processor -->
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <!-- MapStruct Configuration -->
+                    <compilerArgs>
+                        <compilerArg>-Amapstruct.defaultComponentModel=spring
+                        </compilerArg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <!-- ============================================================== -->
+            <!-- Vaadin Maven Plugin                                           -->
+            <!-- ============================================================== -->
+            <plugin>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <version>${vaadin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-frontend</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- ============================================================== -->
+            <!-- Code Formatting Plugin                                        -->
+            <!-- ============================================================== -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <!-- Java Code Formatting -->
+                    <java>
+                        <googleJavaFormat>
+                            <version>1.19.2</version>
+                            <style>GOOGLE</style>
+                        </googleJavaFormat>
+                        <toggleOffOn/>
+                    </java>
+                    <!-- TypeScript Code Formatting -->
+                    <typescript>
+                        <biome>
+                            <version>1.9.4</version>
+                        </biome>
+                        <includes>
+                            <include>src/main/frontend/**/*.ts</include>
+                            <include>src/main/frontend/**/*.tsx</include>
+                        </includes>
+                        <excludes>
+                            <exclude>src/main/frontend/generated/**</exclude>
+                        </excludes>
+                    </typescript>
+                </configuration>
+            </plugin>
+
+            <!-- ============================================================== -->
+            <!-- Maven Wrapper Plugin                                          -->
+            <!-- ============================================================== -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-wrapper-plugin</artifactId>
+                <version>${maven-wrapper.version}</version>
+            </plugin>
         </plugins>
-      </build>
+    </build>
 
-      <id>integration-test</id>
-    </profile>
-  </profiles>
+    <!-- ====================================================================== -->
+    <!-- PROFILES                                                              -->
+    <!-- ====================================================================== -->
+    <profiles>
+        <!-- ================================================================== -->
+        <!-- Production Profile                                                -->
+        <!-- ================================================================== -->
+        <profile>
+            <id>production</id>
+            <activation>
+                <property>
+                    <name>production</name>
+                </property>
+            </activation>
 
-  <!-- ====================================================================== -->
-  <!-- BUILD CONFIGURATION                                                   -->
-  <!-- ====================================================================== -->
-  <properties>
-    <!-- Java Version -->
-    <archunit.version>1.4.1</archunit.version>
+            <dependencies>
+                <!-- Exclude Vaadin development mode utilities in production -->
+                <dependency>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>vaadin-core</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.vaadin</groupId>
+                            <artifactId>vaadin-dev</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
 
-    <!-- Project Encoding -->
-    <flyway.version>9.21.2</flyway.version>
-    <fullcalendar.version>7.0.0</fullcalendar.version>
+            <build>
+                <plugins>
+                    <!-- Build Vaadin production bundle -->
+                    <plugin>
+                        <groupId>com.vaadin</groupId>
+                        <artifactId>vaadin-maven-plugin</artifactId>
+                        <version>${vaadin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>build-frontend</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
-    <!-- Framework Versions -->
-    <hibernate.version>6.6.4.Final</hibernate.version>
-    <jasperreports.version>7.0.3</jasperreports.version>
+        <!-- ================================================================== -->
+        <!-- Integration Test Profile                                          -->
+        <!-- ================================================================== -->
+        <profile>
+            <id>integration-test</id>
+            <activation>
+                <property>
+                    <name>integration-test</name>
+                </property>
+            </activation>
 
-    <!-- Library Versions -->
-    <java.version>21</java.version>
-    <line-awesome.version>2.1.0</line-awesome.version>
-    <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-    <maven-wrapper.version>3.3.2</maven-wrapper.version>
+            <build>
+                <plugins>
+                    <!-- Failsafe Plugin for Integration Tests -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <enableAssertions>true</enableAssertions>
+                            <trimStackTrace>false</trimStackTrace>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
-    <!-- Vaadin Addons -->
-    <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <!-- Build Plugin Versions -->
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <spotless.version>2.44.4</spotless.version>
-    <vaadin.version>24.8.3</vaadin.version>
-  </properties>
-
-  <!-- ====================================================================== -->
-  <!-- PROFILES                                                              -->
-  <!-- ====================================================================== -->
-  <repositories>
-    <!-- Vaadin Add-ons Repository -->
-    <repository>
-      <id>vaadin-directory</id>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <url>https://maven.vaadin.com/vaadin-addons</url>
-    </repository>
-  </repositories>
-
-  <!-- ====================================================================== -->
-  <!-- REPOSITORIES                                                          -->
-  <!-- ====================================================================== -->
-  <version>1.0.0</version>
 
 </project>
