@@ -203,6 +203,7 @@ public class PetForm extends Dialog {
             return;
         }
 
+
         PetCreateRequestDto createDto = new PetCreateRequestDto();
         createDto.setName(trimOrNull(name.getValue()));
         createDto.setType(type.getValue());
@@ -271,6 +272,18 @@ public class PetForm extends Dialog {
         } else {
             ownerName.setInvalid(false);
         }
+        if (birthDate.isEmpty()) {
+            birthDate.setInvalid(true);
+            birthDate.setErrorMessage("Debe seleccionar una fecha de nacimiento");
+            ok = false;
+        } else if (birthDate.getValue().isAfter(java.time.LocalDate.now())) {
+            birthDate.setInvalid(true);
+            birthDate.setErrorMessage("La fecha de nacimiento no puede ser futura");
+            ok = false;
+        } else {
+            birthDate.setInvalid(false);
+        }
+
 
         if (!type.isEmpty() && !breed.isEmpty()) {
             PetType t = type.getValue();
