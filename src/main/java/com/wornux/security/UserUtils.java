@@ -2,21 +2,32 @@ package com.wornux.security;
 
 import com.vaadin.flow.server.VaadinSession;
 import com.wornux.data.entity.User;
-import lombok.NoArgsConstructor;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Slf4j
-@NoArgsConstructor
 public class UserUtils {
 
+  private UserUtils() {
+    // It's not required
+  }
+
   public static void clear() {
-    if (VaadinSession.getCurrent() != null) {
+    if (Objects.nonNull(VaadinSession.getCurrent())) {
       VaadinSession.getCurrent().setAttribute(User.class, null);
     }
   }
 
   public static User getUser() {
-    if (VaadinSession.getCurrent() != null) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (Objects.nonNull(authentication)
+        && authentication.getPrincipal()
+        instanceof UserDetailsImpl(User user)) {
+      return user;
+    }
+    if (Objects.nonNull(VaadinSession.getCurrent())) {
       return VaadinSession.getCurrent().getAttribute(User.class);
     }
     return null;

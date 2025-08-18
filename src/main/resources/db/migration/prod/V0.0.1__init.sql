@@ -860,3 +860,21 @@ ALTER TABLE pet_owners
 
 ALTER TABLE pet_owners
     ADD CONSTRAINT fk_petown_on_pet FOREIGN KEY (pet_id) REFERENCES pets (id);
+
+--  ██████╗  █████╗ ████████╗ █████╗       ─────▀▄▀─────▄─────▄
+--  ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗      ──▄███████▄──▀██▄██▀
+--  ██║  ██║███████║   ██║   ███████║      ▄█████▀█████▄──▄█
+--  ██║  ██║██╔══██║   ██║   ██╔══██║      ███████▀████████▀
+--  ██████╔╝██║  ██║   ██║   ██║  ██║      ─▄▄▄▄▄▄███████▀
+--  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+
+INSERT INTO users (username, password, email, first_name, last_name, phone_number, birth_date,
+                   gender,
+                   nationality, province, municipality, sector, street_address, reference_points,
+                   active, created_at,
+                   updated_at, system_role)
+VALUES ('wornux', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La', 'app@wornux.com',
+        'John', 'Doe', '8092223333', '1985-01-15',
+        'MASCULINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Naco',
+        'Calle Principal 123', 'Near the park',
+        TRUE, NOW(), NOW(), 'SYSTEM_ADMIN')
