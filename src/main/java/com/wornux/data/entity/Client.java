@@ -1,23 +1,31 @@
 package com.wornux.data.entity;
 
-import static com.wornux.constants.ValidationConstants.*;
-
+import static com.wornux.constants.ValidationConstants.CEDULA_PATTERN;
+import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN_OPTIONAL;
+import static com.wornux.constants.ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
+import static com.wornux.constants.ValidationConstants.PASSPORT_PATTERN;
+import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
-
-import static com.wornux.constants.ValidationConstants.*;
-
-import com.wornux.data.enums.PreferredContactMethod;
-import com.wornux.data.enums.ClientRating;
-import com.wornux.data.enums.ReferenceSource;
 
 @Entity
 @Table(name = "client", uniqueConstraints = {
@@ -37,8 +45,8 @@ public class Client extends User {
   @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
   @Column(
       name = "cedula",
-      length = 11,
-      columnDefinition = "CHAR(11)")
+      length = 11
+  )
   @Nullable
   private String cedula;
 
@@ -47,15 +55,15 @@ public class Client extends User {
       message = "El pasaporte debe contener 9 caracteres alfanuméricos")
   @Column(
       name = "passport",
-      length = 9,
-      columnDefinition = "CHAR(9)")
+      length = 9
+  )
   @Nullable
   private String passport;
 
-    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
-    @Column(name = "rnc", length = 11, nullable = true, unique = true, columnDefinition = "CHAR(11)")
-    @Nullable
-    private String rnc;
+  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
+  @Column(name = "rnc", length = 11)
+  @Nullable
+  private String rnc;
 
   @Column(name = "company_name")
   @Nullable
@@ -72,8 +80,7 @@ public class Client extends User {
   @Pattern(
       regexp = DOMINICAN_PHONE_PATTERN_OPTIONAL,
       message =
-          "Proporcione un número de teléfono de emergencia válido (809, 849 o 829 seguido de 7"
-              + " dígitos)")
+          "Proporcione un número de teléfono de emergencia válido (809, 849 o 829 seguido de 7 dígitos)")
   @Column(name = "emergency_contact_number")
   @Nullable
   private String emergencyContactNumber;
