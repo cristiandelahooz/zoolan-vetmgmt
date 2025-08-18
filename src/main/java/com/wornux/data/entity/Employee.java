@@ -38,7 +38,7 @@ public class Employee extends User {
 
   @Column(name = "available")
   @Builder.Default
-  private boolean available = false;
+  private boolean available = true;
 
   @Column(name = "work_schedule")
   @NotBlank(message = "Work schedule is required")
