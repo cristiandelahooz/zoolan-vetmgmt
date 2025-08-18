@@ -22,9 +22,8 @@ import com.wornux.components.Breadcrumb;
 import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Consultation;
-import com.wornux.services.interfaces.ConsultationService;
-import com.wornux.services.interfaces.EmployeeService;
-import com.wornux.services.interfaces.PetService;
+import com.wornux.services.implementations.InvoiceService;
+import com.wornux.services.interfaces.*;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
 import jakarta.persistence.criteria.Order;
@@ -46,15 +45,24 @@ public class ConsultationsView extends Div {
   private final Button create = new Button("Nueva Consulta");
   private final Span quantity = new Span();
   private final transient ConsultationService consultationService;
+  private final transient InvoiceService invoiceService;
+  private final transient ServiceService serviceService;
+  private final transient ProductService productService;
   private final transient ConsultationsForm consultationsForm;
 
   public ConsultationsView(
       @Qualifier("consultationServiceImpl") ConsultationService consultationService,
       @Qualifier("employeeServiceImpl") EmployeeService employeeService,
-      @Qualifier("petServiceImpl") PetService petService) {
+      @Qualifier("petServiceImpl") PetService petService,
+      @Qualifier("serviceServiceImpl") ServiceService serviceService,
+      @Qualifier("productServiceImpl") ProductService productService,
+      InvoiceService invoiceService) {
     this.consultationService = consultationService;
+    this.invoiceService = invoiceService;
+    this.productService = productService;
+    this.serviceService = serviceService;
     this.consultationsForm =
-        new ConsultationsForm(consultationService, employeeService, petService);
+        new ConsultationsForm(consultationService, employeeService, petService, serviceService, invoiceService, productService);
 
     setId("consultations-view");
 
@@ -108,8 +116,7 @@ public class ConsultationsView extends Div {
         query.orderBy(order);
       }
 
-      Predicate searchPredicate =
-          builder.or(
+      return builder.or(
               builder.like(
                   builder.lower(root.get("notes")),
                   "%" + searchField.getValue().toLowerCase() + "%"),
@@ -131,8 +138,6 @@ public class ConsultationsView extends Div {
               builder.like(
                   builder.lower(root.get("veterinarian").get("lastName")),
                   "%" + searchField.getValue().toLowerCase() + "%"));
-
-      return searchPredicate;
     };
   }
 
