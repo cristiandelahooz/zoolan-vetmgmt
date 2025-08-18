@@ -3,19 +3,23 @@ package com.wornux.views.products;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.wornux.data.entity.Product;
+import com.wornux.data.entity.Warehouse;
 import com.wornux.data.enums.ProductCategory;
+import com.wornux.data.enums.ProductUnit;
+import com.wornux.data.enums.ProductUsageType;
 import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
 import org.springframework.data.domain.PageRequest;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
@@ -26,21 +30,40 @@ import java.util.function.Consumer;
 public class ProductGrid extends Grid<Product> {
     private Specification<Product> specification;
     private final transient ProductService productService;
+    private final transient WarehouseService warehouseService;
+
+    // Filtros
+    private ComboBox<ProductUnit> unitFilter;
+    private ComboBox<ProductUsageType> usageTypeFilter;
+    private ComboBox<Warehouse> warehouseFilter;
 
     private static final String COLUMN_WIDTH = "120px";
 
-
     public ProductGrid(ProductService productService,
+                       WarehouseService warehouseService,
                        Consumer<Product> onSelect) {
         super(Product.class, false);
         this.productService = productService;
+        this.warehouseService = warehouseService;
 
+        setupGrid();
+        setupColumns();
+        addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(onSelect));
+    }
+
+    private void setupGrid() {
         setItems(query -> {
             var products = productService.getAllProducts(PageRequest.of(query.getPage(), query.getPageSize(),
                     VaadinSpringDataHelpers.toSpringDataSort(query)));
             return products.stream().filter(Product::isActive);
         });
 
+        addThemeVariants(GridVariant.LUMO_COMPACT,
+                GridVariant.LUMO_ROW_STRIPES,
+                GridVariant.LUMO_WRAP_CELL_CONTENT);
+    }
+
+    private void setupColumns() {
         addColumn(Product::getName).setWidth("150px").setHeader("Nombre");
         addColumn(product -> product.getDescription() != null ? product.getDescription() : "")
                 .setWidth("200px").setHeader("Descripción");
@@ -48,8 +71,20 @@ public class ProductGrid extends Grid<Product> {
                 .setWidth(COLUMN_WIDTH).setHeader("Precio de Compra");
         addColumn(product -> "$" + (product.getSalesPrice() != null ? product.getSalesPrice().toString() : "0.00"))
                 .setWidth(COLUMN_WIDTH).setHeader("Precio de Venta");
-        addColumn(Product::getAccountingStock).setWidth("100px").setHeader("Stock Contable");
-        addColumn(Product::getAvailableStock).setWidth("100px").setHeader("Stock Disponible");
+
+        addColumn(Product::getFormattedStock).setWidth(COLUMN_WIDTH).setHeader("Stock Contable");
+        addColumn(Product::getFormattedAvailableStock).setWidth(COLUMN_WIDTH).setHeader("Stock Disponible");
+
+        addComponentColumn(this::renderUnitBadge)
+                .setHeader("Unidad")
+                .setKey("unitBadge")
+                .setWidth(COLUMN_WIDTH);
+
+        addComponentColumn(this::renderUsageTypeBadge)
+                .setHeader("Tipo de Uso")
+                .setKey("usageTypeBadge")
+                .setWidth("130px");
+
         addComponentColumn(this::renderCategoryBadge)
                 .setHeader("Categoría")
                 .setKey("categoryBadge")
@@ -62,15 +97,39 @@ public class ProductGrid extends Grid<Product> {
                 return "N/A";
             }
         }).setAutoWidth(true).setHeader("Proveedor");
+
         addColumn(product -> product.getWarehouse() != null ? product.getWarehouse().getName() : "Sin Almacén")
-                .setAutoWidth(true).setHeader("Almacén");
+                .setWidth(COLUMN_WIDTH).setHeader("Almacén");
+    }
 
-        addThemeVariants(GridVariant.LUMO_COMPACT,
-                GridVariant.LUMO_ROW_STRIPES,
-                GridVariant.LUMO_WRAP_CELL_CONTENT);
+    private Component renderUnitBadge(Product product) {
+        ProductUnit unit = product.getUnit();
+        if (unit == null) {
+            return new Span("-");
+        }
 
+        Span badge = new Span(unit.getDisplayName());
+        badge.getElement().getThemeList().add("badge pill");
+        badge.getElement().getThemeList().add("contrast");
+        return badge;
+    }
 
-        addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(onSelect));
+    private Component renderUsageTypeBadge(Product product) {
+        ProductUsageType usageType = product.getUsageType();
+        if (usageType == null) {
+            return new Span("-");
+        }
+
+        Span badge = new Span(usageType.getDisplayName());
+        badge.getElement().getThemeList().add("badge pill");
+
+        switch (usageType) {
+            case PRIVADO -> badge.getElement().getThemeList().add("warning");
+            case VENTA -> badge.getElement().getThemeList().add("success");
+            case AMBOS -> badge.getElement().getThemeList().add("primary");
+        }
+
+        return badge;
     }
 
     private String getCategoryDisplayName(ProductCategory category) {
@@ -84,13 +143,16 @@ public class ProductGrid extends Grid<Product> {
             case OTRO -> "Otro";
         };
     }
+
     private Component renderCategoryBadge(Product product) {
         ProductCategory category = product.getCategory();
         if (category == null) {
             return new Span("-");
         }
-        com.vaadin.flow.component.html.Span badge = new com.vaadin.flow.component.html.Span(getCategoryDisplayName(category));
+
+        Span badge = new Span(getCategoryDisplayName(category));
         badge.getElement().getThemeList().add("badge pill");
+
         switch (category) {
             case ALIMENTO -> badge.getElement().getThemeList().add("success");
             case MEDICINA -> badge.getElement().getThemeList().add("primary");
@@ -98,7 +160,88 @@ public class ProductGrid extends Grid<Product> {
             case HIGIENE -> badge.getElement().getThemeList().add("warning");
             case OTRO -> badge.getElement().getThemeList().add("error");
         }
+
         return badge;
+    }
+
+    public Component createFilters() {
+        unitFilter = new ComboBox<>("Filtrar por Unidad");
+        unitFilter.setItems(ProductUnit.values());
+        unitFilter.setItemLabelGenerator(ProductUnit::getDisplayName);
+        unitFilter.setClearButtonVisible(true);
+        unitFilter.addValueChangeListener(e -> applyFilters());
+
+        usageTypeFilter = new ComboBox<>("Filtrar por Tipo de Uso");
+        usageTypeFilter.setItems(ProductUsageType.values());
+        usageTypeFilter.setItemLabelGenerator(ProductUsageType::getDisplayName);
+        usageTypeFilter.setClearButtonVisible(true);
+        usageTypeFilter.addValueChangeListener(e -> applyFilters());
+
+        warehouseFilter = new ComboBox<>("Filtrar por Almacén");
+        // Cargar warehouses
+        try {
+            var warehouses = warehouseService.getAllWarehouses().stream()
+                    .map(dto -> {
+                        Warehouse w = new Warehouse();
+                        w.setId(dto.getId());
+                        w.setName(dto.getName());
+                        return w;
+                    }).toList();
+            warehouseFilter.setItems(warehouses);
+            warehouseFilter.setItemLabelGenerator(Warehouse::getName);
+        } catch (Exception e) {
+            // Handle if warehouse service is not available
+        }
+        warehouseFilter.setClearButtonVisible(true);
+        warehouseFilter.addValueChangeListener(e -> applyFilters());
+
+        Button clearFilters = new Button("Limpiar Filtros", VaadinIcon.REFRESH.create());
+        clearFilters.addClickListener(e -> clearAllFilters());
+
+        HorizontalLayout filterLayout = new HorizontalLayout(
+                unitFilter, usageTypeFilter, warehouseFilter, clearFilters);
+        filterLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
+        filterLayout.setSpacing(true);
+
+        return filterLayout;
+    }
+
+    private void applyFilters() {
+        setItems(query -> {
+            // Usar el repositorio con filtros si están disponibles
+            ProductUnit selectedUnit = unitFilter.getValue();
+            ProductUsageType selectedUsageType = usageTypeFilter.getValue();
+            Long selectedWarehouseId = warehouseFilter.getValue() != null ?
+                    warehouseFilter.getValue().getId() : null;
+
+            // Si no hay filtros, usar consulta normal
+            if (selectedUnit == null && selectedUsageType == null && selectedWarehouseId == null) {
+                var products = productService.getAllProducts(PageRequest.of(query.getPage(),
+                        query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)));
+                return products.stream().filter(Product::isActive);
+            }
+
+            // Aplicar filtros usando el repositorio
+            try {
+                var products = productService.getProductRepository()
+                        .findWithFilters(selectedUnit, selectedUsageType, selectedWarehouseId,
+                                PageRequest.of(query.getPage(), query.getPageSize(),
+                                        VaadinSpringDataHelpers.toSpringDataSort(query)));
+                return products.stream();
+            } catch (Exception e) {
+                // Fallback to normal query
+                var products = productService.getAllProducts(PageRequest.of(query.getPage(),
+                        query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)));
+                return products.stream().filter(Product::isActive);
+            }
+        });
+    }
+
+    private void clearAllFilters() {
+        unitFilter.clear();
+        usageTypeFilter.clear();
+        warehouseFilter.clear();
+        applyFilters();
     }
 
     public void setSpecification(Specification<Product> specification) {
@@ -112,7 +255,6 @@ public class ProductGrid extends Grid<Product> {
         });
     }
 
-    // Add this method to ProductGrid.java
     private Component createActionsColumn(Product product) {
         Button edit = new Button(new Icon(VaadinIcon.EDIT));
         edit.addThemeVariants(
@@ -178,7 +320,6 @@ public class ProductGrid extends Grid<Product> {
 
     private void deleteProduct(Product product) {
         try {
-            // Assuming you have a soft delete method in ProductService
             productService.delete(product.getId());
             NotificationUtils.success("Producto eliminado exitosamente");
             getDataProvider().refreshAll();
