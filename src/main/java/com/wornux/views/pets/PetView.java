@@ -27,6 +27,7 @@ import com.wornux.dto.response.PetSummaryResponseDto;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.GridUtils;
+import com.wornux.views.MainLayout;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,7 +41,7 @@ import static com.wornux.utils.PredicateUtils.predicateForTextField;
 import org.springframework.data.domain.Pageable;
 
 @Slf4j
-@Route("mascotas")
+@Route(value = "mascotas", layout = MainLayout.class)
 @PageTitle("Mascotas")
 public class PetView extends Div {
 
