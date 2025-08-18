@@ -50,6 +50,7 @@ import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.interfaces.ServiceService;
 import com.wornux.services.interfaces.UserService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.GridUtils;
@@ -91,18 +92,21 @@ public class InvoiceView extends Div {
 
   private final transient InvoiceService service;
   private final InvoiceForm invoiceForm;
-  private final InvoiceReportService invoiceReportService;
+  private final transient InvoiceReportService invoiceReportService;
+  private final transient ServiceService serviceService;
 
   public InvoiceView(InvoiceService service,
       @Qualifier("clientServiceImpl") ClientService customerService, ProductService productService,
       AuditService auditService, ClientMapper clientMapper,
+      ServiceService serviceService,
       InvoiceReportService invoiceReportService) {
     this.service = service;
+    this.serviceService = serviceService;
     this.invoiceReportService = invoiceReportService;
 
     setId("invoices-view");
 
-    invoiceForm = new InvoiceForm(service, customerService, productService, auditService,
+    invoiceForm = new InvoiceForm(service, customerService, productService, serviceService, auditService,
         clientMapper, invoiceReportService);
 
     createGrid(service, createFilterSpecification());
@@ -183,7 +187,8 @@ public class InvoiceView extends Div {
 
     grid.asSingleSelect().addValueChangeListener(event -> {
       if (event.getValue() != null) {
-        invoiceForm.edit(event.getValue());
+        Invoice completeInvoice = service.findByIdWithDetails(event.getValue().getCode());
+        invoiceForm.edit(completeInvoice);
       } else {
         invoiceForm.close();
       }
@@ -193,9 +198,7 @@ public class InvoiceView extends Div {
   public Specification<Invoice> createFilterSpecification() {
     return (root, query, builder) -> {
       Order order = builder.desc(root.get("code"));
-      //            assert query != null;
-      //            query.orderBy(order);
-      //            query.distinct(true);
+
       if (query != null) {
         query.orderBy(order);
       }
