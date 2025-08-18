@@ -24,6 +24,7 @@ import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
 import com.wornux.data.entity.Service;
+import com.wornux.data.enums.ServiceCategory;
 import com.wornux.data.enums.ServiceType;
 import com.wornux.services.interfaces.ServiceService;
 import com.wornux.utils.GridUtils;
@@ -48,7 +49,7 @@ public class ServiceView extends Div {
   private final Grid<Service> grid = GridUtils.createBasicGrid(Service.class);
 
   private final TextField searchField = new TextField("Buscar servicios");
-  private final ComboBox<ServiceType> serviceTypeFilter = new ComboBox<>("Filtrar por tipo");
+  private final ComboBox<ServiceCategory> serviceCategoryFilter = new ComboBox<>("Filtrar por tipo");
   private final Span quantity = new Span();
 
   private final Button create = new Button();
@@ -136,8 +137,8 @@ public class ServiceView extends Div {
       }
 
       // Service type filter
-      if (serviceTypeFilter.getValue() != null) {
-        predicates.add(builder.equal(root.get("serviceType"), serviceTypeFilter.getValue()));
+      if (serviceCategoryFilter.getValue() != null) {
+        predicates.add(builder.equal(root.get("serviceCategory"), serviceCategoryFilter.getValue()));
       }
 
       return builder.and(predicates.toArray(new Predicate[0]));
@@ -171,12 +172,12 @@ public class ServiceView extends Div {
     searchField.setWidth("40%");
 
     // Service type filter
-    serviceTypeFilter.setItems(ServiceType.values());
-    serviceTypeFilter.setItemLabelGenerator(ServiceType::getDisplayName);
-    serviceTypeFilter.setClearButtonVisible(true);
-    serviceTypeFilter.setPlaceholder("Todos los tipos");
-    serviceTypeFilter.addValueChangeListener(e -> refreshAll());
-    serviceTypeFilter.setWidth("200px");
+    serviceCategoryFilter.setItems(ServiceCategory.values());
+    serviceCategoryFilter.setItemLabelGenerator(ServiceCategory::getDisplay);
+    serviceCategoryFilter.setClearButtonVisible(true);
+    serviceCategoryFilter.setPlaceholder("Todos los tipos");
+    serviceCategoryFilter.addValueChangeListener(e -> refreshAll());
+    serviceCategoryFilter.setWidth("200px");
 
     quantity.addClassNames(
         LumoUtility.BorderRadius.SMALL,
@@ -191,7 +192,7 @@ public class ServiceView extends Div {
         LumoUtility.Background.PRIMARY,
         LumoUtility.Margin.Bottom.XSMALL);
 
-    HorizontalLayout toolbar = new HorizontalLayout(searchField, serviceTypeFilter, quantity);
+    HorizontalLayout toolbar = new HorizontalLayout(searchField, serviceCategoryFilter, quantity);
     toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
     toolbar.setAlignItems(FlexComponent.Alignment.END);
     toolbar.addClassNames(
