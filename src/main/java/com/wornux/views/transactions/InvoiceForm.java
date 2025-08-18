@@ -4,6 +4,7 @@ import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
 import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
 import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
 import static com.wornux.utils.CommonUtils.createIconItem;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -16,11 +17,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
@@ -39,16 +37,13 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.ConfirmationDialog;
 import com.wornux.components.DecimalField;
 import com.wornux.components.Sidebar;
-import com.wornux.data.entity.Client;
-import com.wornux.data.entity.Invoice;
-import com.wornux.data.entity.InvoiceProduct;
-import com.wornux.data.entity.Product;
+import com.wornux.data.entity.*;
 import com.wornux.mapper.ClientMapper;
 import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
-import com.wornux.services.interfaces.UserService;
+import com.wornux.services.interfaces.ServiceService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
@@ -63,9 +58,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -80,11 +77,14 @@ public class InvoiceForm extends Div {
   private final DatePicker issuedDate = new DatePicker("Fecha de emisión");
   private final DatePicker paymentDate = new DatePicker("Fecha de pago");
 
+  private final DecimalField subtotalField = new DecimalField("Subtotal");
+  private final DecimalField taxField = new DecimalField("Impuesto");
   private final DecimalField total = new DecimalField("Total");
   private final TextArea notes = new TextArea("Notas");
 
-  private final Grid<InvoiceProduct> gridProductService = new Grid<>(InvoiceProduct.class, false);
-  private final Set<InvoiceProduct> invoiceProducts = new HashSet<>();
+  private final Grid<Object> gridItems = new Grid<>();
+  private final List<InvoiceProduct> invoiceProducts = new ArrayList<>();
+  private final List<Object> displayedItems = new ArrayList<>();
 
   private final Binder<Invoice> binder = new BeanValidationBinder<>(Invoice.class);
 
@@ -96,24 +96,25 @@ public class InvoiceForm extends Div {
   private final Div layoutGrid = new Div();
   private final Div createDetails = new Div();
   private final Div footer = new Div();
-  private final InvoiceService service;
-  private final ClientService customerService;
-  private final InvoiceReportService invoiceReportService;
-  private final RevisionView<Invoice> revisionView;
+  private final transient InvoiceService invoiceService;
+  private final transient ClientService customerService;
+  private final transient InvoiceReportService invoiceReportService;
+  private final transient RevisionView<Invoice> revisionView;
   private final ClientCreationDialog clientCreationDialog;
-  private final List<Product> products;
+  private final transient List<Product> products;
   private Invoice element;
   @Setter
-  private Runnable callable;
+  private transient Runnable callable;
 
   public InvoiceForm(
-      InvoiceService service,
+      InvoiceService invoiceService,
       ClientService customerService,
       ProductService productService,
+      ServiceService serviceService,
       AuditService auditService,
       ClientMapper clientMapper,
       InvoiceReportService invoiceReportService) {
-    this.service = service;
+    this.invoiceService = invoiceService;
     this.customerService = customerService;
     this.invoiceReportService = invoiceReportService;
 
@@ -130,13 +131,14 @@ public class InvoiceForm extends Div {
     clientCreationDialog = new ClientCreationDialog(customerService, clientMapper);
 
     docNum.setEnabled(false);
+    subtotalField.setEnabled(false);
+    taxField.setEnabled(false);
     total.setEnabled(false);
 
     createGrid();
 
     binder.bindInstanceFields(this);
 
-    // Manual binding for customer field since it's not an instance field of Invoice
     binder
         .forField(customer)
         .asRequired("Debes seleccionar un cliente")
@@ -159,7 +161,7 @@ public class InvoiceForm extends Div {
         LumoUtility.Width.AUTO,
         LumoUtility.Height.FULL);
 
-    footer.add(notes, total);
+    footer.add(notes, subtotalField, taxField, total);
     footer.addClassNames(
         LumoUtility.Display.FLEX,
         LumoUtility.FlexDirection.ROW,
@@ -183,8 +185,7 @@ public class InvoiceForm extends Div {
 
     add(sidebar, clientCreationDialog);
 
-    invoiceProducts.add(new InvoiceProduct());
-    gridProductService.getDataProvider().refreshAll();
+    refreshGrid();
 
     Runnable updateHelperText =
         () -> {
@@ -220,108 +221,152 @@ public class InvoiceForm extends Div {
   }
 
   private void createGrid() {
-    gridProductService.setItems(invoiceProducts);
+    gridItems.setItems(displayedItems);
 
-    List.of(gridProductService)
-        .forEach(
-            c -> {
-              c.setWidthFull();
-              c.setHeight("300px");
-              c.setEmptyStateText("No se encontraron registros.");
-              c.setMultiSort(true, Grid.MultiSortPriority.APPEND);
-              c.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-              c.addClassNames(LumoUtility.Margin.Top.XSMALL, LumoUtility.Margin.Bottom.XSMALL);
-            });
+    gridItems.setWidthFull();
+    gridItems.setHeight("300px");
+    gridItems.setEmptyStateText("No se encontraron registros.");
+    gridItems.setMultiSort(true, Grid.MultiSortPriority.APPEND);
+    gridItems.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+    gridItems.addClassNames(LumoUtility.Margin.Top.XSMALL, LumoUtility.Margin.Bottom.XSMALL);
 
-    gridProductService
+    gridItems
         .addColumn(new ComponentRenderer<>(this::renderActions))
         .setHeader("Acciones")
         .setFlexGrow(0)
         .setTextAlign(ColumnTextAlign.CENTER);
-    gridProductService
-        .addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getName).orElse(""))
-        .setHeader("Productos y servicios")
+
+    gridItems
+        .addColumn(item -> {
+          if (item instanceof InvoiceProduct) {
+            return Optional.ofNullable(((InvoiceProduct) item).getProduct()).map(Product::getName).orElse("");
+          } else if (item instanceof ServiceInvoice) {
+            return Optional.ofNullable(((ServiceInvoice) item).getService()).map(com.wornux.data.entity.Service::getName).orElse("");
+          }
+          return "";
+        })
+        .setHeader("Productos y Servicios")
         .setAutoWidth(true);
-    gridProductService
-        .addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getDescription).orElse(""))
+
+    gridItems
+        .addColumn(item -> {
+          if (item instanceof InvoiceProduct) {
+            return Optional.ofNullable(((InvoiceProduct) item).getProduct()).map(Product::getDescription).orElse("");
+          } else if (item instanceof ServiceInvoice) {
+            return Optional.ofNullable(((ServiceInvoice) item).getService()).map(com.wornux.data.entity.Service::getDescription).orElse("");
+          }
+          return "";
+        })
         .setHeader("Descripción")
         .setAutoWidth(true);
-    gridProductService
-        .addColumn(
-            c ->
-                new DecimalFormat("#,##0.00")
-                    .format(Optional.ofNullable(c.getQuantity()).orElse(0.0)))
+
+    gridItems
+        .addColumn(item -> {
+          Double quantity = 0.0;
+          if (item instanceof InvoiceProduct) {
+            quantity = ((InvoiceProduct) item).getQuantity();
+          } else if (item instanceof ServiceInvoice) {
+            quantity = ((ServiceInvoice) item).getQuantity();
+          }
+          return new DecimalFormat("#,##0.00").format(Optional.ofNullable(quantity).orElse(0.0));
+        })
         .setHeader("Cantidad")
         .setAutoWidth(true)
         .setTextAlign(ColumnTextAlign.CENTER);
-    gridProductService
-        .addColumn(
-            c ->
-                new DecimalFormat("#,##0.00")
-                    .format(Optional.ofNullable(c.getPrice()).orElse(BigDecimal.ZERO)))
+
+    gridItems
+        .addColumn(item -> {
+          BigDecimal price = BigDecimal.ZERO;
+          if (item instanceof InvoiceProduct) {
+            price = ((InvoiceProduct) item).getPrice();
+          } else if (item instanceof ServiceInvoice) {
+            price = ((ServiceInvoice) item).getPrice();
+          }
+          return new DecimalFormat("#,##0.00").format(Optional.ofNullable(price).orElse(BigDecimal.ZERO));
+        })
         .setHeader("Precio")
         .setAutoWidth(true)
         .setTextAlign(ColumnTextAlign.END);
-    gridProductService
-        .addColumn(
-            c ->
-                new DecimalFormat("#,##0.00")
-                    .format(Optional.ofNullable(c.getAmount()).orElse(BigDecimal.ZERO)))
+
+    gridItems
+        .addColumn(item -> {
+          BigDecimal amount = BigDecimal.ZERO;
+          if (item instanceof InvoiceProduct) {
+            amount = ((InvoiceProduct) item).getAmount();
+          } else if (item instanceof ServiceInvoice) {
+            amount = ((ServiceInvoice) item).getAmount();
+          }
+          return new DecimalFormat("#,##0.00").format(Optional.ofNullable(amount).orElse(BigDecimal.ZERO));
+        })
         .setHeader("Importe")
         .setAutoWidth(true)
         .setTextAlign(ColumnTextAlign.END);
-    gridProductService.getDataProvider().addDataProviderListener(event -> calculateTotal());
-    gridProductService.addItemDoubleClickListener(event -> createDialog(event.getItem()));
+
+    gridItems.getDataProvider().addDataProviderListener(event -> calculateTotals());
+    gridItems.addItemDoubleClickListener(event -> {
+      Object item = event.getItem();
+      if (item instanceof InvoiceProduct) {
+        createProductDialog((InvoiceProduct) item);
+      }
+    });
   }
 
-  private void calculateTotal() {
-    double lineTotal = 0;
-    if (element == null || element.getCode() == null) {
-      lineTotal +=
-          invoiceProducts.stream()
-              .filter(p -> p.getProduct() != null)
-              .mapToDouble(m -> m.getAmount().doubleValue())
-              .sum();
-    } else {
-      lineTotal +=
-          element.getProducts().stream().mapToDouble(m -> m.getAmount().doubleValue()).sum();
-    }
+  private static final BigDecimal TAX_RATE = new BigDecimal("0.18"); // Assuming 18% tax rate
 
-    total.setValue(lineTotal);
+  private void calculateTotals() {
+    BigDecimal productsTotal = invoiceProducts.stream()
+        .filter(p -> p.getProduct() != null && p.getAmount() != null)
+        .map(InvoiceProduct::getAmount)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    BigDecimal servicesTotal = Optional.ofNullable(element)
+        .map(Invoice::getServices)
+        .map(List::stream)
+        .orElse(Stream.empty())
+        .filter(s -> s.getService() != null && s.getAmount() != null)
+        .map(ServiceInvoice::getAmount)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    BigDecimal currentSubtotal = productsTotal.add(servicesTotal);
+    BigDecimal currentTax = currentSubtotal.multiply(TAX_RATE);
+    BigDecimal currentTotal = currentSubtotal.add(currentTax);
+
+    subtotalField.setValue(currentSubtotal.doubleValue());
+    taxField.setValue(currentTax.doubleValue());
+    total.setValue(currentTotal.doubleValue());
   }
 
-  private Component renderActions(InvoiceProduct item) {
+  private Component renderActions(Object item) {
+    if (item instanceof InvoiceProduct) {
+      boolean isNew = ((InvoiceProduct) item).getProduct() == null;
+      Button actionButton;
+      if (isNew) {
+        actionButton = new Button(VaadinIcon.PLUS_CIRCLE_O.create());
+        actionButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        actionButton.addClickListener(e -> createProductDialog((InvoiceProduct) item));
+        return actionButton;
+      } else {
+        actionButton = new Button(LumoIcon.EDIT.create());
+        actionButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        actionButton.addClickListener(e -> createProductDialog((InvoiceProduct) item));
 
-    Button add =
-        new Button(
-            item.getProduct() == null ? VaadinIcon.PLUS_CIRCLE_O.create() : LumoIcon.EDIT.create());
-    add.addClassNames(LumoUtility.Width.AUTO, LumoUtility.Margin.NONE);
-    add.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-    add.getStyle().set("cursor", "pointer");
-    add.addClickListener(e -> createDialog(item));
-
-    if (item.getProduct() == null) {
-      return add;
-    }
-
-    Button edit = new Button(VaadinIcon.MINUS_CIRCLE_O.create());
-    edit.addClassNames(LumoUtility.Width.AUTO, LumoUtility.Margin.NONE);
-    edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-    edit.getStyle().set("cursor", "pointer");
-    edit.addClickListener(
-        e -> {
+        Button removeButton = new Button(VaadinIcon.MINUS_CIRCLE_O.create());
+        removeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
+        removeButton.addClickListener(e -> {
           invoiceProducts.remove(item);
-          gridProductService.getDataProvider().refreshAll();
+          refreshGrid();
         });
 
-    Div actions = new Div(add, edit);
-    actions.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER);
-    actions.addClassNames("-mx-s");
-    return actions;
+        Div actions = new Div(actionButton, removeButton);
+        actions.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, "-mx-s");
+        return actions;
+      }
+    }
+    return new Div(); // No actions for services
   }
 
-  private void createDialog(InvoiceProduct line) {
-    var isNew = line.getProduct() == null;
+  private void createProductDialog(InvoiceProduct line) {
+    boolean isNew = line.getProduct() == null;
     Dialog d = new Dialog();
 
     final NumberField fieldQty = new NumberField("Cantidad");
@@ -337,7 +382,10 @@ public class InvoiceForm extends Div {
     fieldPrice.setValue(Optional.ofNullable(line.getPrice()).orElse(BigDecimal.ZERO).doubleValue());
     fieldPrice.setClearButtonVisible(true);
 
-    final ComboBox<Product> fieldProduct = getProductComboBox(fieldQty, fieldPrice);
+    final ComboBox<Product> fieldProduct = createProductComboBox(fieldQty, fieldPrice);
+    if (line.getProduct() != null) {
+      fieldProduct.setValue(line.getProduct());
+    }
 
     final Button apply = new Button("Aplicar", VaadinIcon.CHECK_CIRCLE.create());
     apply.addClassNames(LumoUtility.Width.AUTO);
@@ -371,29 +419,18 @@ public class InvoiceForm extends Div {
     apply.addClickListener(
         event -> {
           try {
-
             binderLine.writeBean(line);
-
             if (element == null) {
-              element = new Invoice();
+                element = new Invoice();
             }
-
             line.setInvoice(element);
-
-            invoiceProducts.stream()
-                .filter(p -> p.equals(line))
-                .findFirst()
-                .ifPresent(
-                    obj -> {
-                      obj.setAmount(
-                          line.getPrice().multiply(BigDecimal.valueOf(line.getQuantity())));
-                    });
-
+            line.calculateAmount();
             if (isNew) {
-              invoiceProducts.add(new InvoiceProduct());
+              invoiceProducts.remove(line); // Remove empty one
+              invoiceProducts.add(line); // Add filled one
+              invoiceProducts.add(new InvoiceProduct()); // Add new empty one
             }
-            gridProductService.getDataProvider().refreshAll();
-
+            refreshGrid();
             d.close();
           } catch (ValidationException validationException) {
             NotificationUtils.error(validationException);
@@ -414,7 +451,7 @@ public class InvoiceForm extends Div {
     d.add(dialogLayout);
   }
 
-  private ComboBox<Product> getProductComboBox(NumberField fieldQty, DecimalField fieldPrice) {
+  private ComboBox<Product> createProductComboBox(NumberField fieldQty, DecimalField fieldPrice) {
     final ComboBox<Product> fieldProduct = new ComboBox<>("Producto");
     fieldProduct.setItemLabelGenerator(Product::getName);
     fieldProduct.setClearButtonVisible(true);
@@ -424,15 +461,17 @@ public class InvoiceForm extends Div {
 
     copy.removeIf(
         product ->
-            invoiceProducts.stream().map(InvoiceProduct::getProduct).toList().contains(product));
+            invoiceProducts.stream().map(InvoiceProduct::getProduct).filter(Objects::nonNull).toList().contains(product));
     fieldProduct.setItems(copy);
     fieldProduct.addValueChangeListener(
         event -> {
-          fieldQty.setValue(1.0);
-          fieldPrice.setValue(
-              Optional.ofNullable(event.getValue().getSalesPrice())
-                  .orElse(BigDecimal.ZERO)
-                  .doubleValue());
+          if (event.getValue() != null) {
+            fieldQty.setValue(1.0);
+            fieldPrice.setValue(
+                Optional.ofNullable(event.getValue().getSalesPrice())
+                    .orElse(BigDecimal.ZERO)
+                    .doubleValue());
+          }
         });
     return fieldProduct;
   }
@@ -457,61 +496,77 @@ public class InvoiceForm extends Div {
 
   private void saveOrUpdate(ClickEvent<Button> buttonClickEvent) {
     try {
+        // 1. Initialize Invoice element
+        if (element == null) {
+            element = new Invoice();
+        }
 
-      if (element == null) {
-        element = new Invoice();
-      }
+        // 2. Populate basic fields from binder
+        binder.writeBean(this.element);
 
-      if (customer.getValue() == null) {
-        NotificationUtils.error("Debes seleccionar un cliente");
-        return;
-      }
-      element.setClient(customer.getValue());
-      element.setNotes(notes.getValue());
-      element.setSalesOrder(salesOrder.getValue());
-      element.setSubtotal(BigDecimal.valueOf(total.getValue()));
-      element.setTax(BigDecimal.ZERO);
+        // Set calculated subtotal, tax, and total on the Invoice entity
+        this.element.setSubtotal(BigDecimal.valueOf(subtotalField.getValue()));
+        this.element.setTax(BigDecimal.valueOf(taxField.getValue()));
+        this.element.setTotal(BigDecimal.valueOf(total.getValue()));
 
-      Set<InvoiceProduct> tmpInvoiceProducts =
-          gridProductService
-              .getGenericDataView()
-              .getItems()
-              .filter(p -> p.getProduct() != null)
-              .collect(Collectors.toSet());
+        // 3. Validate and manage Client
+        if (element.getClient() == null) {
+            NotificationUtils.error("Debes seleccionar un cliente");
+            return;
+        }
+        // Fetch a managed client instance if not already managed
+        if (element.getClient().getId() != null) {
+            Client managedClient = customerService.getClientById(element.getClient().getId()).orElse(null);
+            if (managedClient == null) {
+                NotificationUtils.error("El cliente seleccionado no se encontró en la base de datos.");
+                return;
+            }
+            element.setClient(managedClient);
+        } else {
+            NotificationUtils.error("El cliente no ha sido guardado correctamente. Intenta crearlo de nuevo.");
+            return;
+        }
 
-      if (tmpInvoiceProducts.isEmpty()) {
-        NotificationUtils.error("Debes seleccionar al menos un producto o servicio");
-        return;
-      }
+        boolean isNewInvoice = (element.getCode() == null || element.getCode() == 0);
 
-      binder.writeBean(this.element);
+        if (isNewInvoice) {
+            element = invoiceService.create(element); // This saves the Invoice and returns the managed instance
+        }
 
-      boolean isNewInvoice = (element.getCode() == null || element.getCode() == 0);
+        element.getProducts().clear();
+        element.getServices().clear();
 
-      if (isNewInvoice) {
-        element.setProducts(tmpInvoiceProducts);
-        service.create(element);
+        Set<InvoiceProduct> finalProducts = invoiceProducts.stream()
+            .filter(p -> p.getProduct() != null)
+            .collect(Collectors.toSet());
+        finalProducts.forEach(element::addProduct); // addProduct sets the back-reference to the managed 'element'
+
+        List<ServiceInvoice> servicesFromDisplayedItems = displayedItems.stream()
+            .filter(item -> item instanceof ServiceInvoice)
+            .map(item -> (ServiceInvoice) item)
+            .collect(Collectors.toList());
+        servicesFromDisplayedItems.forEach(element::addService); // addService sets the back-reference to the managed 'element'
+
+        if (element.getProducts().isEmpty() && element.getServices().isEmpty()) {
+            NotificationUtils.error("Debes seleccionar al menos un producto o servicio");
+            return;
+        }
+
+        invoiceService.create(element);
 
         populateForm(element);
         Optional.ofNullable(callable).ifPresent(Runnable::run);
-      } else {
-        ConfirmationDialog.saveUpdate(
-            event -> {
-              element.setProducts(tmpInvoiceProducts);
-              service.create(element);
-
-              populateForm(element);
-              Optional.ofNullable(callable).ifPresent(Runnable::run);
-            });
-      }
 
     } catch (ObjectOptimisticLockingFailureException ex) {
-      log.error(ex.getLocalizedMessage());
-      NotificationUtils.error(
-          "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
+        log.error(ex.getLocalizedMessage());
+        NotificationUtils.error(
+            "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
     } catch (ValidationException ex) {
-      log.error(ex.getLocalizedMessage());
-      NotificationUtils.error(ex);
+        log.error(ex.getLocalizedMessage());
+        NotificationUtils.error(ex);
+    } catch (Exception ex) {
+        log.error("Error al guardar la factura: {}", ex.getMessage(), ex);
+        NotificationUtils.error("Error al guardar la factura: " + ex.getMessage());
     }
   }
 
@@ -544,7 +599,6 @@ public class InvoiceForm extends Div {
           }
         });
 
-    // Configure PDF export button
     exportPdfButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
     exportPdfButton.addClickListener(e -> exportToPdf());
     exportPdfButton.setEnabled(element != null && element.getCode() != null);
@@ -586,39 +640,41 @@ public class InvoiceForm extends Div {
     binder.readBean(element);
     customer.focus();
 
+    invoiceProducts.clear();
+
     if (element == null) {
-      // Show next invoice number for new invoices
-      docNum.setValue(service.getNextInvoiceNumber());
+      docNum.setValue(invoiceService.getNextInvoiceNumber());
       issuedDate.setValue(LocalDate.now());
       paymentDate.setValue(LocalDate.now().plusDays(30));
-
-      invoiceProducts.clear();
-      invoiceProducts.add(new InvoiceProduct());
-
       customer.setEnabled(true);
-      // Show add button only for new invoices
       add.setVisible(true);
-      // Disable export button for new invoices
       exportPdfButton.setEnabled(false);
+      invoiceProducts.add(new InvoiceProduct());
     } else {
-      // Show actual invoice number for existing invoices
       docNum.setValue(String.valueOf(element.getCode()));
       issuedDate.setValue(element.getIssuedDate());
       paymentDate.setValue(element.getPaymentDate());
 
       revisionView.loadRevisions(element.getCode());
 
-      invoiceProducts.clear();
       invoiceProducts.addAll(element.getProducts());
 
       customer.setEnabled(false);
-      // Hide add button for existing invoices - no client changes allowed
       add.setVisible(false);
-      // Enable export button for existing invoices
       exportPdfButton.setEnabled(true);
     }
 
-    gridProductService.getDataProvider().refreshAll();
+    refreshGrid();
+  }
+
+  private void refreshGrid() {
+    displayedItems.clear();
+    displayedItems.addAll(invoiceProducts);
+    if (element != null && element.getServices() != null) {
+      displayedItems.addAll(element.getServices());
+    }
+    gridItems.getDataProvider().refreshAll();
+    calculateTotals();
   }
 
   private void populateInvoiceLinesFromCustomer(Client customer) {
@@ -630,23 +686,22 @@ public class InvoiceForm extends Div {
   private Div createDetails() {
     MenuBar menuBar = new MenuBar();
     menuBar.addThemeVariants(MenuBarVariant.LUMO_ICON);
+    createIconItem(menuBar, VaadinIcon.PAPERCLIP.create(), "Productos y Servicios");
 
-    MenuItem attached =
-        createIconItem(menuBar, VaadinIcon.PAPERCLIP.create(), "Productos y Servicios");
-
-    MenuBarHandler menuBarHandler = new MenuBarHandler(menuBar, layoutGrid);
-    menuBarHandler.addMenuItem(attached, gridProductService);
-
-    menuBarHandler.setDefaultMenuItem(attached);
-
-    Div tabs = new Div(menuBar);
-    tabs.addClassNames(
+    Div header = new Div(menuBar);
+    header.addClassNames(
         LumoUtility.Padding.SMALL,
         LumoUtility.Gap.MEDIUM,
+        LumoUtility.Background.CONTRAST_10,
+        LumoUtility.BorderRadius.MEDIUM
+    );
+
+    Div container = new Div(header, gridItems);
+    container.addClassNames(
         LumoUtility.BorderRadius.MEDIUM,
         CARD_BACKGROUND_COLOR);
 
-    return tabs;
+    return container;
   }
 
   private Div generalForm() {
@@ -727,8 +782,8 @@ public class InvoiceForm extends Div {
         event -> {
           clientCreationDialog.setOnClientCreated(
               item -> {
-                customer.getDataProvider().refreshAll();
-                customer.setValue(item);
+                customer.setValue(item); // Set the value first
+                customer.getDataProvider().refreshAll(); // Then refresh
               });
           clientCreationDialog.openDialog();
         });
