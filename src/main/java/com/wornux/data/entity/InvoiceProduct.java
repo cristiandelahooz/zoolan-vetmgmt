@@ -41,6 +41,14 @@ public class InvoiceProduct extends Auditable implements Serializable {
   @NotNull
   private BigDecimal amount;
 
+  public void calculateAmount() {
+    if (this.price != null && this.quantity != null) {
+        this.amount = this.price.multiply(BigDecimal.valueOf(this.quantity));
+    } else {
+        this.amount = BigDecimal.ZERO;
+    }
+  }
+
   @Override
   public final boolean equals(Object o) {
     if (this == o) {
