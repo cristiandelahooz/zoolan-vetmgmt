@@ -20,8 +20,8 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import jakarta.annotation.security.PermitAll;
 import com.wornux.views.appointments.AppointmentsCalendarView;
 import com.wornux.views.clients.CompanyClientView;
 import com.wornux.views.clients.IndividualClientView;
@@ -41,139 +41,149 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * The main view is a top-level placeholder for other views.
  */
 @Layout
-@AnonymousAllowed
+@PermitAll
 public class MainLayout extends AppLayout {
 
-    private H2 viewTitle;
+  private H2 viewTitle;
 
-    public MainLayout() {
-        setPrimarySection(Section.DRAWER);
-        addHeaderContent();
-        addDrawerContent();
-    }
+  public MainLayout() {
+    setPrimarySection(Section.DRAWER);
+    addHeaderContent();
+    addDrawerContent();
+  }
 
-    private void addHeaderContent() {
-        DrawerToggle toggle = new DrawerToggle();
-        toggle.setAriaLabel("Menu toggle");
+  private void addHeaderContent() {
+    DrawerToggle toggle = new DrawerToggle();
+    toggle.setAriaLabel("Menu toggle");
 
-        viewTitle = new H2();
-        viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+    viewTitle = new H2();
+    viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        // User menu
-        MenuBar userMenu = createUserMenu();
+    // User menu
+    MenuBar userMenu = createUserMenu();
 
-        HorizontalLayout header = new HorizontalLayout(toggle, viewTitle);
-        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        header.expand(viewTitle);
-        header.add(userMenu);
-        header.setWidthFull();
-        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
+    HorizontalLayout header = new HorizontalLayout(toggle, viewTitle);
+    header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+    header.expand(viewTitle);
+    header.add(userMenu);
+    header.setWidthFull();
+    header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
 
-        addToNavbar(true, header);
-    }
+    addToNavbar(true, header);
+  }
 
-    private void addDrawerContent() {
-        H1 appName = new H1("Zoolandia");
-        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-        Header header = new Header(appName);
+  private void addDrawerContent() {
+    H1 appName = new H1("Zoolandia");
+    appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+    Header header = new Header(appName);
 
-        Scroller scroller = new Scroller(createNavigation());
+    Scroller scroller = new Scroller(createNavigation());
 
-        addToDrawer(header, scroller);
-    }
+    addToDrawer(header, scroller);
+  }
 
-    private SideNav createNavigation() {
-        SideNav nav = new SideNav();
+  private SideNav createNavigation() {
+    SideNav nav = new SideNav();
 
-        // Dashboard/Home
-        nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
+    // Dashboard/Home
+    nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
 
-        // Appointments (Calendar)
-        nav.addItem(new SideNavItem("Citas", AppointmentsCalendarView.class, VaadinIcon.CALENDAR.create()));
+    // Appointments (Calendar)
+    nav.addItem(
+        new SideNavItem("Citas", AppointmentsCalendarView.class, VaadinIcon.CALENDAR.create()));
 
-        // Inventory Section
-        SideNavItem inventorySection = new SideNavItem("Inventario");
-        inventorySection.setPrefixComponent(VaadinIcon.ARCHIVES.create());
-        inventorySection.addItem(new SideNavItem("Productos", InventoryView.class, VaadinIcon.CART.create()));
-        inventorySection.addItem(new SideNavItem("Almacenes", WarehouseView.class, VaadinIcon.TRUCK.create()));
-        nav.addItem(inventorySection);
+    // Inventory Section
+    SideNavItem inventorySection = new SideNavItem("Inventario");
+    inventorySection.setPrefixComponent(VaadinIcon.ARCHIVES.create());
+    inventorySection.addItem(
+        new SideNavItem("Productos", InventoryView.class, VaadinIcon.CART.create()));
+    inventorySection.addItem(
+        new SideNavItem("Almacenes", WarehouseView.class, VaadinIcon.TRUCK.create()));
+    nav.addItem(inventorySection);
 
-        // Consultations
-        nav.addItem(new SideNavItem("Consultas", ConsultationsView.class, VaadinIcon.STETHOSCOPE.create()));
+    // Consultations
+    nav.addItem(
+        new SideNavItem("Consultas", ConsultationsView.class, VaadinIcon.STETHOSCOPE.create()));
 
-        // Transactions Section
-        SideNavItem transactionsSection = new SideNavItem("Transacciones");
-        transactionsSection.setPrefixComponent(VaadinIcon.CREDIT_CARD.create());
-        transactionsSection.addItem(new SideNavItem("Facturas", InvoiceView.class, VaadinIcon.FILE_TEXT.create()));
-        nav.addItem(transactionsSection);
+    // Transactions Section
+    SideNavItem transactionsSection = new SideNavItem("Transacciones");
+    transactionsSection.setPrefixComponent(VaadinIcon.CREDIT_CARD.create());
+    transactionsSection.addItem(
+        new SideNavItem("Facturas", InvoiceView.class, VaadinIcon.FILE_TEXT.create()));
+    nav.addItem(transactionsSection);
 
-        // Waiting Room
-        nav.addItem(new SideNavItem("Sala de Espera", WaitingRoomView.class, VaadinIcon.OFFICE.create()));
+    // Waiting Room
+    nav.addItem(
+        new SideNavItem("Sala de Espera", WaitingRoomView.class, VaadinIcon.OFFICE.create()));
 
-        // Clients Section
-        SideNavItem clientsSection = new SideNavItem("Clientes");
-        clientsSection.setPrefixComponent(VaadinIcon.USER.create());
-        clientsSection.addItem(new SideNavItem("Individuales", IndividualClientView.class, VaadinIcon.USER.create()));
-        clientsSection.addItem(new SideNavItem("Empresariales", CompanyClientView.class, VaadinIcon.BUILDING.create()));
-        nav.addItem(clientsSection);
+    // Clients Section
+    SideNavItem clientsSection = new SideNavItem("Clientes");
+    clientsSection.setPrefixComponent(VaadinIcon.USER.create());
+    clientsSection.addItem(
+        new SideNavItem("Individuales", IndividualClientView.class, VaadinIcon.USER.create()));
+    clientsSection.addItem(
+        new SideNavItem("Empresariales", CompanyClientView.class, VaadinIcon.BUILDING.create()));
+    nav.addItem(clientsSection);
 
-        // Pets Section
-        SideNavItem petsSection = new SideNavItem("Mascotas", PetView.class);
-        petsSection.setPrefixComponent(createPetsIcon());
-        petsSection.addItem(new SideNavItem("Fusionar", PetMergeView.class, VaadinIcon.CONNECT.create()));
-        nav.addItem(petsSection);
+    // Pets Section
+    SideNavItem petsSection = new SideNavItem("Mascotas", PetView.class);
+    petsSection.setPrefixComponent(createPetsIcon());
+    petsSection.addItem(
+        new SideNavItem("Fusionar", PetMergeView.class, VaadinIcon.CONNECT.create()));
+    nav.addItem(petsSection);
 
-        // Employees
-        nav.addItem(new SideNavItem("Empleados", EmployeeView.class, VaadinIcon.DOCTOR.create()));
+    // Employees
+    nav.addItem(new SideNavItem("Empleados", EmployeeView.class, VaadinIcon.DOCTOR.create()));
 
-        // Suppliers
-        nav.addItem(new SideNavItem("Suplidores", SupplierView.class, VaadinIcon.TRUCK.create()));
+    // Suppliers
+    nav.addItem(new SideNavItem("Suplidores", SupplierView.class, VaadinIcon.TRUCK.create()));
 
-        // Medical History
-        nav.addItem(new SideNavItem("Historial Médico", MedicalHistoryView.class, VaadinIcon.CLIPBOARD_TEXT.create()));
+    // Medical History
+    nav.addItem(new SideNavItem("Historial Médico", MedicalHistoryView.class,
+        VaadinIcon.CLIPBOARD_TEXT.create()));
 
-        return nav;
-    }
+    return nav;
+  }
 
-    private Icon createPetsIcon() {
-        // Using a simple icon for pets since LineAwesome causes issues
-        return VaadinIcon.HEART.create();  // Using heart icon for pets
-    }
+  private Icon createPetsIcon() {
+    // Using a simple icon for pets since LineAwesome causes issues
+    return VaadinIcon.HEART.create();  // Using heart icon for pets
+  }
 
-    private MenuBar createUserMenu() {
-        MenuBar menuBar = new MenuBar();
-        menuBar.setThemeName("tertiary-inline contrast");
+  private MenuBar createUserMenu() {
+    MenuBar menuBar = new MenuBar();
+    menuBar.setThemeName("tertiary-inline contrast");
 
-        Avatar avatar = new Avatar();
-        avatar.setName("Usuario");
-        avatar.setThemeName("xsmall");
+    Avatar avatar = new Avatar();
+    avatar.setName("Usuario");
+    avatar.setThemeName("xsmall");
 
-        MenuItem userMenuItem = menuBar.addItem(avatar);
-        SubMenu userSubMenu = userMenuItem.getSubMenu();
-        
-        userSubMenu.addItem("Perfil", e -> {
-            // Navigate to profile
-        });
-        userSubMenu.addItem("Configuración", e -> {
-            // Navigate to settings
-        });
-        userSubMenu.addSeparator();
-        userSubMenu.addItem("Cerrar sesión", e -> {
-            getUI().ifPresent(ui -> ui.getPage().setLocation("/logout"));
-        });
+    MenuItem userMenuItem = menuBar.addItem(avatar);
+    SubMenu userSubMenu = userMenuItem.getSubMenu();
 
-        return menuBar;
-    }
+    userSubMenu.addItem("Perfil", e -> {
+      // Navigate to profile
+    });
+    userSubMenu.addItem("Configuración", e -> {
+      // Navigate to settings
+    });
+    userSubMenu.addSeparator();
+    userSubMenu.addItem("Cerrar sesión", e -> {
+      getUI().ifPresent(ui -> ui.getPage().setLocation("/logout"));
+    });
 
-    @Override
-    protected void afterNavigation() {
-        super.afterNavigation();
-        viewTitle.setText(getCurrentPageTitle());
-    }
+    return menuBar;
+  }
 
-    private String getCurrentPageTitle() {
-        return getContent().getClass().getSimpleName()
-                .replaceAll("View$", "")
-                .replaceAll("([a-z])([A-Z])", "$1 $2");
-    }
+  @Override
+  protected void afterNavigation() {
+    super.afterNavigation();
+    viewTitle.setText(getCurrentPageTitle());
+  }
+
+  private String getCurrentPageTitle() {
+    return getContent().getClass().getSimpleName()
+        .replaceAll("View$", "")
+        .replaceAll("([a-z])([A-Z])", "$1 $2");
+  }
 }
