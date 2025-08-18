@@ -10,6 +10,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
 
+import java.util.Optional;
+
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.proxy.HibernateProxy;
@@ -45,9 +47,10 @@ public class Invoice extends Auditable implements Serializable {
   @ToString.Exclude
   @OneToMany(
       cascade = CascadeType.ALL,
-      fetch = FetchType.EAGER,
+      fetch = FetchType.LAZY,
       orphanRemoval = true,
       mappedBy = "invoice")
+  @Builder.Default
   private Set<InvoiceProduct> products = new HashSet<>();
 
   @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -67,6 +70,7 @@ public class Invoice extends Auditable implements Serializable {
       fetch = FetchType.LAZY,
       orphanRemoval = true,
       mappedBy = "invoice")
+  @Builder.Default
   private Set<PaymentDetail> paymentDetails = new HashSet<>();
 
   @NotNull
@@ -91,7 +95,7 @@ public class Invoice extends Auditable implements Serializable {
 
   @NotNull
   private BigDecimal tax;
-
+  private static final BigDecimal TAX_RATE = new BigDecimal("0.18").setScale(2, RoundingMode.HALF_UP);
   @NotNull
   private BigDecimal total;
 
@@ -167,58 +171,46 @@ public class Invoice extends Auditable implements Serializable {
         : getClass().hashCode();
   }
 
-  // Helper methods for services management
   public void addService(ServiceInvoice serviceInvoice) {
-    if (services == null) {
-      services = new ArrayList<>();
-    }
     services.add(serviceInvoice);
     serviceInvoice.setInvoice(this);
+    serviceInvoice.calculateAmount();
   }
 
   public void removeService(ServiceInvoice serviceInvoice) {
-    if (services != null) {
-      services.remove(serviceInvoice);
-      serviceInvoice.setInvoice(null);
-    }
+    services.remove(serviceInvoice);
+    serviceInvoice.setInvoice(null);
   }
 
-  // Enhanced calculateTotals method to include services
   public void calculateTotals() {
-    // Calculate products subtotal
-    BigDecimal productsSubtotal = products.stream()
-        .map(InvoiceProduct::getAmount)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-    // Calculate services subtotal
-    BigDecimal servicesSubtotal = services.stream()
+    BigDecimal servicesTotal = services.stream()
         .map(ServiceInvoice::getAmount)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    // Total subtotal
-    this.subtotal = productsSubtotal.add(servicesSubtotal);
+    BigDecimal productsTotal = products.stream()
+        .map(InvoiceProduct::getAmount)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    // Calculate discount
-    if (discountPercentage != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
-      this.discount = subtotal.multiply(discountPercentage).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-    } else {
-      this.discount = BigDecimal.ZERO;
-    }
-
-    // Calculate tax (assuming 18% ITBIS)
-    BigDecimal taxableAmount = subtotal.subtract(discount != null ? discount : BigDecimal.ZERO);
-    this.tax = taxableAmount.multiply(BigDecimal.valueOf(0.18)).setScale(2, RoundingMode.HALF_UP);
-
-    // Calculate total
-    this.total = taxableAmount.add(tax);
+    this.subtotal = servicesTotal.add(productsTotal);
+    this.tax = this.subtotal.multiply(TAX_RATE);
+    this.total = this.subtotal.add(this.tax);
   }
 
-  public void addProduct(InvoiceProduct product) {
-    if (products == null) {
-      products = new HashSet<>();
+  public void addProduct(InvoiceProduct productToAdd) {
+    Optional<InvoiceProduct> existingProductOpt = products.stream()
+        .filter(p -> p.getProduct().equals(productToAdd.getProduct()))
+        .findFirst();
+
+    if (existingProductOpt.isPresent()) {
+      InvoiceProduct existingProduct = existingProductOpt.get();
+      existingProduct.setQuantity(existingProduct.getQuantity() + productToAdd.getQuantity());
+      existingProduct.calculateAmount();
+    } else {
+      products.add(productToAdd);
+      productToAdd.setInvoice(this);
     }
-    products.add(product);
-    product.setInvoice(this);
+
+    calculateTotals();
   }
 
 }
