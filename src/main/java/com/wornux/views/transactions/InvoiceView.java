@@ -96,14 +96,14 @@ public class InvoiceView extends Div {
   public InvoiceView(InvoiceService service,
       @Qualifier("clientServiceImpl") ClientService customerService, ProductService productService,
       AuditService auditService, ClientMapper clientMapper,
-      InvoiceReportService invoiceReportService, UserService userService) {
+      InvoiceReportService invoiceReportService) {
     this.service = service;
     this.invoiceReportService = invoiceReportService;
 
     setId("invoices-view");
 
     invoiceForm = new InvoiceForm(service, customerService, productService, auditService,
-        clientMapper, invoiceReportService, userService);
+        clientMapper, invoiceReportService);
 
     createGrid(service, createFilterSpecification());
 
