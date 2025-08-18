@@ -26,6 +26,12 @@ jobs:
       - name: Verify Maven installation
         run: mvn -version
 
+      - name: Install fullcalendar2
+        run: mvn install:install-file -Dfile=libs/fullcalendar2-7.0.0.jar -DgroupId=org.vaadin.stefan -DartifactId=fullcalendar2 -Dversion=7.0.0 -Dpackaging=jar -DgeneratePom=true
+
+      - name: Install fullcalendar2-scheduler
+        run: mvn install:install-file -Dfile=libs/fullcalendar2-scheduler-7.0.0.jar -DgroupId=org.vaadin.stefan -DartifactId=fullcalendar2-scheduler -Dversion=7.0.0 -Dpackaging=jar -DgeneratePom=true
+
       - name: Get product name and version
         run: |
           echo "VERSION=$(mvn help:evaluate -q -DforceStdout -D"expression=project.version")" >> $GITHUB_ENV
