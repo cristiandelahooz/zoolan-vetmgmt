@@ -47,13 +47,11 @@ public class IndividualClientView extends Div {
 
     private final Button create = new Button();
     private final transient ClientService clientService;
-    private final transient UserService userService;
     private final IndividualClientForm individualClientForm;
 
-    public IndividualClientView(@Qualifier("clientServiceImpl") ClientService clientService, @Qualifier("userServiceImpl") UserService userService) {
-        this.userService = userService;
+    public IndividualClientView(@Qualifier("clientServiceImpl") ClientService clientService) {
         this.clientService = clientService;
-        this.individualClientForm = new IndividualClientForm(clientService, userService);
+        this.individualClientForm = new IndividualClientForm(clientService);
 
         setId("individual-clients-view");
 
