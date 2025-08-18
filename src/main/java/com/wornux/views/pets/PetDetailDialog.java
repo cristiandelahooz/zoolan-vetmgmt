@@ -4,16 +4,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.QueryParameters;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
 import com.wornux.services.interfaces.ConsultationService;
-import com.wornux.views.medicalhistory.MedicalHistoryView;
 import com.vaadin.flow.component.UI;
-
+import com.wornux.views.medicalhistory.MedicalHistoryView;
 import java.util.List;
-import java.util.Map;
-
 
 public class PetDetailDialog extends Dialog {
 
@@ -54,12 +50,11 @@ public class PetDetailDialog extends Dialog {
             });
         }
 
-        // Botón "Ver historial completo"
+
+
         Button viewHistoryBtn = new Button("Ver historial", e -> {
-            UI.getCurrent().navigate(
-                    "historial-medico",
-                    QueryParameters.simple(Map.of("petId", pet.getId().toString()))
-            );
+            close();
+            UI.getCurrent().navigate(MedicalHistoryView.class, pet.getId());
         });
 
 
