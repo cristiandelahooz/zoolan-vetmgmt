@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -15,6 +15,9 @@ import org.hibernate.proxy.HibernateProxy;
 @Entity
 @Audited(withModifiedFlag = true)
 @Table(name = "invoice_product")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class InvoiceProduct extends Auditable implements Serializable {
 
   @Id
