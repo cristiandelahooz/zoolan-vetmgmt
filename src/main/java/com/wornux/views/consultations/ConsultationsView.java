@@ -27,6 +27,7 @@ import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "consultations")
 @PageTitle("Consultas")
+@PermitAll
 public class ConsultationsView extends Div {
 
   private final Grid<Consultation> grid = GridUtils.createBasicGrid(Consultation.class);

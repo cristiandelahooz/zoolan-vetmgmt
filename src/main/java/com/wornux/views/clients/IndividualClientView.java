@@ -27,6 +27,7 @@ import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.UserService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
@@ -38,6 +39,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "individual-clients")
 @PageTitle("Clientes Individuales")
+@PermitAll
 public class IndividualClientView extends Div {
 
     private final Grid<Client> grid = GridUtils.createBasicGrid(Client.class);

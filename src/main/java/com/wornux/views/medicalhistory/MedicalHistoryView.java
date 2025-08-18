@@ -16,11 +16,13 @@ import com.wornux.data.entity.Pet;
 import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.views.pets.SelectPetDialog;
+import jakarta.annotation.security.PermitAll;
 
 import java.util.List;
 
 @PageTitle("Historial Médico")
 @Route(value = "historial-medico")
+@PermitAll
 public class MedicalHistoryView extends VerticalLayout {
 
     private final PetService petService;

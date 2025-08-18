@@ -26,6 +26,7 @@ import com.wornux.data.entity.Supplier;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.services.interfaces.SupplierService;
 import com.wornux.utils.GridUtils;
+import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +35,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "proveedores")
 @PageTitle("Proveedores")
+@PermitAll
 public class SupplierView extends Div {
 
     private final Grid<Supplier> grid = GridUtils.createBasicGrid(Supplier.class);

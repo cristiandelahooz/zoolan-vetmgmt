@@ -29,6 +29,7 @@ import com.wornux.data.enums.EmployeeRole;
 import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
@@ -44,6 +45,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "empleados")
 @PageTitle("Empleados")
+@PermitAll
 public class EmployeeView extends Div {
 
     private final Grid<Employee> grid = GridUtils.createBasicGrid(Employee.class);

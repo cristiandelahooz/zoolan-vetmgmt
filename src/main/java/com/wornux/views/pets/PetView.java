@@ -38,11 +38,13 @@ import java.util.Set;
 
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 import static com.wornux.utils.PredicateUtils.predicateForTextField;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @Route(value = "mascotas", layout = MainLayout.class)
 @PageTitle("Mascotas")
+@PermitAll
 public class PetView extends Div {
 
     private final Grid<Pet> grid = GridUtils.createBasicGrid(Pet.class);
