@@ -26,6 +26,14 @@ public interface ConsultationService {
   Consultation create(CreateConsultationRequestDto createDTO);
 
   /**
+   * Save a consultation
+   *
+   * @param consultation the consultation to save
+   * @return the saved consultation
+   */
+  Consultation save(Consultation consultation);
+
+  /**
    * Update an existing consultation
    *
    * @param id the id of the consultation to update
