@@ -7,6 +7,7 @@ import com.vaadin.hilla.crud.filter.Filter;
 import com.wornux.data.entity.Product;
 import com.wornux.data.entity.Supplier;
 import com.wornux.data.enums.ProductCategory;
+import com.wornux.data.enums.ProductUsageType;
 import com.wornux.data.repository.ProductRepository;
 import com.wornux.data.repository.SupplierRepository;
 import com.wornux.dto.request.ProductCreateRequestDto;
@@ -171,5 +172,12 @@ public class ProductServiceImpl extends CrudRepositoryService<Product, Long, Pro
   public Page<Product> getAllProducts(Specification<Product> spec, Pageable pageable) {
     log.debug("Retrieving all products with specification: {}", spec);
     return productRepository.findAll(spec, pageable);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Product> findInternalUseProducts() {
+    log.debug("Retrieving internal use products");
+    return productRepository.findByUsageTypeAndActiveTrue(ProductUsageType.PRIVADO);
   }
 }
