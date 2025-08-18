@@ -4,6 +4,9 @@
 .settings
 .project
 .classpath
+.factorypath
+
+src/main/bundles/
 
 *.iml
 .DS_Store
