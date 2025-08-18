@@ -1,7 +1,9 @@
 package com.wornux.services.implementations;
 
 import com.wornux.data.entity.Invoice;
+import com.wornux.data.entity.ServiceInvoice;
 import com.wornux.data.repository.InvoiceRepository;
+import com.wornux.data.repository.InvoiceServiceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class InvoiceService {
 
   @Getter private final InvoiceRepository repository;
+  private final InvoiceServiceRepository invoiceServiceRepository;
 
   public Optional<Invoice> get(Long id) {
     if (id == null) return Optional.empty();
@@ -67,5 +70,35 @@ public class InvoiceService {
   public Invoice markInvoiceAsOverdue(Invoice invoice) {
     invoice.markAsOverdue();
     return repository.save(invoice);
+  }
+
+  @Transactional()
+  public Invoice findByIdWithDetails(Long code) {
+
+    return repository.findByCodeWithServicesAndProducts(code)
+        .orElseThrow(() -> new EntityNotFoundException("Invoice not found with ID: " + code));
+  }
+
+  // Get invoice services count for display
+  @Transactional()
+  public long getServicesCount(Long invoiceId) {
+    Invoice invoice = findByIdWithDetails(invoiceId);
+    return invoice.getServices().size();
+  }
+
+  // Get invoice products count for display
+  @Transactional()
+  public long getProductsCount(Long invoiceId) {
+    Invoice invoice = findByIdWithDetails(invoiceId);
+    return invoice.getProducts().size();
+  }
+
+  // Calculate services total
+  @Transactional()
+  public BigDecimal calculateServicesTotal(Long invoiceId) {
+    Invoice invoice = findByIdWithDetails(invoiceId);
+    return invoice.getServices().stream()
+        .map(ServiceInvoice::getAmount)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 }
