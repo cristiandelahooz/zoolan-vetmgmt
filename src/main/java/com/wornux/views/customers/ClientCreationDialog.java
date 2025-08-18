@@ -23,19 +23,17 @@ import lombok.Setter;
 public class ClientCreationDialog extends Dialog {
 
   private final ClientService clientService;
-  private final UserService userService;
   private final IndividualClientForm individualClientForm;
   private final CompanyClientForm companyClientForm;
   private final ClientMapper clientMapper;
 
   @Setter private Consumer<Client> onClientCreated;
 
-  public ClientCreationDialog(ClientService clientService, ClientMapper clientMapper, UserService userService) {
-    this.userService = userService;
+  public ClientCreationDialog(ClientService clientService, ClientMapper clientMapper) {
     this.clientService = clientService;
     this.clientMapper = clientMapper;
-    this.individualClientForm = new IndividualClientForm(clientService, userService);
-    this.companyClientForm = new CompanyClientForm(clientService, userService);
+    this.individualClientForm = new IndividualClientForm(clientService);
+    this.companyClientForm = new CompanyClientForm(clientService);
 
     setupDialog();
     setupEventListeners();
