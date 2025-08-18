@@ -98,7 +98,6 @@ public class InvoiceForm extends Div {
   private final Div footer = new Div();
   private final InvoiceService service;
   private final ClientService customerService;
-  private final UserService userService;
   private final InvoiceReportService invoiceReportService;
   private final RevisionView<Invoice> revisionView;
   private final ClientCreationDialog clientCreationDialog;
@@ -113,11 +112,9 @@ public class InvoiceForm extends Div {
       ProductService productService,
       AuditService auditService,
       ClientMapper clientMapper,
-      InvoiceReportService invoiceReportService,
-      UserService userService) {
+      InvoiceReportService invoiceReportService) {
     this.service = service;
     this.customerService = customerService;
-    this.userService = userService;
     this.invoiceReportService = invoiceReportService;
 
     CommonUtils.commentsFormat(notes, 500);
@@ -130,7 +127,7 @@ public class InvoiceForm extends Div {
     this.revisionView = new RevisionView<>(auditService, Invoice.class);
     revisionView.configureGridRevision();
 
-    clientCreationDialog = new ClientCreationDialog(customerService, clientMapper, userService);
+    clientCreationDialog = new ClientCreationDialog(customerService, clientMapper);
 
     docNum.setEnabled(false);
     total.setEnabled(false);
