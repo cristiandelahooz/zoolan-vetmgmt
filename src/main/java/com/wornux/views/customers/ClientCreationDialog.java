@@ -13,7 +13,6 @@ import com.wornux.data.entity.Client;
 import com.wornux.dto.request.ClientCreateRequestDto;
 import com.wornux.mapper.ClientMapper;
 import com.wornux.services.interfaces.ClientService;
-import com.wornux.services.interfaces.UserService;
 import com.wornux.views.clients.CompanyClientForm;
 import com.wornux.views.clients.IndividualClientForm;
 import java.util.function.Consumer;
@@ -22,12 +21,12 @@ import lombok.Setter;
 /** Dialog that allows users to choose between creating an individual client or a company client */
 public class ClientCreationDialog extends Dialog {
 
-  private final ClientService clientService;
+  private final transient ClientService clientService;
   private final IndividualClientForm individualClientForm;
   private final CompanyClientForm companyClientForm;
-  private final ClientMapper clientMapper;
+  private final transient ClientMapper clientMapper;
 
-  @Setter private Consumer<Client> onClientCreated;
+  @Setter private transient Consumer<Client> onClientCreated;
 
   public ClientCreationDialog(ClientService clientService, ClientMapper clientMapper) {
     this.clientService = clientService;
@@ -167,10 +166,11 @@ public class ClientCreationDialog extends Dialog {
   }
 
   private void handleClientCreated(ClientCreateRequestDto dto) {
-    // Convert DTO to Client entity using mapper
-    if (clientMapper != null && onClientCreated != null) {
-      Client client = clientMapper.toEntity(dto);
-      onClientCreated.accept(client);
+    if (onClientCreated != null) {
+      // Persist the client using the service
+      Client createdClient = clientService.createClient(dto);
+      // Pass the persisted client (which now has an ID) to the callback
+      onClientCreated.accept(createdClient);
     }
   }
 
