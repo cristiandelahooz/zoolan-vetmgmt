@@ -1,11 +1,14 @@
 package com.wornux.data.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.envers.Audited;
 
+import java.time.LocalDateTime;
+
+/**
+ * Entity representing a veterinary consultation
+ */
 @Entity
 @Table(name = "consultations")
 @Getter
@@ -13,15 +16,16 @@ import org.hibernate.envers.Audited;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"medicalHistory"})
-@ToString(exclude = {"medicalHistory"})
+@EqualsAndHashCode(exclude = {"createdAt", "updatedAt"})
+@ToString
 @Audited(withModifiedFlag = true)
 public class Consultation {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(columnDefinition = "TEXT", nullable = false)
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String notes;
 
   @Column(columnDefinition = "TEXT")
@@ -33,27 +37,27 @@ public class Consultation {
   @Column(columnDefinition = "TEXT")
   private String prescription;
 
-  @Column(nullable = false)
+  @Column(name = "consultation_date", nullable = false)
   private LocalDateTime consultationDate;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "pet", nullable = false)
   private Pet pet;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "veterinarian", nullable = false)
   private Employee veterinarian;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "medical_history")
-  @JsonIgnore
-  @Setter
   private MedicalHistory medicalHistory;
+
+  @Builder.Default
+  @Column(nullable = false)
+  private Boolean active = true;
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
-
-  @Builder.Default private boolean active = true;
 
   @PrePersist
   protected void onCreate() {
@@ -64,5 +68,9 @@ public class Consultation {
   @PreUpdate
   protected void onUpdate() {
     updatedAt = LocalDateTime.now();
+  }
+
+  public boolean isActive() {
+    return active != null && active;
   }
 }
