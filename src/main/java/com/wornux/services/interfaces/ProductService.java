@@ -3,6 +3,7 @@ package com.wornux.services.interfaces;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.filter.Filter;
 import com.wornux.data.entity.Product;
+import com.wornux.data.repository.ProductRepository;
 import com.wornux.dto.request.ProductCreateRequestDto;
 import com.wornux.dto.request.ProductUpdateRequestDto;
 import com.wornux.dto.response.ProductListDto;
@@ -97,6 +98,14 @@ public interface ProductService {
    */
   List<Product> getProductsByCategory(String category);
 
+
+  /**
+   * Lists Products marked for internal use.
+   *
+   * @return List of internal use Products.
+   */
+  List<Product> findInternalUseProducts();
+
   /**
    * Lists Products matching a name search.
    *
@@ -123,4 +132,6 @@ public interface ProductService {
   List<Product> getProductsBySupplier(Long supplierId);
 
   Product update(Product product);
+
+  ProductRepository getProductRepository();
 }
