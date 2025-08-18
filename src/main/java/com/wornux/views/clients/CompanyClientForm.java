@@ -77,7 +77,6 @@ public class CompanyClientForm extends Dialog {
     private final Binder<ClientUpdateRequestDto> binderUpdate = new BeanValidationBinder<>(ClientUpdateRequestDto.class);
     private ValidationBean validationBean = new ValidationBean();
     private final transient ClientService clientService;
-    private final transient UserService userService;
     private final List<Consumer<ClientCreateRequestDto>> clientSavedListeners = new ArrayList<>();
     private final List<Runnable> clientCancelledListeners = new ArrayList<>();
     @Setter
@@ -87,9 +86,8 @@ public class CompanyClientForm extends Dialog {
     private boolean isEditMode = false;
     private Client currentClient = null;
 
-    public CompanyClientForm(ClientService clientService, UserService userService) {
+    public CompanyClientForm(ClientService clientService) {
         this.clientService = clientService;
-        this.userService = userService;
 
         setHeaderTitle("Nueva Empresa");
         setModal(true);
