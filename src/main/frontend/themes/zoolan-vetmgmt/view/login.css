@@ -1,3 +1,6 @@
+/* Modern Login Page Styles */
+/* This file maintains compatibility with existing Vaadin login components */
+
 /*vaadin-login-overlay-wrapper::part(overlay),*/
 .singup-view {
     background-image: url("/images/login-bg.png");
