@@ -481,34 +481,24 @@ VALUES (1, 'Main Warehouse', 'PRINCIPAL', TRUE, TRUE),
        (4, 'Accessories Warehouse', 'SECUNDARIO', TRUE, TRUE),
        (5, 'Medical Warehouse', 'SECUNDARIO', TRUE, FALSE);
 
--- Data for supplier_products table (10 rows)-- Data for products table with correct attributes and ProductCategory enum
+-- Data for products table (15 rows)
 INSERT INTO products (product_id, name, description, active, purchase_price, sales_price, accounting_stock,
-                      available_stock, reorder_level, supplier, category, warehouse)
-VALUES (1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE, 1200.00, 1500.00, 100, 80, 20, 1,
-        'ALIMENTO', 1),
-       (2, 'High Protein Cat Food', 'Nutritious wet food for cats', TRUE, 900.00, 1200.00, 200, 180, 30, 1, 'ALIMENTO',
-        1),
-       (3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE, 350.00, 500.00, 300, 250, 50, 2, 'ALIMENTO',
-        2),
-       (4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 250.00, 400.00, 250, 200, 40, 2, 'ALIMENTO', 2),
-       (5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin', TRUE, 500.00, 800.00, 150, 120, 25, 3,
-        'HIGIENE', 3),
-       (6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE, 400.00, 700.00, 180, 150, 30, 3, 'HIGIENE',
-        3),
-       (7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs', TRUE, 350.00, 600.00, 120, 100, 20, 4,
-        'ACCESORIO', 4),
-       (8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE, 300.00, 550.00, 130, 110, 25, 4,
-        'ACCESORIO', 4),
-       (9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 600.00, 900.00, 110, 90, 15, 5, 'ACCESORIO',
-        5),
-       (10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 200.00, 300.00, 400, 350, 60, 5, 'HIGIENE', 5),
-       (11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE, 1800.00, 2500.00, 50, 40, 10, 1,
-        'MEDICINA', 1),
-       (12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE, 1200.00, 1800.00, 75, 60, 15, 2,
-        'MEDICINA', 2),
-       (13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 800.00, 1200.00, 100, 80, 20, 3, 'MEDICINA', 3),
-       (14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 400.00, 650.00, 200, 170, 35, 4, 'HIGIENE', 4),
-       (15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 2500.00, 3500.00, 25, 20, 5, 5, 'ACCESORIO', 5);
+                      available_stock, reorder_level, unit, usage_type, supplier, category, warehouse)
+VALUES (1, 'Premium Dog Food', 'High-quality dry food for adult dogs', TRUE, 1200.00, 1500.00, 100, 80, 20, 'CAJA', 'VENTA', 1, 'ALIMENTO', 1),
+       (2, 'High Protein Cat Food', 'Nutritious wet food for cats', TRUE, 900.00, 1200.00, 200, 180, 30, 'CAJA', 'VENTA', 1, 'ALIMENTO', 1),
+       (3, 'Healthy Dog Treats', 'Natural training treats for dogs', TRUE, 350.00, 500.00, 300, 250, 50, 'UNIDAD', 'VENTA', 2, 'ALIMENTO', 2),
+       (4, 'Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 250.00, 400.00, 250, 200, 40, 'UNIDAD', 'VENTA', 2, 'ALIMENTO', 2),
+       (5, 'Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin', TRUE, 500.00, 800.00, 150, 120, 25, 'UNIDAD', 'VENTA', 3, 'HIGIENE', 3),
+       (6, 'Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE, 400.00, 700.00, 180, 150, 30, 'UNIDAD', 'VENTA', 3, 'HIGIENE', 3),
+       (7, 'Durable Dog Collar', 'Adjustable nylon collar for medium dogs', TRUE, 350.00, 600.00, 120, 100, 20, 'UNIDAD', 'VENTA', 4, 'ACCESORIO', 4),
+       (8, 'Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE, 300.00, 550.00, 130, 110, 25, 'UNIDAD', 'VENTA', 4, 'ACCESORIO', 4),
+       (9, 'Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 600.00, 900.00, 110, 90, 15, 'UNIDAD', 'VENTA', 5, 'ACCESORIO', 5),
+       (10, 'Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 200.00, 300.00, 400, 350, 60, 'CAJA', 'VENTA', 5, 'HIGIENE', 5),
+       (11, 'Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE, 1800.00, 2500.00, 50, 40, 10, 'DOCENA', 'PRIVADO', 1, 'MEDICINA', 1),
+       (12, 'Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE, 1200.00, 1800.00, 75, 60, 15, 'DOCENA', 'AMBOS', 2, 'MEDICINA', 2),
+       (13, 'Pet Vitamins', 'Daily multivitamin supplements', TRUE, 800.00, 1200.00, 100, 80, 20, 'DOCENA', 'AMBOS', 3, 'MEDICINA', 3),
+       (14, 'Dental Chews', 'Tartar control chews for dogs', TRUE, 400.00, 650.00, 200, 170, 35, 'UNIDAD', 'VENTA', 4, 'HIGIENE', 4),
+       (15, 'Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 2500.00, 3500.00, 25, 20, 5, 'UNIDAD', 'VENTA', 5, 'ACCESORIO', 5);
 
 -- Data for invoices table (1 row)
 INSERT INTO invoices (client,
