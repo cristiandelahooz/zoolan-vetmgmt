@@ -67,7 +67,6 @@ public class EmployeeUpdateRequestDto {
     @Nullable
     private String emergencyContactName;
 
-    @Pattern(regexp = DOMINICAN_PHONE_PATTERN, message = "Proporcione un número de emergencia válido")
     @Nullable
     private String emergencyContactPhone;
 }
