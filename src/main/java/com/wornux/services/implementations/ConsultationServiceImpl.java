@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AnonymousAllowed
 public class ConsultationServiceImpl
     extends ListRepositoryService<Consultation, Long, ConsultationRepository>
-    implements ConsultationService, FormService<CreateConsultationRequestDto, Long> {
+    implements ConsultationService {
   private final ConsultationRepository consultationRepository;
   private final PetService petService;
   private final EmployeeService employeeService;
@@ -48,24 +48,10 @@ public class ConsultationServiceImpl
   private final ConsultationMapper consultationMapper;
   private final EmployeeRepository employeeRepository;
 
-  @Override
-  public CreateConsultationRequestDto save(CreateConsultationRequestDto item) {
-    log.debug("Request to save Consultation : {}", item);
 
-    // Create the consultation entity
-    Consultation savedConsultation = create(item);
-
-    // Convert back to DTO for return
-    CreateConsultationRequestDto result = new CreateConsultationRequestDto();
-    result.setPetId(savedConsultation.getPet().getId());
-    result.setVeterinarianId(savedConsultation.getVeterinarian().getId());
-    result.setNotes(savedConsultation.getNotes());
-    result.setDiagnosis(savedConsultation.getDiagnosis());
-    result.setTreatment(savedConsultation.getTreatment());
-    result.setPrescription(savedConsultation.getPrescription());
-    result.setConsultationDate(savedConsultation.getConsultationDate());
-
-    return result;
+  public Consultation save(Consultation item) {
+    log.debug("Saving Consultation: {}", item.getId());
+    return consultationRepository.save(item);
   }
 
   @Override
