@@ -7,18 +7,13 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -29,7 +24,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
 import com.wornux.data.entity.Client;
 import com.wornux.services.interfaces.ClientService;
-import com.wornux.services.interfaces.UserService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -52,13 +46,11 @@ public class CompanyClientView extends Div {
 
     private final Button create = new Button();
     private final transient ClientService clientService;
-    private final transient UserService userService;
     private final CompanyClientForm companyClientForm;
 
-    public CompanyClientView(@Qualifier("clientServiceImpl") ClientService clientService, @Qualifier("userServiceImpl") UserService userService) {
-        this.userService = userService;
+    public CompanyClientView(@Qualifier("clientServiceImpl") ClientService clientService) {
         this.clientService = clientService;
-        this.companyClientForm = new CompanyClientForm(clientService, userService);
+        this.companyClientForm = new CompanyClientForm(clientService);
 
         setId("company-clients-view");
 
