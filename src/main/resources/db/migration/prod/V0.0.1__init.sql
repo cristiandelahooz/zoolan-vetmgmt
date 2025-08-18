@@ -873,7 +873,7 @@ INSERT INTO users (username, password, email, first_name, last_name, phone_numbe
                    nationality, province, municipality, sector, street_address, reference_points,
                    active, created_at,
                    updated_at, system_role)
-VALUES ('wornux', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La', 'app@wornux.com',
+VALUES ('wornux', '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS', 'app@wornux.com',
         'John', 'Doe', '8092223333', '1985-01-15',
         'MASCULINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Naco',
         'Calle Principal 123', 'Near the park',
