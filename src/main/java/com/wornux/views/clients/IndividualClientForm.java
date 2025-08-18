@@ -80,7 +80,6 @@ public class IndividualClientForm extends Dialog {
     private final Binder<ClientUpdateRequestDto> binderUpdate = new BeanValidationBinder<>(ClientUpdateRequestDto.class);
     private ValidationBean validationBean = new ValidationBean();
     private final transient ClientService clientService;
-    private final transient UserService userService;
     private final List<Consumer<ClientCreateRequestDto>> clientSavedListeners = new ArrayList<>();
     private final List<Runnable> clientCancelledListeners = new ArrayList<>();
     @Setter
@@ -90,9 +89,8 @@ public class IndividualClientForm extends Dialog {
     private boolean isEditMode = false;
     private Client currentClient = null;
 
-    public IndividualClientForm(ClientService clientService, UserService userService) {
+    public IndividualClientForm(ClientService clientService) {
         this.clientService = clientService;
-        this.userService = userService;
 
         setHeaderTitle("Nuevo Cliente Individual");
         setModal(true);
