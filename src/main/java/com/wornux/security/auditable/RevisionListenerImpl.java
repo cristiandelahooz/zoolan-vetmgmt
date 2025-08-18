@@ -23,11 +23,11 @@ public class RevisionListenerImpl implements RevisionListener {
       // Get the IP address from the request
       Revision revision = (Revision) revisionEntity;
       revision.setModifierUser(userName);
-      revision.setIpAddress("0.0.0.0");
+      revision.setIpAddress(revision.getIpAddress());
     } else {
       Revision revision = (Revision) revisionEntity;
       revision.setModifierUser("ANONYMOUS");
-      revision.setIpAddress("0.0.0.0");
+      revision.setIpAddress(revision.getIpAddress());
     }
   }
 }
