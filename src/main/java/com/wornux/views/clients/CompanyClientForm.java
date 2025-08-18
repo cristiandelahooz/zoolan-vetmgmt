@@ -494,8 +494,6 @@ public class CompanyClientForm extends Dialog {
                 streetAddress.getValue(),
                 referencePoints.getValue());
 
-        // Client creation is handled by ClientCreationDialog.handleClientCreated
-        // NotificationUtils.success("Empresa creada exitosamente"); // Notification will be handled by ClientCreationDialog
         fireClientSavedEvent(dto);
 
         if (onSaveCallback != null) {
