@@ -474,7 +474,6 @@ public class CompanyClientForm extends Dialog {
                 null, // lastName is null for companies
                 phoneNumber.getValue(),
                 null, // birthDate is null for companies
-                null, // gender is null for companies
                 null, // nationality is null for companies
                 null, // cedula is null for companies
                 null, // passport is null for companies
@@ -515,7 +514,6 @@ public class CompanyClientForm extends Dialog {
                 null, // lastName
                 phoneNumber.getValue(),
                 null, // birthDate
-                null, // gender
                 null, // nationality
                 null, // cedula
                 null, // passport
@@ -575,7 +573,7 @@ public class CompanyClientForm extends Dialog {
                 client.getEmail(),
                 null, null,
                 client.getPhoneNumber(),
-                null, null, null, null, null,
+                null, null, null, null,
                 client.getRnc(),
                 client.getCompanyName(),
                 client.getPreferredContactMethod(),
