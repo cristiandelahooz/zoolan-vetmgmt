@@ -155,4 +155,13 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     public EmployeeRepository getRepository() {
         return this.employeeRepository;
     }
+
+    @Transactional(readOnly = true)
+    public List<Employee> getGroomers() {
+        log.debug("Request to get all groomers");
+        return employeeRepository.findAll().stream()
+                .filter(employee -> employee.getEmployeeRole() == EmployeeRole.GROOMER)
+                .toList();
+    }
+
 }
