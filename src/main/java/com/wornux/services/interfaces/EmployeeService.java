@@ -6,6 +6,7 @@ import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.dto.request.EmployeeCreateRequestDto;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.wornux.dto.request.EmployeeUpdateRequestDto;
@@ -66,4 +67,6 @@ public interface EmployeeService {
     void delete(@NonNull Long id);
 
     void updateEmployee(@NonNull Long id, @Valid EmployeeUpdateRequestDto dto);
+
+    List<Employee> getGroomers();
 }
