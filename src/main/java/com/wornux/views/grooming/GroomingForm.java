@@ -19,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -27,6 +28,7 @@ import com.wornux.data.enums.InvoiceStatus;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.pets.SelectPetDialog;
 import com.wornux.views.services.ServiceForm;
 import lombok.Setter;
 
@@ -37,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+
+
 /**
  * Form para registrar sesiones de Grooming (estética),
  * siguiendo el patrón de ConsultationsForm (ítems en memoria -> Invoice).
@@ -44,7 +48,16 @@ import java.util.function.Consumer;
 public class GroomingForm extends Dialog {
 
     // Fields
-    private final ComboBox<Pet> petComboBox = new ComboBox<>("Mascota");
+    //private final ComboBox<Pet> petComboBox = new ComboBox<>("Mascota");
+
+    //NUEVO
+
+    // Mascota (selector por diálogo)
+    private final TextField petName = new TextField("Mascota");
+    private final Button selectPetButton = new Button("Seleccionar");
+    private Pet selectedPet;
+    private final SelectPetDialog selectPetDialog;
+
     private final ComboBox<Employee> groomerComboBox = new ComboBox<>("Groomer");
     private final TextArea notesTextArea = new TextArea("Notas de Grooming");
 
@@ -65,7 +78,7 @@ public class GroomingForm extends Dialog {
     private final Span grandTotalSpan = new Span("$0.00");
 
     // Acciones
-    private final Button saveButton = new Button("Registrar Grooming");
+    private final Button saveButton = new Button("Registrar");
     private final Button cancelButton = new Button("Cancelar");
     private final Button createServiceButton = new Button("Crear Nuevo Servicio");
     private final ServiceForm serviceForm;
@@ -102,6 +115,17 @@ public class GroomingForm extends Dialog {
         this.invoiceService = invoiceService;
         this.productService = productService;
         this.serviceForm = new ServiceForm(serviceService);
+       //NUEVO
+        this.selectPetDialog = new SelectPetDialog(petService);
+
+        petName.setReadOnly(true);
+        selectPetButton.addClickListener(e -> selectPetDialog.open());
+        selectPetDialog.addPetSelectedListener(pet -> {
+            selectedPet = pet;
+            petName.setInvalid(false);
+            petName.setValue(pet != null ? pet.getName() : "");
+        });
+
 
         setHeaderTitle("Sesión de Grooming");
         setModal(true);
@@ -117,9 +141,13 @@ public class GroomingForm extends Dialog {
 
     private void createForm() {
         // Básicos
-        petComboBox.setItemLabelGenerator(p -> p.getName() + " (" + p.getType() + ")");
-        petComboBox.setRequired(true);
-        petComboBox.setWidthFull();
+        //petComboBox.setItemLabelGenerator(p -> p.getName() + " (" + p.getType() + ")");
+        //petComboBox.setRequired(true);
+        //petComboBox.setWidthFull();
+        HorizontalLayout petPickerLayout = new HorizontalLayout(petName, selectPetButton);
+        petPickerLayout.setAlignItems(FlexComponent.Alignment.END);
+        petName.setWidthFull();
+
 
         groomerComboBox.setItemLabelGenerator(emp -> emp.getFirstName() + " " + emp.getLastName());
         groomerComboBox.setRequired(true);
@@ -150,7 +178,8 @@ public class GroomingForm extends Dialog {
 
         // Layout
         FormLayout basicInfoLayout = new FormLayout();
-        basicInfoLayout.add(petComboBox, groomerComboBox);
+        //basicInfoLayout.add(petComboBox, groomerComboBox);
+        basicInfoLayout.add(petPickerLayout, groomerComboBox);
         basicInfoLayout.add(notesTextArea, 2);
 
         VerticalLayout content = new VerticalLayout();
@@ -275,9 +304,9 @@ public class GroomingForm extends Dialog {
     }
 
     private void setupValidation() {
-        binder.forField(petComboBox)
+        /*binder.forField(petComboBox)
                 .withValidator(p -> p != null, "Debe seleccionar una mascota")
-                .bind(GroomingSession::getPet, GroomingSession::setPet);
+                .bind(GroomingSession::getPet, GroomingSession::setPet);*/
 
         binder.forField(groomerComboBox)
                 .withValidator(g -> g != null, "Debe seleccionar un groomer")
@@ -366,7 +395,7 @@ public class GroomingForm extends Dialog {
         grandTotalSpan.setText("$" + grandTotal);
     }
 
-    private void loadComboBoxData() {
+    /*private void loadComboBoxData() {
         // Mascotas
         petService.getAllPets().forEach(pet -> petComboBox.getListDataView().addItem(pet));
 
@@ -381,7 +410,22 @@ public class GroomingForm extends Dialog {
         // Productos internos
         productService.findInternalUseProducts()
                 .forEach(product -> productComboBox.getListDataView().addItem(product));
+    }*/
+
+    private void loadComboBoxData() {
+        // Mascotas
+       // petComboBox.setItems(petService.getAllPets());
+
+        // Groomers
+        groomerComboBox.setItems(employeeService.getGroomers());
+
+        // Servicios de estética
+        serviceComboBox.setItems(serviceService.findGroomingServices());
+
+        // Productos internos
+        productComboBox.setItems(productService.findInternalUseProducts());
     }
+
 
     private void save(ClickEvent<Button> event) {
         try {
@@ -390,7 +434,18 @@ public class GroomingForm extends Dialog {
                 editingSession.setGroomingDate(LocalDateTime.now());
             }
 
+            if (selectedPet == null) {
+                petName.setInvalid(true);
+                petName.setErrorMessage("Debe seleccionar una mascota");
+                NotificationUtils.error("Debe seleccionar una mascota");
+                return;
+            }
+
+
             binder.writeBean(editingSession);
+
+            editingSession.setPet(selectedPet);
+
 
             // Derivar cliente desde la mascota si lo necesitas en tu flujo de facturación
             // (Si GroomingSession no tiene client, la factura tomará el owner del pet)
@@ -459,7 +514,12 @@ public class GroomingForm extends Dialog {
 
     public void openForNew() {
         clearForm();
-        saveButton.setText("Registrar Grooming");
+        
+        selectedPet = null;
+        petName.clear();
+        petName.setInvalid(false);
+
+        saveButton.setText("Registrar");
         editingSession = null;
         setHeaderTitle("Nuevo Grooming");
         open();
@@ -468,7 +528,10 @@ public class GroomingForm extends Dialog {
     public void openForEdit(GroomingSession session) {
         this.editingSession = session;
         binder.readBean(session);
-        saveButton.setText("Actualizar Grooming");
+        selectedPet = session.getPet();
+        petName.setValue(selectedPet != null ? selectedPet.getName() : "");
+        petName.setInvalid(false);
+        saveButton.setText("Actualizar");
         setHeaderTitle("Editar Grooming");
         open();
     }
@@ -483,9 +546,12 @@ public class GroomingForm extends Dialog {
         serviceComboBox.clear();
         productComboBox.clear();
         productQuantityField.setValue(1.0);
+        selectedPet = null;
+        petName.clear();
+
     }
 
-    private void setupServiceForm() {
+    /*private void setupServiceForm() {
         serviceForm.addServiceSavedListener(dto -> {
             // Refrescar selector y auto-seleccionar el nuevo servicio (filtrado a grooming)
             serviceComboBox.getListDataView().removeItems(serviceComboBox.getListDataView().getItems().toList());
@@ -498,6 +564,23 @@ public class GroomingForm extends Dialog {
                     .ifPresent(serviceComboBox::setValue);
         });
     }
+    */
+
+    private void setupServiceForm() {
+        serviceForm.addServiceSavedListener(dto -> {
+            // Refrescar los servicios de GROOMING en el combo
+            var groomingServices = serviceService.findGroomingServices();
+            serviceComboBox.setItems(groomingServices);  // <-- primero poblar
+
+            // Seleccionar el recién creado (por nombre). Mejor si luego pasas el ID.
+            groomingServices.stream()
+                    .filter(s -> s.getName().equalsIgnoreCase(dto.getName()))
+                    .findFirst()
+                    .ifPresent(serviceComboBox::setValue);   // <-- después seleccionar
+        });
+    }
+
+
 
     // Clases de grid
     public static class ServiceItem {
