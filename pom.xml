@@ -33,7 +33,8 @@
         <hibernate.version>6.6.4.Final</hibernate.version>
         <!-- Library Versions -->
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <jasperreports.version>7.0.3</jasperreports.version>
+        <jasperreports.version>7.0.1</jasperreports.version>
+        <jasperreports.maven.plugin>4.0.1</jasperreports.maven.plugin>
         <archunit.version>1.4.1</archunit.version>
         <!-- Vaadin Addons -->
         <line-awesome.version>2.1.0</line-awesome.version>
@@ -66,6 +67,10 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>jaspersoft-third-party</id>
+            <url>https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/</url>
         </repository>
     </repositories>
 
@@ -419,6 +424,32 @@
                             <exclude>src/main/frontend/generated/**</exclude>
                         </excludes>
                     </typescript>
+                </configuration>
+            </plugin>
+            <!--=============================================================== -->
+            <!-- JasperReports maven plugin                                     -->
+            <!--=============================================================== -->
+            <plugin>
+                <groupId>com.pro-crafting.tools</groupId>
+                <artifactId>jasperreports-maven-plugin</artifactId>
+                <version>${jasperreports.maven.plugin}</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>jasper</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <compiler>net.sf.jasperreports.jdt.JRJdtCompiler</compiler>
+                    <sourceDirectory>src/main/resources/reports</sourceDirectory>
+                    <outputDirectory>src/main/resources/reports</outputDirectory>
+                    <outputFileExt>.jasper</outputFileExt>
+                    <verbose>false</verbose>
+                    <numberOfThreads>4</numberOfThreads>
+                    <failOnMissingSourceDirectory>true</failOnMissingSourceDirectory>
+                    <sourceScanner>org.codehaus.plexus.compiler.util.scan.StaleSourceScanner</sourceScanner>
                 </configuration>
             </plugin>
 
