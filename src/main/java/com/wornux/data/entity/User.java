@@ -4,7 +4,6 @@ import static com.wornux.constants.ValidationConstants.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.SystemRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -64,10 +63,6 @@ public class User {
   @Nullable
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
   protected LocalDate birthDate;
-
-  @Column(name = "gender")
-  @Enumerated(EnumType.STRING)
-  protected Gender gender;
 
   @Column(name = "nationality")
   @Nullable
