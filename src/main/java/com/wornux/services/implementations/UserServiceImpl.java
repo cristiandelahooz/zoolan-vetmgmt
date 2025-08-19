@@ -65,7 +65,6 @@ public class UserServiceImpl implements UserService {
             .lastName(lastName)
             .phoneNumber(phoneNumber)
             .birthDate(birthDate)
-            .gender(gender)
             .nationality(nationality)
             .province(province)
             .municipality(municipality)
