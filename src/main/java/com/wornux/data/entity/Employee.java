@@ -6,9 +6,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.jspecify.annotations.Nullable;
 
 @Entity
@@ -40,9 +43,14 @@ public class Employee extends User {
   @Builder.Default
   private boolean available = true;
 
-  @Column(name = "work_schedule")
-  @NotBlank(message = "Work schedule is required")
-  private String workSchedule;
+  @NotAudited
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(
+      name = "employee_work_schedule",
+      joinColumns = @JoinColumn(name = "employee_id")
+  )
+  @Builder.Default
+  private List<WorkScheduleDay> workScheduleDays = new ArrayList<>();
 
   @Column(name = "emergency_contact_name")
   @Nullable
@@ -51,4 +59,29 @@ public class Employee extends User {
   @Column(name = "emergency_contact_phone")
   @Nullable
   private String emergencyContactPhone;
+
+  /**
+   * Returns a formatted summary of the work schedule
+   */
+  public String getWorkScheduleSummary() {
+    if (workScheduleDays.isEmpty()) {
+      return "No schedule set";
+    }
+
+    StringBuilder summary = new StringBuilder();
+    workScheduleDays.stream()
+        .filter(day -> !day.isOffDay())
+        .forEach(day -> {
+          if (summary.length() > 0) {
+            summary.append(", ");
+          }
+          summary.append(day.getDayOfWeek().name().substring(0, 3))
+              .append(" ")
+              .append(day.getStartTime())
+              .append("-")
+              .append(day.getEndTime());
+        });
+
+    return summary.length() > 0 ? summary.toString() : "All days off";
+  }
 }
