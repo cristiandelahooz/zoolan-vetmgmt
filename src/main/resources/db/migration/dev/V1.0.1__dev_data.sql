@@ -12,106 +12,155 @@
 -- =================================================================================================
 --  USERS TABLE - All users (employees and clients)
 -- =================================================================================================
-INSERT INTO users (username, password, email, first_name, last_name, phone_number, birth_date,
+INSERT INTO users (username, password, email, first_name, last_name,
+                   phone_number, birth_date,
                    gender,
-                   nationality, province, municipality, sector, street_address, reference_points,
+                   nationality, province, municipality, sector, street_address,
+                   reference_points,
                    active, created_at,
                    updated_at, system_role)
 VALUES
     -- Employees (Veterinarians and Staff) - 5 employees
-    ('vet.rodriguez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('vet.rodriguez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'rodriguez@zoolan.com', 'Carlos', 'Rodriguez', '8092223333', '1985-01-15',
-     'MASCULINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Naco', 'Calle Principal 123',
+     'MASCULINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Naco',
+     'Calle Principal 123',
      'Near the park',
      TRUE, NOW(), NOW(), 'USER'),
-    ('vet.martinez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('vet.martinez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'martinez@zoolan.com', 'Ana', 'Martinez', '8095556666', '1990-03-20',
-     'FEMENINO', 'Dominican', 'Santiago', 'Santiago de los Caballeros', 'Centro',
+     'FEMENINO', 'Dominican', 'Santiago', 'Santiago de los Caballeros',
+     'Centro',
      'Avenida Central 456',
      'Next to the bank', TRUE, NOW(), NOW(), 'USER'),
-    ('recep.gonzalez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('recep.gonzalez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'gonzalez@zoolan.com', 'Maria', 'Gonzalez', '8098889999', '1993-07-01',
-     'FEMENINO', 'Dominican', 'La Vega', 'Concepcion de La Vega', 'La Esmeralda',
+     'FEMENINO', 'Dominican', 'La Vega', 'Concepcion de La Vega',
+     'La Esmeralda',
      'Callejon Sin Nombre 789',
-     'Behind the church', TRUE, NOW(), NOW(), 'RECEPTIONIST'),
-    ('vet.sanchez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     'Behind the church', TRUE, NOW(), NOW(), 'USER'),
+    ('vet.sanchez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'sanchez@zoolan.com', 'Pedro', 'Sanchez', '8091112222', '1988-11-10',
-     'MASCULINO', 'Dominican', 'Puerto Plata', 'San Felipe de Puerto Plata', 'Costambar',
+     'MASCULINO', 'Dominican', 'Puerto Plata', 'San Felipe de Puerto Plata',
+     'Costambar',
      'Carretera Principal 101',
      'Near the beach', TRUE, NOW(), NOW(), 'USER'),
-    ('recep.diaz', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('recep.diaz',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'diaz@zoolan.com', 'Laura', 'Diaz', '8094445555',
-     '1995-02-28', 'FEMENINO', 'Dominican', 'San Cristobal', 'San Cristobal', 'Pueblo Nuevo',
-     'Callejon de la Paz 202', 'Near the school', TRUE, NOW(), NOW(), 'RECEPTIONIST'),
+     '1995-02-28', 'FEMENINO', 'Dominican', 'San Cristobal', 'San Cristobal',
+     'Pueblo Nuevo',
+     'Callejon de la Paz 202', 'Near the school', TRUE, NOW(), NOW(), 'USER'),
 
     -- Individual Clients (Personal) - 10 individual clients
-    ('juan.perez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('juan.perez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'juan.perez@gmail.com', 'Juan', 'Perez', '8297778888', '1998-09-05',
-     'MASCULINO', 'Dominican', 'La Romana', 'La Romana', 'Villa Hermosa', 'Avenida del Sol 303',
+     'MASCULINO', 'Dominican', 'La Romana', 'La Romana', 'Villa Hermosa',
+     'Avenida del Sol 303',
      'Frente al supermercado', TRUE, NOW(), NOW(), 'USER'),
-    ('maria.rodriguez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('maria.rodriguez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'maria.rodriguez@gmail.com', 'Maria', 'Rodriguez', '8290001111',
-     '1975-04-12', 'FEMENINO', 'Dominican', 'Duarte', 'San Francisco de Macoris', 'Los Rieles',
+     '1975-04-12', 'FEMENINO', 'Dominican', 'Duarte',
+     'San Francisco de Macoris', 'Los Rieles',
      'Callejon de la Luna 404', 'Al lado del río', TRUE, NOW(), NOW(), 'USER'),
-    ('pedro.garcia', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('pedro.garcia',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'pedro.garcia@gmail.com', 'Pedro', 'Garcia', '8293334444',
-     '1988-06-18', 'MASCULINO', 'Dominican', 'Espaillat', 'Moca', 'Salitre', 'Carretera Vieja 505',
+     '1988-06-18', 'MASCULINO', 'Dominican', 'Espaillat', 'Moca', 'Salitre',
+     'Carretera Vieja 505',
      'Cerca de la finca',
      TRUE, NOW(), NOW(), 'USER'),
-    ('ana.martinez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('ana.martinez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'ana.martinez@gmail.com', 'Ana', 'Martinez',
-     '8296667777', '1993-10-25', 'FEMENINO', 'Dominican', 'Peravia', 'Bani', 'El Fundo',
+     '8296667777', '1993-10-25', 'FEMENINO', 'Dominican', 'Peravia', 'Bani',
+     'El Fundo',
      'Calle Principal 606',
      'Cerca de la iglesia', TRUE, NOW(), NOW(), 'USER'),
-    ('carlos.lopez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('carlos.lopez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'carlos.lopez@gmail.com', 'Carlos', 'Lopez',
-     '8299990000', '1980-12-30', 'MASCULINO', 'Dominican', 'Azua', 'Azua de Compostela',
+     '8299990000', '1980-12-30', 'MASCULINO', 'Dominican', 'Azua',
+     'Azua de Compostela',
      'La Bombita',
-     'Avenida Central 707', 'Al lado de la escuela', TRUE, NOW(), NOW(), 'USER'),
-    ('lucia.hernandez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     'Avenida Central 707', 'Al lado de la escuela', TRUE, NOW(), NOW(),
+     'USER'),
+    ('lucia.hernandez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'lucia.hernandez@gmail.com', 'Lucia', 'Hernandez',
-     '8296666666', '1991-06-06', 'FEMENINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional',
+     '8296666666', '1991-06-06', 'FEMENINO', 'Dominican', 'Santo Domingo',
+     'Distrito Nacional',
      'Piantini',
-     'Calle Max Henriquez Ureña 45', 'Cerca del Acropolis', TRUE, NOW(), NOW(), 'USER'),
-    ('ramon.castillo', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     'Calle Max Henriquez Ureña 45', 'Cerca del Acropolis', TRUE, NOW(), NOW(),
+     'USER'),
+    ('ramon.castillo',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'ramon.castillo@gmail.com', 'Ramon', 'Castillo', '8297777777',
-     '1976-07-07', 'MASCULINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Ensanche Naco',
-     'Calle Rafael Augusto Sanchez 21', 'Edificio Plaza Naco', TRUE, NOW(), NOW(), 'USER'),
-    ('patricia.morales', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     '1976-07-07', 'MASCULINO', 'Dominican', 'Santo Domingo',
+     'Distrito Nacional', 'Ensanche Naco',
+     'Calle Rafael Augusto Sanchez 21', 'Edificio Plaza Naco', TRUE, NOW(),
+     NOW(), 'USER'),
+    ('patricia.morales',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'patricia.morales@gmail.com', 'Patricia', 'Morales',
-     '8298888888', '1994-08-08', 'FEMENINO', 'Dominican', 'Santo Domingo', 'Santo Domingo Este',
+     '8298888888', '1994-08-08', 'FEMENINO', 'Dominican', 'Santo Domingo',
+     'Santo Domingo Este',
      'Alma Rosa',
      'Calle Primera 123', 'Cerca del parque', TRUE, NOW(), NOW(), 'USER'),
-    ('fernando.gomez', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
-     'fernando.gomez@gmail.com', 'Fernando', 'Gomez', '8299999999', '1981-09-09',
-     'MASCULINO', 'Dominican', 'Santiago', 'Santiago de los Caballeros', 'Los Jardines',
+    ('fernando.gomez',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     'fernando.gomez@gmail.com', 'Fernando', 'Gomez', '8299999999',
+     '1981-09-09',
+     'MASCULINO', 'Dominican', 'Santiago', 'Santiago de los Caballeros',
+     'Los Jardines',
      'Av. 27 de Febrero 89', 'Plaza Internacional', TRUE, NOW(), NOW(), 'USER'),
-    ('sandra.diaz', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('sandra.diaz',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'sandra.diaz@gmail.com', 'Sandra', 'Diaz', '8290000000',
-     '1989-10-10', 'FEMENINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Bella Vista',
-     'Calle Dr. Delgado 156', 'Edificio Bella Vista Plaza', TRUE, NOW(), NOW(), 'USER'),
+     '1989-10-10', 'FEMENINO', 'Dominican', 'Santo Domingo',
+     'Distrito Nacional', 'Bella Vista',
+     'Calle Dr. Delgado 156', 'Edificio Bella Vista Plaza', TRUE, NOW(), NOW(),
+     'USER'),
 
     -- Company Clients (Empresariales) - Users who represent companies - 5 companies
-    ('admin.petworld', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('admin.petworld',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'admin@petworld.com.do', 'Roberto', 'Fernandez',
-     '8091111111', '1987-01-01', 'MASCULINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional',
+     '8091111111', '1987-01-01', 'MASCULINO', 'Dominican', 'Santo Domingo',
+     'Distrito Nacional',
      'Piantini',
-     'Av. Winston Churchill 1099', 'Torre Acrópolis, Piso 3', TRUE, NOW(), NOW(), 'USER'),
-    ('contacto.animalia', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     'Av. Winston Churchill 1099', 'Torre Acrópolis, Piso 3', TRUE, NOW(),
+     NOW(), 'USER'),
+    ('contacto.animalia',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'contacto@animalia.com.do', 'Carmen', 'Valdez',
-     '8092222222', '1992-02-02', 'FEMENINO', 'Dominican', 'Santiago', 'Santiago de los Caballeros',
+     '8092222222', '1992-02-02', 'FEMENINO', 'Dominican', 'Santiago',
+     'Santiago de los Caballeros',
      'Los Jardines',
      'Calle Del Sol 234', 'Plaza Bella Terra', TRUE, NOW(), NOW(), 'USER'),
-    ('gerente.mascotasfelices', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+    ('gerente.mascotasfelices',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'gerente@mascotasfelices.do', 'Luis', 'Mendez',
-     '8093333333', '1979-03-03', 'MASCULINO', 'Dominican', 'Santo Domingo', 'Santo Domingo Este',
+     '8093333333', '1979-03-03', 'MASCULINO', 'Dominican', 'Santo Domingo',
+     'Santo Domingo Este',
      'Ozama',
-     'Av. San Vicente de Paul 45', 'Megacentro, Local 12', TRUE, NOW(), NOW(), 'USER'),
-    ('admin.refugiopatitas', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     'Av. San Vicente de Paul 45', 'Megacentro, Local 12', TRUE, NOW(), NOW(),
+     'USER'),
+    ('admin.refugiopatitas',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'admin@refugiopatitas.org', 'Sofia', 'Ramirez', '8094444444',
-     '1996-04-04', 'FEMENINO', 'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Gazcue',
-     'Calle Mercedes 201', 'Cerca del parque Independencia', TRUE, NOW(), NOW(), 'USER'),
-    ('veterinaria.central', '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     '1996-04-04', 'FEMENINO', 'Dominican', 'Santo Domingo',
+     'Distrito Nacional', 'Gazcue',
+     'Calle Mercedes 201', 'Cerca del parque Independencia', TRUE, NOW(), NOW(),
+     'USER'),
+    ('veterinaria.central',
+     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
      'info@vetcentral.com.do', 'Miguel', 'Torres', '8095555555',
      '1983-05-05', 'MASCULINO', 'Dominican', 'La Romana', 'La Romana', 'Centro',
      'Calle Duarte 78', 'Frente al hospital', TRUE, NOW(), NOW(), 'USER');
@@ -121,11 +170,13 @@ VALUES
 -- =================================================================================================
 -- We need to get the generated user_ids for the employees
 -- Using a subquery to match by username
-INSERT INTO employee (employee_id, employee_role, salary, hire_date, available, work_schedule,
+INSERT INTO employee (employee_id, employee_role, salary, hire_date, available,
+                      work_schedule,
                       emergency_contact_name, emergency_contact_phone)
 SELECT u.user_id,
        CASE
-           WHEN u.username IN ('vet.rodriguez', 'vet.martinez', 'vet.sanchez') THEN 'VETERINARIAN'
+           WHEN u.username IN ('vet.rodriguez', 'vet.martinez', 'vet.sanchez')
+               THEN 'VETERINARIAN'
            ELSE 'RECEPTIONIST'
            END,
        CASE
@@ -165,8 +216,9 @@ SELECT u.user_id,
            WHEN u.username = 'recep.diaz' THEN '8094445555'
            END
 FROM users u
-WHERE
-    u.username IN ('vet.rodriguez', 'vet.martinez', 'vet.sanchez', 'recep.gonzalez', 'recep.diaz');
+WHERE u.username IN
+      ('vet.rodriguez', 'vet.martinez', 'vet.sanchez', 'recep.gonzalez',
+       'recep.diaz');
 
 -- =================================================================================================
 --  CLIENT TABLE - Individual and Company Clients
@@ -213,23 +265,28 @@ SELECT u.user_id,
        0.00, -- current_balance
        30,   -- payment_terms_days
        CASE
-           WHEN u.username = 'juan.perez' THEN 'Cliente frecuente, muy responsable'
+           WHEN u.username = 'juan.perez'
+               THEN 'Cliente frecuente, muy responsable'
            WHEN u.username = 'maria.rodriguez' THEN 'Siempre puntual'
            WHEN u.username = 'pedro.garcia' THEN 'Necesita recordatorios'
-           WHEN u.username = 'ana.martinez' THEN 'Prefiere veterinario específico'
+           WHEN u.username = 'ana.martinez'
+               THEN 'Prefiere veterinario específico'
            ELSE 'Cliente regular'
            END,
        CASE
-           WHEN u.username IN ('juan.perez', 'ana.martinez') THEN 'REFERIDO_CLIENTE'
+           WHEN u.username IN ('juan.perez', 'ana.martinez')
+               THEN 'REFERIDO_CLIENTE'
            WHEN u.username IN ('maria.rodriguez', 'pedro.garcia') THEN 'GOOGLE'
            ELSE 'REDES_SOCIALES'
            END,
        TRUE
 FROM users u
-WHERE
-    u.username IN ('juan.perez', 'maria.rodriguez', 'pedro.garcia', 'ana.martinez', 'carlos.lopez',
-                   'lucia.hernandez', 'ramon.castillo', 'patricia.morales', 'fernando.gomez',
-                   'sandra.diaz');
+WHERE u.username IN
+      ('juan.perez', 'maria.rodriguez', 'pedro.garcia', 'ana.martinez',
+       'carlos.lopez',
+       'lucia.hernandez', 'ramon.castillo', 'patricia.morales',
+       'fernando.gomez',
+       'sandra.diaz');
 
 -- Insert company clients (with RNC)
 INSERT INTO client (client_id, cedula, passport, rnc, company_name,
@@ -250,15 +307,19 @@ SELECT u.user_id,
        CASE
            WHEN u.username = 'admin.petworld' THEN 'Pet World S.R.L.'
            WHEN u.username = 'contacto.animalia' THEN 'Animalia Pet Shop'
-           WHEN u.username = 'gerente.mascotasfelices' THEN 'Mascotas Felices SRL'
-           WHEN u.username = 'admin.refugiopatitas' THEN 'Refugio Patitas Felices'
-           WHEN u.username = 'veterinaria.central' THEN 'Veterinaria Central EIRL'
+           WHEN u.username = 'gerente.mascotasfelices'
+               THEN 'Mascotas Felices SRL'
+           WHEN u.username = 'admin.refugiopatitas'
+               THEN 'Refugio Patitas Felices'
+           WHEN u.username = 'veterinaria.central'
+               THEN 'Veterinaria Central EIRL'
            END,
        'EMAIL', -- All companies prefer email
        CONCAT(u.first_name, ' ', u.last_name),
        u.phone_number,
        CASE
-           WHEN u.username IN ('admin.petworld', 'gerente.mascotasfelices') THEN 'MUY_BUENO'
+           WHEN u.username IN ('admin.petworld', 'gerente.mascotasfelices')
+               THEN 'MUY_BUENO'
            WHEN u.username = 'admin.refugiopatitas' THEN 'REGULAR'
            ELSE 'BUENO'
            END,
@@ -282,9 +343,12 @@ SELECT u.user_id,
        CASE
            WHEN u.username = 'admin.petworld'
                THEN 'Tienda de mascotas - cliente corporativo importante'
-           WHEN u.username = 'contacto.animalia' THEN 'Cadena de tiendas de mascotas'
-           WHEN u.username = 'gerente.mascotasfelices' THEN 'Centro de adopción y venta de mascotas'
-           WHEN u.username = 'admin.refugiopatitas' THEN 'ONG - descuento especial del 20%'
+           WHEN u.username = 'contacto.animalia'
+               THEN 'Cadena de tiendas de mascotas'
+           WHEN u.username = 'gerente.mascotasfelices'
+               THEN 'Centro de adopción y venta de mascotas'
+           WHEN u.username = 'admin.refugiopatitas'
+               THEN 'ONG - descuento especial del 20%'
            WHEN u.username = 'veterinaria.central'
                THEN 'Clínica veterinaria asociada - referidos mutuos'
            END,
@@ -297,37 +361,54 @@ SELECT u.user_id,
            END,
        TRUE
 FROM users u
-WHERE u.username IN ('admin.petworld', 'contacto.animalia', 'gerente.mascotasfelices',
-                     'admin.refugiopatitas', 'veterinaria.central');
+WHERE u.username IN
+      ('admin.petworld', 'contacto.animalia', 'gerente.mascotasfelices',
+       'admin.refugiopatitas', 'veterinaria.central');
 
 -- =================================================================================================
 --  PETS TABLE
 -- =================================================================================================
-INSERT INTO pets (name, type, breed, birth_date, gender, active, color, size, fur_type)
-VALUES ('Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE, 'Marrón', 'PEQUEÑO',
+INSERT INTO pets (name, type, breed, birth_date, gender, active, color, size,
+                  fur_type)
+VALUES ('Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE,
+        'Marrón', 'PEQUEÑO',
         'LARGO'),
-       ('Lucy', 'GATO', 'Persa', '2021-01-15', 'FEMENINO', TRUE, 'Blanco', 'MEDIANO', 'LARGO'),
-       ('Max', 'PERRO', 'Golden Retriever', '2019-11-22', 'MASCULINO', TRUE, 'Dorado', 'GRANDE',
+       ('Lucy', 'GATO', 'Persa', '2021-01-15', 'FEMENINO', TRUE, 'Blanco',
+        'MEDIANO', 'LARGO'),
+       ('Max', 'PERRO', 'Golden Retriever', '2019-11-22', 'MASCULINO', TRUE,
+        'Dorado', 'GRANDE',
         'LARGO'),
-       ('Bella', 'PERRO', 'Pastor Alemán', '2022-08-01', 'FEMENINO', TRUE, 'Negro y fuego',
+       ('Bella', 'PERRO', 'Pastor Alemán', '2022-08-01', 'FEMENINO', TRUE,
+        'Negro y fuego',
         'GRANDE', 'CORTO'),
-       ('Rocky', 'PERRO', 'Bulldog Francés', '2018-03-12', 'MASCULINO', TRUE, 'Gris', 'MEDIANO',
+       ('Rocky', 'PERRO', 'Bulldog Francés', '2018-03-12', 'MASCULINO', TRUE,
+        'Gris', 'MEDIANO',
         'CORTO'),
-       ('Misty', 'GATO', 'Persa', '2022-09-20', 'FEMENINO', TRUE, 'Gris claro', 'MEDIANO', 'LARGO'),
-       ('Duke', 'PERRO', 'Poodle', '2021-07-11', 'MASCULINO', TRUE, 'Blanco', 'MEDIANO', 'LARGO'),
-       ('Coco', 'GATO', 'Persa', '2023-01-05', 'FEMENINO', TRUE, 'Beige', 'MEDIANO', 'LARGO'),
-       ('Zeus', 'PERRO', 'Rottweiler', '2020-02-28', 'MASCULINO', TRUE, 'Negro y fuego', 'GRANDE',
+       ('Misty', 'GATO', 'Persa', '2022-09-20', 'FEMENINO', TRUE, 'Gris claro',
+        'MEDIANO', 'LARGO'),
+       ('Duke', 'PERRO', 'Poodle', '2021-07-11', 'MASCULINO', TRUE, 'Blanco',
+        'MEDIANO', 'LARGO'),
+       ('Coco', 'GATO', 'Persa', '2023-01-05', 'FEMENINO', TRUE, 'Beige',
+        'MEDIANO', 'LARGO'),
+       ('Zeus', 'PERRO', 'Rottweiler', '2020-02-28', 'MASCULINO', TRUE,
+        'Negro y fuego', 'GRANDE',
         'CORTO'),
-       ('Sasha', 'PERRO', 'Yorkshire Terrier', '2022-11-15', 'FEMENINO', TRUE, 'Marrón', 'PEQUEÑO',
+       ('Sasha', 'PERRO', 'Yorkshire Terrier', '2022-11-15', 'FEMENINO', TRUE,
+        'Marrón', 'PEQUEÑO',
         'LARGO'),
        -- Pets for company clients
-       ('Rex', 'PERRO', 'Labrador', '2021-03-20', 'MASCULINO', TRUE, 'Negro', 'GRANDE', 'CORTO'),
-       ('Luna', 'GATO', 'Siamés', '2022-06-15', 'FEMENINO', TRUE, 'Crema', 'MEDIANO', 'CORTO'),
-       ('Charlie', 'PERRO', 'Beagle', '2020-09-10', 'MASCULINO', TRUE, 'Tricolor', 'MEDIANO',
+       ('Rex', 'PERRO', 'Labrador', '2021-03-20', 'MASCULINO', TRUE, 'Negro',
+        'GRANDE', 'CORTO'),
+       ('Luna', 'GATO', 'Siamés', '2022-06-15', 'FEMENINO', TRUE, 'Crema',
+        'MEDIANO', 'CORTO'),
+       ('Charlie', 'PERRO', 'Beagle', '2020-09-10', 'MASCULINO', TRUE,
+        'Tricolor', 'MEDIANO',
         'CORTO'),
-       ('Simba', 'GATO', 'Maine Coon', '2019-12-01', 'MASCULINO', TRUE, 'Atigrado', 'GRANDE',
+       ('Simba', 'GATO', 'Maine Coon', '2019-12-01', 'MASCULINO', TRUE,
+        'Atigrado', 'GRANDE',
         'LARGO'),
-       ('Daisy', 'PERRO', 'Cocker Spaniel', '2021-07-22', 'FEMENINO', TRUE, 'Dorado', 'MEDIANO',
+       ('Daisy', 'PERRO', 'Cocker Spaniel', '2021-07-22', 'FEMENINO', TRUE,
+        'Dorado', 'MEDIANO',
         'LARGO');
 
 -- =================================================================================================
@@ -337,12 +418,18 @@ VALUES ('Milo', 'PERRO', 'Yorkshire Terrier', '2020-05-10', 'MASCULINO', TRUE, '
 INSERT INTO pet_owners (owners, pet_id)
 SELECT c.client_id,
        p.id
-FROM (SELECT client_id FROM client WHERE rnc IS NULL ORDER BY client_id LIMIT 10) c
+FROM (SELECT client_id
+      FROM client
+      WHERE rnc IS NULL
+      ORDER BY client_id
+      LIMIT 10) c
          CROSS JOIN LATERAL
     (SELECT id
      FROM pets
      ORDER BY id
-     LIMIT 1 OFFSET ((c.client_id - (SELECT MIN(client_id) FROM client WHERE rnc IS NULL)) % 10)) p;
+     LIMIT 1 OFFSET (
+         (c.client_id - (SELECT MIN(client_id) FROM client WHERE rnc IS NULL)) %
+         10)) p;
 
 -- Assign pets to company clients (companies can have multiple pets)
 INSERT INTO pet_owners (owners, pet_id)
@@ -353,13 +440,16 @@ FROM (SELECT client_id FROM client WHERE rnc IS NOT NULL) c
     (SELECT id
      FROM pets
      ORDER BY id DESC
-     LIMIT 3 OFFSET ((c.client_id - (SELECT MIN(client_id) FROM client WHERE rnc IS NOT NULL)) %
+     LIMIT 3 OFFSET ((c.client_id - (SELECT MIN(client_id)
+                                     FROM client
+                                     WHERE rnc IS NOT NULL)) %
                      5)) p;
 
 -- =================================================================================================
 --  SUPPLIERS TABLE
 -- =================================================================================================
-INSERT INTO suppliers (rnc, company_name, contact_person, contact_phone, contact_email,
+INSERT INTO suppliers (rnc, company_name, contact_person, contact_phone,
+                       contact_email,
                        province, municipality, sector, street_address, active)
 VALUES ('12345678900', 'Pets & Suppliers Co.', 'John Doe', '8091234567',
         'johndoe@petsuppliers.com', 'Santo Domingo', 'Santo Domingo Este',
@@ -390,8 +480,10 @@ VALUES ('Almacén Principal', 'PRINCIPAL', TRUE, TRUE),
 -- =================================================================================================
 --  PRODUCTS TABLE
 -- =================================================================================================
-INSERT INTO products (name, description, active, purchase_price, sales_price, accounting_stock,
-                      available_stock, reorder_level, supplier, category, warehouse)
+INSERT INTO products (name, description, active, purchase_price, sales_price,
+                      accounting_stock,
+                      available_stock, reorder_level, supplier, category,
+                      warehouse)
 SELECT p.name,
        p.description,
        p.active,
@@ -403,44 +495,64 @@ SELECT p.name,
        s.supplier_id,
        p.category,
        w.id
-FROM (VALUES ('Premium Dog Food', 'High-quality dry food for adult dogs', TRUE, 1200.00, 1500.00,
+FROM (VALUES ('Premium Dog Food', 'High-quality dry food for adult dogs', TRUE,
+              1200.00, 1500.00,
               100, 80, 20, 1, 'ALIMENTO', 1),
-             ('High Protein Cat Food', 'Nutritious wet food for cats', TRUE, 900.00, 1200.00, 200,
+             ('High Protein Cat Food', 'Nutritious wet food for cats', TRUE,
+              900.00, 1200.00, 200,
               180, 30, 1, 'ALIMENTO', 1),
-             ('Healthy Dog Treats', 'Natural training treats for dogs', TRUE, 350.00, 500.00, 300,
+             ('Healthy Dog Treats', 'Natural training treats for dogs', TRUE,
+              350.00, 500.00, 300,
               250, 50, 2, 'ALIMENTO', 2),
-             ('Crunchy Cat Treats', 'Dental health treats for cats', TRUE, 250.00, 400.00, 250, 200,
+             ('Crunchy Cat Treats', 'Dental health treats for cats', TRUE,
+              250.00, 400.00, 250, 200,
               40, 2, 'ALIMENTO', 2),
-             ('Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin', TRUE, 500.00,
+             ('Gentle Dog Shampoo', 'Hypoallergenic shampoo for sensitive skin',
+              TRUE, 500.00,
               800.00, 150, 120, 25, 3, 'HIGIENE', 3),
-             ('Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE, 400.00, 700.00, 180,
+             ('Soothing Cat Shampoo', 'Moisturizing shampoo for cats', TRUE,
+              400.00, 700.00, 180,
               150, 30, 3, 'HIGIENE', 3),
-             ('Durable Dog Collar', 'Adjustable nylon collar for medium dogs', TRUE, 350.00, 600.00,
+             ('Durable Dog Collar', 'Adjustable nylon collar for medium dogs',
+              TRUE, 350.00, 600.00,
               120, 100, 20, 4, 'ACCESORIO', 4),
-             ('Stylish Cat Collar', 'Decorative collar with bell for cats', TRUE, 300.00, 550.00,
+             ('Stylish Cat Collar', 'Decorative collar with bell for cats',
+              TRUE, 300.00, 550.00,
               130, 110, 25, 4, 'ACCESORIO', 4),
-             ('Strong Dog Leash', 'Retractable leash for large dogs', TRUE, 600.00, 900.00, 110, 90,
+             ('Strong Dog Leash', 'Retractable leash for large dogs', TRUE,
+              600.00, 900.00, 110, 90,
               15, 5, 'ACCESORIO', 4),
-             ('Clumping Cat Litter', 'Odor-control clumping litter', TRUE, 200.00, 300.00, 400, 350,
+             ('Clumping Cat Litter', 'Odor-control clumping litter', TRUE,
+              200.00, 300.00, 400, 350,
               60, 5, 'HIGIENE', 3),
-             ('Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE, 1800.00, 2500.00,
+             ('Antibiotic Tablets', 'Broad-spectrum antibiotics for pets', TRUE,
+              1800.00, 2500.00,
               50, 40, 10, 1, 'MEDICINA', 5),
-             ('Flea Treatment', 'Monthly flea prevention for dogs and cats', TRUE, 1200.00, 1800.00,
+             ('Flea Treatment', 'Monthly flea prevention for dogs and cats',
+              TRUE, 1200.00, 1800.00,
               75, 60, 15, 2, 'MEDICINA', 5),
-             ('Pet Vitamins', 'Daily multivitamin supplements', TRUE, 800.00, 1200.00, 100, 80, 20,
+             ('Pet Vitamins', 'Daily multivitamin supplements', TRUE, 800.00,
+              1200.00, 100, 80, 20,
               3, 'MEDICINA', 5),
-             ('Dental Chews', 'Tartar control chews for dogs', TRUE, 400.00, 650.00, 200, 170, 35,
+             ('Dental Chews', 'Tartar control chews for dogs', TRUE, 400.00,
+              650.00, 200, 170, 35,
               4, 'HIGIENE', 3),
-             ('Pet Carrier', 'Airline-approved pet travel carrier', TRUE, 2500.00, 3500.00, 25, 20,
-              5, 5, 'ACCESORIO', 4)) AS p(name, description, active, purchase_price, sales_price,
-                                          accounting_stock, available_stock, reorder_level,
+             ('Pet Carrier', 'Airline-approved pet travel carrier', TRUE,
+              2500.00, 3500.00, 25, 20,
+              5, 5, 'ACCESORIO', 4)) AS p(name, description, active,
+                                          purchase_price, sales_price,
+                                          accounting_stock, available_stock,
+                                          reorder_level,
                                           supplier_idx, category, warehouse_idx)
          JOIN suppliers s ON s.supplier_id = (SELECT supplier_id
                                               FROM suppliers
                                               ORDER BY supplier_id
                                               LIMIT 1 OFFSET p.supplier_idx - 1)
          JOIN warehouses w
-              ON w.id = (SELECT id FROM warehouses ORDER BY id LIMIT 1 OFFSET p.warehouse_idx - 1);
+              ON w.id = (SELECT id
+                         FROM warehouses
+                         ORDER BY id
+                         LIMIT 1 OFFSET p.warehouse_idx - 1);
 
 -- =================================================================================================
 --  MEDICAL HISTORIES TABLE
@@ -525,7 +637,8 @@ LIMIT 10;
 -- =================================================================================================
 --  WAITING ROOM TABLE
 -- =================================================================================================
-INSERT INTO waiting_room (client, pet, arrival_time, status, reason_for_visit, priority, notes,
+INSERT INTO waiting_room (client, pet, arrival_time, status, reason_for_visit,
+                          priority, notes,
                           consultation_started_at, completed_at)
 SELECT po.owners,
        po.pet_id,
@@ -549,7 +662,8 @@ SELECT po.owners,
            END,
        'Paciente en sala de espera',
        CASE
-           WHEN (ROW_NUMBER() OVER () % 3) = 1 THEN NOW() - (INTERVAL '30 minutes')
+           WHEN (ROW_NUMBER() OVER () % 3) = 1
+               THEN NOW() - (INTERVAL '30 minutes')
            ELSE NULL
            END,
        NULL
@@ -588,7 +702,8 @@ SELECT c.client_id,
            END,
        0.00,
        CASE
-           WHEN c.company_name = 'Refugio Patitas Felices' THEN 'Factura con descuento especial ONG'
+           WHEN c.company_name = 'Refugio Patitas Felices'
+               THEN 'Factura con descuento especial ONG'
            ELSE 'Factura cliente corporativo'
            END,
        'admin',
@@ -603,7 +718,8 @@ LIMIT 3;
 --  INVOICE_PRODUCT TABLE
 -- =================================================================================================
 INSERT INTO invoice_product (invoice, product, quantity, price, amount,
-                             created_by, created_date, last_modified_by, last_modified_date)
+                             created_by, created_date, last_modified_by,
+                             last_modified_date)
 SELECT i.code,
        p.product_id,
        CASE (ROW_NUMBER() OVER (PARTITION BY i.code) % 3)
@@ -627,11 +743,14 @@ FROM invoices i
 -- =================================================================================================
 --  APPOINTMENTS TABLE
 -- =================================================================================================
-INSERT INTO appointments (start_appointment_date, end_appointment_date, service_type, status,
-                          reason, notes, client_id, pet_id, employee_id, created_at,
+INSERT INTO appointments (start_appointment_date, end_appointment_date,
+                          service_type, status,
+                          reason, notes, client_id, pet_id, employee_id,
+                          created_at,
                           updated_at, created_by, updated_by)
 SELECT NOW() + (INTERVAL '1 day' * (ROW_NUMBER() OVER ())),
-       NOW() + (INTERVAL '1 day' * (ROW_NUMBER() OVER ())) + INTERVAL '30 minutes',
+       NOW() + (INTERVAL '1 day' * (ROW_NUMBER() OVER ())) +
+       INTERVAL '30 minutes',
        CASE (ROW_NUMBER() OVER () % 4)
            WHEN 0 THEN 'CONSULTA'
            WHEN 1 THEN 'VACUNACION'
@@ -667,8 +786,10 @@ LIMIT 10;
 -- =================================================================================================
 --  PAYMENTS TABLE
 -- =================================================================================================
-INSERT INTO payments (payment_date, total_amount, method, status, reference_number, notes,
-                      created_by, created_date, last_modified_by, last_modified_date)
+INSERT INTO payments (payment_date, total_amount, method, status,
+                      reference_number, notes,
+                      created_by, created_date, last_modified_by,
+                      last_modified_date)
 SELECT CURRENT_DATE - (INTERVAL '1 day' * (ROW_NUMBER() OVER ())),
        CASE (ROW_NUMBER() OVER () % 3)
            WHEN 0 THEN 500.00
@@ -694,7 +815,8 @@ FROM generate_series(1, 5);
 --  PAYMENTS_DETAIL TABLE
 -- =================================================================================================
 INSERT INTO payments_detail (payment, invoice, amount,
-                             created_by, created_date, last_modified_by, last_modified_date)
+                             created_by, created_date, last_modified_by,
+                             last_modified_date)
 SELECT p.code,
        i.code,
        LEAST(p.total_amount, i.total),
