@@ -3,12 +3,15 @@ package com.wornux.dto.request;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.Gender;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.wornux.constants.ValidationConstants.*;
 
@@ -50,7 +53,6 @@ public class EmployeeUpdateRequestDto {
     @NotBlank(message = "La dirección es requerida")
     private String streetAddress;
 
-
     @NotNull(message = "Employee role is required")
     private EmployeeRole employeeRole;
 
@@ -61,12 +63,19 @@ public class EmployeeUpdateRequestDto {
     @NotNull(message = "Hire date is required")
     private LocalDate hireDate;
 
-    @NotBlank(message = "Work schedule is required")
-    private String workSchedule;
+    
+
+    // New structured work schedule
+    @Valid
+    private List<WorkScheduleDayDto> workScheduleDays = new ArrayList<>();
 
     @Nullable
     private String emergencyContactName;
 
     @Nullable
     private String emergencyContactPhone;
+
+    public EmployeeUpdateRequestDto() {
+        this.workScheduleDays = new ArrayList<>();
+    }
 }
