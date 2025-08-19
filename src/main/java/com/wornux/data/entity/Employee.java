@@ -1,8 +1,8 @@
 package com.wornux.data.entity;
 
 import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.Gender;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
@@ -24,6 +24,10 @@ import org.jspecify.annotations.Nullable;
 @AllArgsConstructor
 @Audited(withModifiedFlag = true)
 public class Employee extends User {
+
+  @Column(name = "gender")
+  @Enumerated(EnumType.STRING)
+  private Gender gender;
 
   @Column(name = "employee_role")
   @Enumerated(EnumType.STRING)
@@ -59,29 +63,4 @@ public class Employee extends User {
   @Column(name = "emergency_contact_phone")
   @Nullable
   private String emergencyContactPhone;
-
-  /**
-   * Returns a formatted summary of the work schedule
-   */
-  public String getWorkScheduleSummary() {
-    if (workScheduleDays.isEmpty()) {
-      return "No schedule set";
-    }
-
-    StringBuilder summary = new StringBuilder();
-    workScheduleDays.stream()
-        .filter(day -> !day.isOffDay())
-        .forEach(day -> {
-          if (summary.length() > 0) {
-            summary.append(", ");
-          }
-          summary.append(day.getDayOfWeek().name().substring(0, 3))
-              .append(" ")
-              .append(day.getStartTime())
-              .append("-")
-              .append(day.getEndTime());
-        });
-
-    return summary.length() > 0 ? summary.toString() : "All days off";
-  }
 }
