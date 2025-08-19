@@ -270,7 +270,7 @@ CREATE TABLE invoices_log
     consultation_mod        BOOLEAN,
     consultation_notes      VARCHAR(1000),
     consultation_notes_mod  BOOLEAN,
-    services_mod             BOOLEAN,
+    services_mod            BOOLEAN,
     payment_details_mod     BOOLEAN,
     issued_date             date,
     issued_date_mod         BOOLEAN,
@@ -783,6 +783,20 @@ CREATE TABLE invoice_services_log
     CONSTRAINT pk_invoice_services_log PRIMARY KEY (rev, id)
 );
 
+CREATE TABLE employee_work_schedule
+(
+    id          SERIAL PRIMARY KEY,
+    employee_id BIGINT      NOT NULL,
+    day_of_week VARCHAR(10) NOT NULL,
+    start_time  TIME,
+    end_time    TIME,
+    is_off_day  BOOLEAN DEFAULT FALSE,
+    CONSTRAINT fk_employee_work_schedule_employee
+        FOREIGN KEY (employee_id) REFERENCES employee (employee_id),
+    CONSTRAINT unique_employee_day
+        UNIQUE (employee_id, day_of_week)
+);
+
 
 ALTER TABLE client_log
     ADD CONSTRAINT pk_client_log PRIMARY KEY (client_id, rev);
@@ -962,5 +976,6 @@ ALTER TABLE invoice_services
 ALTER TABLE invoice_services
     ADD CONSTRAINT FK_INVOICE_SERVICES_ON_SERVICE FOREIGN KEY (service) REFERENCES services (id);
 
-ALTER TABLE invoices ADD CONSTRAINT FK_INVOICES_ON_CONSULTATION
-    FOREIGN KEY (consultation) REFERENCES consultations (id);
+ALTER TABLE invoices
+    ADD CONSTRAINT FK_INVOICES_ON_CONSULTATION
+        FOREIGN KEY (consultation) REFERENCES consultations (id);
