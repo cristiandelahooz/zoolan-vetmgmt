@@ -9,6 +9,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -27,7 +28,6 @@ import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.details.Details;
 import com.wornux.data.entity.Employee;
-import com.wornux.data.entity.WorkScheduleDay;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.Gender;
 import com.wornux.dto.request.EmployeeCreateRequestDto;
@@ -408,14 +408,11 @@ public class EmployeeForm extends Dialog {
         }
 
         try {
-            if (validationBean.getUsername() == null || validationBean.getUsername().trim().isEmpty()) {
-                NotificationUtils.error("El nombre de usuario es requerido");
+            if (isNullOrEmpty(validationBean.getUsername(), "El nombre de usuario es requerido")) {
                 username.focus();
                 return;
             }
-
-            if (validationBean.getPassword() == null || validationBean.getPassword().trim().isEmpty()) {
-                NotificationUtils.error("La contraseña es requerida");
+            if (isNullOrEmpty(validationBean.getPassword(), "La contraseña es requerida")){
                 password.focus();
                 return;
             }
@@ -425,28 +422,7 @@ public class EmployeeForm extends Dialog {
                 validationBean.getFirstName(),
                 validationBean.getLastName());
 
-            EmployeeCreateRequestDto dto = EmployeeCreateRequestDto.builder()
-                .username(validationBean.getUsername().trim())
-                .password(validationBean.getPassword())
-                .firstName(validationBean.getFirstName() != null ? validationBean.getFirstName().trim() : null)
-                .lastName(validationBean.getLastName() != null ? validationBean.getLastName().trim() : null)
-                .email(validationBean.getEmail() != null ? validationBean.getEmail().trim() : null)
-                .phoneNumber(validationBean.getPhoneNumber() != null ? validationBean.getPhoneNumber().trim() : null)
-                .birthDate(validationBean.getBirthDate())
-                .gender(validationBean.getGender())
-                .nationality(validationBean.getNationality() != null ? validationBean.getNationality().trim() : null)
-                .province(validationBean.getProvince() != null ? validationBean.getProvince().trim() : null)
-                .municipality(validationBean.getMunicipality() != null ? validationBean.getMunicipality().trim() : null)
-                .sector(validationBean.getSector() != null ? validationBean.getSector().trim() : null)
-                .streetAddress(validationBean.getStreetAddress() != null ? validationBean.getStreetAddress().trim() : null)
-                .employeeRole(validationBean.getEmployeeRole())
-                .salary(validationBean.getSalary())
-                .hireDate(validationBean.getHireDate())
-                
-                .workScheduleDays(new ArrayList<>(workScheduleDays))
-                .emergencyContactName(validationBean.getEmergencyContactName() != null ? validationBean.getEmergencyContactName().trim() : null)
-                .emergencyContactPhone(validationBean.getEmergencyContactPhone() != null ? validationBean.getEmergencyContactPhone().trim() : null)
-                .build();
+            EmployeeCreateRequestDto dto = buildEmployeeCreateRequestDto();
 
             employeeService.save(dto);
             NotificationUtils.success("Empleado creado exitosamente");
@@ -468,6 +444,41 @@ public class EmployeeForm extends Dialog {
         }
     }
 
+    private boolean isNullOrEmpty(String value, String errorMessage) {
+        if (value == null || value.trim().isEmpty()) {
+            NotificationUtils.error(errorMessage);
+            return true;
+        }
+        return false;
+    }
+
+    private EmployeeCreateRequestDto buildEmployeeCreateRequestDto() {
+        return EmployeeCreateRequestDto.builder()
+            .username(validationBean.getUsername().trim())
+            .password(validationBean.getPassword())
+            .firstName(trimOrNull(validationBean.getFirstName()))
+            .lastName(trimOrNull(validationBean.getLastName()))
+            .email(trimOrNull(validationBean.getEmail()))
+            .phoneNumber(trimOrNull(validationBean.getPhoneNumber()))
+            .birthDate(validationBean.getBirthDate())
+            .gender(validationBean.getGender())
+            .nationality(trimOrNull(validationBean.getNationality()))
+            .province(trimOrNull(validationBean.getProvince()))
+            .municipality(trimOrNull(validationBean.getMunicipality()))
+            .sector(trimOrNull(validationBean.getSector()))
+            .streetAddress(trimOrNull(validationBean.getStreetAddress()))
+            .employeeRole(validationBean.getEmployeeRole())
+            .salary(validationBean.getSalary())
+            .hireDate(validationBean.getHireDate())
+            .workScheduleDays(new ArrayList<>(workScheduleDays))
+            .emergencyContactName(trimOrNull(validationBean.getEmergencyContactName()))
+            .emergencyContactPhone(trimOrNull(validationBean.getEmergencyContactPhone()))
+            .build();
+    }
+
+    private String trimOrNull(String value) {
+        return value != null ? value.trim() : null;
+    }
 
     public void openForNew() {
         isEditMode = false;
@@ -478,7 +489,6 @@ public class EmployeeForm extends Dialog {
         updateHeaderTitle("Nuevo Empleado");
         clearForm();
 
-        // Initialize default schedule
         initializeDefaultSchedule();
         scheduleGrid.getDataProvider().refreshAll();
 
@@ -490,20 +500,6 @@ public class EmployeeForm extends Dialog {
 
         firstName.focus();
         open();
-    }
-
-    public String getWorkScheduleSummary() {
-        if (workScheduleDays.isEmpty()) {
-            return "No schedule set";
-        }
-
-        String summary = workScheduleDays.stream()
-            .filter(day -> !day.isOffDay())
-            .map(day -> day.getDayOfWeek().name().substring(0, 3) +
-                " " + day.getStartTime() + "-" + day.getEndTime())
-            .collect(Collectors.joining(", "));
-
-        return summary.isEmpty() ? "All days off" : summary;
     }
 
     public void openForEdit(Employee employee) {
@@ -518,7 +514,6 @@ public class EmployeeForm extends Dialog {
 
         populateForm(employee);
 
-        // Load employee's schedule
         loadEmployeeSchedule(employee);
 
         EmployeeUpdateRequestDto updateDto = createUpdateDtoFromEmployee(employee);
@@ -715,7 +710,8 @@ public class EmployeeForm extends Dialog {
 
     private Details createScheduleSection() {
         Details scheduleDetails = new Details("Horario de Trabajo Detallado", createScheduleContent());
-        scheduleDetails.setOpened(false);
+        scheduleDetails.setOpened(true);
+        scheduleDetails.setHeightFull();
         return scheduleDetails;
     }
 
@@ -758,12 +754,10 @@ public class EmployeeForm extends Dialog {
         return dto;
     }
 
-    // Actualiza el método loadEmployeeSchedule
     private void loadEmployeeSchedule(Employee employee) {
         workScheduleDays.clear();
 
         if (employee.getWorkScheduleDays() != null && !employee.getWorkScheduleDays().isEmpty()) {
-            // Cargar desde la entidad Employee
             List<WorkScheduleDayDto> scheduleDtos = employee.getWorkScheduleDays().stream()
                 .map(day -> WorkScheduleDayDto.builder()
                     .dayOfWeek(day.getDayOfWeek())
@@ -774,14 +768,12 @@ public class EmployeeForm extends Dialog {
                 .toList();
             workScheduleDays.addAll(scheduleDtos);
         } else {
-            // Inicializar horario por defecto si no existe
             initializeDefaultSchedule();
         }
 
         scheduleGrid.getDataProvider().refreshAll();
     }
 
-    // Corrige el método saveUpdate para manejar correctamente los horarios
     private void saveUpdate() {
         if (!binderUpdate.validate().isOk()) {
             NotificationUtils.error("Por favor, corrija los errores en el formulario");
@@ -791,7 +783,6 @@ public class EmployeeForm extends Dialog {
         try {
             EmployeeUpdateRequestDto updateDto = binderUpdate.getBean();
 
-            // Asegurar que los workScheduleDays están actualizados
             updateDto.setWorkScheduleDays(new ArrayList<>(workScheduleDays));
 
             employeeService.updateEmployee(currentEmployee.getId(), updateDto);
@@ -810,7 +801,6 @@ public class EmployeeForm extends Dialog {
         }
     }
 
-    // Agrega estos métodos para completar la funcionalidad del horario
     private void initializeDefaultSchedule() {
         workScheduleDays.clear();
         for (DayOfWeek day : DayOfWeek.values()) {
@@ -822,26 +812,6 @@ public class EmployeeForm extends Dialog {
                 .build();
             workScheduleDays.add(scheduleDay);
         }
-    }
-    private TimePicker createEndTimeField(WorkScheduleDayDto day) {
-        TimePicker endTime = new TimePicker();
-        endTime.setValue(day.getEndTime());
-        endTime.setEnabled(!day.isOffDay());
-        endTime.addValueChangeListener(e -> {
-            day.setEndTime(e.getValue());
-            validateTimeRange(day);
-        });
-        return endTime;
-    }
-
-    private Checkbox createOffDayCheckbox(WorkScheduleDayDto day) {
-        Checkbox offDay = new Checkbox();
-        offDay.setValue(day.isOffDay());
-        offDay.addValueChangeListener(e -> {
-            day.setOffDay(e.getValue());
-            scheduleGrid.getDataProvider().refreshItem(day);
-        });
-        return offDay;
     }
 
     private void setupScheduleGrid() {
@@ -858,7 +828,7 @@ public class EmployeeForm extends Dialog {
             offDayCheckbox.setValue(day.isOffDay());
             offDayCheckbox.addValueChangeListener(e -> {
                 day.setOffDay(e.getValue());
-                if (e.getValue()) {
+                if (Boolean.TRUE.equals(e.getValue())) {
                     day.setStartTime(null);
                     day.setEndTime(null);
                 }
@@ -873,7 +843,7 @@ public class EmployeeForm extends Dialog {
             startTimePicker.setValue(day.getStartTime());
             startTimePicker.setEnabled(!day.isOffDay());
             return startTimePicker;
-        }).setHeader("Hora Inicio").setAutoWidth(true);
+        }).setHeader("Hora Inicio").setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
 
         // Columna para hora de fin
         scheduleGrid.addComponentColumn(day -> {
@@ -882,10 +852,9 @@ public class EmployeeForm extends Dialog {
             endTimePicker.setEnabled(!day.isOffDay());
             endTimePicker.addValueChangeListener(e -> day.setEndTime(e.getValue()));
             return endTimePicker;
-        }).setHeader("Hora Fin").setAutoWidth(true);
+        }).setHeader("Hora Fin").setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
 
         scheduleGrid.setItems(workScheduleDays);
-        scheduleGrid.setHeight("300px");
     }
 
     private TimePicker createStartTimeField(WorkScheduleDayDto day) {
@@ -947,12 +916,6 @@ public class EmployeeForm extends Dialog {
             day.setEndTime(null);
         });
         scheduleGrid.getDataProvider().refreshAll();
-    }
-
-    private void validateTimeRange(WorkScheduleDayDto day) {
-        if (!day.isValidTimeRange() && !day.isOffDay()) {
-            NotificationUtils.error("Hora de inicio debe ser menor que hora de fin para " + day.getDayOfWeek());
-        }
     }
 
     public void addEmployeeSavedListener(Consumer<EmployeeCreateRequestDto> listener) {
