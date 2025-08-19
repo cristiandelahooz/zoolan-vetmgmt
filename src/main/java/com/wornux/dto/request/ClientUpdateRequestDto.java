@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
-import com.wornux.data.enums.Gender;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import static com.wornux.constants.ValidationConstants.*;
@@ -32,8 +31,6 @@ public class ClientUpdateRequestDto {
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
   private LocalDate birthDate;
-
-  private Gender gender;
 
   private String nationality;
 
