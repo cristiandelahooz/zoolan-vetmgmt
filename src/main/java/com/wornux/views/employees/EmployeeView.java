@@ -34,15 +34,12 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
-import com.vaadin.flow.component.timepicker.TimePicker;
-import com.vaadin.flow.component.checkbox.Checkbox;
 
 @Slf4j
 @Route(value = "empleados")
@@ -121,9 +118,10 @@ public class EmployeeView extends Div {
         grid.addComponentColumn(employee -> {
             Button detailButton = new Button("Ver Horario");
             detailButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+            detailButton.getElement().setAttribute("text-align", "center");
             detailButton.addClickListener(e -> showDetailedSchedule(employee));
             return detailButton;
-        }).setHeader("Detalle").setWidth("120px").setFlexGrow(0);
+        }).setHeader("Horarios").setWidth("120px").setTextAlign(ColumnTextAlign.CENTER);
 
         // Add actions column
         grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
