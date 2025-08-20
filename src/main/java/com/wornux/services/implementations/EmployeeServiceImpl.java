@@ -4,7 +4,6 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.data.entity.Employee;
-import com.wornux.data.entity.WorkScheduleDay;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.dto.request.EmployeeCreateRequestDto;
@@ -30,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,9 +115,9 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
 
     @Transactional(readOnly = true)
     @Override
-    public List<Employee> getAllAvailableEmployees() {
-        log.debug("Request to get all available employees");
-        return employeeRepository.findByAvailableTrue();
+    public Page<Employee> getAllAvailableEmployees(Specification<Employee> spec, Pageable pageable) {
+        log.debug("Request to get all available employees with filter and pagination");
+        return employeeRepository.findAllAvailable(spec, pageable);
     }
 
     @Transactional
