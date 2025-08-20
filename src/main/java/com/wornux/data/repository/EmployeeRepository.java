@@ -60,6 +60,12 @@ public interface EmployeeRepository
   List<Employee> findAvailableVeterinarians();
 
   /**
+   * Finds all employees with availability.
+   */
+  @Query("SELECT e FROM Employee e WHERE e.available = true")
+  List<Employee> findByAvailableTrue();
+
+  /**
    * Finds all employees by salary range.
    */
   Page<Employee> findBySalaryBetween(Double minSalary, Double maxSalary, Pageable pageable);
