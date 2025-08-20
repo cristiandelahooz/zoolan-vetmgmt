@@ -30,6 +30,7 @@ public class SelectOwnerDialog extends Dialog {
 
     this.dataProvider = new ListDataProvider<>(clientService.getAllActiveClients());
     grid.setItems(dataProvider);
+    grid.setMaxHeight("50vh");
 
     H3 title = new H3("Seleccionar Dueño");
     selectedOwner.setReadOnly(true);
@@ -48,6 +49,14 @@ public class SelectOwnerDialog extends Dialog {
 
     HorizontalLayout filterBar =
         new HorizontalLayout(firstNameFilter, lastNameFilter, cedulaFilter);
+
+    filterBar.setWidthFull();
+    filterBar.setPadding(false);
+    filterBar.setSpacing(true);
+    
+    firstNameFilter.setWidthFull(); lastNameFilter.setWidthFull(); cedulaFilter.setWidthFull();
+    firstNameFilter.setMinWidth("0"); lastNameFilter.setMinWidth("0"); cedulaFilter.setMinWidth("0");
+    filterBar.setFlexGrow(1, firstNameFilter, lastNameFilter, cedulaFilter);
 
     firstNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
     firstNameFilter.addValueChangeListener(
