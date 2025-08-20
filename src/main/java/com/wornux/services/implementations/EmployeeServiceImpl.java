@@ -71,14 +71,10 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
                 throw new DuplicateEmployeeException("username", value.getUsername());
             }
 
-            // Validate work schedule
             validateWorkSchedule(value.getWorkScheduleDays());
-
-            
 
             Employee employee = employeeMapper.toEntity(value);
             employee.setPassword(passwordEncoder.encode(value.getPassword()));
-            // Ensure the collection is a new instance to avoid Hibernate/Envers issues
             employee.setWorkScheduleDays(new ArrayList<>(employee.getWorkScheduleDays()));
             employee = employeeRepository.save(employee);
 
@@ -108,9 +104,20 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     @Transactional(readOnly = true)
     public List<Employee> getVeterinarians() {
         log.debug("Request to get all veterinarians");
-        return employeeRepository.findAll().stream()
-            .filter(employee -> employee.getEmployeeRole() == EmployeeRole.VETERINARIAN)
-            .toList();
+        return employeeRepository.findAvailableVeterinarians();
+    }
+
+    @Transactional
+    public List<Employee> getEmployeesByRole(EmployeeRole role) {
+        log.debug("Request to get all employees with role: {}", role);
+        return employeeRepository.findAvailableEmployeesByRole(role);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Employee> getAllAvailableEmployees() {
+        log.debug("Request to get all available employees");
+        return employeeRepository.findByAvailableTrue();
     }
 
     @Transactional
@@ -142,7 +149,7 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         // Validate work schedule
         validateWorkSchedule(employeeUpdateRequestDto.getWorkScheduleDays());
 
-        
+
 
         employeeMapper.updateEmployeeFromDto(employeeUpdateRequestDto, employee);
         // Ensure the collection is a new instance to avoid Hibernate/Envers issues
@@ -161,10 +168,9 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
      */
     private void validateWorkSchedule(List<WorkScheduleDayDto> scheduleDays) {
         if (scheduleDays == null || scheduleDays.isEmpty()) {
-            return; // Allow empty schedules
+            return;
         }
 
-        // Check for duplicate days
         Set<DayOfWeek> days = scheduleDays.stream()
             .map(WorkScheduleDayDto::getDayOfWeek)
             .collect(Collectors.toSet());
@@ -173,7 +179,6 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
             throw new ValidationException("Duplicate days found in work schedule");
         }
 
-        // Validate each day's time range
         for (WorkScheduleDayDto day : scheduleDays) {
             if (!day.isValidTimeRange()) {
                 throw new ValidationException("Invalid time range for " + day.getDayOfWeek());
@@ -181,40 +186,6 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         }
     }
 
-    /**
-     * Migrates legacy string schedule to structured format
-     * This is a simple implementation - enhance based on your legacy format
-     */
-    private List<WorkScheduleDayDto> migrateLegacySchedule(String legacySchedule) {
-        List<WorkScheduleDayDto> schedule = new ArrayList<>();
-
-        if (legacySchedule == null || legacySchedule.trim().isEmpty()) {
-            return schedule;
-        }
-
-        // Simple migration: if it contains "9-5" pattern, create Mon-Fri schedule
-        if (legacySchedule.toLowerCase().contains("9") && legacySchedule.toLowerCase().contains("5")) {
-            for (DayOfWeek day : List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
-                DayOfWeek.THURSDAY, DayOfWeek.FRIDAY)) {
-                schedule.add(WorkScheduleDayDto.builder()
-                    .dayOfWeek(day)
-                    .startTime(LocalTime.of(9, 0))
-                    .endTime(LocalTime.of(17, 0))
-                    .isOffDay(false)
-                    .build());
-            }
-
-            // Add weekend off days
-            for (DayOfWeek day : List.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)) {
-                schedule.add(WorkScheduleDayDto.builder()
-                    .dayOfWeek(day)
-                    .isOffDay(true)
-                    .build());
-            }
-        }
-
-        return schedule;
-    }
 
     /**
      * Finds employees available on a specific day and time
@@ -252,59 +223,5 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
                 calculateWeeklyHours(e1)))
             .limit(limit)
             .collect(Collectors.toList());
-    }
-
-    public record ScheduleConflict(
-            Employee employee,
-            DayOfWeek dayOfWeek,
-            LocalTime startTime,
-            String reason
-    ) {
-    }
-
-    public List<ScheduleConflict> detectScheduleConflicts(List<Employee> employees) {
-        List<ScheduleConflict> conflicts = new ArrayList<>();
-
-        for (Employee employee : employees) {
-            for (WorkScheduleDay day : employee.getWorkScheduleDays()) {
-                if (!day.isOffDay() && day.getStartTime() != null && day.getEndTime() != null) {
-                    // Check for invalid time ranges
-                    if (!day.isValidTimeRange()) {
-                        conflicts.add(new ScheduleConflict(
-                            employee,
-                            day.getDayOfWeek(),
-                            day.getStartTime(),
-                            "Start time is after end time"
-                        ));
-                    }
-
-                    // Check for very long shifts (>12 hours)
-                    Duration duration = Duration.between(day.getStartTime(), day.getEndTime());
-                    if (duration.toHours() > 12) {
-                        conflicts.add(new ScheduleConflict(
-                            employee,
-                            day.getDayOfWeek(),
-                            day.getStartTime(),
-                            "Shift exceeds 12 hours"
-                        ));
-                    }
-                }
-            }
-
-            // Check for employees with no working days
-            boolean hasWorkingDays = employee.getWorkScheduleDays().stream()
-                .anyMatch(day -> !day.isOffDay());
-
-            if (!hasWorkingDays) {
-                conflicts.add(new ScheduleConflict(
-                    employee,
-                    null,
-                    null,
-                    "Employee has no working days scheduled"
-                ));
-            }
-        }
-
-        return conflicts;
     }
 }
