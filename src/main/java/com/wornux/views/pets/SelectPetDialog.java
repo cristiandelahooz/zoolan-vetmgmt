@@ -5,6 +5,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.textfield.TextField;
@@ -74,11 +75,28 @@ public class SelectPetDialog extends Dialog {
         HorizontalLayout filterBar = new HorizontalLayout(nameFilter, typeFilter, ownerFilter);
         filterBar.setWidthFull();
 
+        filterBar.setSpacing(false);
+        filterBar.getStyle().set("gap", "0.5rem");
+
+        nameFilter.setWidthFull();
+        typeFilter.setWidthFull();
+        ownerFilter.setWidthFull();
+
+        filterBar.setFlexGrow(1, nameFilter, typeFilter, ownerFilter);
+        
+        nameFilter.getStyle().set("min-width", "0");
+        typeFilter.getStyle().set("min-width", "0");
+        ownerFilter.getStyle().set("min-width", "0");
+
+
         // ====== Grid (solo el grid scrollea) ======
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn(Pet::getName).setHeader("Nombre").setAutoWidth(true);
-        grid.addColumn(p -> p.getType() != null ? p.getType().toString() : "—")
-                .setHeader("Tipo").setAutoWidth(true);
+        /*grid.addColumn(p -> p.getType() != null ? p.getType().toString() : "—")
+                .setHeader("Tipo").setAutoWidth(true);*/
+        grid.addComponentColumn(this::buildTypeBadge)
+                .setHeader("Tipo")
+                .setAutoWidth(true);
         grid.addColumn(p ->
                         p.getOwners() != null && !p.getOwners().isEmpty()
                                 ? p.getOwners().get(0).getFirstName() + " " + p.getOwners().get(0).getLastName()
@@ -96,6 +114,7 @@ public class SelectPetDialog extends Dialog {
             selectedPetField.setValue(selectedPet != null ? selectedPet.getName() : "");
             acceptButton.setEnabled(selectedPet != null);
         });
+
 
         // ====== Botones "sticky" (siempre visibles) ======
         cancelButton.addClickListener(e -> close());
@@ -133,4 +152,31 @@ public class SelectPetDialog extends Dialog {
     public void addPetSelectedListener(Consumer<Pet> listener) {
         listeners.add(listener);
     }
+
+    // imports necesarios:
+// import com.vaadin.flow.component.html.Span;
+
+    private Span buildTypeBadge(Pet pet) {
+        String label = pet != null && pet.getType() != null ? pet.getType().toString() : "—";
+        Span badge = new Span(label);
+        badge.getElement().getThemeList().add("badge");
+        badge.getElement().getThemeList().add("pill");
+        badge.getElement().getThemeList().add("small");
+
+        if (pet != null && pet.getType() != null) {
+            switch (pet.getType()) {
+                case PERRO   -> badge.getElement().getThemeList().add("primary");   // Azul
+                case GATO    -> badge.getElement().getThemeList().add("success");   // Verde
+                case AVE     -> badge.getElement().getThemeList().add("warning");   // Amarillo
+                case CONEJO  -> badge.getElement().getThemeList().add("contrast");  // Gris
+                case HAMSTER -> badge.getElement().getThemeList().add("error");     // Rojo
+                case REPTIL  -> badge.getElement().getThemeList().add("success");   // Verde (ajústalo si quieres otro)
+                case OTRO    -> badge.getElement().getThemeList().add("contrast");  // Gris claro
+            }
+        } else {
+            badge.getElement().getThemeList().add("contrast");
+        }
+        return badge;
+    }
+
 }
