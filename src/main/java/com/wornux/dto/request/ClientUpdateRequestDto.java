@@ -42,8 +42,8 @@ public class ClientUpdateRequestDto {
       message = "El pasaporte debe contener 9 caracteres alfanuméricos")
   private String passport;
 
-    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente o 11 dígitos")
-    private String rnc;
+  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener 9 u 11 dígitos")
+  private String rnc;
 
   private String companyName;
 
