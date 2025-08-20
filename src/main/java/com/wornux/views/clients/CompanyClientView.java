@@ -60,7 +60,6 @@ public class CompanyClientView extends Div {
         companyClientForm.addClientSavedListener(
                 event -> {
                     refreshAll();
-                    companyClientForm.close();
                 });
 
         companyClientForm.addClientCancelledListener(companyClientForm::close);
@@ -77,7 +76,7 @@ public class CompanyClientView extends Div {
 
         create.addClickListener(
                 event -> {
-                    companyClientForm.open();
+                    companyClientForm.openForNew();
                 });
     }
 
@@ -110,12 +109,11 @@ public class CompanyClientView extends Div {
                 query.orderBy(order);
             }
 
-            // Filter only company clients (those with RNC)
             Predicate companyClientPredicate = builder.isNotNull(root.get("rnc"));
-
             Predicate searchPredicate = createSearchPredicate(root, builder);
+            Predicate activePredicate = builder.isTrue(root.get("active"));
 
-            return builder.and(companyClientPredicate, searchPredicate);
+            return builder.and(companyClientPredicate, searchPredicate, activePredicate);
         };
     }
 
