@@ -21,6 +21,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
@@ -39,6 +40,7 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
@@ -374,8 +376,15 @@ public class EmployeeView extends Div {
     }
 
     private void configureLazyDataView() {
-        grid.getLazyDataView().setItemCountCallback(query -> {
-            return (int) employeeService.getRepository().count();
+        grid.setItems(query -> {
+            var specification = createFilterSpecification();
+            var pageable = PageRequest.of(
+                query.getPage(),
+                query.getPageSize(),
+                VaadinSpringDataHelpers.toSpringDataSort(query)
+            );
+
+            return employeeService.getAllAvailableEmployees(specification, pageable).stream();
         });
     }
 
