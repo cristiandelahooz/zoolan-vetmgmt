@@ -62,6 +62,10 @@ public class WaitingRoomForm extends Dialog {
         setHeaderTitle("Entrada a Sala de Espera");
         setModal(true);
         setWidth("500px");
+        setMaxHeight("98vh");     
+
+        setResizable(true);
+        setDraggable(true);
 
         // ===== Cliente (solo lectura + botón que abre el diálogo)
         clientField.setReadOnly(true);
@@ -217,7 +221,7 @@ public class WaitingRoomForm extends Dialog {
         reasonField.setValue(nullSafe(waitingRoom.getReasonForVisit()));
         priorityField.setValue(waitingRoom.getPriority());
         notesField.setValue(nullSafe(waitingRoom.getNotes()));
-        arrivalTimeField.setValue(waitingRoom.getArrivalTime()); 
+        arrivalTimeField.setValue(waitingRoom.getArrivalTime());
 
         saveButton.setText("Actualizar");
         open();
