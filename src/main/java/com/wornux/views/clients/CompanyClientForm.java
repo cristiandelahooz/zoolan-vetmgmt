@@ -152,8 +152,7 @@ public class CompanyClientForm extends Dialog {
 
         // Configure RNC field
         rnc.setPlaceholder("Ej: 123456789");
-        rnc.setHelperText("9 dígitos");
-
+        rnc.setHelperText("9 dígitos (empresa) u 11 dígitos (persona física)");
         // Configure fields for real-time validation
         configureFieldsForRealTimeValidation();
 
@@ -248,9 +247,9 @@ public class CompanyClientForm extends Dialog {
 
         // RNC validation
         binder.forField(rnc)
-                .asRequired("El RNC es requerido")
-                .withValidator(new RegexpValidator("El RNC debe contener exactamente 9 dígitos", RNC_PATTERN))
-                .bind(ValidationBean::getRnc, ValidationBean::setRnc);
+            .asRequired("El RNC es requerido")
+            .withValidator(new RegexpValidator("El RNC debe contener 9 u 11 dígitos", RNC_PATTERN))
+            .bind(ValidationBean::getRnc, ValidationBean::setRnc);
 
         // Email validation
         binder.forField(email)
@@ -363,9 +362,9 @@ public class CompanyClientForm extends Dialog {
                 .bind(ClientUpdateRequestDto::getCompanyName, ClientUpdateRequestDto::setCompanyName);
 
         binderUpdate.forField(rnc)
-                .asRequired("El RNC es requerido")
-                .withValidator(new RegexpValidator("El RNC debe contener exactamente 9 dígitos", RNC_PATTERN))
-                .bind(ClientUpdateRequestDto::getRnc, ClientUpdateRequestDto::setRnc);
+            .asRequired("El RNC es requerido")
+            .withValidator(new RegexpValidator("El RNC debe contener 9 u 11 dígitos", RNC_PATTERN))
+            .bind(ClientUpdateRequestDto::getRnc, ClientUpdateRequestDto::setRnc);
 
         binderUpdate.forField(email)
                 .asRequired("El correo electrónico es requerido")
@@ -374,7 +373,7 @@ public class CompanyClientForm extends Dialog {
 
         binderUpdate.forField(phoneNumber)
                 .asRequired("El teléfono es requerido")
-                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido", "^\\+?[1-9]\\d{1,14}$"))
+                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)", DOMINICAN_PHONE_PATTERN))
                 .bind(ClientUpdateRequestDto::getPhoneNumber, ClientUpdateRequestDto::setPhoneNumber);
 
         // Continue with other fields...
@@ -493,12 +492,16 @@ public class CompanyClientForm extends Dialog {
                 streetAddress.getValue(),
                 referencePoints.getValue());
 
+        clientService.createClient(dto);
+        NotificationUtils.success("Cliente empresarial creado exitosamente");
+        close();
+        clearForm();
+
         fireClientSavedEvent(dto);
 
         if (onSaveCallback != null) {
             onSaveCallback.run();
         }
-        close();
     }
 
     private void saveUpdate() {
@@ -535,14 +538,14 @@ public class CompanyClientForm extends Dialog {
 
         clientService.updateClient(currentClient.getId(), dto);
         NotificationUtils.success("Empresa actualizada exitosamente");
+        close();
 
         if (onSaveCallback != null) {
             onSaveCallback.run();
         }
-        close();
     }
 
-    public void openForNew() {
+    private void clearForm() {
         isEditMode = false;
         currentClient = null;
         setHeaderTitle("Nueva Empresa");
@@ -559,7 +562,10 @@ public class CompanyClientForm extends Dialog {
         rating.setValue(ClientRating.BUENO);
         creditLimit.setValue(0.0);
         paymentTermsDays.setValue(0.0);
+    }
 
+    public void openForNew() {
+        clearForm();
         companyName.focus();
         open();
     }
@@ -569,12 +575,14 @@ public class CompanyClientForm extends Dialog {
         currentClient = client;
         setHeaderTitle("Editar Empresa");
 
+        String trimmedRnc = client.getRnc() != null ? client.getRnc().trim() : null;
+
         ClientUpdateRequestDto dto = new ClientUpdateRequestDto(
                 client.getEmail(),
                 null, null,
                 client.getPhoneNumber(),
                 null, null, null, null,
-                client.getRnc(),
+                trimmedRnc,
                 client.getCompanyName(),
                 client.getPreferredContactMethod(),
                 client.getEmergencyContactName(),
