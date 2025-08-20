@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -44,11 +45,13 @@ public interface EmployeeService {
     Page<Employee> getAllEmployees(Pageable pageable);
 
     /**
-     * Searches for Employees based on a search term.
+     * Retrieves all available Employees based on specifications and pagination.
      *
-     * @return paginated list of Employees matching the search term
+     * @param spec     the specification to filter employees
+     * @param pageable pagination information
+     * @return paginated list of available Employees
      */
-    List<Employee> getAllAvailableEmployees();
+    Page<Employee> getAllAvailableEmployees(Specification<Employee> spec, Pageable pageable);
 
     /**
      * Retrieves all employees who are veterinarians.
