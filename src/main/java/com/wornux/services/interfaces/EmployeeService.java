@@ -44,6 +44,13 @@ public interface EmployeeService {
     Page<Employee> getAllEmployees(Pageable pageable);
 
     /**
+     * Searches for Employees based on a search term.
+     *
+     * @return paginated list of Employees matching the search term
+     */
+    List<Employee> getAllAvailableEmployees();
+
+    /**
      * Retrieves all employees who are veterinarians.
      *
      * @return list of veterinarian employees
