@@ -1,4 +1,3 @@
-// src/main/java/com/wornux/views/waitingroom/WaitingRoomForm.java
 package com.wornux.views.waitingroom;
 
 import com.vaadin.flow.component.button.Button;
@@ -18,19 +17,24 @@ import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.clients.SelectOwnerDialog;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class WaitingRoomForm extends Dialog {
-    private final ComboBox<Client> clientField = new ComboBox<>("Cliente");
+
+    private final TextField clientField = new TextField("Cliente");
+    private final Button selectClientBtn = new Button("Seleccionar");
+    private Client selectedClient;
+
     private final ComboBox<Pet> petField = new ComboBox<>("Mascota");
     private final TextField reasonField = new TextField("Razón de Visita");
     private final ComboBox<Priority> priorityField = new ComboBox<>("Prioridad");
     private final TextArea notesField = new TextArea("Notas");
-    private final com.vaadin.flow.component.datetimepicker.DateTimePicker arrivalTimeField = new DateTimePicker(
-            "Hora de Llegada");
+    private final DateTimePicker arrivalTimeField = new DateTimePicker("Hora de Llegada");
 
     private final Button saveButton = new Button("Guardar");
     private final Button cancelButton = new Button("Cancelar");
@@ -39,28 +43,73 @@ public class WaitingRoomForm extends Dialog {
     private final transient ClientService clientService;
     private final transient PetService petService;
 
+    private final SelectOwnerDialog selectOwnerDialog;
+
     @Setter
     private transient Consumer<WaitingRoomCreateRequestDto> onSave;
 
     private transient WaitingRoom editingWaitingRoom;
 
-    public WaitingRoomForm(WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {
+    public WaitingRoomForm(WaitingRoomService waitingRoomService,
+                           ClientService clientService,
+                           PetService petService) {
         this.waitingRoomService = waitingRoomService;
         this.clientService = clientService;
         this.petService = petService;
 
+        this.selectOwnerDialog = new SelectOwnerDialog(clientService);
+
         setHeaderTitle("Entrada a Sala de Espera");
         setModal(true);
         setWidth("500px");
+        setMaxHeight("98vh");     
 
-        clientField.setItems(clientService.getAllActiveClients());
-        clientField.setItemLabelGenerator(c -> c.getFirstName() + " " + c.getLastName());
-        petField.setItems(petService.getAllPets());
+        setResizable(true);
+        setDraggable(true);
+
+        // ===== Cliente (solo lectura + botón que abre el diálogo)
+        clientField.setReadOnly(true);
+        clientField.setPlaceholder("Selecciona un cliente…");
+        selectClientBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
+        selectClientBtn.addClickListener(e -> selectOwnerDialog.open());
+        clientField.setSuffixComponent(selectClientBtn);
+
+        // Al elegir cliente en el diálogo, cascada Cliente → Mascota
+        selectOwnerDialog.addClienteSeleccionadoListener(cliente -> {
+            selectedClient = cliente;
+            clientField.setInvalid(false);
+            clientField.setValue(cliente.getFirstName() + " " + cliente.getLastName());
+
+            List<Pet> pets = petService.getPetsByOwnerId2(cliente.getId());
+            petField.setItems(pets);
+            petField.setItemLabelGenerator(Pet::getName);
+            petField.setEnabled(true);
+            petField.setHelperText(null);
+            petField.clear();
+        });
+
+        // ===== Mascota (se habilita tras elegir cliente)
         petField.setItemLabelGenerator(Pet::getName);
+        petField.setEnabled(false);
+        petField.setHelperText("Seleccione un cliente primero");
+
+        // ===== Campos simples
         priorityField.setItems(Priority.values());
 
-        FormLayout formLayout = new FormLayout(clientField, petField, reasonField, priorityField, notesField,
-                arrivalTimeField);
+        // Hora de llegada: solo lectura y automática
+        arrivalTimeField.setReadOnly(true);
+        arrivalTimeField.setHelperText("Se registrará automáticamente al guardar");
+        arrivalTimeField.setStep(java.time.Duration.ofMinutes(1));
+
+        // ===== Layout
+        FormLayout formLayout = new FormLayout(
+                clientField,         // Cliente (readonly) + botón suffix
+                petField,            // Mascota (se habilita con el cliente)
+                reasonField,
+                priorityField,
+                notesField,
+                arrivalTimeField
+        );
 
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -77,67 +126,70 @@ public class WaitingRoomForm extends Dialog {
             return;
         }
 
-        WaitingRoomCreateRequestDto dto = WaitingRoomCreateRequestDto.builder().clientId(clientField.getValue().getId())
-                .petId(petField.getValue().getId()).reasonForVisit(reasonField.getValue())
-                .priority(priorityField.getValue()).notes(notesField.getValue())
-                .arrivalTime(arrivalTimeField.getValue()).build();
+        // Hora automática: en creación se toma ahora; en edición se conserva la original
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime arrival = (editingWaitingRoom == null)
+                ? now
+                : editingWaitingRoom.getArrivalTime();
 
-        if (editingWaitingRoom == null) {
-            waitingRoomService.save(dto);
-            NotificationUtils.success("Entrada creada exitosamente.");
-        } else {
-            editingWaitingRoom.setClient(clientField.getValue());
-            editingWaitingRoom.setPet(petField.getValue());
-            editingWaitingRoom.setReasonForVisit(reasonField.getValue());
-            editingWaitingRoom.setPriority(priorityField.getValue());
-            editingWaitingRoom.setNotes(notesField.getValue());
-            editingWaitingRoom.setArrivalTime(arrivalTimeField.getValue());
-            waitingRoomService.update(editingWaitingRoom);
-            NotificationUtils.success("Entrada actualizada exitosamente.");
+        WaitingRoomCreateRequestDto dto = WaitingRoomCreateRequestDto.builder()
+                .clientId(selectedClient.getId())
+                .petId(petField.getValue().getId())
+                .reasonForVisit(reasonField.getValue())
+                .priority(priorityField.getValue())
+                .notes(notesField.getValue())
+                .arrivalTime(arrival)
+                .build();
+
+        try {
+            if (editingWaitingRoom == null) {
+                waitingRoomService.save(dto);
+                NotificationUtils.success("Entrada creada exitosamente.");
+            } else {
+                editingWaitingRoom.setClient(selectedClient);
+                editingWaitingRoom.setPet(petField.getValue());
+                editingWaitingRoom.setReasonForVisit(reasonField.getValue());
+                editingWaitingRoom.setPriority(priorityField.getValue());
+                editingWaitingRoom.setNotes(notesField.getValue());
+                // arrivalTime NO se modifica en edición (se mantiene el original)
+                waitingRoomService.update(editingWaitingRoom);
+                NotificationUtils.success("Entrada actualizada exitosamente.");
+            }
+            if (onSave != null) onSave.accept(dto);
+            close();
+            clearForm();
+        } catch (Exception e) {
+            NotificationUtils.error("Error al guardar: " + e.getMessage());
         }
-        if (onSave != null)
-            onSave.accept(dto);
-        close();
     }
 
     private boolean validateForm() {
         boolean valid = true;
-        if (clientField.isEmpty()) {
+
+        if (selectedClient == null) {
             clientField.setInvalid(true);
+            clientField.setErrorMessage("Debe seleccionar un cliente");
             valid = false;
-        } else
+        } else {
             clientField.setInvalid(false);
+        }
 
         if (petField.isEmpty()) {
             petField.setInvalid(true);
             valid = false;
-        } else
-            petField.setInvalid(false);
+        } else petField.setInvalid(false);
 
         if (reasonField.isEmpty()) {
             reasonField.setInvalid(true);
             valid = false;
-        } else
-            reasonField.setInvalid(false);
+        } else reasonField.setInvalid(false);
 
         if (priorityField.isEmpty()) {
             priorityField.setInvalid(true);
             valid = false;
-        } else
-            priorityField.setInvalid(false);
+        } else priorityField.setInvalid(false);
 
-        if (arrivalTimeField.isEmpty() || arrivalTimeField.getValue() == null) {
-            arrivalTimeField.setInvalid(true);
-            arrivalTimeField.setErrorMessage("La hora de llegada es requerida");
-            valid = false;
-        } else if (arrivalTimeField.getValue().isBefore(LocalDateTime.now())) {
-            arrivalTimeField.setInvalid(true);
-            arrivalTimeField.setErrorMessage("La hora de llegada debe ser en el futuro");
-            valid = false;
-        } else {
-            arrivalTimeField.setInvalid(false);
-        }
-
+        // arrivalTimeField no se valida: es automático
         return valid;
     }
 
@@ -145,31 +197,60 @@ public class WaitingRoomForm extends Dialog {
         clearForm();
         editingWaitingRoom = null;
         saveButton.setText("Guardar");
+        // Mostrar valor estimado (informativo); el definitivo se toma al guardar
+        arrivalTimeField.setValue(LocalDateTime.now());
         open();
     }
 
     public void openForEdit(WaitingRoom waitingRoom) {
+        clearForm();
         editingWaitingRoom = waitingRoom;
-        clientField.setValue(waitingRoom.getClient());
+
+        // Cliente + cascada
+        if (waitingRoom.getClient() != null) {
+            selectedClient = waitingRoom.getClient();
+            clientField.setValue(selectedClient.getFirstName() + " " + selectedClient.getLastName());
+            var pets = petService.getPetsByOwnerId2(selectedClient.getId());
+            petField.setItems(pets);
+            petField.setItemLabelGenerator(Pet::getName);
+            petField.setEnabled(true);
+            petField.setHelperText(null);
+        }
+
         petField.setValue(waitingRoom.getPet());
-        reasonField.setValue(waitingRoom.getReasonForVisit());
+        reasonField.setValue(nullSafe(waitingRoom.getReasonForVisit()));
         priorityField.setValue(waitingRoom.getPriority());
-        notesField.setValue(waitingRoom.getNotes());
+        notesField.setValue(nullSafe(waitingRoom.getNotes()));
         arrivalTimeField.setValue(waitingRoom.getArrivalTime());
+
         saveButton.setText("Actualizar");
         open();
     }
 
     private void clearForm() {
+        selectedClient = null;
         clientField.clear();
-        petField.clear();
-        reasonField.clear();
-        priorityField.clear();
-        notesField.clear();
-        arrivalTimeField.clear();
         clientField.setInvalid(false);
+
+        petField.clear();
+        petField.setItems();
+        petField.setEnabled(false);
+        petField.setHelperText("Seleccione un cliente primero");
         petField.setInvalid(false);
+
+        reasonField.clear();
         reasonField.setInvalid(false);
+
+        priorityField.clear();
         priorityField.setInvalid(false);
+
+        notesField.clear();
+
+        arrivalTimeField.clear();
+        arrivalTimeField.setInvalid(false);
+    }
+
+    private static String nullSafe(String s) {
+        return s == null ? "" : s;
     }
 }

@@ -103,6 +103,12 @@ public class ServiceServiceImpl implements ServiceService {
   }
 
   @Override
+  @Transactional(readOnly = true)
+  public List<Service> findGroomingServices() {
+    return serviceRepository.findByServiceCategoryAndActiveTrue(ServiceCategory.GROOMING);
+  }
+
+  @Override
   @Transactional
   public Service save(@Valid ServiceCreateRequestDto dto) {
     try {

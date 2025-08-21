@@ -33,6 +33,8 @@ public interface ServiceService {
 
   List<Service> findMedicalServices();
 
+  List<Service> findGroomingServices();
+
   List<Service> searchByName(String name);
 
   void delete(Long id);

@@ -19,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -27,17 +28,17 @@ import com.wornux.data.enums.InvoiceStatus;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.pets.SelectPetDialog;
 import com.wornux.views.services.ServiceForm;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Consumer;
+import com.wornux.views.pets.SelectPetDialog;
 
 /**
  * Enhanced form for creating and editing consultations with service and product integration
@@ -45,7 +46,15 @@ import java.util.function.Consumer;
 public class ConsultationsForm extends Dialog {
 
   // Form fields
-  private final ComboBox<Pet> petComboBox = new ComboBox<>("Mascota");
+  //private final ComboBox<Pet> petComboBox = new ComboBox<>("Mascota");
+  //NUEVO
+
+  // Mascota (selector por diálogo)
+  private final TextField petName = new TextField("Mascota");
+  private final Button selectPetButton = new Button("Seleccionar");
+  private Pet selectedPet;
+  private final SelectPetDialog selectPetDialog;
+
   private final ComboBox<Employee> veterinarianComboBox = new ComboBox<>("Veterinario");
   private final TextArea notesTextArea = new TextArea("Notas de Consulta");
   private final TextArea diagnosisTextArea = new TextArea("Diagnóstico");
@@ -105,6 +114,16 @@ public class ConsultationsForm extends Dialog {
     this.productService = productService;
     this.invoiceService = invoiceService;
     this.serviceForm = new ServiceForm(serviceService);
+    //NUEVO
+    this.selectPetDialog = new SelectPetDialog(petService);
+
+    petName.setReadOnly(true);
+    selectPetButton.addClickListener(e -> selectPetDialog.open());
+    selectPetDialog.addPetSelectedListener(pet -> {
+      selectedPet = pet;
+      petName.setInvalid(false);
+      petName.setValue(pet != null ? pet.getName() : "");
+    });
 
     setHeaderTitle("Consulta Veterinaria");
     setModal(true);
@@ -120,9 +139,13 @@ public class ConsultationsForm extends Dialog {
 
   private void createForm() {
     // Configure basic fields
-    petComboBox.setItemLabelGenerator(pet -> pet.getName() + " (" + pet.getType() + ")");
-    petComboBox.setRequired(true);
-    petComboBox.setWidthFull();
+    //petComboBox.setItemLabelGenerator(pet -> pet.getName() + " (" + pet.getType() + ")");
+    //petComboBox.setRequired(true);
+    //petComboBox.setWidthFull();
+
+    HorizontalLayout petPickerLayout = new HorizontalLayout(petName, selectPetButton);
+    petPickerLayout.setAlignItems(FlexComponent.Alignment.END);
+    petName.setWidthFull();
 
     veterinarianComboBox.setItemLabelGenerator(emp -> emp.getFirstName() + " " + emp.getLastName());
     veterinarianComboBox.setRequired(true);
@@ -162,7 +185,8 @@ public class ConsultationsForm extends Dialog {
 
     // Create layout
     FormLayout basicInfoLayout = new FormLayout();
-    basicInfoLayout.add(petComboBox, veterinarianComboBox);
+    //basicInfoLayout.add(petComboBox, veterinarianComboBox);
+    basicInfoLayout.add(petPickerLayout, veterinarianComboBox);
     basicInfoLayout.add(notesTextArea, 2);
     basicInfoLayout.add(diagnosisTextArea, treatmentTextArea);
     basicInfoLayout.add(prescriptionTextArea, 2);
@@ -289,9 +313,9 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void setupValidation() {
-    binder.forField(petComboBox)
+    /*binder.forField(petComboBox)
         .withValidator(pet -> pet != null, "Debe seleccionar una mascota")
-        .bind(Consultation::getPet, Consultation::setPet);
+        .bind(Consultation::getPet, Consultation::setPet);*/
 
     binder.forField(veterinarianComboBox)
         .withValidator(vet -> vet != null, "Debe seleccionar un veterinario")
@@ -391,9 +415,9 @@ public class ConsultationsForm extends Dialog {
     grandTotalSpan.setText("$" + grandTotal);
   }
 
-  private void loadComboBoxData() {
+  /*private void loadComboBoxData() {
     // Load pets
-    petService.getAllPets().forEach(pet -> petComboBox.getListDataView().addItem(pet));
+    //petService.getAllPets().forEach(pet -> petComboBox.getListDataView().addItem(pet));
 
     // Load veterinarians
     employeeService.getVeterinarians()
@@ -406,7 +430,19 @@ public class ConsultationsForm extends Dialog {
     // Load internal use products
     productService.findInternalUseProducts()
         .forEach(product -> productComboBox.getListDataView().addItem(product));
+  }*/
+
+  private void loadComboBoxData() {
+    // Veterinarios
+    veterinarianComboBox.setItems(employeeService.getVeterinarians());
+
+    // Servicios médicos
+    serviceComboBox.setItems(serviceService.findMedicalServices());
+
+    // Productos de uso interno
+    productComboBox.setItems(productService.findInternalUseProducts());
   }
+
 
   private void save(ClickEvent<Button> event) {
     try {
@@ -415,7 +451,18 @@ public class ConsultationsForm extends Dialog {
         editingConsultation.setConsultationDate(LocalDateTime.now());
       }
 
+      if (selectedPet == null) {
+        petName.setInvalid(true);
+        petName.setErrorMessage("Debe seleccionar una mascota");
+        NotificationUtils.error("Debe seleccionar una mascota");
+        return;
+      }
+
+
       binder.writeBean(editingConsultation);
+
+      editingConsultation.setPet(selectedPet);
+
 
       // Save consultation
       Consultation savedConsultation = consultationService.save(editingConsultation);
@@ -491,6 +538,11 @@ public class ConsultationsForm extends Dialog {
 
   public void openForNew() {
     clearForm();
+
+    selectedPet = null;
+    petName.clear();
+    petName.setInvalid(false);
+
     saveButton.setText("Registrar Consulta");
     editingConsultation = null;
     setHeaderTitle("Nueva Consulta");
@@ -500,6 +552,10 @@ public class ConsultationsForm extends Dialog {
   public void openForEdit(Consultation consultation) {
     this.editingConsultation = consultation;
     binder.readBean(consultation);
+    selectedPet = consultation.getPet();
+    petName.setValue(selectedPet != null ? selectedPet.getName() : "");
+    petName.setInvalid(false);
+
     saveButton.setText("Actualizar Consulta");
     setHeaderTitle("Editar Consulta");
     open();
@@ -515,9 +571,12 @@ public class ConsultationsForm extends Dialog {
     serviceComboBox.clear();
     productComboBox.clear();
     productQuantityField.setValue(1.0);
+    selectedPet = null;
+    petName.clear();
+
   }
 
-  private void setupServiceForm() {
+  /*private void setupServiceForm() {
     serviceForm.addServiceSavedListener(dto -> {
       // Refresh service selector and auto-select the new service
       loadComboBoxData();
@@ -531,7 +590,19 @@ public class ConsultationsForm extends Dialog {
               .findFirst()
           .ifPresent(serviceComboBox::setValue);
     });
+  }*/
+
+  private void setupServiceForm() {
+    serviceForm.addServiceSavedListener(dto -> {
+      var medicalServices = serviceService.findMedicalServices();
+      serviceComboBox.setItems(medicalServices);
+      medicalServices.stream()
+              .filter(s -> s.getName().equalsIgnoreCase(dto.getName()))
+              .findFirst()
+              .ifPresent(serviceComboBox::setValue);
+    });
   }
+
 
   // Inner classes for grid items
   public static class ServiceItem {

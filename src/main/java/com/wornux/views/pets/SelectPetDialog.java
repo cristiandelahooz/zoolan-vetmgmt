@@ -3,8 +3,9 @@ package com.wornux.views.pets;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.textfield.TextField;
@@ -21,85 +22,161 @@ public class SelectPetDialog extends Dialog {
 
     private final Grid<Pet> grid = new Grid<>(Pet.class, false);
     private final TextField selectedPetField = new TextField("Mascota seleccionada");
-    private Pet selectedPet;
     private final ListDataProvider<Pet> dataProvider;
 
+    private Pet selectedPet;
     private final List<Consumer<Pet>> listeners = new ArrayList<>();
 
-    public SelectPetDialog(PetService petService) {
-        setWidth("700px");
+    private final Button acceptButton = new Button("Aceptar");
+    private final Button cancelButton = new Button("Cancelar");
 
-        this.dataProvider = new ListDataProvider<>(petService.getAllPets()); // Implementar en PetService
+    public SelectPetDialog(PetService petService) {
+
+        setHeaderTitle("Seleccionar Mascota");
+        setWidth("740px");
+        setMaxWidth("95vw");
+        setMaxHeight("85vh");
+        this.dataProvider = new ListDataProvider<>(petService.getAllPets());
         grid.setItems(dataProvider);
 
-        H3 title = new H3("Seleccionar Mascota");
-        selectedPetField.setReadOnly(true);
-
-        TextField nameFilter = new TextField();
-        nameFilter.setPlaceholder("Filtrar por nombre");
-
-        TextField typeFilter = new TextField();
-        typeFilter.setPlaceholder("Filtrar por tipo");
-
+        // ====== Filtros ======
+        TextField nameFilter  = new TextField();
+        TextField typeFilter  = new TextField();
         TextField ownerFilter = new TextField();
+
+        nameFilter.setPlaceholder("Filtrar por nombre");
+        typeFilter.setPlaceholder("Filtrar por tipo");
         ownerFilter.setPlaceholder("Filtrar por dueño principal");
 
-        HorizontalLayout filterBar = new HorizontalLayout(nameFilter, typeFilter, ownerFilter);
+        nameFilter.setClearButtonVisible(true);
+        typeFilter.setClearButtonVisible(true);
+        ownerFilter.setClearButtonVisible(true);
 
         nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        nameFilter.addValueChangeListener(e -> dataProvider.setFilter(Pet::getName,
-                name -> name != null && name.toLowerCase().contains(nameFilter.getValue().toLowerCase())));
-
-
         typeFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        typeFilter.addValueChangeListener(e -> dataProvider.setFilter(
-                pet -> pet.getType() != null &&
-                        pet.getType().toString().toLowerCase()
-                                .contains(typeFilter.getValue().toLowerCase())
+        ownerFilter.setValueChangeMode(ValueChangeMode.EAGER);
+
+        nameFilter.addValueChangeListener(e -> dataProvider.setFilter(
+                Pet::getName,
+                name -> name != null && name.toLowerCase().contains(nameFilter.getValue().toLowerCase())
         ));
 
-        ownerFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        typeFilter.addValueChangeListener(e -> dataProvider.setFilter(
+                pet -> pet.getType() != null &&
+                        pet.getType().toString().toLowerCase().contains(typeFilter.getValue().toLowerCase())
+        ));
+
         ownerFilter.addValueChangeListener(e -> dataProvider.setFilter(
                 pet -> pet.getOwners() != null && !pet.getOwners().isEmpty() &&
                         (pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName())
                                 .toLowerCase().contains(ownerFilter.getValue().toLowerCase())
         ));
 
+        HorizontalLayout filterBar = new HorizontalLayout(nameFilter, typeFilter, ownerFilter);
+        filterBar.setWidthFull();
 
-        grid.addColumn(Pet::getName).setHeader("Nombre");
-        grid.addColumn(p -> p.getType().toString()).setHeader("Tipo");
+        filterBar.setSpacing(false);
+        filterBar.getStyle().set("gap", "0.5rem");
+
+        nameFilter.setWidthFull();
+        typeFilter.setWidthFull();
+        ownerFilter.setWidthFull();
+
+        filterBar.setFlexGrow(1, nameFilter, typeFilter, ownerFilter);
+        
+        nameFilter.getStyle().set("min-width", "0");
+        typeFilter.getStyle().set("min-width", "0");
+        ownerFilter.getStyle().set("min-width", "0");
+
+
+        // ====== Grid (solo el grid scrollea) ======
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addColumn(Pet::getName).setHeader("Nombre").setAutoWidth(true);
+        /*grid.addColumn(p -> p.getType() != null ? p.getType().toString() : "—")
+                .setHeader("Tipo").setAutoWidth(true);*/
+        grid.addComponentColumn(this::buildTypeBadge)
+                .setHeader("Tipo")
+                .setAutoWidth(true);
         grid.addColumn(p ->
-                p.getOwners() != null && !p.getOwners().isEmpty()
-                        ? p.getOwners().get(0).getFirstName() + " " + p.getOwners().get(0).getLastName()
-                        : "Sin dueño"
-        ).setHeader("Dueño principal");
+                        p.getOwners() != null && !p.getOwners().isEmpty()
+                                ? p.getOwners().get(0).getFirstName() + " " + p.getOwners().get(0).getLastName()
+                                : "Sin dueño")
+                .setHeader("Dueño principal").setAutoWidth(true);
 
-        Button cancel = new Button("Cancelar", e -> close());
-        Button accept = new Button("Aceptar", e -> {
+        grid.setWidthFull();
+        grid.setHeight("32vh");
+        selectedPetField.setReadOnly(true);
+        selectedPetField.setWidthFull();
+
+
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            selectedPet = event.getValue();
+            selectedPetField.setValue(selectedPet != null ? selectedPet.getName() : "");
+            acceptButton.setEnabled(selectedPet != null);
+        });
+
+
+        // ====== Botones "sticky" (siempre visibles) ======
+        cancelButton.addClickListener(e -> close());
+        acceptButton.addClickListener(e -> {
             if (selectedPet != null) {
                 listeners.forEach(l -> l.accept(selectedPet));
                 close();
             }
         });
-        accept.setEnabled(false);
+        acceptButton.setEnabled(false);
 
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            selectedPet = event.getValue();
-            accept.setEnabled(selectedPet != null);
-            selectedPetField.setValue(
-                    selectedPet != null ? selectedPet.getName() : ""
-            );
-        });
-
-        HorizontalLayout buttons = new HorizontalLayout(cancel, accept);
+        HorizontalLayout buttons = new HorizontalLayout(cancelButton, acceptButton);
+        buttons.setWidthFull();
         buttons.setJustifyContentMode(JustifyContentMode.END);
+         buttons.getStyle()
+                .set("position", "sticky")
+                .set("bottom", "0")
+                .set("background", "var(--lumo-base-color)")
+                .set("padding", "0.75rem 0")
+                .set("border-top", "1px solid var(--lumo-contrast-10pct)");
 
-        Div content = new Div(title, filterBar, grid, selectedPetField, buttons);
-        content.getStyle().set("display", "flex").set("flexDirection", "column").set("gap", "1rem");
+        // ====== Contenido del diálogo ======
+        Div content = new Div(filterBar, grid, selectedPetField, buttons);
+        content.getStyle()
+                .set("display", "flex")
+                .set("flexDirection", "column")
+                .set("gap", "1rem")
+                .set("maxHeight", "75vh")
+                .set("overflow", "auto");
+        content.setWidthFull();
+
         add(content);
     }
 
     public void addPetSelectedListener(Consumer<Pet> listener) {
         listeners.add(listener);
     }
+
+    // imports necesarios:
+// import com.vaadin.flow.component.html.Span;
+
+    private Span buildTypeBadge(Pet pet) {
+        String label = pet != null && pet.getType() != null ? pet.getType().toString() : "—";
+        Span badge = new Span(label);
+        badge.getElement().getThemeList().add("badge");
+        badge.getElement().getThemeList().add("pill");
+        badge.getElement().getThemeList().add("small");
+
+        if (pet != null && pet.getType() != null) {
+            switch (pet.getType()) {
+                case PERRO   -> badge.getElement().getThemeList().add("primary");   // Azul
+                case GATO    -> badge.getElement().getThemeList().add("success");   // Verde
+                case AVE     -> badge.getElement().getThemeList().add("warning");   // Amarillo
+                case CONEJO  -> badge.getElement().getThemeList().add("contrast");  // Gris
+                case HAMSTER -> badge.getElement().getThemeList().add("error");     // Rojo
+                case REPTIL  -> badge.getElement().getThemeList().add("success");   // Verde (ajústalo si quieres otro)
+                case OTRO    -> badge.getElement().getThemeList().add("contrast");  // Gris claro
+            }
+        } else {
+            badge.getElement().getThemeList().add("contrast");
+        }
+        return badge;
+    }
+
 }
