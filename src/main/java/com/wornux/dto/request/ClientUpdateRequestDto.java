@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
-import com.wornux.data.enums.Gender;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import static com.wornux.constants.ValidationConstants.*;
@@ -33,8 +32,6 @@ public class ClientUpdateRequestDto {
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
   private LocalDate birthDate;
 
-  private Gender gender;
-
   private String nationality;
 
   @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
@@ -45,8 +42,8 @@ public class ClientUpdateRequestDto {
       message = "El pasaporte debe contener 9 caracteres alfanuméricos")
   private String passport;
 
-    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente o 11 dígitos")
-    private String rnc;
+  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener 9 u 11 dígitos")
+  private String rnc;
 
   private String companyName;
 

@@ -4,8 +4,11 @@ import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.Gender;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +16,7 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 /**
- * DTO for creating a new Employee Includes all required fields from both User and Employee entities
+ * DTO for creating a new Employee with structured work schedule
  */
 @Data
 @Builder
@@ -69,8 +72,12 @@ public class EmployeeCreateRequestDto {
   @NotNull(message = "Hire date is required")
   private LocalDate hireDate;
 
-  @NotBlank(message = "Work schedule is required")
-  private String workSchedule;
+  
+
+  // New structured work schedule
+  @Valid
+  @Builder.Default
+  private List<WorkScheduleDayDto> workScheduleDays = new ArrayList<>();
 
   @Nullable private String emergencyContactName;
 

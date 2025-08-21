@@ -185,21 +185,21 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
         log.info("Updated rating for Client ID: {} to {}", id, newRating);
     }
 
-    @Override
+        @Override
     @Transactional
     // @PreAuthorize("hasRole('ADMIN')")
     public void deactivateClient(Long id) {
-        log.debug("Request to deactivate Client : {}", id);
-
-        Client client =
-                clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id)
+            .orElseThrow(() -> new ClientNotFoundException(id));
+        
+        if (client.getRnc() != null) {
+            client.setRnc(client.getRnc().trim());
+        }
 
         client.setActive(false);
         clientRepository.save(client);
-
         log.info("Deactivated Client ID: {}", id);
     }
-
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")

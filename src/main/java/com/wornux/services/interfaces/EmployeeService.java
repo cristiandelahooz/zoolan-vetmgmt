@@ -5,6 +5,8 @@ import com.wornux.data.entity.Employee;
 import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.dto.request.EmployeeCreateRequestDto;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -43,6 +46,15 @@ public interface EmployeeService {
     Page<Employee> getAllEmployees(Pageable pageable);
 
     /**
+     * Retrieves all available Employees based on specifications and pagination.
+     *
+     * @param spec     the specification to filter employees
+     * @param pageable pagination information
+     * @return paginated list of available Employees
+     */
+    Page<Employee> getAllAvailableEmployees(Specification<Employee> spec, Pageable pageable);
+
+    /**
      * Retrieves all employees who are veterinarians.
      *
      * @return list of veterinarian employees
@@ -63,6 +75,25 @@ public interface EmployeeService {
      * @return the saved EmployeeCreateRequestDto
      */
     EmployeeCreateRequestDto save(@NonNull EmployeeCreateRequestDto value);
+    /**
+     * Finds employees available on a specific day and time
+     */
+    List<Employee> findEmployeesAvailableOnDayAndTime(DayOfWeek dayOfWeek, LocalTime time);
+
+    /**
+     * Finds employees working on a specific day
+     */
+    List<Employee> findEmployeesWorkingOnDay(DayOfWeek dayOfWeek);
+
+    /**
+     * Gets total working hours for an employee per week
+     */
+    double calculateWeeklyHours(Employee employee);
+
+    /**
+     * Finds employees with the most availability
+     */
+    List<Employee> findMostAvailableEmployees(int limit);
 
     void delete(@NonNull Long id);
 

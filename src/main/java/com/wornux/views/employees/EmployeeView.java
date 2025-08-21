@@ -21,10 +21,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
 import com.wornux.data.entity.Employee;
+import com.wornux.data.entity.WorkScheduleDay;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.utils.GridUtils;
@@ -33,12 +35,12 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-
 import java.util.Optional;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
@@ -114,6 +116,14 @@ public class EmployeeView extends Div {
                 "salary");
 
         grid.addComponentColumn(this::renderStatus).setHeader("Estado").setAutoWidth(true);
+
+        grid.addComponentColumn(employee -> {
+            Button detailButton = new Button("Ver Horario");
+            detailButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+            detailButton.getElement().setAttribute("text-align", "center");
+            detailButton.addClickListener(e -> showDetailedSchedule(employee));
+            return detailButton;
+        }).setHeader("Horarios").setWidth("120px").setTextAlign(ColumnTextAlign.CENTER);
 
         // Add actions column
         grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
@@ -366,8 +376,44 @@ public class EmployeeView extends Div {
     }
 
     private void configureLazyDataView() {
-        grid.getLazyDataView().setItemCountCallback(query -> {
-            return (int) employeeService.getRepository().count();
+        grid.setItems(query -> {
+            var specification = createFilterSpecification();
+            var pageable = PageRequest.of(
+                query.getPage(),
+                query.getPageSize(),
+                VaadinSpringDataHelpers.toSpringDataSort(query)
+            );
+
+            return employeeService.getAllAvailableEmployees(specification, pageable).stream();
         });
     }
+
+
+
+    private void showDetailedSchedule(Employee employee) {
+        Dialog scheduleDialog = new Dialog();
+        scheduleDialog.setHeaderTitle("Horario de " + employee.getFirstName() + " " + employee.getLastName());
+
+        Grid<WorkScheduleDay> detailGrid = new Grid<>(WorkScheduleDay.class, false);
+        detailGrid.addColumn(day -> day.getDayOfWeek().name()).setHeader("Día");
+        detailGrid.addColumn(day -> {
+            if (day == null || day.getStartTime() == null || day.getEndTime() == null || day.isOffDay()) {
+                return "Día libre";
+            }
+            return day.getStartTime() + " - " + day.getEndTime();
+        }).setHeader("Horario");
+
+        detailGrid.setItems(employee.getWorkScheduleDays());
+        detailGrid.setHeight("300px");
+        detailGrid.setWidthFull();
+
+        Button closeButton = new Button("Cerrar", e -> scheduleDialog.close());
+        closeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        scheduleDialog.add(detailGrid);
+        scheduleDialog.getFooter().add(closeButton);
+        scheduleDialog.setWidth("40%");
+        scheduleDialog.open();
+    }
+
 }

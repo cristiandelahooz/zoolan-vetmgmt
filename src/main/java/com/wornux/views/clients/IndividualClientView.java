@@ -114,12 +114,11 @@ public class IndividualClientView extends Div {
                 query.orderBy(order);
             }
 
-            // Filter only individual clients (those without RNC)
             Predicate individualClientPredicate = builder.isNull(root.get("rnc"));
-
             Predicate searchPredicate = createSearchPredicate(root, builder);
+            Predicate activePredicate = builder.isTrue(root.get("active"));
 
-            return builder.and(individualClientPredicate, searchPredicate);
+            return builder.and(individualClientPredicate, searchPredicate, activePredicate);
         };
     }
 

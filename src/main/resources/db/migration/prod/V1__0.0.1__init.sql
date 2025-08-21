@@ -216,11 +216,11 @@ CREATE TABLE consultations_log
 CREATE TABLE employee
 (
     employee_id             BIGINT NOT NULL,
+    gender                  VARCHAR(255),
     employee_role           VARCHAR(255),
     salary                  DOUBLE PRECISION,
     hire_date               date   NOT NULL,
     available               BOOLEAN,
-    work_schedule           VARCHAR(255),
     emergency_contact_name  VARCHAR(255),
     emergency_contact_phone VARCHAR(255),
     CONSTRAINT pk_employee PRIMARY KEY (employee_id)
@@ -232,14 +232,14 @@ CREATE TABLE employee_log
     employee_id                 BIGINT  NOT NULL,
     employee_role               VARCHAR(255),
     employee_role_mod           BOOLEAN,
+    gender                      VARCHAR(255),
+    gender_mod                  BOOLEAN,
     salary                      DOUBLE PRECISION,
     salary_mod                  BOOLEAN,
     hire_date                   date,
     hire_date_mod               BOOLEAN,
     available                   BOOLEAN,
     available_mod               BOOLEAN,
-    work_schedule               VARCHAR(255),
-    work_schedule_mod           BOOLEAN,
     emergency_contact_name      VARCHAR(255),
     emergency_contact_name_mod  BOOLEAN,
     emergency_contact_phone     VARCHAR(255),
@@ -315,7 +315,7 @@ CREATE TABLE invoices_log
     consultation_mod        BOOLEAN,
     consultation_notes      VARCHAR(1000),
     consultation_notes_mod  BOOLEAN,
-    services_mod             BOOLEAN,
+    services_mod            BOOLEAN,
     payment_details_mod     BOOLEAN,
     issued_date             date,
     issued_date_mod         BOOLEAN,
@@ -637,7 +637,6 @@ CREATE TABLE users
     last_name        VARCHAR(255),
     phone_number     VARCHAR(255),
     birth_date       date,
-    gender           VARCHAR(255),
     nationality      VARCHAR(255),
     province         VARCHAR(255)                            NOT NULL,
     municipality     VARCHAR(255)                            NOT NULL,
@@ -670,8 +669,6 @@ CREATE TABLE users_log
     phone_number_mod     BOOLEAN,
     birth_date           date,
     birth_date_mod       BOOLEAN,
-    gender               VARCHAR(255),
-    gender_mod           BOOLEAN,
     nationality          VARCHAR(255),
     nationality_mod      BOOLEAN,
     province             VARCHAR(255),
@@ -826,6 +823,20 @@ CREATE TABLE invoice_services_log
     amount       DECIMAL(10, 2),
     amount_mod   BOOLEAN,
     CONSTRAINT pk_invoice_services_log PRIMARY KEY (rev, id)
+);
+
+CREATE TABLE employee_work_schedule
+(
+    id          SERIAL PRIMARY KEY,
+    employee_id BIGINT      NOT NULL,
+    day_of_week VARCHAR(10) NOT NULL,
+    start_time  TIME,
+    end_time    TIME,
+    is_off_day  BOOLEAN DEFAULT FALSE,
+    CONSTRAINT fk_employee_work_schedule_employee
+        FOREIGN KEY (employee_id) REFERENCES employee (employee_id),
+    CONSTRAINT unique_employee_day
+        UNIQUE (employee_id, day_of_week)
 );
 
 

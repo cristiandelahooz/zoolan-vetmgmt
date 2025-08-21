@@ -4,7 +4,6 @@ import static com.wornux.constants.ValidationConstants.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.ClientRating;
-import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
 import jakarta.validation.constraints.*;
@@ -18,56 +17,55 @@ public record ClientCreateRequestDto(
     String firstName,
     String lastName,
     @Pattern(
-            regexp = DOMINICAN_PHONE_PATTERN,
-            message =
-                "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
-        String phoneNumber,
+        regexp = DOMINICAN_PHONE_PATTERN,
+        message =
+            "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
+    String phoneNumber,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
-        @Nullable LocalDate birthDate,
-    @Nullable Gender gender,
+    @Nullable LocalDate birthDate,
     String nationality,
     @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
-        @Nullable String cedula,
+    @Nullable String cedula,
     @Pattern(
-            regexp = PASSPORT_PATTERN,
-            message = "El pasaporte debe contener 9 caracteres alfanuméricos")
-        @Nullable String passport,
-    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
-        @Nullable String rnc,
+        regexp = PASSPORT_PATTERN,
+        message = "El pasaporte debe contener 9 caracteres alfanuméricos")
+    @Nullable String passport,
+    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener 9 u 11 dígitos")
+    @Nullable String rnc,
     @Nullable String companyName,
     PreferredContactMethod preferredContactMethod,
     @Nullable String emergencyContactName,
     @Pattern(
-            regexp = DOMINICAN_PHONE_PATTERN_OPTIONAL,
-            message = "Proporcione un número de emergencia válido")
-        @Nullable String emergencyContactNumber,
+        regexp = DOMINICAN_PHONE_PATTERN_OPTIONAL,
+        message = "Proporcione un número de emergencia válido")
+    @Nullable String emergencyContactNumber,
     @Nullable ClientRating rating,
     @PositiveOrZero(message = "El límite de crédito no puede ser negativo")
-        @Nullable Double creditLimit,
+    @Nullable Double creditLimit,
     @PositiveOrZero(message = "Los días de término de pago no pueden ser negativos")
-        @Nullable Integer paymentTermsDays,
+    @Nullable Integer paymentTermsDays,
     @Size(max = 1000, message = "Las notas no pueden exceder 1000 caracteres")
-        @Nullable String notes,
+    @Nullable String notes,
     @Nullable ReferenceSource referenceSource,
     @NotBlank(message = "La provincia es requerida") String province,
     @NotBlank(message = "El municipio es requerido") String municipality,
     @NotBlank(message = "El sector es requerido") String sector,
     @NotBlank(message = "La dirección es requerida") String streetAddress,
     @Size(max = 500, message = "Los puntos de referencia no pueden exceder 500 caracteres")
-        @Nullable String referencePoints) {
-    @AssertTrue(message = "Debe proporcionar exactamente uno de los siguientes: cédula, pasaporte o RNC")
-    public boolean isValidIdentification() {
-        boolean hasCedula = cedula != null && !cedula.trim().isEmpty();
-        boolean hasPassport = passport != null && !passport.trim().isEmpty();
-        boolean hasRnc = rnc != null && !rnc.trim().isEmpty();
+    @Nullable String referencePoints) {
+  @AssertTrue(message = "Debe proporcionar exactamente uno de los siguientes: cédula, pasaporte o RNC")
+  public boolean isValidIdentification() {
+    boolean hasCedula = cedula != null && !cedula.trim().isEmpty();
+    boolean hasPassport = passport != null && !passport.trim().isEmpty();
+    boolean hasRnc = rnc != null && !rnc.trim().isEmpty();
 
-        int filledFields = 0;
-        if (hasCedula) filledFields++;
-        if (hasPassport) filledFields++;
-        if (hasRnc) filledFields++;
+    int filledFields = 0;
+    if (hasCedula) filledFields++;
+    if (hasPassport) filledFields++;
+    if (hasRnc) filledFields++;
 
-        return filledFields == MAX_IDENTIFICATION_DOCUMENT_COUNT;
-    }
+    return filledFields == MAX_IDENTIFICATION_DOCUMENT_COUNT;
+  }
 
   private int countProvidedIdentificationDocuments() {
     return (int) getIdentificationDocuments().filter(this::isDocumentProvided).count();

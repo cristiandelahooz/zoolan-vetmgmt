@@ -52,10 +52,10 @@ public class Client extends User {
   @Nullable
   private String passport;
 
-    @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
-    @Column(name = "rnc", length = 11, nullable = true, unique = true, columnDefinition = "CHAR(11)")
-    @Nullable
-    private String rnc;
+  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener 9 u 11 dígitos")
+  @Column(name = "rnc", length = 11, nullable = true, unique = true, columnDefinition = "CHAR(11)")
+  @Nullable
+  private String rnc;
 
   @Column(name = "company_name")
   @Nullable
