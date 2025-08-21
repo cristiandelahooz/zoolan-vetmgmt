@@ -6,10 +6,12 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -23,16 +25,14 @@ import com.wornux.security.service.SecurityContextService;
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
-/**
- * The main view is a top-level placeholder for other views.
- */
 @Slf4j
 @Layout
 @PermitAll
 public class MainLayout extends AppLayout {
 
-    private H2 viewTitle;
+    private H1 viewTitle;
 
     @Autowired
     private MenuService menuService;
@@ -45,6 +45,10 @@ public class MainLayout extends AppLayout {
 
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
+        addClassNames(
+            LumoUtility.Background.BASE,
+            LumoUtility.TextColor.BODY
+        );
         addHeaderContent();
         addDrawerContent();
     }
@@ -52,7 +56,6 @@ public class MainLayout extends AppLayout {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        // Rebuild menu when attached and services are available
         if (!menuInitialized && menuService != null && securityContextService != null) {
             rebuildNavigationMenu();
             menuInitialized = true;
@@ -70,104 +73,217 @@ public class MainLayout extends AppLayout {
     private void addHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
         toggle.setAriaLabel("Menu toggle");
+        toggle.addClassNames(
+            LumoUtility.Margin.End.MEDIUM,
+            LumoUtility.TextColor.SECONDARY
+        );
 
-        viewTitle = new H2();
-        viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        viewTitle = new H1();
+        viewTitle.addClassNames(
+            LumoUtility.FontSize.LARGE,
+            LumoUtility.FontWeight.SEMIBOLD,
+            LumoUtility.Margin.NONE,
+            LumoUtility.TextColor.HEADER,
+            LumoUtility.Flex.GROW
+        );
 
-        // User menu
         MenuBar userMenu = createUserMenu();
 
-        HorizontalLayout header = new HorizontalLayout(toggle, viewTitle);
-        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        header.expand(viewTitle);
-        header.add(userMenu);
-        header.setWidthFull();
-        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
+        HorizontalLayout headerLayout = new HorizontalLayout(toggle, viewTitle, userMenu);
+        headerLayout.addClassNames(
+            LumoUtility.Width.FULL,
+            LumoUtility.AlignItems.CENTER,
+            LumoUtility.Padding.Horizontal.MEDIUM,
+            LumoUtility.Padding.Vertical.SMALL,
+            LumoUtility.Background.BASE,
+            LumoUtility.BoxShadow.SMALL
+        );
+        headerLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        headerLayout.expand(viewTitle);
 
-        addToNavbar(true, header);
+        addToNavbar(headerLayout);
     }
 
     private void addDrawerContent() {
+        Div brandLayout = new Div();
+        brandLayout.addClassNames(
+            LumoUtility.Display.FLEX,
+            LumoUtility.AlignItems.CENTER,
+            LumoUtility.Padding.MEDIUM,
+            LumoUtility.Background.PRIMARY,
+            LumoUtility.TextColor.PRIMARY_CONTRAST
+        );
+
+        Icon brandIcon = LineAwesomeIcon.PAW_SOLID.create();
+        brandIcon.addClassNames(
+            LumoUtility.IconSize.LARGE,
+            LumoUtility.Margin.End.SMALL,
+            LumoUtility.TextColor.PRIMARY_CONTRAST
+        );
+
         H1 appName = new H1("Zoolandia");
-        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-        Header header = new Header(appName);
+        appName.addClassNames(
+            LumoUtility.FontSize.LARGE,
+            LumoUtility.FontWeight.BOLD,
+            LumoUtility.Margin.NONE,
+            LumoUtility.TextColor.PRIMARY_CONTRAST
+        );
 
-        drawerScroller = new Scroller(createNavigation());
+        brandLayout.add(brandIcon, appName);
+        Header header = new Header(brandLayout);
 
-        addToDrawer(header, drawerScroller);
+        SideNav nav = createNavigation();
+        nav.addClassNames(
+            LumoUtility.Padding.Vertical.SMALL,
+            LumoUtility.Background.BASE
+        );
+
+        drawerScroller = new Scroller(nav);
+        drawerScroller.addClassNames(
+            LumoUtility.Flex.GROW,
+            LumoUtility.Background.BASE
+        );
+
+        Footer footer = createFooter();
+
+        addToDrawer(header, drawerScroller, footer);
     }
 
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
 
-        // Check if services are available (they might not be during initial construction)
         if (menuService == null || securityContextService == null) {
             log.debug("Menu services not yet available, creating default menu");
-            // Return empty nav or minimal nav
-            nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
+            nav.addItem(createNavItem("Inicio", DashboardView.class, LineAwesomeIcon.HOME_SOLID));
             return nav;
         }
 
         try {
-            // Get menu items for current user
             var menuItems = menuService.getMenuItemsForCurrentUser();
 
-            // Convert menu items to SideNav items
             for (var menuItem : menuItems) {
                 nav.addItem(menuService.toSideNavItem(menuItem));
             }
 
-            // If no items were added, add at least the home item
             if (menuItems.isEmpty()) {
                 log.warn("No menu items available for current user, adding default home item");
-                nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
+                nav.addItem(createNavItem("Inicio", DashboardView.class, LineAwesomeIcon.HOME_SOLID));
             }
 
             log.debug("Dynamic menu created with {} items", menuItems.size());
         } catch (Exception e) {
             log.error("Error creating dynamic menu, falling back to default", e);
-            // Fallback to a minimal menu
-            nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
+            nav.addItem(createNavItem("Inicio", DashboardView.class, LineAwesomeIcon.HOME_SOLID));
         }
 
         return nav;
     }
 
+    private SideNavItem createNavItem(String label, Class<?> navigationTarget, LineAwesomeIcon iconType) {
+        Icon icon = iconType.create();
+        icon.addClassNames(
+            LumoUtility.IconSize.MEDIUM,
+            LumoUtility.TextColor.SECONDARY
+        );
+        
+        SideNavItem item = new SideNavItem(label, navigationTarget, icon);
+        item.addClassNames(
+            LumoUtility.Padding.Vertical.XSMALL,
+            LumoUtility.Padding.Horizontal.MEDIUM,
+            LumoUtility.BorderRadius.MEDIUM,
+            LumoUtility.Margin.Horizontal.SMALL
+        );
+        
+        return item;
+    }
+
     private MenuBar createUserMenu() {
         MenuBar menuBar = new MenuBar();
-        menuBar.setThemeName("tertiary-inline contrast");
+        menuBar.addClassNames(
+            LumoUtility.Margin.Start.AUTO,
+            LumoUtility.Background.TRANSPARENT
+        );
 
         Avatar avatar = new Avatar();
+        avatar.addClassNames(
+            LumoUtility.Width.MEDIUM,
+            LumoUtility.Height.MEDIUM
+        );
 
-        // Set user name from security context if available
         if (securityContextService != null) {
             String username = securityContextService.getCurrentUsername();
             avatar.setName(username);
 
-            // Add role information to title attribute for hover text
             securityContextService.getCurrentSystemRole().ifPresent(
-                    role -> avatar.getElement().setAttribute("title", username + " - " + role.getDisplayName()));
+                role -> avatar.getElement().setAttribute("title", username + " - " + role.getDisplayName()));
         } else {
             avatar.setName("Usuario");
         }
 
-        avatar.setThemeName("xsmall");
+        Span userName = new Span(avatar.getName());
+        userName.addClassNames(
+            LumoUtility.FontSize.SMALL,
+            LumoUtility.TextColor.SECONDARY,
+            LumoUtility.Margin.Start.SMALL
+        );
 
-        MenuItem userMenuItem = menuBar.addItem(avatar);
+        HorizontalLayout userInfo = new HorizontalLayout(avatar, userName);
+        userInfo.addClassNames(
+            LumoUtility.AlignItems.CENTER,
+            LumoUtility.Padding.Horizontal.SMALL,
+            LumoUtility.BorderRadius.MEDIUM
+        );
+        userInfo.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+
+        MenuItem userMenuItem = menuBar.addItem(userInfo);
         SubMenu userSubMenu = userMenuItem.getSubMenu();
-
-        userSubMenu.addItem("Perfil", e -> {
-            // Navigate to profile
-        });
-        userSubMenu.addItem("Configuración", e -> {
-            // Navigate to settings
-        });
+        
+        userSubMenu.addItem(createMenuItemWithIcon(LineAwesomeIcon.USER_SOLID, "Perfil"), 
+            e -> {});
+        userSubMenu.addItem(createMenuItemWithIcon(LineAwesomeIcon.COG_SOLID, "Configuración"), 
+            e -> {});
         userSubMenu.addSeparator();
-        userSubMenu.addItem("Cerrar sesión", e -> {
-            getUI().ifPresent(ui -> ui.getPage().setLocation("/logout"));
-        });
+        userSubMenu.addItem(createMenuItemWithIcon(LineAwesomeIcon.SIGN_OUT_ALT_SOLID, "Cerrar sesión"), 
+            e -> getUI().ifPresent(ui -> ui.getPage().setLocation("/logout")));
 
         return menuBar;
+    }
+
+    private HorizontalLayout createMenuItemWithIcon(LineAwesomeIcon iconType, String text) {
+        Icon icon = iconType.create();
+        icon.addClassNames(
+            LumoUtility.IconSize.SMALL,
+            LumoUtility.TextColor.SECONDARY
+        );
+        
+        Span label = new Span(text);
+        label.addClassNames(LumoUtility.Margin.Start.SMALL);
+        
+        HorizontalLayout layout = new HorizontalLayout(icon, label);
+        layout.addClassNames(LumoUtility.AlignItems.CENTER);
+        layout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        
+        return layout;
+    }
+
+    private Footer createFooter() {
+        Footer footer = new Footer();
+        footer.addClassNames(
+            LumoUtility.Padding.MEDIUM,
+            LumoUtility.Background.CONTRAST_5,
+            LumoUtility.TextAlignment.CENTER,
+            LumoUtility.BorderRadius.MEDIUM,
+            LumoUtility.Margin.MEDIUM
+        );
+
+        Span footerText = new Span("© 2024 Zoolandia VetMgmt");
+        footerText.addClassNames(
+            LumoUtility.FontSize.SMALL,
+            LumoUtility.TextColor.TERTIARY
+        );
+
+        footer.add(footerText);
+        return footer;
     }
 
     @Override
@@ -177,6 +293,7 @@ public class MainLayout extends AppLayout {
     }
 
     private String getCurrentPageTitle() {
-        return getContent().getClass().getSimpleName().replaceAll("View$", "").replaceAll("([a-z])([A-Z])", "$1 $2");
+        String className = getContent().getClass().getSimpleName();
+        return className.replaceAll("View$", "").replaceAll("([a-z])([A-Z])", "$1 $2");
     }
 }
