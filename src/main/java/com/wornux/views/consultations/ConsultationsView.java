@@ -27,6 +27,8 @@ import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.security.annotations.RequiredEmployeeRoles;
 import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
@@ -41,6 +43,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Route(value = "consultations")
 @PageTitle("Consultas")
 @PermitAll
+@RequiredEmployeeRoles({EmployeeRole.VETERINARIAN, EmployeeRole.KENNEL_ASSISTANT})
 public class ConsultationsView extends Div {
 
   private final Grid<Consultation> grid = GridUtils.createBasicGrid(Consultation.class);

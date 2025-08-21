@@ -36,7 +36,7 @@ VALUES
      'Avenida Central 456',
      'Next to the bank', TRUE, NOW(), NOW(), 'USER'),
     ('recep.gonzalez',
-     '$2a$10$3CJANU.vCvp7V4idrnlf/OBixeSE3Uf/uqwR.TVrJExTfs4kL82La',
+     '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
      'gonzalez@zoolan.com', 'Maria', 'Gonzalez', '8098889999', '1993-07-01',
      'FEMENINO', 'Dominican', 'La Vega', 'Concepcion de La Vega',
      'La Esmeralda',

@@ -22,8 +22,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     
     return userRepository.findByUsername(username)
         .map(user -> {
-          log.info("User found: {} - Active: {} - Password hash starts with: {}", 
-              user.getUsername(), user.isActive(), 
+          log.info("User found: {} - Active: {} - SystemRole: {} - Password hash starts with: {}", 
+              user.getUsername(), user.isActive(), user.getSystemRole(),
               user.getPassword() != null ? user.getPassword().substring(0, Math.min(10, user.getPassword().length())) : "null");
           return new UserDetailsImpl(user);
         })

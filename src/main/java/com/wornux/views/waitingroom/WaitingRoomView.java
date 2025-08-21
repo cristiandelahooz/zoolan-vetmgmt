@@ -18,26 +18,24 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.WaitingRoom;
 import com.wornux.data.enums.Priority;
 import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
-import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.GridUtils;
+import com.wornux.utils.NotificationUtils;
 import jakarta.annotation.security.PermitAll;
+import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
-import jakarta.persistence.criteria.Predicate;
-
-import java.util.Optional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 
@@ -51,15 +49,13 @@ public class WaitingRoomView extends VerticalLayout {
     private final ClientService clientService;
     private final PetService petService;
 
-    //private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
     private final Grid<WaitingRoom> grid = GridUtils.createBasicGrid(WaitingRoom.class);
     private final WaitingRoomForm form;
     private final VerticalLayout cardContainer = new VerticalLayout();
-    TextField searchField = new TextField();
     private final MultiSelectComboBox<Priority> priorityFilter = new MultiSelectComboBox<>("Prioridad");
     private final MultiSelectComboBox<WaitingRoomStatus> statusFilter = new MultiSelectComboBox<>("Estado");
     private final Span quantity = new Span();
-
+    TextField searchField = new TextField();
 
     public WaitingRoomView(WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {
         this.waitingRoomService = waitingRoomService;
@@ -76,8 +72,8 @@ public class WaitingRoomView extends VerticalLayout {
 
         Icon infoIcon = VaadinIcon.INFO_CIRCLE_O.create();
         infoIcon.getStyle().set("cursor", "pointer").set("color", "var(--lumo-primary-color)");
-        infoIcon.getElement().setProperty("title",
-                "Aquí puedes gestionar las mascotas que están esperando ser atendidas.");
+        infoIcon.getElement()
+                .setProperty("title", "Aquí puedes gestionar las mascotas que están esperando ser atendidas.");
 
         HorizontalLayout titleWithInfo = new HorizontalLayout(title, infoIcon);
         titleWithInfo.setAlignItems(Alignment.CENTER);
@@ -100,18 +96,10 @@ public class WaitingRoomView extends VerticalLayout {
         searchField.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
         searchField.addValueChangeListener(e -> refreshGrid());
 
-        quantity.addClassNames(
-                LumoUtility.BorderRadius.SMALL,
-                LumoUtility.Height.XSMALL,
-                LumoUtility.FontWeight.MEDIUM,
-                LumoUtility.TextAlignment.CENTER,
-                LumoUtility.JustifyContent.CENTER,
-                LumoUtility.AlignItems.CENTER,
-                LumoUtility.Padding.XSMALL,
-                LumoUtility.Padding.Horizontal.SMALL,
-                LumoUtility.Margin.Horizontal.SMALL,
-                LumoUtility.Margin.Bottom.XSMALL,
-                LumoUtility.TextColor.PRIMARY_CONTRAST,
+        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.TextAlignment.CENTER, LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER,
+                LumoUtility.Padding.XSMALL, LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.Margin.Bottom.XSMALL, LumoUtility.TextColor.PRIMARY_CONTRAST,
                 LumoUtility.Background.PRIMARY);
         quantity.setWidth("15%");
         updateQuantity();
@@ -272,8 +260,8 @@ public class WaitingRoomView extends VerticalLayout {
         contactInfo.setSpacing(true);
 
         // Datos del animal
-        Span petInfo = new Span(wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • "
-                + wr.getPet().getBreed() + " • " + wr.getPet().getGender());
+        Span petInfo = new Span(wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • " + wr.getPet()
+                .getBreed() + " • " + wr.getPet().getGender());
         petInfo.getElement().getStyle().set("font-weight", "600").set("color", "var(--lumo-primary-text-color)")
                 .set("font-size", "1.05em");
 
@@ -443,10 +431,10 @@ public class WaitingRoomView extends VerticalLayout {
     }
 
     private void updateQuantity() {
-        try{
+        try {
             long count = waitingRoomService.getWaitingCount() + waitingRoomService.getInConsultationCount();
             quantity.setText("En sala de espera (" + count + ")");
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.warn("Error getting employee count", e);
             quantity.setText("En sala de espera:");
         }

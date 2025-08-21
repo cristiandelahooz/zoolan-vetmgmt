@@ -1,17 +1,14 @@
 package com.wornux.views;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -21,169 +18,165 @@ import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.security.service.MenuService;
+import com.wornux.security.service.SecurityContextService;
 import jakarta.annotation.security.PermitAll;
-import com.wornux.views.appointments.AppointmentsCalendarView;
-import com.wornux.views.clients.CompanyClientView;
-import com.wornux.views.clients.IndividualClientView;
-import com.wornux.views.consultations.ConsultationsView;
-import com.wornux.views.employees.EmployeeView;
-import com.wornux.views.inventory.InventoryView;
-import com.wornux.views.medicalhistory.MedicalHistoryView;
-import com.wornux.views.pets.PetMergeView;
-import com.wornux.views.pets.PetView;
-import com.wornux.views.suppliers.SupplierView;
-import com.wornux.views.transactions.InvoiceView;
-import com.wornux.views.waitingroom.WaitingRoomView;
-import com.wornux.views.warehouses.WarehouseView;
-import org.vaadin.lineawesome.LineAwesomeIcon;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
+@Slf4j
 @Layout
 @PermitAll
 public class MainLayout extends AppLayout {
 
-  private H2 viewTitle;
+    private H2 viewTitle;
 
-  public MainLayout() {
-    setPrimarySection(Section.DRAWER);
-    addHeaderContent();
-    addDrawerContent();
-  }
+    @Autowired
+    private MenuService menuService;
 
-  private void addHeaderContent() {
-    DrawerToggle toggle = new DrawerToggle();
-    toggle.setAriaLabel("Menu toggle");
+    @Autowired
+    private SecurityContextService securityContextService;
+    
+    private Scroller drawerScroller;
+    private boolean menuInitialized = false;
 
-    viewTitle = new H2();
-    viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+    public MainLayout() {
+        setPrimarySection(Section.DRAWER);
+        addHeaderContent();
+        addDrawerContent();
+    }
+    
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        // Rebuild menu when attached and services are available
+        if (!menuInitialized && menuService != null && securityContextService != null) {
+            rebuildNavigationMenu();
+            menuInitialized = true;
+        }
+    }
+    
+    private void rebuildNavigationMenu() {
+        if (drawerScroller != null) {
+            SideNav newNav = createNavigation();
+            drawerScroller.setContent(newNav);
+            log.info("Navigation menu rebuilt for user: {}", securityContextService.getCurrentUsername());
+        }
+    }
 
-    // User menu
-    MenuBar userMenu = createUserMenu();
+    private void addHeaderContent() {
+        DrawerToggle toggle = new DrawerToggle();
+        toggle.setAriaLabel("Menu toggle");
 
-    HorizontalLayout header = new HorizontalLayout(toggle, viewTitle);
-    header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-    header.expand(viewTitle);
-    header.add(userMenu);
-    header.setWidthFull();
-    header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
+        viewTitle = new H2();
+        viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-    addToNavbar(true, header);
-  }
+        // User menu
+        MenuBar userMenu = createUserMenu();
 
-  private void addDrawerContent() {
-    H1 appName = new H1("Zoolandia");
-    appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-    Header header = new Header(appName);
+        HorizontalLayout header = new HorizontalLayout(toggle, viewTitle);
+        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        header.expand(viewTitle);
+        header.add(userMenu);
+        header.setWidthFull();
+        header.addClassNames(LumoUtility.Padding.Vertical.NONE, LumoUtility.Padding.Horizontal.MEDIUM);
 
-    Scroller scroller = new Scroller(createNavigation());
+        addToNavbar(true, header);
+    }
 
-    addToDrawer(header, scroller);
-  }
+    private void addDrawerContent() {
+        H1 appName = new H1("Zoolandia");
+        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        Header header = new Header(appName);
 
-  private SideNav createNavigation() {
-    SideNav nav = new SideNav();
+        drawerScroller = new Scroller(createNavigation());
 
-    // Dashboard/Home
-    nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
+        addToDrawer(header, drawerScroller);
+    }
 
-    // Appointments (Calendar)
-    nav.addItem(
-        new SideNavItem("Citas", AppointmentsCalendarView.class, VaadinIcon.CALENDAR.create()));
+    private SideNav createNavigation() {
+        SideNav nav = new SideNav();
 
-    // Inventory Section
-    SideNavItem inventorySection = new SideNavItem("Inventario");
-    inventorySection.setPrefixComponent(VaadinIcon.ARCHIVES.create());
-    inventorySection.addItem(
-        new SideNavItem("Productos", InventoryView.class, VaadinIcon.CART.create()));
-    inventorySection.addItem(
-        new SideNavItem("Almacenes", WarehouseView.class, VaadinIcon.TRUCK.create()));
-    nav.addItem(inventorySection);
+        // Check if services are available (they might not be during initial construction)
+        if (menuService == null || securityContextService == null) {
+            log.debug("Menu services not yet available, creating default menu");
+            // Return empty nav or minimal nav
+            nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
+            return nav;
+        }
 
-    // Consultations
-    nav.addItem(
-        new SideNavItem("Consultas", ConsultationsView.class, VaadinIcon.STETHOSCOPE.create()));
+        try {
+            // Get menu items for current user
+            var menuItems = menuService.getMenuItemsForCurrentUser();
 
-    // Transactions Section
-    SideNavItem transactionsSection = new SideNavItem("Transacciones");
-    transactionsSection.setPrefixComponent(VaadinIcon.CREDIT_CARD.create());
-    transactionsSection.addItem(
-        new SideNavItem("Facturas", InvoiceView.class, VaadinIcon.FILE_TEXT.create()));
-    nav.addItem(transactionsSection);
+            // Convert menu items to SideNav items
+            for (var menuItem : menuItems) {
+                nav.addItem(menuService.toSideNavItem(menuItem));
+            }
 
-    // Waiting Room
-    nav.addItem(
-        new SideNavItem("Sala de Espera", WaitingRoomView.class, VaadinIcon.OFFICE.create()));
+            // If no items were added, add at least the home item
+            if (menuItems.isEmpty()) {
+                log.warn("No menu items available for current user, adding default home item");
+                nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
+            }
 
-    // Clients Section
-    SideNavItem clientsSection = new SideNavItem("Clientes");
-    clientsSection.setPrefixComponent(VaadinIcon.USER.create());
-    clientsSection.addItem(
-        new SideNavItem("Individuales", IndividualClientView.class, VaadinIcon.USER.create()));
-    clientsSection.addItem(
-        new SideNavItem("Empresariales", CompanyClientView.class, VaadinIcon.BUILDING.create()));
-    nav.addItem(clientsSection);
+            log.debug("Dynamic menu created with {} items", menuItems.size());
+        } catch (Exception e) {
+            log.error("Error creating dynamic menu, falling back to default", e);
+            // Fallback to a minimal menu
+            nav.addItem(new SideNavItem("Inicio", DashboardView.class, VaadinIcon.HOME_O.create()));
+        }
 
-    // Pets Section
-    SideNavItem petsSection = new SideNavItem("Mascotas", PetView.class);
-    petsSection.setPrefixComponent(createPetsIcon());
-    petsSection.addItem(
-        new SideNavItem("Fusionar", PetMergeView.class, VaadinIcon.CONNECT.create()));
-    nav.addItem(petsSection);
+        return nav;
+    }
 
-    // Employees
-    nav.addItem(new SideNavItem("Empleados", EmployeeView.class, VaadinIcon.DOCTOR.create()));
+    private MenuBar createUserMenu() {
+        MenuBar menuBar = new MenuBar();
+        menuBar.setThemeName("tertiary-inline contrast");
 
-    // Suppliers
-    nav.addItem(new SideNavItem("Suplidores", SupplierView.class, VaadinIcon.TRUCK.create()));
+        Avatar avatar = new Avatar();
 
-    // Medical History
-    nav.addItem(new SideNavItem("Historial Médico", MedicalHistoryView.class,
-        VaadinIcon.CLIPBOARD_TEXT.create()));
+        // Set user name from security context if available
+        if (securityContextService != null) {
+            String username = securityContextService.getCurrentUsername();
+            avatar.setName(username);
 
-    return nav;
-  }
+            // Add role information to title attribute for hover text
+            securityContextService.getCurrentSystemRole().ifPresent(
+                    role -> avatar.getElement().setAttribute("title", username + " - " + role.getDisplayName()));
+        } else {
+            avatar.setName("Usuario");
+        }
 
-  private Icon createPetsIcon() {
-    // Using a simple icon for pets since LineAwesome causes issues
-    return VaadinIcon.HEART.create();  // Using heart icon for pets
-  }
+        avatar.setThemeName("xsmall");
 
-  private MenuBar createUserMenu() {
-    MenuBar menuBar = new MenuBar();
-    menuBar.setThemeName("tertiary-inline contrast");
+        MenuItem userMenuItem = menuBar.addItem(avatar);
+        SubMenu userSubMenu = userMenuItem.getSubMenu();
 
-    Avatar avatar = new Avatar();
-    avatar.setName("Usuario");
-    avatar.setThemeName("xsmall");
+        userSubMenu.addItem("Perfil", e -> {
+            // Navigate to profile
+        });
+        userSubMenu.addItem("Configuración", e -> {
+            // Navigate to settings
+        });
+        userSubMenu.addSeparator();
+        userSubMenu.addItem("Cerrar sesión", e -> {
+            getUI().ifPresent(ui -> ui.getPage().setLocation("/logout"));
+        });
 
-    MenuItem userMenuItem = menuBar.addItem(avatar);
-    SubMenu userSubMenu = userMenuItem.getSubMenu();
+        return menuBar;
+    }
 
-    userSubMenu.addItem("Perfil", e -> {
-      // Navigate to profile
-    });
-    userSubMenu.addItem("Configuración", e -> {
-      // Navigate to settings
-    });
-    userSubMenu.addSeparator();
-    userSubMenu.addItem("Cerrar sesión", e -> {
-      getUI().ifPresent(ui -> ui.getPage().setLocation("/logout"));
-    });
+    @Override
+    protected void afterNavigation() {
+        super.afterNavigation();
+        viewTitle.setText(getCurrentPageTitle());
+    }
 
-    return menuBar;
-  }
-
-  @Override
-  protected void afterNavigation() {
-    super.afterNavigation();
-    viewTitle.setText(getCurrentPageTitle());
-  }
-
-  private String getCurrentPageTitle() {
-    return getContent().getClass().getSimpleName()
-        .replaceAll("View$", "")
-        .replaceAll("([a-z])([A-Z])", "$1 $2");
-  }
+    private String getCurrentPageTitle() {
+        return getContent().getClass().getSimpleName().replaceAll("View$", "").replaceAll("([a-z])([A-Z])", "$1 $2");
+    }
 }

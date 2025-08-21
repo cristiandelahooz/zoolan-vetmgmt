@@ -1,56 +1,78 @@
 package com.wornux.security;
 
 import com.wornux.data.entity.User;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 @Slf4j
 public record UserDetailsImpl(User user) implements UserDetails {
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    List<GrantedAuthority> authorities = new ArrayList<>();
-    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-    log.debug("Granted authorities for user {}: {}", user.getUsername(), authorities);
-    return authorities;
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
 
-  @Override
-  public String getPassword() {
-    log.debug("Password retrieved for user: {} - Hash length: {}", 
-        user.getUsername(), user.getPassword() != null ? user.getPassword().length() : 0);
-    return user.getPassword();
-  }
+        // Add system role if present
+        if (user.getSystemRole() != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getSystemRole().name()));
+            log.debug("Added system role for user {}: ROLE_{}", user.getUsername(), user.getSystemRole().name());
+        }
 
-  @Override
-  public String getUsername() {
-    return user.getUsername();
-  }
+        // If user is an Employee, add employee role
+        if (user instanceof com.wornux.data.entity.Employee employee) {
+            if (employee.getEmployeeRole() != null) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_EMP_" + employee.getEmployeeRole().name()));
+                log.debug("Added employee role for user {}: ROLE_EMP_{}", user.getUsername(),
+                        employee.getEmployeeRole().name());
+            }
+        }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
+        // Fallback to USER role if no roles defined
+        if (authorities.isEmpty()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            log.warn("No roles defined for user {}, defaulting to ROLE_USER", user.getUsername());
+        }
 
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
+        log.debug("Total granted authorities for user {}: {}", user.getUsername(), authorities);
+        return authorities;
+    }
 
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
+    @Override
+    public String getPassword() {
+        log.debug("Password retrieved for user: {} - Hash length: {}", user.getUsername(),
+                user.getPassword() != null ? user.getPassword().length() : 0);
+        return user.getPassword();
+    }
 
-  @Override
-  public boolean isEnabled() {
-    boolean enabled = user.isActive();
-    log.debug("User {} enabled status: {}", user.getUsername(), enabled);
-    return enabled;
-  }
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        boolean enabled = user.isActive();
+        log.debug("User {} enabled status: {}", user.getUsername(), enabled);
+        return enabled;
+    }
 }

@@ -26,6 +26,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.enums.EmployeeRole;
+import jakarta.annotation.security.RolesAllowed;
 import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
@@ -45,7 +46,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "empleados")
 @PageTitle("Empleados")
-@PermitAll
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
 public class EmployeeView extends Div {
 
     private final Grid<Employee> grid = GridUtils.createBasicGrid(Employee.class);
