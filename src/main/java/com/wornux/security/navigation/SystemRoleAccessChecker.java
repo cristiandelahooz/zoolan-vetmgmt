@@ -1,8 +1,5 @@
 package com.wornux.security.navigation;
 
-import com.vaadin.flow.server.auth.AccessCheckResult;
-import com.vaadin.flow.server.auth.NavigationAccessChecker;
-import com.vaadin.flow.server.auth.NavigationContext;
 import com.wornux.data.enums.SystemRole;
 import com.wornux.security.annotations.RequiredSystemRoles;
 import com.wornux.security.service.SecurityContextService;
@@ -16,32 +13,25 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SystemRoleAccessChecker implements NavigationAccessChecker {
+public class SystemRoleAccessChecker {
 
     private final SecurityContextService securityContextService;
 
-    @Override
-    public AccessCheckResult check(NavigationContext context) {
-        if (context.isErrorHandling()) {
-            return AccessCheckResult.neutral();
-        }
-
-        Class<?> targetClass = context.getNavigationTarget();
-        
+    public boolean hasAccess(Class<?> targetClass) {
         RequiredSystemRoles annotation = targetClass.getAnnotation(RequiredSystemRoles.class);
         if (annotation == null) {
-            return AccessCheckResult.neutral();
+            return true;
         }
 
         if (!securityContextService.isAuthenticated()) {
             log.debug("Access denied to {} - user not authenticated", targetClass.getSimpleName());
-            return AccessCheckResult.deny("Authentication required");
+            return false;
         }
 
         Optional<SystemRole> currentRole = securityContextService.getCurrentSystemRole();
         if (currentRole.isEmpty()) {
             log.warn("User {} has no system role assigned", securityContextService.getCurrentUsername());
-            return AccessCheckResult.deny("No role assigned");
+            return false;
         }
 
         SystemRole[] requiredRoles = annotation.value();
@@ -52,14 +42,14 @@ public class SystemRoleAccessChecker implements NavigationAccessChecker {
                 targetClass.getSimpleName(), 
                 securityContextService.getCurrentUsername(),
                 currentRole.get());
-            return AccessCheckResult.allow();
+            return true;
         } else {
             log.debug("Access denied to {} for user {} - required roles: {}, current role: {}", 
                 targetClass.getSimpleName(),
                 securityContextService.getCurrentUsername(),
                 Arrays.toString(requiredRoles),
                 currentRole.get());
-            return AccessCheckResult.deny("Insufficient privileges");
+            return false;
         }
     }
 }
