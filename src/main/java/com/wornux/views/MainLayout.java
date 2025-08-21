@@ -11,7 +11,8 @@ import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,6 +23,7 @@ import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.security.service.MenuService;
 import com.wornux.security.service.SecurityContextService;
+import com.wornux.views.DashboardView;
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +116,7 @@ public class MainLayout extends AppLayout {
             LumoUtility.TextColor.PRIMARY_CONTRAST
         );
 
-        Icon brandIcon = LineAwesomeIcon.PAW_SOLID.create();
+        SvgIcon brandIcon = LineAwesomeIcon.PAW_SOLID.create();
         brandIcon.addClassNames(
             LumoUtility.IconSize.LARGE,
             LumoUtility.Margin.End.SMALL,
@@ -179,8 +181,8 @@ public class MainLayout extends AppLayout {
         return nav;
     }
 
-    private SideNavItem createNavItem(String label, Class<?> navigationTarget, LineAwesomeIcon iconType) {
-        Icon icon = iconType.create();
+    private SideNavItem createNavItem(String label, Class<? extends Component> navigationTarget, LineAwesomeIcon iconType) {
+        SvgIcon icon = iconType.create();
         icon.addClassNames(
             LumoUtility.IconSize.MEDIUM,
             LumoUtility.TextColor.SECONDARY
@@ -250,7 +252,7 @@ public class MainLayout extends AppLayout {
     }
 
     private HorizontalLayout createMenuItemWithIcon(LineAwesomeIcon iconType, String text) {
-        Icon icon = iconType.create();
+        SvgIcon icon = iconType.create();
         icon.addClassNames(
             LumoUtility.IconSize.SMALL,
             LumoUtility.TextColor.SECONDARY
