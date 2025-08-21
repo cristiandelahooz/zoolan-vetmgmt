@@ -1,14 +1,10 @@
 package com.wornux.views.employees;
 
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
-import static com.wornux.utils.PredicateUtils.predicateForTextField;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -23,30 +19,33 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.*;
+import com.wornux.components.Breadcrumb;
+import com.wornux.components.BreadcrumbItem;
+import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.enums.EmployeeRole;
-import jakarta.annotation.security.RolesAllowed;
 import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-
-import java.util.Optional;
-import java.util.Set;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Optional;
+import java.util.Set;
+
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+import static com.wornux.utils.PredicateUtils.predicateForTextField;
+
 @Slf4j
 @Route(value = "empleados")
 @PageTitle("Empleados")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER" })
 public class EmployeeView extends Div {
 
     private final Grid<Employee> grid = GridUtils.createBasicGrid(Employee.class);
@@ -69,26 +68,20 @@ public class EmployeeView extends Div {
         employeeForm.addEmployeeSavedListener(event -> refreshAll());
 
         employeeForm.setOnSaveCallback(this::refreshAll);
-        employeeForm.addEmployeeCancelledListener(
-                () -> {
-                    // Form handles closing automatically
-                });
-
         createGrid(employeeService, createFilterSpecification());
         configureLazyDataView();
 
         final Div gridLayout = new Div(grid);
-        gridLayout.addClassNames(
-                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
+        gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL,
+                LumoUtility.Height.FULL);
 
         add(createTitle(), createFilter(), gridLayout);
         addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
         setSizeFull();
 
-        create.addClickListener(
-                event -> {
-                    employeeForm.openForNew();
-                });
+        create.addClickListener(event -> {
+            employeeForm.openForNew();
+        });
     }
 
     private void createGrid(EmployeeService service, Specification<Employee> specification) {
@@ -96,12 +89,8 @@ public class EmployeeView extends Div {
 
         GridUtils.addColumn(grid, Employee::getUsername, "Usuario", "username");
 
-        GridUtils.addColumn(
-                grid,
-                employee -> employee.getFirstName() + " " + employee.getLastName(),
-                "Nombre Completo",
-                "firstName",
-                "lastName");
+        GridUtils.addColumn(grid, employee -> employee.getFirstName() + " " + employee.getLastName(), "Nombre Completo",
+                "firstName", "lastName");
 
         GridUtils.addColumn(grid, Employee::getEmail, "Correo Electrónico", "email");
 
@@ -109,23 +98,15 @@ public class EmployeeView extends Div {
 
         GridUtils.addComponentColumn(grid, this::renderRole, "Rol", "employeeRole");
 
-        GridUtils.addColumn(
-                grid,
-                employee ->
-                        "$" + String.format("%.2f", employee.getSalary() != null ? employee.getSalary() : 0.0),
-                "Salario",
-                "salary");
+        GridUtils.addColumn(grid,
+                employee -> "$" + String.format("%.2f", employee.getSalary() != null ? employee.getSalary() : 0.0),
+                "Salario", "salary");
 
         grid.addComponentColumn(this::renderStatus).setHeader("Estado").setAutoWidth(true);
 
         // Add actions column
         grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
 
-        grid.asSingleSelect()
-                .addValueChangeListener(
-                        event -> {
-                            // Grid selection handling can be removed or used for other purposes
-                        });
     }
 
     private Component renderStatus(Employee employee) {
@@ -156,21 +137,14 @@ public class EmployeeView extends Div {
     }
 
     private Predicate createSearchPredicate(Root<Employee> root, CriteriaBuilder builder) {
-        return predicateForTextField(
-                root,
-                builder,
-                new String[]{"username", "firstName", "lastName", "email", "phoneNumber"},
-                searchField.getValue());
+        return predicateForTextField(root, builder,
+                new String[] { "username", "firstName", "lastName", "email", "phoneNumber" }, searchField.getValue());
     }
 
     private Predicate createRolePredicate(Root<Employee> root, CriteriaBuilder builder) {
-        return createPredicateForSelectedItems(
-                Optional.ofNullable(role.getSelectedItems()),
-                items -> root.get("employeeRole").in(items),
-                builder);
+        return createPredicateForSelectedItems(Optional.ofNullable(role.getSelectedItems()),
+                items -> root.get("employeeRole").in(items), builder);
     }
-
-
 
     private Component createFilter() {
         searchField.focus();
@@ -181,17 +155,10 @@ public class EmployeeView extends Div {
         searchField.addValueChangeListener(e -> refreshAll());
         searchField.setWidth("50%");
 
-        quantity.addClassNames(
-                LumoUtility.BorderRadius.SMALL,
-                LumoUtility.Height.XSMALL,
-                LumoUtility.FontWeight.MEDIUM,
-                LumoUtility.JustifyContent.CENTER,
-                LumoUtility.AlignItems.CENTER,
-                LumoUtility.Padding.XSMALL,
-                LumoUtility.Padding.Horizontal.SMALL,
-                LumoUtility.Margin.Horizontal.SMALL,
-                LumoUtility.Margin.Bottom.XSMALL,
-                LumoUtility.TextColor.PRIMARY_CONTRAST,
+        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
+                LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.Margin.Bottom.XSMALL, LumoUtility.TextColor.PRIMARY_CONTRAST,
                 LumoUtility.Background.PRIMARY);
         quantity.setWidth("15%");
 
@@ -199,23 +166,17 @@ public class EmployeeView extends Div {
         role.setItemLabelGenerator(EmployeeRole::getDisplayName);
         role.setWidth("20%");
 
-        Set.of(role)
-                .forEach(
-                        c -> {
-                            c.setClearButtonVisible(true);
-                            c.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
-                            c.addValueChangeListener(e -> refreshAll());
-                        });
+        Set.of(role).forEach(c -> {
+            c.setClearButtonVisible(true);
+            c.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+            c.addValueChangeListener(e -> refreshAll());
+        });
 
         HorizontalLayout toolbar = new HorizontalLayout(searchField, role, quantity);
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         toolbar.setAlignItems(FlexComponent.Alignment.END);
-        toolbar.addClassNames(
-                LumoUtility.Margin.Horizontal.MEDIUM,
-                LumoUtility.Margin.Top.SMALL,
-                LumoUtility.Padding.MEDIUM,
-                LumoUtility.Gap.MEDIUM,
-                LumoUtility.Width.FULL);
+        toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM, LumoUtility.Width.FULL);
 
         refreshAll();
 
@@ -226,32 +187,24 @@ public class EmployeeView extends Div {
         final Breadcrumb breadcrumb = new Breadcrumb();
 
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(
-                new BreadcrumbItem("Empleados", EmployeeView.class),
+        breadcrumb.add(new BreadcrumbItem("Empleados", EmployeeView.class),
                 new BreadcrumbItem("Lista de Empleados", EmployeeView.class));
 
         Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar empleados de la clínica veterinaria.");
 
         Div headerLayout = new Div(breadcrumb, icon);
-        headerLayout.addClassNames(
-                LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Margin.Top.SMALL);
+        headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW,
+                LumoUtility.Margin.Top.SMALL);
 
         create.setText("Nuevo Empleado");
-        create.addThemeVariants(
-                ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
+        create.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
         create.addClassNames(LumoUtility.Width.AUTO);
 
         Div layout = new Div(headerLayout, create);
-        layout.addClassNames(
-                LumoUtility.Display.FLEX,
-                LumoUtility.FlexDirection.COLUMN,
-                LumoUtility.FlexDirection.Breakpoint.Large.ROW,
-                LumoUtility.JustifyContent.BETWEEN,
-                LumoUtility.Margin.Horizontal.MEDIUM,
-                LumoUtility.Margin.Top.SMALL,
-                LumoUtility.Gap.XSMALL,
-                LumoUtility.AlignItems.STRETCH,
-                LumoUtility.AlignItems.Breakpoint.Large.END);
+        layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.FlexDirection.Breakpoint.Large.ROW, LumoUtility.JustifyContent.BETWEEN,
+                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Gap.XSMALL,
+                LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
 
         return layout;
     }
@@ -266,13 +219,13 @@ public class EmployeeView extends Div {
         badge.getElement().getThemeList().add("badge pill");
 
         switch (roleValue) {
-            case CLINIC_MANAGER -> badge.getElement().getThemeList().add("success");
-            case VETERINARIAN -> badge.getElement().getThemeList().add("primary");
-            case RECEPTIONIST -> badge.getElement().getThemeList().add("contrast");
-            case ADMINISTRATIVE -> badge.getElement().getThemeList().add("warning");
-            case GROOMER -> badge.getElement().getThemeList().add("success primary");
-            case KENNEL_ASSISTANT -> badge.getElement().getThemeList().add("contrast");
-            case LAB_TECHNICIAN -> badge.getElement().getThemeList().add("primary contrast");
+        case CLINIC_MANAGER -> badge.getElement().getThemeList().add("success");
+        case VETERINARIAN -> badge.getElement().getThemeList().add("primary");
+        case RECEPTIONIST -> badge.getElement().getThemeList().add("contrast");
+        case ADMINISTRATIVE -> badge.getElement().getThemeList().add("warning");
+        case GROOMER -> badge.getElement().getThemeList().add("success primary");
+        case KENNEL_ASSISTANT -> badge.getElement().getThemeList().add("contrast");
+        case LAB_TECHNICIAN -> badge.getElement().getThemeList().add("primary contrast");
         }
 
         return badge;
@@ -280,16 +233,12 @@ public class EmployeeView extends Div {
 
     private Component createActionsColumn(Employee employee) {
         Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(
-                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
         edit.getElement().setProperty("title", "Editar");
         edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(
-                ButtonVariant.LUMO_ICON,
-                ButtonVariant.LUMO_TERTIARY_INLINE,
-                ButtonVariant.LUMO_SMALL,
+        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_ERROR);
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
@@ -311,8 +260,8 @@ public class EmployeeView extends Div {
         confirmDialog.setModal(true);
         confirmDialog.setWidth("400px");
 
-        Span message = new Span("¿Está seguro de que desea eliminar al empleado \"" +
-                employee.getFirstName() + " " + employee.getLastName() + "\"? Esta acción no se puede deshacer.");
+        Span message = new Span(
+                "¿Está seguro de que desea eliminar al empleado \"" + employee.getFirstName() + " " + employee.getLastName() + "\"? Esta acción no se puede deshacer.");
         message.getStyle().set("margin-bottom", "20px");
 
         Button confirmButton = new Button("Eliminar");

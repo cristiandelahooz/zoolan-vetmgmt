@@ -4,8 +4,6 @@ import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.wornux.security.navigation.SystemRoleAccessChecker;
-import com.wornux.security.navigation.TenantAccessChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,8 +12,6 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class NavigationAccessConfig implements VaadinServiceInitListener {
 
-    private final SystemRoleAccessChecker systemRoleAccessChecker;
-    private final TenantAccessChecker tenantAccessChecker;
     private final AccessAnnotationChecker accessAnnotationChecker;
 
     @Override
