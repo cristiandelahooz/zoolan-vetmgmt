@@ -22,6 +22,8 @@ import com.wornux.components.Breadcrumb;
 import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Consultation;
+import com.wornux.data.entity.Invoice;
+import com.wornux.data.enums.InvoiceStatus;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.GridUtils;
@@ -29,6 +31,8 @@ import com.wornux.utils.NotificationUtils;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import java.util.List;
+
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -251,7 +255,7 @@ public class ConsultationsView extends Div {
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
-        edit.addClickListener(e -> consultationsForm.openForEdit(consultation));
+        edit.addClickListener(e -> evaluateForEdit(consultation));
         delete.addClickListener(e -> showDeleteConfirmationDialog(consultation));
 
         HorizontalLayout actions = new HorizontalLayout(edit, delete);
@@ -260,6 +264,25 @@ public class ConsultationsView extends Div {
         actions.setMargin(false);
         actions.setWidth(null);
         return actions;
+    }
+
+    public void evaluateForEdit(Consultation consultation) {
+      try {
+        Invoice invoice = invoiceService.findByConsultation(consultation);
+        if(invoice != null) {
+          if (invoice.getStatus() != InvoiceStatus.PENDING) {
+            NotificationUtils.error("No se puede editar la consulta porque su factura asociada no está en estado PENDIENTE.");
+            refreshAll();
+          } else {
+            consultationsForm.openForEdit(consultation);
+          }
+        } else {
+          NotificationUtils.error("No se encontró una factura asociada a esta consulta.");
+          refreshAll();
+        }
+      } catch (Exception e) {
+        NotificationUtils.error("La consulta esta corrupta porque no tiene factura asociada.");
+      }
     }
 
     private void showDeleteConfirmationDialog(Consultation consultation) {
@@ -277,10 +300,9 @@ public class ConsultationsView extends Div {
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         confirmButton.addClickListener(e -> {
             try {
-                consultationService.delete(consultation.getId());
-                NotificationUtils.success("Consulta eliminada exitosamente");
-                refreshAll();
-                confirmDialog.close();
+              NotificationUtils.error("Favor solicite al manager que borre la factura.");
+              //refreshAll();
+              confirmDialog.close();
             } catch (Exception ex) {
                 NotificationUtils.error("Error al eliminar la consulta: " + ex.getMessage());
             }
