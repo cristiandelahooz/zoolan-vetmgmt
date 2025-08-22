@@ -38,11 +38,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
 import com.wornux.views.pets.SelectPetDialog;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 /**
  * Enhanced form for creating and editing consultations with service and product integration
  */
+@Slf4j
 public class ConsultationsForm extends Dialog {
 
   // Form fields
@@ -94,6 +98,7 @@ public class ConsultationsForm extends Dialog {
 
   // Data
   private transient Consultation editingConsultation;
+  private transient Invoice editingInvoice;
   private final List<ServiceItem> selectedServices = new ArrayList<>();
   private final List<ProductItem> selectedProducts = new ArrayList<>();
   private final ServiceForm serviceForm;
@@ -415,23 +420,6 @@ public class ConsultationsForm extends Dialog {
     grandTotalSpan.setText("$" + grandTotal);
   }
 
-  /*private void loadComboBoxData() {
-    // Load pets
-    //petService.getAllPets().forEach(pet -> petComboBox.getListDataView().addItem(pet));
-
-    // Load veterinarians
-    employeeService.getVeterinarians()
-        .forEach(emp -> veterinarianComboBox.getListDataView().addItem(emp));
-
-    // Load medical services
-    serviceService.findMedicalServices()
-        .forEach(service -> serviceComboBox.getListDataView().addItem(service));
-
-    // Load internal use products
-    productService.findInternalUseProducts()
-        .forEach(product -> productComboBox.getListDataView().addItem(product));
-  }*/
-
   private void loadComboBoxData() {
     // Veterinarios
     veterinarianComboBox.setItems(employeeService.getVeterinarians());
@@ -467,10 +455,8 @@ public class ConsultationsForm extends Dialog {
       // Save consultation
       Consultation savedConsultation = consultationService.save(editingConsultation);
 
-      // Create automatic invoice if services or products are selected
-      if (!selectedServices.isEmpty() || !selectedProducts.isEmpty()) {
-        createAutomaticInvoice(savedConsultation);
-      }
+      // Create, update or delete invoice
+      saveOrUpdateInvoice(savedConsultation);
 
       NotificationUtils.success("Consulta registrada exitosamente");
 
@@ -481,60 +467,16 @@ public class ConsultationsForm extends Dialog {
 
     } catch (ValidationException e) {
       NotificationUtils.error("Por favor, complete todos los campos requeridos");
+    } catch (ObjectOptimisticLockingFailureException ex) {
+      log.error(ex.getLocalizedMessage());
+      NotificationUtils.error(
+          "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
     } catch (Exception e) {
       NotificationUtils.error("Error al guardar la consulta: " + e.getMessage());
     }
   }
 
-  private void createAutomaticInvoice(Consultation consultation) {
-    try {
-      // Create invoice
-      Invoice invoice = Invoice.builder()
-          .client(consultation.getPet().getOwners().iterator().next())
-          .consultation(consultation)
-          .issuedDate(LocalDate.now())
-          .paymentDate(LocalDate.now().plusDays(30))
-          .status(InvoiceStatus.PENDING)
-          .consultationNotes(consultation.getNotes())
-          .subtotal(BigDecimal.ZERO)
-          .tax(BigDecimal.ZERO)
-          .total(BigDecimal.ZERO)
-          .paidToDate(BigDecimal.ZERO)
-          .build();
-
-      // Add services to invoice
-      for (ServiceItem serviceItem : selectedServices) {
-        ServiceInvoice serviceInvoice = ServiceInvoice.builder()
-            .service(serviceItem.getService())
-            .quantity(serviceItem.getQuantity())
-            .amount(serviceItem.getSubtotal())
-            .build();
-        invoice.addService(serviceInvoice);
-      }
-
-      // Add products to invoice
-      for (ProductItem productItem : selectedProducts) {
-        InvoiceProduct invoiceProduct = InvoiceProduct.builder()
-            .product(productItem.getProduct())
-            .quantity(productItem.getQuantity())
-            .price(productItem.getProduct().getSalesPrice())
-            .amount(productItem.getSubtotal())
-            .build();
-        invoice.addProduct(invoiceProduct);
-      }
-
-      // Calculate totals
-      invoice.calculateTotals();
-
-      // Save invoice
-      invoiceService.create(invoice);
-
-      NotificationUtils.success("Factura generada automáticamente");
-
-    } catch (Exception e) {
-      NotificationUtils.error("Error al generar la factura: " + e.getMessage());
-    }
-  }
+  
 
   public void openForNew() {
     clearForm();
@@ -545,16 +487,35 @@ public class ConsultationsForm extends Dialog {
 
     saveButton.setText("Registrar Consulta");
     editingConsultation = null;
+    editingInvoice = null;
     setHeaderTitle("Nueva Consulta");
     open();
   }
 
   public void openForEdit(Consultation consultation) {
+    clearForm();
     this.editingConsultation = consultation;
     binder.readBean(consultation);
     selectedPet = consultation.getPet();
     petName.setValue(selectedPet != null ? selectedPet.getName() : "");
     petName.setInvalid(false);
+
+    // Load services and products from existing invoice
+    invoiceService.getRepository().findByConsultation(consultation).ifPresent(invoice -> {
+      this.editingInvoice = invoice;
+
+      invoice.getServices().forEach(serviceInvoice ->
+          selectedServices.add(new ServiceItem(serviceInvoice.getService(), serviceInvoice.getQuantity()))
+      );
+
+      invoice.getProducts().forEach(invoiceProduct ->
+          selectedProducts.add(new ProductItem(invoiceProduct.getProduct(), invoiceProduct.getQuantity()))
+      );
+
+      servicesGrid.setItems(selectedServices);
+      productsGrid.setItems(selectedProducts);
+      updateTotals();
+    });
 
     saveButton.setText("Actualizar Consulta");
     setHeaderTitle("Editar Consulta");
@@ -573,38 +534,109 @@ public class ConsultationsForm extends Dialog {
     productQuantityField.setValue(1.0);
     selectedPet = null;
     petName.clear();
+    editingInvoice = null;
 
   }
-
-  /*private void setupServiceForm() {
-    serviceForm.addServiceSavedListener(dto -> {
-      // Refresh service selector and auto-select the new service
-      loadComboBoxData();
-      // Find and select the newly created service
-      serviceService.getAllActiveServices().stream()
-          .filter(s -> s.getName().equals(dto.getName()))
-          .findFirst();
-      serviceComboBox.setItems(serviceService.getAllActiveServices());
-      serviceService.getAllActiveServices().stream()
-          .filter(s -> s.getName().equals(dto.getName()))
-              .findFirst()
-          .ifPresent(serviceComboBox::setValue);
-    });
-  }*/
 
   private void setupServiceForm() {
     serviceForm.addServiceSavedListener(dto -> {
       var medicalServices = serviceService.findMedicalServices();
       serviceComboBox.setItems(medicalServices);
       medicalServices.stream()
-              .filter(s -> s.getName().equalsIgnoreCase(dto.getName()))
-              .findFirst()
-              .ifPresent(serviceComboBox::setValue);
+          .filter(s -> s.getName().equalsIgnoreCase(dto.getName()))
+          .findFirst()
+          .ifPresent(serviceComboBox::setValue);
     });
   }
 
+  private void saveOrUpdateInvoice(Consultation consultation) {
+    // Scenario 1: No services or products selected for the consultation
+    if (selectedServices.isEmpty() && selectedProducts.isEmpty()) {
+      if (editingInvoice != null) {
+        if (editingInvoice.getStatus() == InvoiceStatus.PENDING) {
+          try {
+            invoiceService.delete(editingInvoice.getCode());
+            NotificationUtils.info("Factura asociada pendiente eliminada.");
+          } catch (Exception e) {
+            log.error("Error eliminando factura pendiente: {}", editingInvoice.getCode(), e);
+            NotificationUtils.error("Error al eliminar la factura asociada pendiente.");
+          }
+        } else {
+          NotificationUtils.info("Factura asociada pagada. No se realizaron cambios en la factura.");
+        }
+      }
+      return;
+    }
 
-  // Inner classes for grid items
+    // Scenario 2: Services or products are selected for the consultation
+    Invoice invoiceToSave;
+    if (editingInvoice != null) {
+      if (editingInvoice.getStatus() == InvoiceStatus.PAID) {
+        NotificationUtils.info("Factura asociada pagada. No se realizaron cambios en la factura.");
+        return;
+      } else {
+        try {
+          invoiceService.delete(editingInvoice.getCode());
+          NotificationUtils.info("Factura anterior eliminada para crear una nueva.");
+        } catch (Exception e) {
+          log.error("Error eliminando factura pendiente anterior: {}", editingInvoice.getCode(), e);
+          NotificationUtils.error("Error al eliminar la factura asociada pendiente anterior.");
+          return;
+        }
+        invoiceToSave = Invoice.builder()
+            .client(consultation.getPet().getOwners().iterator().next())
+            .consultation(consultation)
+            .issuedDate(LocalDate.now())
+            .paymentDate(LocalDate.now().plusDays(30))
+            .status(InvoiceStatus.PENDING)
+            .paidToDate(BigDecimal.ZERO)
+            .build();
+      }
+    } else {
+      invoiceToSave = Invoice.builder()
+          .client(consultation.getPet().getOwners().iterator().next())
+          .consultation(consultation)
+          .issuedDate(LocalDate.now())
+          .paymentDate(LocalDate.now().plusDays(30))
+          .status(InvoiceStatus.PENDING)
+          .paidToDate(BigDecimal.ZERO)
+          .build();
+    }
+
+    invoiceToSave.getServices().clear();
+    for (ServiceItem serviceItem : selectedServices) {
+      ServiceInvoice serviceInvoice = ServiceInvoice.builder()
+          .service(serviceItem.getService())
+          .quantity(serviceItem.getQuantity())
+          .amount(serviceItem.getSubtotal())
+          .build();
+      invoiceToSave.addService(serviceInvoice);
+    }
+
+    invoiceToSave.getProducts().clear();
+    for (ProductItem productItem : selectedProducts) {
+      InvoiceProduct invoiceProduct = InvoiceProduct.builder()
+          .product(productItem.getProduct())
+          .quantity(productItem.getQuantity())
+          .price(productItem.getProduct().getSalesPrice())
+          .amount(productItem.getSubtotal())
+          .build();
+      invoiceToSave.addProduct(invoiceProduct);
+    }
+
+    invoiceToSave.calculateTotals();
+    invoiceToSave.setConsultationNotes(consultation.getNotes());
+
+    try {
+      invoiceService.create(invoiceToSave);
+      NotificationUtils.success("Factura guardada automáticamente.");
+    } catch (Exception e) {
+      log.error("Error al guardar la factura para la consulta: {}", consultation.getId(), e);
+      NotificationUtils.error("Error al generar/actualizar la factura: " + e.getMessage());
+    }
+  }
+
+
   public static class ServiceItem {
     private final Service service;
     private final Double quantity;
