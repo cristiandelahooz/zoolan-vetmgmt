@@ -1,5 +1,6 @@
 package com.wornux.views;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -18,6 +19,7 @@ import com.vaadin.flow.server.menu.MenuConfiguration;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.security.UserUtils;
 import com.wornux.utils.MenuUtil;
+import com.wornux.views.auth.LogoutView;
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -122,8 +124,7 @@ public class MainLayout extends AppLayout {
         SubMenu userSubMenu = userMenuItem.getSubMenu();
 
         userSubMenu.addSeparator();
-        userSubMenu.addItem(createMenuItemWithIcon(),
-                e -> getUI().ifPresent(ui -> ui.getPage().setLocation("/logout")));
+        userSubMenu.addItem(createMenuItemWithIcon(), e -> UI.getCurrent().navigate(LogoutView.class));
 
         return menuBar;
     }
