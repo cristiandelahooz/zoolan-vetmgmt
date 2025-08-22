@@ -1,5 +1,6 @@
 package com.wornux.security;
 
+import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,14 +18,12 @@ public record UserDetailsImpl(User user) implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        // Add system role if present
         if (user.getSystemRole() != null) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getSystemRole().name()));
             log.debug("Added system role for user {}: ROLE_{}", user.getUsername(), user.getSystemRole().name());
         }
 
-        // If user is an Employee, add employee role
-        if (user instanceof com.wornux.data.entity.Employee employee) {
+        if (user instanceof Employee employee) {
             if (employee.getEmployeeRole() != null) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_EMP_" + employee.getEmployeeRole().name()));
                 log.debug("Added employee role for user {}: ROLE_EMP_{}", user.getUsername(),
@@ -32,7 +31,6 @@ public record UserDetailsImpl(User user) implements UserDetails {
             }
         }
 
-        // Fallback to USER role if no roles defined
         if (authorities.isEmpty()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
             log.warn("No roles defined for user {}, defaulting to ROLE_USER", user.getUsername());
