@@ -227,3 +227,5 @@ vaadin.allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux
 2. Apply Lumo utility classes for styling
 3. Follow existing form and grid patterns
 4. Ensure responsive design with Vaadin components
+
+- guarda las reglas nagivation acces control, y una tabla de acceso por role, a cuales rutas tiene acceso
