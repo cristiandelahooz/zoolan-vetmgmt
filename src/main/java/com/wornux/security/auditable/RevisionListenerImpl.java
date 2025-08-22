@@ -15,7 +15,8 @@ public class RevisionListenerImpl implements RevisionListener {
     final SecurityContext context = SecurityContextHolder.getContext();
     Objects.requireNonNull(context, "Context cannot be null");
 
-    User actualUser = UserUtils.getUser();
+    User actualUser = null;
+    if (UserUtils.getUser().isPresent()) actualUser = UserUtils.getUser().get();
 
     if (actualUser != null) {
       final String userName = actualUser.getUsername();
@@ -23,11 +24,11 @@ public class RevisionListenerImpl implements RevisionListener {
       // Get the IP address from the request
       Revision revision = (Revision) revisionEntity;
       revision.setModifierUser(userName);
-      revision.setIpAddress("0.0.0.0");
+      revision.setIpAddress(revision.getIpAddress());
     } else {
       Revision revision = (Revision) revisionEntity;
       revision.setModifierUser("ANONYMOUS");
-      revision.setIpAddress("0.0.0.0");
+      revision.setIpAddress(revision.getIpAddress());
     }
   }
 }

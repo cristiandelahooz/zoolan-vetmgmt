@@ -26,6 +26,8 @@ import com.wornux.data.entity.Client;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
@@ -35,7 +37,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
-@Route(value = "business-clients")
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@Route(value = "business-clients", layout = MainLayout.class)
 @PageTitle("Clientes Empresariales")
 public class CompanyClientView extends Div {
 

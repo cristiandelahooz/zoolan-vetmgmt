@@ -28,6 +28,10 @@ import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
+import jakarta.annotation.security.RolesAllowed;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -38,24 +42,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
-@Route("sala-espera")
+@Route(value = "sala-espera", layout = MainLayout.class)
 @PageTitle("Sala de Espera")
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class WaitingRoomView extends VerticalLayout {
 
   private final WaitingRoomService waitingRoomService;
   private final ClientService clientService;
   private final PetService petService;
 
-  // private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
+
   private final Grid<WaitingRoom> grid = GridUtils.createBasicGrid(WaitingRoom.class);
   private final WaitingRoomForm form;
   private final VerticalLayout cardContainer = new VerticalLayout();
-  TextField searchField = new TextField();
+
   private final MultiSelectComboBox<Priority> priorityFilter =
       new MultiSelectComboBox<>("Prioridad");
   private final MultiSelectComboBox<WaitingRoomStatus> statusFilter =
       new MultiSelectComboBox<>("Estado");
-  private final Span quantity = new Span();
+  private final Span quantity = new Span();TextField searchField = new TextField();
 
   public WaitingRoomView(
       WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {

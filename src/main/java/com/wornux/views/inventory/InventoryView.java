@@ -15,7 +15,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
@@ -32,9 +31,12 @@ import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.SupplierService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
 import com.wornux.views.consultations.ConsultationsView;
 import com.wornux.views.products.ProductForm;
 import com.wornux.views.products.ProductGrid;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,8 +45,8 @@ import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @PageTitle("Inventario")
-@Route(value = "inventario")
-@Menu(order = 3, icon = "line-awesome/svg/boxes-solid.svg")
+@Route(value = "inventario", layout = MainLayout.class)
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class InventoryView extends Div {
 
   private final ProductGrid productGrid;
@@ -210,17 +212,32 @@ public class InventoryView extends Div {
         LumoUtility.Background.PRIMARY);
     updateQuantity();
 
-    // Botón para limpiar todos los filtros
-    Button clearFilters = new Button("Limpiar Filtros", VaadinIcon.REFRESH.create());
-    clearFilters.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-    clearFilters.addClickListener(e -> clearAllFilters());
+warehouseFilter.setItems(
+    warehouseService.getAllWarehouses().stream()
+        .map(
+            dto -> {
+                Warehouse w = new Warehouse();
+                w.setId(dto.getId());
+                w.setName(dto.getName());
+                return w;
+            })
+        .toList());
+warehouseFilter.setItemLabelGenerator(Warehouse::getName);
+warehouseFilter.setClearButtonVisible(true);
+warehouseFilter.addValueChangeListener(e -> refreshGrid());
+warehouseFilter.setWidth("15%");
 
-    // Primera fila de filtros
-    HorizontalLayout firstRowFilters =
-        new HorizontalLayout(searchField, categoryFilter, warehouseFilter);
-    firstRowFilters.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
-    firstRowFilters.setWidthFull();
-    firstRowFilters.setSpacing(true);
+// Botón para limpiar todos los filtros
+Button clearFilters = new Button("Limpiar Filtros", VaadinIcon.REFRESH.create());
+clearFilters.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+clearFilters.addClickListener(e -> clearAllFilters());
+
+// Primera fila de filtros
+HorizontalLayout firstRowFilters =
+    new HorizontalLayout(searchField, categoryFilter, warehouseFilter);
+firstRowFilters.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
+firstRowFilters.setWidthFull();
+firstRowFilters.setSpacing(true);
 
     // Segunda fila de filtros
     HorizontalLayout secondRowFilters =
@@ -259,7 +276,7 @@ public class InventoryView extends Div {
         predicates.add(
             criteriaBuilder.like(
                 criteriaBuilder.lower(root.get("name")),
-                "%" + searchField.getValue().toLowerCase() + "%"));
+        "%" + searchField.getValue().toLowerCase() + "%"));
       }
 
       // Filtro por categorías

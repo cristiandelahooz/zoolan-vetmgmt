@@ -247,7 +247,8 @@ public class CompanyClientForm extends Dialog {
     binder
         .forField(rnc)
         .asRequired("El RNC es requerido")
-        .withValidator(new RegexpValidator("El RNC debe contener 9 u 11 dígitos", RNC_PATTERN))
+        .withValidator(
+            new RegexpValidator("El RNC debe contener 9 u 11 dígitos", RNC_PATTERN))
         .bind(ValidationBean::getRnc, ValidationBean::setRnc);
 
     // Email validation
@@ -386,7 +387,8 @@ public class CompanyClientForm extends Dialog {
     binderUpdate
         .forField(rnc)
         .asRequired("El RNC es requerido")
-        .withValidator(new RegexpValidator("El RNC debe contener 9 u 11 dígitos", RNC_PATTERN))
+        .withValidator(
+            new RegexpValidator("El RNC debe contener 9 u 11 dígitos", RNC_PATTERN))
         .bind(ClientUpdateRequestDto::getRnc, ClientUpdateRequestDto::setRnc);
 
     binderUpdate

@@ -38,11 +38,7 @@ import com.vaadin.flow.server.streams.DownloadResponse;
 import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.BoardCard;
-import com.wornux.components.BoardCards;
-import com.wornux.components.Breadcrumb;
-import com.wornux.components.BreadcrumbItem;
-import com.wornux.components.InfoIcon;
+import com.wornux.components.*;
 import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Invoice;
 import com.wornux.data.enums.InvoiceStatus;
@@ -54,6 +50,8 @@ import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.ServiceService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.GridUtils;
+import com.wornux.views.MainLayout;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
@@ -71,9 +69,10 @@ import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @Uses(Icon.class)
-@Route(value = "invoices")
+@Route(value = "invoices", layout = MainLayout.class)
 @PageTitle("Invoices Management")
 @CssImport("./themes/zoolan-vetmgmt/view/invoice.css")
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class InvoiceView extends Div {
 
   private final Grid<Invoice> grid = GridUtils.createBasicGrid(Invoice.class);

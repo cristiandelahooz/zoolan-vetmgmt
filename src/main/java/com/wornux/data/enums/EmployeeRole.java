@@ -13,7 +13,8 @@ public enum EmployeeRole {
 
   VETERINARIAN("Veterinario/a", "Realiza consultas y procedimientos veterinarios", SystemRole.USER),
   GROOMER("Peluquero/a", "Servicios de peluquería y estética", SystemRole.USER),
-  KENNEL_ASSISTANT("Asistente de Perreras", "Cuidado de animales hospitalizados", SystemRole.USER),
+  KENNEL_ASSISTANT(
+      "Asistente de veterinario", "Cuidado de animales hospitalizados", SystemRole.USER),
   LAB_TECHNICIAN("Técnico de Laboratorio", "Análisis de laboratorio", SystemRole.USER);
 
   private final String displayName;

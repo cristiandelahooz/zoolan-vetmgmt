@@ -40,7 +40,6 @@ public interface EmployeeMapper {
 
   @Mapping(target = "workScheduleDays", source = "workScheduleDays")
   EmployeeCreateRequestDto toDTO(Employee employee);
-
   // Mapping methods for WorkScheduleDay
   WorkScheduleDay toEntity(WorkScheduleDayDto dto);
 

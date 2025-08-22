@@ -10,13 +10,9 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.core.io.ResourceLoader;
 
 /**
@@ -27,13 +23,13 @@ import org.springframework.core.io.ResourceLoader;
 @Builder
 public class ReportServiceDatabase implements ReportService<ReportServiceDatabase> {
 
-  private static final String REPORT_PATH = "classpath:./report/Invoice.jrxml";
+  private static final String REPORT_PATH = "classpath:./reports/Invoice.jasper";
 
   private final Map<String, Object> parameters = new HashMap<>();
   private ResourceLoader resourceLoader;
   private String version;
 
-  @Setter private List<Map<String, Object>> productsData; // Cambio: bookData → productsData
+  @Setter private List<Map<String, Object>> productsData;
 
   @Override
   public ReportServiceDatabase put(String key, Object value) {
@@ -67,7 +63,7 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
 
   private JasperReport loadJasperReport() throws ReportErrorException {
     try (InputStream resourceStream = loadResourceStream()) {
-      JasperReport jasperReport = JasperCompileManager.compileReport(resourceStream);
+      JasperReport jasperReport = (JasperReport) JRLoader.loadObject(resourceStream);
       log.info("Jasper report loaded successfully: {}", jasperReport.getName());
       return jasperReport;
     } catch (IOException ex) {

@@ -8,12 +8,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.wornux.data.entity.Revision;
 import com.wornux.services.AuditService;
+import jakarta.annotation.security.PermitAll;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import org.hibernate.envers.RevisionType;
 
+@PermitAll
 public class RevisionView<T> {
 
   @Getter private final Grid<RevisionDto> grid = new Grid<>(RevisionDto.class, false);

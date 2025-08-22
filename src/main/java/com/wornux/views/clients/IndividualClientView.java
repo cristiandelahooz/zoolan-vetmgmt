@@ -21,11 +21,15 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.*;
+import com.wornux.components.Breadcrumb;
+import com.wornux.components.BreadcrumbItem;
+import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Client;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
@@ -35,8 +39,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
-@Route(value = "individual-clients")
+@Route(value = "individual-clients", layout = MainLayout.class)
 @PageTitle("Clientes Individuales")
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class IndividualClientView extends Div {
 
   private final Grid<Client> grid = GridUtils.createBasicGrid(Client.class);

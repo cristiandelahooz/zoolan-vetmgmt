@@ -87,8 +87,8 @@ public class SelectOwnerDialog extends Dialog {
                 Client::getCedula, ced -> ced != null && ced.contains(cedulaFilter.getValue())));
 
     /*phoneFilter.addValueChangeListener(e ->
-            dataProvider.setFilter(Client::getPhoneNumber,
-                    phone -> phone != null && phone.contains(phoneFilter.getValue()))
+        dataProvider.setFilter(Client::getPhoneNumber,
+                phone -> phone != null && phone.contains(phoneFilter.getValue()))
     );*/
 
     grid.addColumn(Client::getFirstName).setHeader("Nombre");

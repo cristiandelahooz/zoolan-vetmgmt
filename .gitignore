@@ -6,7 +6,6 @@
 .classpath
 .run/
 
-
 *.iml
 .DS_Store
 
@@ -15,3 +14,4 @@ node_modules/
 src/main/frontend/generated/
 vite.generated.ts
 .env
+/.qodo/

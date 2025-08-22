@@ -21,7 +21,7 @@ public class Application implements AppShellConfigurator {
   }
 
   @Bean
-  public Clock clock() {
+  Clock clock() {
     return Clock.systemDefaultZone();
   }
 
@@ -31,7 +31,7 @@ public class Application implements AppShellConfigurator {
   }
 
   @Bean
-  public AuditorAware<String> auditorAware() {
+  AuditorAware<String> auditorAware() {
     return new AuditorAwareImpl();
   }
 }

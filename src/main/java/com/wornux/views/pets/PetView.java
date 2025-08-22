@@ -31,6 +31,8 @@ import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.GridUtils;
+import com.wornux.views.MainLayout;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.*;
 import java.util.Optional;
 import java.util.Set;
@@ -40,8 +42,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
-@Route("mascotas")
+@Route(value = "mascotas", layout = MainLayout.class)
 @PageTitle("Mascotas")
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class PetView extends Div {
 
   private final Grid<Pet> grid = GridUtils.createBasicGrid(Pet.class);

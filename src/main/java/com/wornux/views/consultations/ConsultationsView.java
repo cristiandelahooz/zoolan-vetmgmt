@@ -28,6 +28,8 @@ import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Order;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +38,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
-@Route(value = "consultations")
+@Route(value = "consultations", layout = MainLayout.class)
 @PageTitle("Consultas")
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class ConsultationsView extends Div {
 
   private final Grid<Consultation> grid = GridUtils.createBasicGrid(Consultation.class);
