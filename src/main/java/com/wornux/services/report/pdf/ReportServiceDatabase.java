@@ -1,5 +1,12 @@
 package com.wornux.services.report.pdf;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -8,16 +15,9 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.core.io.ResourceLoader;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Servicio para generar reportes PDF usando JasperReports. Implementa el patrón Builder para configuración fluida.
+ * Servicio para generar reportes PDF usando JasperReports. Implementa el patrón Builder para
+ * configuración fluida.
  */
 @Slf4j
 @Builder
@@ -42,7 +42,7 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
      * Configura los datos de productos para el reporte.
      *
      * @param productsData
-     *         Lista de Maps con los datos de cada producto
+     *     Lista de Maps con los datos de cada producto
      * @return this para encadenamiento fluido
      */
     public ReportServiceDatabase withProductsData(List<Map<String, Object>> productsData) {

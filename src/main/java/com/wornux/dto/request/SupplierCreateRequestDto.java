@@ -1,13 +1,13 @@
 package com.wornux.dto.request;
 
+import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
+import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
-
-import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
-import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 
 @Data
 public class SupplierCreateRequestDto {
@@ -37,5 +37,4 @@ public class SupplierCreateRequestDto {
 
     @NotNull(message = "La dirección de la calle del suplidor es requerida")
     private String streetAddress;
-
 }

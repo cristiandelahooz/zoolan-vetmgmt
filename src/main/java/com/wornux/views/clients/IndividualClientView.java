@@ -39,7 +39,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "individual-clients")
 @PageTitle("Clientes Individuales")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class IndividualClientView extends Div {
 
     private final Grid<Client> grid = GridUtils.createBasicGrid(Client.class);
@@ -52,7 +52,8 @@ public class IndividualClientView extends Div {
     private final transient UserService userService;
     private final IndividualClientForm individualClientForm;
 
-    public IndividualClientView(@Qualifier("clientServiceImpl") ClientService clientService, @Qualifier("userServiceImpl") UserService userService) {
+    public IndividualClientView(@Qualifier("clientServiceImpl") ClientService clientService,
+            @Qualifier("userServiceImpl") UserService userService) {
         this.userService = userService;
         this.clientService = clientService;
         this.individualClientForm = new IndividualClientForm(clientService, userService);
@@ -62,28 +63,26 @@ public class IndividualClientView extends Div {
         individualClientForm.setOnSaveCallback(this::refreshAll);
 
         // Configure form event listeners
-        individualClientForm.addClientSavedListener(
-                event -> {
-                    refreshAll();
-                    individualClientForm.close();
-                });
+        individualClientForm.addClientSavedListener(event -> {
+            refreshAll();
+            individualClientForm.close();
+        });
 
         individualClientForm.addClientCancelledListener(individualClientForm::close);
 
         createGrid(clientService, createFilterSpecification());
 
         final Div gridLayout = new Div(grid);
-        gridLayout.addClassNames(
-                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
+        gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL,
+                LumoUtility.Height.FULL);
 
         add(createTitle(), createFilter(), gridLayout);
         addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
         setSizeFull();
 
-        create.addClickListener(
-                event -> {
-                    individualClientForm.openForNew();
-                });
+        create.addClickListener(event -> {
+            individualClientForm.openForNew();
+        });
     }
 
     private void createGrid(ClientService service, Specification<Client> specification) {
@@ -92,8 +91,8 @@ public class IndividualClientView extends Div {
         GridUtils.addColumn(grid, client -> client.getCedula() != null ? client.getCedula() : client.getPassport(),
                 "Identificación", "identification");
 
-        GridUtils.addColumn(grid, client -> client.getFirstName() + " " + client.getLastName(),
-                "Nombre Completo", "fullName");
+        GridUtils.addColumn(grid, client -> client.getFirstName() + " " + client.getLastName(), "Nombre Completo",
+                "fullName");
 
         GridUtils.addColumn(grid, Client::getEmail, "Correo Electrónico", "email");
 
@@ -104,11 +103,9 @@ public class IndividualClientView extends Div {
         var actionsColumn = grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
         actionsColumn.setFrozenToEnd(true);
 
-        grid.asSingleSelect()
-                .addValueChangeListener(
-                        event -> {
-                            // TODO: Implement client editing
-                        });
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            // TODO: Implement client editing
+        });
     }
 
     public Specification<Client> createFilterSpecification() {
@@ -128,16 +125,13 @@ public class IndividualClientView extends Div {
     }
 
     private Predicate createSearchPredicate(Root<Client> root, CriteriaBuilder builder) {
-        return predicateForTextField(
-                root, builder, new String[]{"firstName", "lastName", "cedula", "passport", "email"}, searchField.getValue());
+        return predicateForTextField(root, builder, new String[] { "firstName", "lastName", "cedula", "passport",
+                "email" }, searchField.getValue());
     }
 
     private void refreshAll() {
         grid.getDataProvider().refreshAll();
-        long count =
-                clientService.getAllActiveClients().stream()
-                        .filter(client -> client.getRnc() == null)
-                        .count();
+        long count = clientService.getAllActiveClients().stream().filter(client -> client.getRnc() == null).count();
         quantity.setText("Clientes Individuales (" + count + ")");
     }
 
@@ -150,27 +144,17 @@ public class IndividualClientView extends Div {
         searchField.addValueChangeListener(e -> refreshAll());
         searchField.setWidth("50%");
 
-        quantity.addClassNames(
-                LumoUtility.BorderRadius.SMALL,
-                LumoUtility.Height.XSMALL,
-                LumoUtility.FontWeight.MEDIUM,
-                LumoUtility.JustifyContent.CENTER,
-                LumoUtility.AlignItems.CENTER,
-                LumoUtility.Padding.XSMALL,
-                LumoUtility.Padding.Horizontal.SMALL,
-                LumoUtility.Margin.Horizontal.SMALL,
-                LumoUtility.TextColor.PRIMARY_CONTRAST,
-                LumoUtility.Background.PRIMARY,
+        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
+                LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY,
                 LumoUtility.Margin.Bottom.XSMALL);
 
         HorizontalLayout toolbar = new HorizontalLayout(searchField, quantity);
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         toolbar.setAlignItems(FlexComponent.Alignment.END);
-        toolbar.addClassNames(
-                LumoUtility.Margin.Horizontal.MEDIUM,
-                LumoUtility.Margin.Top.SMALL,
-                LumoUtility.Padding.MEDIUM,
-                LumoUtility.Gap.MEDIUM);
+        toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM);
 
         refreshAll();
 
@@ -181,48 +165,36 @@ public class IndividualClientView extends Div {
         final Breadcrumb breadcrumb = new Breadcrumb();
 
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(
-                new BreadcrumbItem("Clientes", IndividualClientView.class),
-                new BreadcrumbItem("Clientes Individuales", IndividualClientView.class));
+        breadcrumb.add(new BreadcrumbItem("Clientes", IndividualClientView.class), new BreadcrumbItem(
+                "Clientes Individuales", IndividualClientView.class));
 
         Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar clientes individuales mediante cédula o pasaporte.");
 
         Div headerLayout = new Div(breadcrumb, icon);
-        headerLayout.addClassNames(
-                LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Margin.Top.SMALL);
+        headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW,
+                LumoUtility.Margin.Top.SMALL);
 
         create.setText("Nuevo Cliente Individual");
-        create.addThemeVariants(
-                ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
+        create.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
         create.addClassNames(LumoUtility.Width.AUTO);
 
         Div layout = new Div(headerLayout, create);
-        layout.addClassNames(
-                LumoUtility.Display.FLEX,
-                LumoUtility.FlexDirection.COLUMN,
-                LumoUtility.FlexDirection.Breakpoint.Large.ROW,
-                LumoUtility.JustifyContent.BETWEEN,
-                LumoUtility.Margin.Horizontal.MEDIUM,
-                LumoUtility.Margin.Top.SMALL,
-                LumoUtility.Gap.XSMALL,
-                LumoUtility.AlignItems.STRETCH,
-                LumoUtility.AlignItems.Breakpoint.Large.END);
+        layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.FlexDirection.Breakpoint.Large.ROW, LumoUtility.JustifyContent.BETWEEN,
+                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Gap.XSMALL,
+                LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
 
         return layout;
     }
 
     private Component createActionsColumn(Client client) {
         Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(
-                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
         edit.getElement().setProperty("title", "Editar");
         edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(
-                ButtonVariant.LUMO_ICON,
-                ButtonVariant.LUMO_TERTIARY_INLINE,
-                ButtonVariant.LUMO_SMALL,
+        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_ERROR);
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
@@ -245,8 +217,8 @@ public class IndividualClientView extends Div {
         confirmDialog.setWidth("400px");
 
         String clientName = client.getFirstName() + " " + client.getLastName();
-        Span message = new Span("¿Está seguro de que desea eliminar el cliente \"" +
-                clientName + "\"? Esta acción no se puede deshacer.");
+        Span message = new Span(
+                "¿Está seguro de que desea eliminar el cliente \"" + clientName + "\"? Esta acción no se puede deshacer.");
         message.getStyle().set("margin-bottom", "20px");
 
         Button confirmButton = new Button("Eliminar");

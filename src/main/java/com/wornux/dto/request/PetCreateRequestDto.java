@@ -1,7 +1,9 @@
 package com.wornux.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wornux.data.enums.FurType;
 import com.wornux.data.enums.Gender;
+import com.wornux.data.enums.PetSize;
 import com.wornux.data.enums.PetType;
 import com.wornux.validation.petsbreed.PetBreedValidatable;
 import com.wornux.validation.petsbreed.ValidPetBreed;
@@ -11,8 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.wornux.data.enums.FurType;
-import com.wornux.data.enums.PetSize;
 
 @Data
 @Builder
@@ -53,5 +53,4 @@ public class PetCreateRequestDto implements PetBreedValidatable {
 
     @NotNull(message = "El tipo de pelo es requerido")
     private FurType furType;
-
 }

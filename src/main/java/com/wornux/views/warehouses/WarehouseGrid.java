@@ -18,37 +18,38 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Warehouse;
 import com.wornux.data.enums.WarehouseType;
 import com.wornux.utils.NotificationUtils;
-
 import java.util.function.Consumer;
 
 public class WarehouseGrid extends Grid<Warehouse> {
-    public WarehouseGrid(ListDataProvider<Warehouse> dataProvider, Consumer<Warehouse> onEdit, Consumer<Warehouse> onDelete) {
+    public WarehouseGrid(ListDataProvider<Warehouse> dataProvider, Consumer<Warehouse> onEdit,
+            Consumer<Warehouse> onDelete) {
         super(Warehouse.class, false);
         setWidthFull();
         setHeight("450px");
         setDataProvider(dataProvider);
 
         addColumn(Warehouse::getName).setWidth("200px").setHeader("Nombre");
-        addComponentColumn(warehouse -> renderWarehouseType(warehouse.getWarehouseType())).setWidth("150px").setHeader("Tipo de Almacén");
-        addComponentColumn(warehouse -> renderAvailableForSale(warehouse.isAvailableForSale())).setWidth("150px").setHeader("Disponible para Venta").setTextAlign(ColumnTextAlign.CENTER).addClassNames(LumoUtility.JustifyContent.CENTER);
+        addComponentColumn(warehouse -> renderWarehouseType(warehouse.getWarehouseType())).setWidth("150px").setHeader(
+                "Tipo de Almacén");
+        addComponentColumn(warehouse -> renderAvailableForSale(warehouse.isAvailableForSale())).setWidth("150px")
+                .setHeader("Disponible para Venta").setTextAlign(ColumnTextAlign.CENTER).addClassNames(
+                        LumoUtility.JustifyContent.CENTER);
         addComponentColumn(warehouse -> renderStatus(warehouse.isStatus())).setWidth("120px").setHeader("Estado");
-        addComponentColumn(warehouse -> createActionsColumn(warehouse, onEdit, onDelete)).setWidth("70px").setHeader("Acciones").setTextAlign(ColumnTextAlign.START).addClassNames(LumoUtility.JustifyContent.START);
+        addComponentColumn(warehouse -> createActionsColumn(warehouse, onEdit, onDelete)).setWidth("70px").setHeader(
+                "Acciones").setTextAlign(ColumnTextAlign.START).addClassNames(LumoUtility.JustifyContent.START);
 
         addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
     }
 
-    private Component createActionsColumn(Warehouse warehouse, Consumer<Warehouse> onEdit, Consumer<Warehouse> onDelete) {
+    private Component createActionsColumn(Warehouse warehouse, Consumer<Warehouse> onEdit,
+            Consumer<Warehouse> onDelete) {
         Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(
-                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
         edit.getElement().setProperty("title", "Editar");
         edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(
-                ButtonVariant.LUMO_ICON,
-                ButtonVariant.LUMO_TERTIARY_INLINE,
-                ButtonVariant.LUMO_SMALL,
+        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_ERROR);
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
@@ -70,9 +71,8 @@ public class WarehouseGrid extends Grid<Warehouse> {
         confirmDialog.setModal(true);
         confirmDialog.setWidth("400px");
 
-        Span message = new Span("¿Está seguro de que desea eliminar el almacén \"" +
-                (warehouse.getName() != null ? warehouse.getName() : "") +
-                "\"? Esta acción no se puede deshacer.");
+        Span message = new Span("¿Está seguro de que desea eliminar el almacén \"" + (warehouse
+                .getName() != null ? warehouse.getName() : "") + "\"? Esta acción no se puede deshacer.");
         message.getStyle().set("margin-bottom", "20px");
 
         Button confirmButton = new Button("Eliminar");
@@ -104,13 +104,14 @@ public class WarehouseGrid extends Grid<Warehouse> {
     }
 
     private Component renderWarehouseType(WarehouseType type) {
-        if (type == null) return new Span("-");
+        if (type == null)
+            return new Span("-");
         Span badge = new Span(type.name());
         badge.getElement().getThemeList().add("badge pill");
         switch (type) {
-            case PRINCIPAL -> badge.getElement().getThemeList().add("primary");
-            case SECUNDARIO -> badge.getElement().getThemeList().add("contrast");
-            default -> badge.getElement().getThemeList().add("primary");
+        case PRINCIPAL -> badge.getElement().getThemeList().add("primary");
+        case SECUNDARIO -> badge.getElement().getThemeList().add("contrast");
+        default -> badge.getElement().getThemeList().add("primary");
         }
         return badge;
     }

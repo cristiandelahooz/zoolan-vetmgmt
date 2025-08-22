@@ -52,15 +52,19 @@ public class Supplier {
     @Column(name = "contact_email", unique = true)
     @Nullable
     protected String contactEmail;
+
     @Column(name = "province")
     @NotNull(message = "La provincia del suplidor es requerida")
     protected String province;
+
     @Column(name = "municipality")
     @NotNull(message = "El municipio del suplidor es requerido")
     protected String municipality;
+
     @Column(name = "sector")
     @NotNull(message = "El sector del suplidor es requerido")
     protected String sector;
+
     @Column(name = "street_address")
     @NotNull(message = "La dirección de la calle del suplidor es requerido")
     protected String streetAddress;

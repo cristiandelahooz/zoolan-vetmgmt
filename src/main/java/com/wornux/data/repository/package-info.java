@@ -1,5 +1,4 @@
-@NullMarked
-@NonNullApi
+@NullMarked @NonNullApi
 package com.wornux.data.repository;
 
 import org.jspecify.annotations.NullMarked;

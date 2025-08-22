@@ -13,56 +13,57 @@ import org.hibernate.envers.Audited;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"medicalHistory"})
-@ToString(exclude = {"medicalHistory"})
+@EqualsAndHashCode(exclude = { "medicalHistory" })
+@ToString(exclude = { "medicalHistory" })
 @Audited(withModifiedFlag = true)
 public class Consultation {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(columnDefinition = "TEXT", nullable = false)
-  private String notes;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String notes;
 
-  @Column(columnDefinition = "TEXT")
-  private String diagnosis;
+    @Column(columnDefinition = "TEXT")
+    private String diagnosis;
 
-  @Column(columnDefinition = "TEXT")
-  private String treatment;
+    @Column(columnDefinition = "TEXT")
+    private String treatment;
 
-  @Column(columnDefinition = "TEXT")
-  private String prescription;
+    @Column(columnDefinition = "TEXT")
+    private String prescription;
 
-  @Column(nullable = false)
-  private LocalDateTime consultationDate;
+    @Column(nullable = false)
+    private LocalDateTime consultationDate;
 
-  @ManyToOne
-  @JoinColumn(name = "pet", nullable = false)
-  private Pet pet;
+    @ManyToOne
+    @JoinColumn(name = "pet", nullable = false)
+    private Pet pet;
 
-  @ManyToOne
-  @JoinColumn(name = "veterinarian", nullable = false)
-  private Employee veterinarian;
+    @ManyToOne
+    @JoinColumn(name = "veterinarian", nullable = false)
+    private Employee veterinarian;
 
-  @ManyToOne
-  @JoinColumn(name = "medical_history")
-  @JsonIgnore
-  @Setter
-  private MedicalHistory medicalHistory;
+    @ManyToOne
+    @JoinColumn(name = "medical_history")
+    @JsonIgnore
+    @Setter
+    private MedicalHistory medicalHistory;
 
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-  @Builder.Default private boolean active = true;
+    @Builder.Default
+    private boolean active = true;
 
-  @PrePersist
-  protected void onCreate() {
-    createdAt = LocalDateTime.now();
-    updatedAt = LocalDateTime.now();
-  }
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
 
-  @PreUpdate
-  protected void onUpdate() {
-    updatedAt = LocalDateTime.now();
-  }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

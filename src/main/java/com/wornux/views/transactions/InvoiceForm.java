@@ -4,6 +4,7 @@ import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
 import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
 import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
 import static com.wornux.utils.CommonUtils.createIconItem;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -74,736 +75,617 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 @Slf4j
 public class InvoiceForm extends Div {
 
-  private final ComboBox<Client> customer = new ComboBox<>("Selecciona un cliente");
-  private final TextField docNum = new TextField("Número de factura");
-  private final TextField salesOrder = new TextField("Número de orden/servicio");
-  private final DatePicker issuedDate = new DatePicker("Fecha de emisión");
-  private final DatePicker paymentDate = new DatePicker("Fecha de pago");
+    private final ComboBox<Client> customer = new ComboBox<>("Selecciona un cliente");
+    private final TextField docNum = new TextField("Número de factura");
+    private final TextField salesOrder = new TextField("Número de orden/servicio");
+    private final DatePicker issuedDate = new DatePicker("Fecha de emisión");
+    private final DatePicker paymentDate = new DatePicker("Fecha de pago");
 
-  private final DecimalField total = new DecimalField("Total");
-  private final TextArea notes = new TextArea("Notas");
+    private final DecimalField total = new DecimalField("Total");
+    private final TextArea notes = new TextArea("Notas");
 
-  private final Grid<InvoiceProduct> gridProductService = new Grid<>(InvoiceProduct.class, false);
-  private final Set<InvoiceProduct> invoiceProducts = new HashSet<>();
+    private final Grid<InvoiceProduct> gridProductService = new Grid<>(InvoiceProduct.class, false);
+    private final Set<InvoiceProduct> invoiceProducts = new HashSet<>();
 
-  private final Binder<Invoice> binder = new BeanValidationBinder<>(Invoice.class);
+    private final Binder<Invoice> binder = new BeanValidationBinder<>(Invoice.class);
 
-  private final Sidebar sidebar = new Sidebar();
-  private final Button add = new Button(VaadinIcon.PLUS_CIRCLE.create());
-  private final Button exportPdfButton =
-      new Button("Exportar PDF", VaadinIcon.FILE_TEXT_O.create());
-  private final Div layoutTabBar = new Div();
-  private final Div layoutGrid = new Div();
-  private final Div createDetails = new Div();
-  private final Div footer = new Div();
-  private final InvoiceService service;
-  private final ClientService customerService;
-  private final UserService userService;
-  private final InvoiceReportService invoiceReportService;
-  private final RevisionView<Invoice> revisionView;
-  private final ClientCreationDialog clientCreationDialog;
-  private final List<Product> products;
-  private Invoice element;
-  @Setter
-  private Runnable callable;
+    private final Sidebar sidebar = new Sidebar();
+    private final Button add = new Button(VaadinIcon.PLUS_CIRCLE.create());
+    private final Button exportPdfButton = new Button("Exportar PDF", VaadinIcon.FILE_TEXT_O.create());
+    private final Div layoutTabBar = new Div();
+    private final Div layoutGrid = new Div();
+    private final Div createDetails = new Div();
+    private final Div footer = new Div();
+    private final InvoiceService service;
+    private final ClientService customerService;
+    private final UserService userService;
+    private final InvoiceReportService invoiceReportService;
+    private final RevisionView<Invoice> revisionView;
+    private final ClientCreationDialog clientCreationDialog;
+    private final List<Product> products;
+    private Invoice element;
+    @Setter
+    private Runnable callable;
 
-  public InvoiceForm(
-      InvoiceService service,
-      ClientService customerService,
-      ProductService productService,
-      AuditService auditService,
-      ClientMapper clientMapper,
-      InvoiceReportService invoiceReportService,
-      UserService userService) {
-    this.service = service;
-    this.customerService = customerService;
-    this.userService = userService;
-    this.invoiceReportService = invoiceReportService;
+    public InvoiceForm(InvoiceService service, ClientService customerService, ProductService productService,
+            AuditService auditService, ClientMapper clientMapper, InvoiceReportService invoiceReportService,
+            UserService userService) {
+        this.service = service;
+        this.customerService = customerService;
+        this.userService = userService;
+        this.invoiceReportService = invoiceReportService;
 
-    CommonUtils.commentsFormat(notes, 500);
+        CommonUtils.commentsFormat(notes, 500);
 
-    notes.setMinRows(4);
-    notes.setMaxRows(4);
+        notes.setMinRows(4);
+        notes.setMaxRows(4);
 
-    this.products = productService.getAllProducts();
+        this.products = productService.getAllProducts();
 
-    this.revisionView = new RevisionView<>(auditService, Invoice.class);
-    revisionView.configureGridRevision();
+        this.revisionView = new RevisionView<>(auditService, Invoice.class);
+        revisionView.configureGridRevision();
 
-    clientCreationDialog = new ClientCreationDialog(customerService, clientMapper, userService);
+        clientCreationDialog = new ClientCreationDialog(customerService, clientMapper, userService);
 
-    docNum.setEnabled(false);
-    total.setEnabled(false);
+        docNum.setEnabled(false);
+        total.setEnabled(false);
 
-    createGrid();
+        createGrid();
 
-    binder.bindInstanceFields(this);
+        binder.bindInstanceFields(this);
 
-    // Manual binding for customer field since it's not an instance field of Invoice
-    binder
-        .forField(customer)
-        .asRequired("Debes seleccionar un cliente")
-        .bind(Invoice::getClient, Invoice::setClient);
-    binder
-        .getFields()
-        .forEach(
-            field -> {
-              if (field instanceof HasClearButton clear) {
+        // Manual binding for customer field since it's not an instance field of Invoice
+        binder.forField(customer).asRequired("Debes seleccionar un cliente").bind(Invoice::getClient,
+                Invoice::setClient);
+        binder.getFields().forEach(field -> {
+            if (field instanceof HasClearButton clear) {
                 clear.setClearButtonVisible(true);
-              }
-            });
+            }
+        });
 
-    layoutGrid.addClassNames(CARD_BACKGROUND_COLOR, LumoUtility.Padding.SMALL);
+        layoutGrid.addClassNames(CARD_BACKGROUND_COLOR, LumoUtility.Padding.SMALL);
 
-    layoutTabBar.addClassNames(CARD_BACKGROUND_COLOR, LumoUtility.Padding.SMALL);
-    layoutTabBar.addClassNames(
-        LumoUtility.Display.FLEX,
-        LumoUtility.FlexDirection.COLUMN,
-        LumoUtility.Width.AUTO,
-        LumoUtility.Height.FULL);
+        layoutTabBar.addClassNames(CARD_BACKGROUND_COLOR, LumoUtility.Padding.SMALL);
+        layoutTabBar.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Width.AUTO,
+                LumoUtility.Height.FULL);
 
-    footer.add(notes, total);
-    footer.addClassNames(
-        LumoUtility.Display.FLEX,
-        LumoUtility.FlexDirection.ROW,
-        LumoUtility.Padding.SMALL,
-        LumoUtility.JustifyContent.BETWEEN,
-        LumoUtility.Background.CONTRAST_5);
-    footer.getStyle().set("border-bottom-left-radius", "var(--lumo-space-m)");
-    footer.getStyle().set("border-bottom-right-radius", "var(--lumo-space-m)");
+        footer.add(notes, total);
+        footer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Padding.SMALL,
+                LumoUtility.JustifyContent.BETWEEN, LumoUtility.Background.CONTRAST_5);
+        footer.getStyle().set("border-bottom-left-radius", "var(--lumo-space-m)");
+        footer.getStyle().set("border-bottom-right-radius", "var(--lumo-space-m)");
 
-    createDetails.add(createDetails());
+        createDetails.add(createDetails());
 
-    sidebar.createHeaderContent(createTabBar());
-    sidebar.createContent(layoutTabBar, createDetails, layoutGrid, footer);
-    sidebar.addClassNames(SLIDER_RESPONSIVE_WIDTH);
-    sidebar.addSubTitle("Completa el formulario para crear una factura.");
+        sidebar.createHeaderContent(createTabBar());
+        sidebar.createContent(layoutTabBar, createDetails, layoutGrid, footer);
+        sidebar.addClassNames(SLIDER_RESPONSIVE_WIDTH);
+        sidebar.addSubTitle("Completa el formulario para crear una factura.");
 
-    sidebar.setOnSaveClickListener(this::saveOrUpdate);
-    sidebar.setOnCancelClickListener(this::cancel);
+        sidebar.setOnSaveClickListener(this::saveOrUpdate);
+        sidebar.setOnCancelClickListener(this::cancel);
 
-    sidebar.getSave().setText("Guardar y continuar");
+        sidebar.getSave().setText("Guardar y continuar");
 
-    add(sidebar, clientCreationDialog);
+        add(sidebar, clientCreationDialog);
 
-    invoiceProducts.add(new InvoiceProduct());
-    gridProductService.getDataProvider().refreshAll();
+        invoiceProducts.add(new InvoiceProduct());
+        gridProductService.getDataProvider().refreshAll();
 
-    Runnable updateHelperText =
-        () -> {
-          LocalDate issued = issuedDate.getValue();
-          LocalDate payment = paymentDate.getValue();
+        Runnable updateHelperText = () -> {
+            LocalDate issued = issuedDate.getValue();
+            LocalDate payment = paymentDate.getValue();
 
-          if (issued != null && payment != null) {
-            long daysBetween = ChronoUnit.DAYS.between(issued, payment);
-            paymentDate.setHelperText("Dentro de " + daysBetween + " días");
-          } else {
-            paymentDate.setHelperText("Selecciona fechas válidas");
-          }
+            if (issued != null && payment != null) {
+                long daysBetween = ChronoUnit.DAYS.between(issued, payment);
+                paymentDate.setHelperText("Dentro de " + daysBetween + " días");
+            } else {
+                paymentDate.setHelperText("Selecciona fechas válidas");
+            }
         };
 
-    issuedDate.addValueChangeListener(e -> updateHelperText.run());
-    paymentDate.addValueChangeListener(e -> updateHelperText.run());
+        issuedDate.addValueChangeListener(e -> updateHelperText.run());
+        paymentDate.addValueChangeListener(e -> updateHelperText.run());
 
-    updateHelperText.run();
-  }
-
-  private static Div headerLayout(Component... components) {
-    Div layoutForm = new Div(components);
-    layoutForm.addClassNames(
-        LumoUtility.Display.FLEX,
-        LumoUtility.FlexDirection.ROW,
-        LumoUtility.FlexDirection.COLUMN,
-        LumoUtility.Gap.Column.MEDIUM,
-        LumoUtility.AlignItems.START,
-        LumoUtility.JustifyContent.BETWEEN,
-        LumoUtility.Padding.NONE,
-        LumoUtility.Margin.Top.SMALL);
-    return layoutForm;
-  }
-
-  private void createGrid() {
-    gridProductService.setItems(invoiceProducts);
-
-    List.of(gridProductService)
-        .forEach(
-            c -> {
-              c.setWidthFull();
-              c.setHeight("300px");
-              c.setEmptyStateText("No se encontraron registros.");
-              c.setMultiSort(true, Grid.MultiSortPriority.APPEND);
-              c.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-              c.addClassNames(LumoUtility.Margin.Top.XSMALL, LumoUtility.Margin.Bottom.XSMALL);
-            });
-
-    gridProductService
-        .addColumn(new ComponentRenderer<>(this::renderActions))
-        .setHeader("Acciones")
-        .setFlexGrow(0)
-        .setTextAlign(ColumnTextAlign.CENTER);
-    gridProductService
-        .addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getName).orElse(""))
-        .setHeader("Productos y servicios")
-        .setAutoWidth(true);
-    gridProductService
-        .addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getDescription).orElse(""))
-        .setHeader("Descripción")
-        .setAutoWidth(true);
-    gridProductService
-        .addColumn(
-            c ->
-                new DecimalFormat("#,##0.00")
-                    .format(Optional.ofNullable(c.getQuantity()).orElse(0.0)))
-        .setHeader("Cantidad")
-        .setAutoWidth(true)
-        .setTextAlign(ColumnTextAlign.CENTER);
-    gridProductService
-        .addColumn(
-            c ->
-                new DecimalFormat("#,##0.00")
-                    .format(Optional.ofNullable(c.getPrice()).orElse(BigDecimal.ZERO)))
-        .setHeader("Precio")
-        .setAutoWidth(true)
-        .setTextAlign(ColumnTextAlign.END);
-    gridProductService
-        .addColumn(
-            c ->
-                new DecimalFormat("#,##0.00")
-                    .format(Optional.ofNullable(c.getAmount()).orElse(BigDecimal.ZERO)))
-        .setHeader("Importe")
-        .setAutoWidth(true)
-        .setTextAlign(ColumnTextAlign.END);
-    gridProductService.getDataProvider().addDataProviderListener(event -> calculateTotal());
-    gridProductService.addItemDoubleClickListener(event -> createDialog(event.getItem()));
-  }
-
-  private void calculateTotal() {
-    double lineTotal = 0;
-    if (element == null || element.getCode() == null) {
-      lineTotal +=
-          invoiceProducts.stream()
-              .filter(p -> p.getProduct() != null)
-              .mapToDouble(m -> m.getAmount().doubleValue())
-              .sum();
-    } else {
-      lineTotal +=
-          element.getProducts().stream().mapToDouble(m -> m.getAmount().doubleValue()).sum();
+        updateHelperText.run();
     }
 
-    total.setValue(lineTotal);
-  }
-
-  private Component renderActions(InvoiceProduct item) {
-
-    Button add =
-        new Button(
-            item.getProduct() == null ? VaadinIcon.PLUS_CIRCLE_O.create() : LumoIcon.EDIT.create());
-    add.addClassNames(LumoUtility.Width.AUTO, LumoUtility.Margin.NONE);
-    add.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-    add.getStyle().set("cursor", "pointer");
-    add.addClickListener(e -> createDialog(item));
-
-    if (item.getProduct() == null) {
-      return add;
+    private static Div headerLayout(Component... components) {
+        Div layoutForm = new Div(components);
+        layoutForm.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW,
+                LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.Column.MEDIUM, LumoUtility.AlignItems.START,
+                LumoUtility.JustifyContent.BETWEEN, LumoUtility.Padding.NONE, LumoUtility.Margin.Top.SMALL);
+        return layoutForm;
     }
 
-    Button edit = new Button(VaadinIcon.MINUS_CIRCLE_O.create());
-    edit.addClassNames(LumoUtility.Width.AUTO, LumoUtility.Margin.NONE);
-    edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-    edit.getStyle().set("cursor", "pointer");
-    edit.addClickListener(
-        e -> {
-          invoiceProducts.remove(item);
-          gridProductService.getDataProvider().refreshAll();
+    private void createGrid() {
+        gridProductService.setItems(invoiceProducts);
+
+        List.of(gridProductService).forEach(c -> {
+            c.setWidthFull();
+            c.setHeight("300px");
+            c.setEmptyStateText("No se encontraron registros.");
+            c.setMultiSort(true, Grid.MultiSortPriority.APPEND);
+            c.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+            c.addClassNames(LumoUtility.Margin.Top.XSMALL, LumoUtility.Margin.Bottom.XSMALL);
         });
 
-    Div actions = new Div(add, edit);
-    actions.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER);
-    actions.addClassNames("-mx-s");
-    return actions;
-  }
+        gridProductService.addColumn(new ComponentRenderer<>(this::renderActions)).setHeader("Acciones").setFlexGrow(0)
+                .setTextAlign(ColumnTextAlign.CENTER);
+        gridProductService.addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getName).orElse(""))
+                .setHeader("Productos y servicios").setAutoWidth(true);
+        gridProductService.addColumn(c -> Optional.ofNullable(c.getProduct()).map(Product::getDescription).orElse(""))
+                .setHeader("Descripción").setAutoWidth(true);
+        gridProductService.addColumn(c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getQuantity())
+                .orElse(0.0))).setHeader("Cantidad").setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        gridProductService.addColumn(c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getPrice()).orElse(
+                BigDecimal.ZERO))).setHeader("Precio").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+        gridProductService.addColumn(c -> new DecimalFormat("#,##0.00").format(Optional.ofNullable(c.getAmount())
+                .orElse(BigDecimal.ZERO))).setHeader("Importe").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+        gridProductService.getDataProvider().addDataProviderListener(event -> calculateTotal());
+        gridProductService.addItemDoubleClickListener(event -> createDialog(event.getItem()));
+    }
 
-  private void createDialog(InvoiceProduct line) {
-    var isNew = line.getProduct() == null;
-    Dialog d = new Dialog();
+    private void calculateTotal() {
+        double lineTotal = 0;
+        if (element == null || element.getCode() == null) {
+            lineTotal += invoiceProducts.stream().filter(p -> p.getProduct() != null).mapToDouble(m -> m.getAmount()
+                    .doubleValue()).sum();
+        } else {
+            lineTotal += element.getProducts().stream().mapToDouble(m -> m.getAmount().doubleValue()).sum();
+        }
 
-    final NumberField fieldQty = new NumberField("Cantidad");
-    fieldQty.setMin(0.1);
-    fieldQty.setStep(0.1);
-    fieldQty.setWidthFull();
-    fieldQty.setValue(Optional.ofNullable(line.getQuantity()).orElse(1.0));
-    fieldQty.setStepButtonsVisible(true);
-    fieldQty.setClearButtonVisible(true);
+        total.setValue(lineTotal);
+    }
 
-    final DecimalField fieldPrice = new DecimalField("Precio");
-    fieldPrice.setWidthFull();
-    fieldPrice.setValue(Optional.ofNullable(line.getPrice()).orElse(BigDecimal.ZERO).doubleValue());
-    fieldPrice.setClearButtonVisible(true);
+    private Component renderActions(InvoiceProduct item) {
 
-    final ComboBox<Product> fieldProduct = getProductComboBox(fieldQty, fieldPrice);
+        Button add = new Button(item.getProduct() == null ? VaadinIcon.PLUS_CIRCLE_O.create() : LumoIcon.EDIT.create());
+        add.addClassNames(LumoUtility.Width.AUTO, LumoUtility.Margin.NONE);
+        add.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        add.getStyle().set("cursor", "pointer");
+        add.addClickListener(e -> createDialog(item));
 
-    final Button apply = new Button("Aplicar", VaadinIcon.CHECK_CIRCLE.create());
-    apply.addClassNames(LumoUtility.Width.AUTO);
+        if (item.getProduct() == null) {
+            return add;
+        }
 
-    BeanValidationBinder<InvoiceProduct> binderLine =
-        new BeanValidationBinder<>(InvoiceProduct.class);
+        Button edit = new Button(VaadinIcon.MINUS_CIRCLE_O.create());
+        edit.addClassNames(LumoUtility.Width.AUTO, LumoUtility.Margin.NONE);
+        edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        edit.getStyle().set("cursor", "pointer");
+        edit.addClickListener(e -> {
+            invoiceProducts.remove(item);
+            gridProductService.getDataProvider().refreshAll();
+        });
 
-    binderLine.setBean(line);
+        Div actions = new Div(add, edit);
+        actions.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER);
+        actions.addClassNames("-mx-s");
+        return actions;
+    }
 
-    binderLine.forField(fieldProduct).asRequired("Este campo no puede estar vacío").bind("product");
+    private void createDialog(InvoiceProduct line) {
+        var isNew = line.getProduct() == null;
+        Dialog d = new Dialog();
 
-    binderLine
-        .forField(fieldPrice)
-        .asRequired("Este campo no puede estar vacío")
-        .bind(
-            invoiceProduct ->
-                Optional.ofNullable(invoiceProduct.getPrice())
-                    .orElse(BigDecimal.ZERO)
-                    .doubleValue(),
-            (invoiceProduct, aDouble) -> invoiceProduct.setPrice(BigDecimal.valueOf(aDouble)));
+        final NumberField fieldQty = new NumberField("Cantidad");
+        fieldQty.setMin(0.1);
+        fieldQty.setStep(0.1);
+        fieldQty.setWidthFull();
+        fieldQty.setValue(Optional.ofNullable(line.getQuantity()).orElse(1.0));
+        fieldQty.setStepButtonsVisible(true);
+        fieldQty.setClearButtonVisible(true);
 
-    binderLine
-        .forField(fieldQty)
-        .asRequired("Este campo no puede estar vacío")
-        .bind(
-            invoiceProduct -> Optional.ofNullable(invoiceProduct.getQuantity()).orElse(1.0),
-            InvoiceProduct::setQuantity);
+        final DecimalField fieldPrice = new DecimalField("Precio");
+        fieldPrice.setWidthFull();
+        fieldPrice.setValue(Optional.ofNullable(line.getPrice()).orElse(BigDecimal.ZERO).doubleValue());
+        fieldPrice.setClearButtonVisible(true);
 
-    apply.addThemeVariants(
-        ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
-    apply.addClickListener(
-        event -> {
-          try {
+        final ComboBox<Product> fieldProduct = getProductComboBox(fieldQty, fieldPrice);
 
-            binderLine.writeBean(line);
+        final Button apply = new Button("Aplicar", VaadinIcon.CHECK_CIRCLE.create());
+        apply.addClassNames(LumoUtility.Width.AUTO);
+
+        BeanValidationBinder<InvoiceProduct> binderLine = new BeanValidationBinder<>(InvoiceProduct.class);
+
+        binderLine.setBean(line);
+
+        binderLine.forField(fieldProduct).asRequired("Este campo no puede estar vacío").bind("product");
+
+        binderLine.forField(fieldPrice).asRequired("Este campo no puede estar vacío").bind(invoiceProduct -> Optional
+                .ofNullable(invoiceProduct.getPrice()).orElse(BigDecimal.ZERO).doubleValue(), (invoiceProduct,
+                        aDouble) -> invoiceProduct.setPrice(BigDecimal.valueOf(aDouble)));
+
+        binderLine.forField(fieldQty).asRequired("Este campo no puede estar vacío").bind(invoiceProduct -> Optional
+                .ofNullable(invoiceProduct.getQuantity()).orElse(1.0), InvoiceProduct::setQuantity);
+
+        apply.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
+        apply.addClickListener(event -> {
+            try {
+
+                binderLine.writeBean(line);
+
+                if (element == null) {
+                    element = new Invoice();
+                }
+
+                line.setInvoice(element);
+
+                invoiceProducts.stream().filter(p -> p.equals(line)).findFirst().ifPresent(obj -> {
+                    obj.setAmount(line.getPrice().multiply(BigDecimal.valueOf(line.getQuantity())));
+                });
+
+                if (isNew) {
+                    invoiceProducts.add(new InvoiceProduct());
+                }
+                gridProductService.getDataProvider().refreshAll();
+
+                d.close();
+            } catch (ValidationException validationException) {
+                NotificationUtils.error(validationException);
+            }
+        });
+
+        VerticalLayout dialogLayout = new VerticalLayout(fieldProduct, fieldQty, fieldPrice);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.START);
+        dialogLayout.setPadding(false);
+        dialogLayout.getStyle().set("min-width", "500px").set("height", "250px");
+
+        d.setHeaderTitle("Productos y Servicios");
+        d.getFooter().add(apply);
+
+        d.setCloseOnOutsideClick(true);
+        d.setDraggable(true);
+        d.setOpened(true);
+        d.add(dialogLayout);
+    }
+
+    private ComboBox<Product> getProductComboBox(NumberField fieldQty, DecimalField fieldPrice) {
+        final ComboBox<Product> fieldProduct = new ComboBox<>("Producto");
+        fieldProduct.setItemLabelGenerator(Product::getName);
+        fieldProduct.setClearButtonVisible(true);
+        fieldProduct.setWidthFull();
+
+        List<Product> copy = new ArrayList<>(products);
+
+        copy.removeIf(product -> invoiceProducts.stream().map(InvoiceProduct::getProduct).toList().contains(product));
+        fieldProduct.setItems(copy);
+        fieldProduct.addValueChangeListener(event -> {
+            fieldQty.setValue(1.0);
+            fieldPrice.setValue(Optional.ofNullable(event.getValue().getSalesPrice()).orElse(BigDecimal.ZERO)
+                    .doubleValue());
+        });
+        return fieldProduct;
+    }
+
+    public void close() {
+        sidebar.close();
+    }
+
+    public void open() {
+        populateForm(null);
+        sidebar.newObject("Nueva Factura");
+    }
+
+    public void edit(Invoice element) {
+        populateForm(element);
+        sidebar.editObject("Editar Factura");
+    }
+
+    private void cancel(ClickEvent<Button> buttonClickEvent) {
+        sidebar.close();
+    }
+
+    private void saveOrUpdate(ClickEvent<Button> buttonClickEvent) {
+        try {
 
             if (element == null) {
-              element = new Invoice();
+                element = new Invoice();
             }
 
-            line.setInvoice(element);
-
-            invoiceProducts.stream()
-                .filter(p -> p.equals(line))
-                .findFirst()
-                .ifPresent(
-                    obj -> {
-                      obj.setAmount(
-                          line.getPrice().multiply(BigDecimal.valueOf(line.getQuantity())));
-                    });
-
-            if (isNew) {
-              invoiceProducts.add(new InvoiceProduct());
+            if (customer.getValue() == null) {
+                NotificationUtils.error("Debes seleccionar un cliente");
+                return;
             }
-            gridProductService.getDataProvider().refreshAll();
+            element.setClient(customer.getValue());
+            element.setNotes(notes.getValue());
+            element.setSalesOrder(salesOrder.getValue());
+            element.setSubtotal(BigDecimal.valueOf(total.getValue()));
+            element.setTax(BigDecimal.ZERO);
 
-            d.close();
-          } catch (ValidationException validationException) {
-            NotificationUtils.error(validationException);
-          }
-        });
+            Set<InvoiceProduct> tmpInvoiceProducts = gridProductService.getGenericDataView().getItems().filter(p -> p
+                    .getProduct() != null).collect(Collectors.toSet());
 
-    VerticalLayout dialogLayout = new VerticalLayout(fieldProduct, fieldQty, fieldPrice);
-    dialogLayout.setAlignItems(FlexComponent.Alignment.START);
-    dialogLayout.setPadding(false);
-    dialogLayout.getStyle().set("min-width", "500px").set("height", "250px");
+            if (tmpInvoiceProducts.isEmpty()) {
+                NotificationUtils.error("Debes seleccionar al menos un producto o servicio");
+                return;
+            }
 
-    d.setHeaderTitle("Productos y Servicios");
-    d.getFooter().add(apply);
+            binder.writeBean(this.element);
 
-    d.setCloseOnOutsideClick(true);
-    d.setDraggable(true);
-    d.setOpened(true);
-    d.add(dialogLayout);
-  }
+            boolean isNewInvoice = (element.getCode() == null || element.getCode() == 0);
 
-  private ComboBox<Product> getProductComboBox(NumberField fieldQty, DecimalField fieldPrice) {
-    final ComboBox<Product> fieldProduct = new ComboBox<>("Producto");
-    fieldProduct.setItemLabelGenerator(Product::getName);
-    fieldProduct.setClearButtonVisible(true);
-    fieldProduct.setWidthFull();
+            if (isNewInvoice) {
+                element.setProducts(tmpInvoiceProducts);
+                service.create(element);
 
-    List<Product> copy = new ArrayList<>(products);
+                populateForm(element);
+                Optional.ofNullable(callable).ifPresent(Runnable::run);
+            } else {
+                ConfirmationDialog.saveUpdate(event -> {
+                    element.setProducts(tmpInvoiceProducts);
+                    service.create(element);
 
-    copy.removeIf(
-        product ->
-            invoiceProducts.stream().map(InvoiceProduct::getProduct).toList().contains(product));
-    fieldProduct.setItems(copy);
-    fieldProduct.addValueChangeListener(
-        event -> {
-          fieldQty.setValue(1.0);
-          fieldPrice.setValue(
-              Optional.ofNullable(event.getValue().getSalesPrice())
-                  .orElse(BigDecimal.ZERO)
-                  .doubleValue());
-        });
-    return fieldProduct;
-  }
+                    populateForm(element);
+                    Optional.ofNullable(callable).ifPresent(Runnable::run);
+                });
+            }
 
-  public void close() {
-    sidebar.close();
-  }
-
-  public void open() {
-    populateForm(null);
-    sidebar.newObject("Nueva Factura");
-  }
-
-  public void edit(Invoice element) {
-    populateForm(element);
-    sidebar.editObject("Editar Factura");
-  }
-
-  private void cancel(ClickEvent<Button> buttonClickEvent) {
-    sidebar.close();
-  }
-
-  private void saveOrUpdate(ClickEvent<Button> buttonClickEvent) {
-    try {
-
-      if (element == null) {
-        element = new Invoice();
-      }
-
-      if (customer.getValue() == null) {
-        NotificationUtils.error("Debes seleccionar un cliente");
-        return;
-      }
-      element.setClient(customer.getValue());
-      element.setNotes(notes.getValue());
-      element.setSalesOrder(salesOrder.getValue());
-      element.setSubtotal(BigDecimal.valueOf(total.getValue()));
-      element.setTax(BigDecimal.ZERO);
-
-      Set<InvoiceProduct> tmpInvoiceProducts =
-          gridProductService
-              .getGenericDataView()
-              .getItems()
-              .filter(p -> p.getProduct() != null)
-              .collect(Collectors.toSet());
-
-      if (tmpInvoiceProducts.isEmpty()) {
-        NotificationUtils.error("Debes seleccionar al menos un producto o servicio");
-        return;
-      }
-
-      binder.writeBean(this.element);
-
-      boolean isNewInvoice = (element.getCode() == null || element.getCode() == 0);
-
-      if (isNewInvoice) {
-        element.setProducts(tmpInvoiceProducts);
-        service.create(element);
-
-        populateForm(element);
-        Optional.ofNullable(callable).ifPresent(Runnable::run);
-      } else {
-        ConfirmationDialog.saveUpdate(
-            event -> {
-              element.setProducts(tmpInvoiceProducts);
-              service.create(element);
-
-              populateForm(element);
-              Optional.ofNullable(callable).ifPresent(Runnable::run);
-            });
-      }
-
-    } catch (ObjectOptimisticLockingFailureException ex) {
-      log.error(ex.getLocalizedMessage());
-      NotificationUtils.error(
-          "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
-    } catch (ValidationException ex) {
-      log.error(ex.getLocalizedMessage());
-      NotificationUtils.error(ex);
-    }
-  }
-
-  private Div createTabBar() {
-    MenuBar menuBar = new MenuBar();
-    menuBar.addThemeVariants(MenuBarVariant.LUMO_ICON);
-
-    MenuItem general =
-        createIconItem(menuBar, VaadinIcon.INFO_CIRCLE.create(), "Información general");
-    MenuItem jobHistorial =
-        createIconItem(menuBar, VaadinIcon.TIME_BACKWARD.create(), "Registro de actividad");
-
-    MenuBarHandler menuBarHandler = new MenuBarHandler(menuBar, layoutTabBar);
-    menuBarHandler.addMenuItem(general, generalForm());
-    menuBarHandler.addMenuItem(jobHistorial, jobLogForm());
-
-    menuBarHandler.setDefaultMenuItem(general);
-    menuBarHandler.addMenuItemSelectionListener(
-        event -> {
-          layoutGrid.setVisible(event == general);
-          createDetails.setVisible(event == general);
-          footer.setVisible(event == general);
-
-          if (event == general) {
-            layoutTabBar.getStyle().remove("border-bottom-left-radius");
-            layoutTabBar.getStyle().remove("border-bottom-right-radius");
-          } else {
-            layoutTabBar.getStyle().set("border-bottom-left-radius", "var(--lumo-space-m)");
-            layoutTabBar.getStyle().set("border-bottom-right-radius", "var(--lumo-space-m)");
-          }
-        });
-
-    // Configure PDF export button
-    exportPdfButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-    exportPdfButton.addClickListener(e -> exportToPdf());
-    exportPdfButton.setEnabled(element != null && element.getCode() != null);
-
-    Div tabs = getDiv(menuBar);
-    tabs.getStyle().set("border-top-left-radius", "var(--lumo-space-m)");
-    tabs.getStyle().set("border-top-right-radius", "var(--lumo-space-m)");
-
-    return tabs;
-  }
-
-  private @NotNull Div getDiv(MenuBar menuBar) {
-    Div menuBarContainer = new Div(menuBar);
-    menuBarContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.Flex.GROW);
-
-    Div buttonContainer = new Div(exportPdfButton);
-    buttonContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER);
-
-    Div tabsContent = new Div(menuBarContainer, buttonContainer);
-    tabsContent.addClassNames(
-        LumoUtility.Display.FLEX,
-        LumoUtility.JustifyContent.BETWEEN,
-        LumoUtility.AlignItems.CENTER,
-        LumoUtility.Width.FULL);
-
-    Div tabs = new Div(tabsContent);
-    tabs.addClassNames(
-        LumoUtility.Padding.SMALL,
-        LumoUtility.Gap.MEDIUM,
-        LumoUtility.Background.CONTRAST_10,
-        LumoUtility.Margin.Horizontal.MEDIUM,
-        LumoUtility.Margin.Top.MEDIUM);
-    return tabs;
-  }
-
-  private void populateForm(Invoice value) {
-    this.element = value;
-
-    binder.readBean(element);
-    customer.focus();
-
-    if (element == null) {
-      // Show next invoice number for new invoices
-      docNum.setValue(service.getNextInvoiceNumber());
-      issuedDate.setValue(LocalDate.now());
-      paymentDate.setValue(LocalDate.now().plusDays(30));
-
-      invoiceProducts.clear();
-      invoiceProducts.add(new InvoiceProduct());
-
-      customer.setEnabled(true);
-      // Show add button only for new invoices
-      add.setVisible(true);
-      // Disable export button for new invoices
-      exportPdfButton.setEnabled(false);
-    } else {
-      // Show actual invoice number for existing invoices
-      docNum.setValue(String.valueOf(element.getCode()));
-      issuedDate.setValue(element.getIssuedDate());
-      paymentDate.setValue(element.getPaymentDate());
-
-      revisionView.loadRevisions(element.getCode());
-
-      invoiceProducts.clear();
-      invoiceProducts.addAll(element.getProducts());
-
-      customer.setEnabled(false);
-      // Hide add button for existing invoices - no client changes allowed
-      add.setVisible(false);
-      // Enable export button for existing invoices
-      exportPdfButton.setEnabled(true);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            log.error(ex.getLocalizedMessage());
+            NotificationUtils.error(
+                    "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
+        } catch (ValidationException ex) {
+            log.error(ex.getLocalizedMessage());
+            NotificationUtils.error(ex);
+        }
     }
 
-    gridProductService.getDataProvider().refreshAll();
-  }
+    private Div createTabBar() {
+        MenuBar menuBar = new MenuBar();
+        menuBar.addThemeVariants(MenuBarVariant.LUMO_ICON);
 
-  private void populateInvoiceLinesFromCustomer(Client customer) {
-    if (element == null) {
-      element = new Invoice();
-    }
-  }
+        MenuItem general = createIconItem(menuBar, VaadinIcon.INFO_CIRCLE.create(), "Información general");
+        MenuItem jobHistorial = createIconItem(menuBar, VaadinIcon.TIME_BACKWARD.create(), "Registro de actividad");
 
-  private Div createDetails() {
-    MenuBar menuBar = new MenuBar();
-    menuBar.addThemeVariants(MenuBarVariant.LUMO_ICON);
+        MenuBarHandler menuBarHandler = new MenuBarHandler(menuBar, layoutTabBar);
+        menuBarHandler.addMenuItem(general, generalForm());
+        menuBarHandler.addMenuItem(jobHistorial, jobLogForm());
 
-    MenuItem attached =
-        createIconItem(menuBar, VaadinIcon.PAPERCLIP.create(), "Productos y Servicios");
+        menuBarHandler.setDefaultMenuItem(general);
+        menuBarHandler.addMenuItemSelectionListener(event -> {
+            layoutGrid.setVisible(event == general);
+            createDetails.setVisible(event == general);
+            footer.setVisible(event == general);
 
-    MenuBarHandler menuBarHandler = new MenuBarHandler(menuBar, layoutGrid);
-    menuBarHandler.addMenuItem(attached, gridProductService);
-
-    menuBarHandler.setDefaultMenuItem(attached);
-
-    Div tabs = new Div(menuBar);
-    tabs.addClassNames(
-        LumoUtility.Padding.SMALL,
-        LumoUtility.Gap.MEDIUM,
-        LumoUtility.BorderRadius.MEDIUM,
-        CARD_BACKGROUND_COLOR);
-
-    return tabs;
-  }
-
-  private Div generalForm() {
-    Div layout = new Div(headerLayout(createLeftHeaderForm(), createRightHeaderForm()), layoutGrid);
-    layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
-
-    return layout;
-  }
-
-  private Div createLeftHeaderForm() {
-
-    add.setTooltipText("Agregar un cliente");
-    add.addThemeVariants(
-        ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
-    add.addClassNames(LumoUtility.Width.AUTO);
-    add.getStyle().setCursor("pointer");
-
-    Span bill = new Span("Facturar a");
-    Span contactName = new Span();
-    Span contactEmail = new Span();
-    Span address = new Span();
-    Span phone = new Span();
-    Span email = new Span();
-    Hr line = new Hr();
-
-    bill.addClassNames(
-        LumoUtility.FontWeight.MEDIUM,
-        LumoUtility.Margin.Top.SMALL,
-        LumoUtility.Margin.Horizontal.XSMALL);
-    bill.setVisible(false);
-    line.setVisible(false);
-
-    Arrays.asList(contactName, contactEmail, address, phone, email)
-        .forEach(
-            c -> {
-              c.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.SMALL);
-              c.addClassNames(LumoUtility.Margin.Horizontal.XSMALL);
-            });
-
-    List<Client> allCustomerByDisabledIsFalse = customerService.getAllActiveClients();
-    customer.setClearButtonVisible(true);
-    customer.setItems(
-        comboBoxItemFilter(Client::getFirstName, String::contains), allCustomerByDisabledIsFalse);
-    customer.setItemLabelGenerator(Client::getFirstName);
-    customer.setRenderer(
-        new ComponentRenderer<>(
-            item -> {
-              Div container = new Div();
-              container.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
-
-              Span title = new Span(item.getFirstName());
-              title.addClassNames(LumoUtility.FontWeight.BOLD);
-
-              Span subtitle = new Span(item.getFullName());
-              subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.SMALL);
-
-              container.add(title, subtitle);
-              return container;
-            }));
-    customer.addValueChangeListener(
-        event -> {
-          bill.setVisible(event.getValue() != null);
-          line.setVisible(event.getValue() != null);
-          if (event.getValue() != null) {
-            contactName.setText(event.getValue().getFullName());
-            contactEmail.setText(event.getValue().getEmail());
-            address.setText(event.getValue().getStreetAddress());
-            phone.setText(event.getValue().getPhoneNumber());
-            email.setText(event.getValue().getEmail());
-          } else {
-            Arrays.asList(contactName, contactEmail, address, phone, email)
-                .forEach(c -> c.setText(""));
-          }
-
-          populateInvoiceLinesFromCustomer(event.getValue());
+            if (event == general) {
+                layoutTabBar.getStyle().remove("border-bottom-left-radius");
+                layoutTabBar.getStyle().remove("border-bottom-right-radius");
+            } else {
+                layoutTabBar.getStyle().set("border-bottom-left-radius", "var(--lumo-space-m)");
+                layoutTabBar.getStyle().set("border-bottom-right-radius", "var(--lumo-space-m)");
+            }
         });
-    add.addClickListener(
-        event -> {
-          clientCreationDialog.setOnClientCreated(
-              item -> {
+
+        // Configure PDF export button
+        exportPdfButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        exportPdfButton.addClickListener(e -> exportToPdf());
+        exportPdfButton.setEnabled(element != null && element.getCode() != null);
+
+        Div tabs = getDiv(menuBar);
+        tabs.getStyle().set("border-top-left-radius", "var(--lumo-space-m)");
+        tabs.getStyle().set("border-top-right-radius", "var(--lumo-space-m)");
+
+        return tabs;
+    }
+
+    private @NotNull Div getDiv(MenuBar menuBar) {
+        Div menuBarContainer = new Div(menuBar);
+        menuBarContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.Flex.GROW);
+
+        Div buttonContainer = new Div(exportPdfButton);
+        buttonContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER);
+
+        Div tabsContent = new Div(menuBarContainer, buttonContainer);
+        tabsContent.addClassNames(LumoUtility.Display.FLEX, LumoUtility.JustifyContent.BETWEEN,
+                LumoUtility.AlignItems.CENTER, LumoUtility.Width.FULL);
+
+        Div tabs = new Div(tabsContent);
+        tabs.addClassNames(LumoUtility.Padding.SMALL, LumoUtility.Gap.MEDIUM, LumoUtility.Background.CONTRAST_10,
+                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.MEDIUM);
+        return tabs;
+    }
+
+    private void populateForm(Invoice value) {
+        this.element = value;
+
+        binder.readBean(element);
+        customer.focus();
+
+        if (element == null) {
+            // Show next invoice number for new invoices
+            docNum.setValue(service.getNextInvoiceNumber());
+            issuedDate.setValue(LocalDate.now());
+            paymentDate.setValue(LocalDate.now().plusDays(30));
+
+            invoiceProducts.clear();
+            invoiceProducts.add(new InvoiceProduct());
+
+            customer.setEnabled(true);
+            // Show add button only for new invoices
+            add.setVisible(true);
+            // Disable export button for new invoices
+            exportPdfButton.setEnabled(false);
+        } else {
+            // Show actual invoice number for existing invoices
+            docNum.setValue(String.valueOf(element.getCode()));
+            issuedDate.setValue(element.getIssuedDate());
+            paymentDate.setValue(element.getPaymentDate());
+
+            revisionView.loadRevisions(element.getCode());
+
+            invoiceProducts.clear();
+            invoiceProducts.addAll(element.getProducts());
+
+            customer.setEnabled(false);
+            // Hide add button for existing invoices - no client changes allowed
+            add.setVisible(false);
+            // Enable export button for existing invoices
+            exportPdfButton.setEnabled(true);
+        }
+
+        gridProductService.getDataProvider().refreshAll();
+    }
+
+    private void populateInvoiceLinesFromCustomer(Client customer) {
+        if (element == null) {
+            element = new Invoice();
+        }
+    }
+
+    private Div createDetails() {
+        MenuBar menuBar = new MenuBar();
+        menuBar.addThemeVariants(MenuBarVariant.LUMO_ICON);
+
+        MenuItem attached = createIconItem(menuBar, VaadinIcon.PAPERCLIP.create(), "Productos y Servicios");
+
+        MenuBarHandler menuBarHandler = new MenuBarHandler(menuBar, layoutGrid);
+        menuBarHandler.addMenuItem(attached, gridProductService);
+
+        menuBarHandler.setDefaultMenuItem(attached);
+
+        Div tabs = new Div(menuBar);
+        tabs.addClassNames(LumoUtility.Padding.SMALL, LumoUtility.Gap.MEDIUM, LumoUtility.BorderRadius.MEDIUM,
+                CARD_BACKGROUND_COLOR);
+
+        return tabs;
+    }
+
+    private Div generalForm() {
+        Div layout = new Div(headerLayout(createLeftHeaderForm(), createRightHeaderForm()), layoutGrid);
+        layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
+
+        return layout;
+    }
+
+    private Div createLeftHeaderForm() {
+
+        add.setTooltipText("Agregar un cliente");
+        add.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        add.addClassNames(LumoUtility.Width.AUTO);
+        add.getStyle().setCursor("pointer");
+
+        Span bill = new Span("Facturar a");
+        Span contactName = new Span();
+        Span contactEmail = new Span();
+        Span address = new Span();
+        Span phone = new Span();
+        Span email = new Span();
+        Hr line = new Hr();
+
+        bill.addClassNames(LumoUtility.FontWeight.MEDIUM, LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Margin.Horizontal.XSMALL);
+        bill.setVisible(false);
+        line.setVisible(false);
+
+        Arrays.asList(contactName, contactEmail, address, phone, email).forEach(c -> {
+            c.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.SMALL);
+            c.addClassNames(LumoUtility.Margin.Horizontal.XSMALL);
+        });
+
+        List<Client> allCustomerByDisabledIsFalse = customerService.getAllActiveClients();
+        customer.setClearButtonVisible(true);
+        customer.setItems(comboBoxItemFilter(Client::getFirstName, String::contains), allCustomerByDisabledIsFalse);
+        customer.setItemLabelGenerator(Client::getFirstName);
+        customer.setRenderer(new ComponentRenderer<>(item -> {
+            Div container = new Div();
+            container.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
+
+            Span title = new Span(item.getFirstName());
+            title.addClassNames(LumoUtility.FontWeight.BOLD);
+
+            Span subtitle = new Span(item.getFullName());
+            subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.SMALL);
+
+            container.add(title, subtitle);
+            return container;
+        }));
+        customer.addValueChangeListener(event -> {
+            bill.setVisible(event.getValue() != null);
+            line.setVisible(event.getValue() != null);
+            if (event.getValue() != null) {
+                contactName.setText(event.getValue().getFullName());
+                contactEmail.setText(event.getValue().getEmail());
+                address.setText(event.getValue().getStreetAddress());
+                phone.setText(event.getValue().getPhoneNumber());
+                email.setText(event.getValue().getEmail());
+            } else {
+                Arrays.asList(contactName, contactEmail, address, phone, email).forEach(c -> c.setText(""));
+            }
+
+            populateInvoiceLinesFromCustomer(event.getValue());
+        });
+        add.addClickListener(event -> {
+            clientCreationDialog.setOnClientCreated(item -> {
                 customer.getDataProvider().refreshAll();
                 customer.setValue(item);
-              });
-          clientCreationDialog.openDialog();
+            });
+            clientCreationDialog.openDialog();
         });
 
-    Div header = new Div(customer, add);
-    customer.setWidthFull();
-    header.addClassNames(
-        LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.AlignItems.END);
+        Div header = new Div(customer, add);
+        customer.setWidthFull();
+        header.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.AlignItems.END);
 
-    Div form = new Div(header, bill, contactName, contactEmail, address, line, phone, email);
-    form.setWidthFull();
-    form.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
-    form.setMaxWidth(500, Unit.PIXELS);
+        Div form = new Div(header, bill, contactName, contactEmail, address, line, phone, email);
+        form.setWidthFull();
+        form.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
+        form.setMaxWidth(500, Unit.PIXELS);
 
-    return form;
-  }
-
-  private Div createRightHeaderForm() {
-    DatePicker.DatePickerI18n dateFormat = new DatePicker.DatePickerI18n();
-    dateFormat.setFirstDayOfWeek(1);
-
-    Arrays.asList(issuedDate, paymentDate)
-        .forEach(
-            c -> {
-              c.setClearButtonVisible(true);
-              c.setWeekNumbersVisible(true);
-              c.setI18n(dateFormat);
-            });
-
-    Div form = new Div(docNum, salesOrder, issuedDate, paymentDate);
-    form.setWidthFull();
-    form.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
-    form.setMaxWidth(400, Unit.PIXELS);
-
-    return form;
-  }
-
-  private Div jobLogForm() {
-    H1 headerTitle = new H1("Registro de actividad");
-
-    Paragraph description =
-        new Paragraph(
-            "Registro cronológico de todas las acciones realizadas en esta factura. Incluye cambios de estado, interacciones de usuario, notas y cualquier modificación para trazabilidad completa.");
-    description.addClassNames(
-        LumoUtility.Display.HIDDEN, LumoUtility.Display.Breakpoint.Large.FLEX);
-
-    Div headerLayout = new Div(headerTitle, description, revisionView.getGrid());
-    headerLayout.addClassNames(
-        LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Margin.Top.SMALL);
-
-    return headerLayout;
-  }
-
-  private void exportToPdf() {
-    if (element == null || element.getCode() == null) {
-      NotificationUtils.error("No se puede exportar una factura que no ha sido guardada.");
-      return;
+        return form;
     }
 
-    try {
-      var fileName = "Invoice_" + element.getCode();
+    private Div createRightHeaderForm() {
+        DatePicker.DatePickerI18n dateFormat = new DatePicker.DatePickerI18n();
+        dateFormat.setFirstDayOfWeek(1);
 
-      var data = invoiceReportService.generateInvoicePdf(element);
+        Arrays.asList(issuedDate, paymentDate).forEach(c -> {
+            c.setClearButtonVisible(true);
+            c.setWeekNumbersVisible(true);
+            c.setI18n(dateFormat);
+        });
 
-      InvoiceView.exportInvoiceInPdfFormat(fileName, data);
+        Div form = new Div(docNum, salesOrder, issuedDate, paymentDate);
+        form.setWidthFull();
+        form.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
+        form.setMaxWidth(400, Unit.PIXELS);
 
-      NotificationUtils.success("PDF generado exitosamente.");
-
-    } catch (Exception e) {
-      log.error("Error al generar el PDF de la factura: {}", element.getCode(), e);
-      NotificationUtils.error(
-          "Error al generar el PDF, favor intentar nuevamente en unos minutos.");
+        return form;
     }
-  }
+
+    private Div jobLogForm() {
+        H1 headerTitle = new H1("Registro de actividad");
+
+        Paragraph description = new Paragraph(
+                "Registro cronológico de todas las acciones realizadas en esta factura. Incluye cambios de estado, interacciones de usuario, notas y cualquier modificación para trazabilidad completa.");
+        description.addClassNames(LumoUtility.Display.HIDDEN, LumoUtility.Display.Breakpoint.Large.FLEX);
+
+        Div headerLayout = new Div(headerTitle, description, revisionView.getGrid());
+        headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.Margin.Top.SMALL);
+
+        return headerLayout;
+    }
+
+    private void exportToPdf() {
+        if (element == null || element.getCode() == null) {
+            NotificationUtils.error("No se puede exportar una factura que no ha sido guardada.");
+            return;
+        }
+
+        try {
+            var fileName = "Invoice_" + element.getCode();
+
+            var data = invoiceReportService.generateInvoicePdf(element);
+
+            InvoiceView.exportInvoiceInPdfFormat(fileName, data);
+
+            NotificationUtils.success("PDF generado exitosamente.");
+
+        } catch (Exception e) {
+            log.error("Error al generar el PDF de la factura: {}", element.getCode(), e);
+            NotificationUtils.error("Error al generar el PDF, favor intentar nuevamente en unos minutos.");
+        }
+    }
 }

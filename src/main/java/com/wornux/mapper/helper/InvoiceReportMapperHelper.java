@@ -20,57 +20,57 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class InvoiceReportMapperHelper {
 
-  private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
 
-  /**
-   * Formatea un valor BigDecimal como string de moneda.
-   *
-   * @param value El valor a formatear
-   * @return String formateado con dos decimales
-   */
-  @Named("formatCurrency")
-  public String formatCurrency(BigDecimal value) {
-    if (value == null) {
-      return "0.00";
-    }
-    return DECIMAL_FORMAT.format(value);
-  }
-
-  /**
-   * Convierte un Set de InvoiceProduct a una lista de Maps para JasperReports.
-   *
-   * @param products Set de productos de la factura
-   * @return Lista de Maps con los datos de cada producto
-   */
-  @Named("mapProductsToData")
-  public List<Map<String, Object>> mapProductsToData(Set<InvoiceProduct> products) {
-    if (products == null || products.isEmpty()) {
-      return new ArrayList<>();
+    /**
+     * Formatea un valor BigDecimal como string de moneda.
+     *
+     * @param value
+     *     El valor a formatear
+     * @return String formateado con dos decimales
+     */
+    @Named("formatCurrency")
+    public String formatCurrency(BigDecimal value) {
+        if (value == null) {
+            return "0.00";
+        }
+        return DECIMAL_FORMAT.format(value);
     }
 
-    return products.stream()
-        .map(this::productToMap)
-        .toList();
-  }
+    /**
+     * Convierte un Set de InvoiceProduct a una lista de Maps para JasperReports.
+     *
+     * @param products
+     *     Set de productos de la factura
+     * @return Lista de Maps con los datos de cada producto
+     */
+    @Named("mapProductsToData")
+    public List<Map<String, Object>> mapProductsToData(Set<InvoiceProduct> products) {
+        if (products == null || products.isEmpty()) {
+            return new ArrayList<>();
+        }
 
-  /**
-   * Convierte un InvoiceProduct individual a Map para JasperReports.
-   *
-   * @param product El producto a convertir
-   * @return Map con los datos del producto
-   */
-  private Map<String, Object> productToMap(InvoiceProduct product) {
-    Map<String, Object> map = new HashMap<>();
+        return products.stream().map(this::productToMap).toList();
+    }
 
-    // Validación null-safe para cada campo
-    map.put("productName", product.getProduct() != null ? product.getProduct().getName() : "");
-    map.put("description",
-        product.getProduct() != null && product.getProduct().getDescription() != null
-            ? product.getProduct().getDescription() : "");
-    map.put("unitPrice", product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO);
-    map.put("quantity", product.getQuantity() != null ? product.getQuantity() : 0.0);
-    map.put("totalPrice", product.getAmount() != null ? product.getAmount() : BigDecimal.ZERO);
+    /**
+     * Convierte un InvoiceProduct individual a Map para JasperReports.
+     *
+     * @param product
+     *     El producto a convertir
+     * @return Map con los datos del producto
+     */
+    private Map<String, Object> productToMap(InvoiceProduct product) {
+        Map<String, Object> map = new HashMap<>();
 
-    return map;
-  }
+        // Validación null-safe para cada campo
+        map.put("productName", product.getProduct() != null ? product.getProduct().getName() : "");
+        map.put("description", product.getProduct() != null && product.getProduct().getDescription() != null ? product
+                .getProduct().getDescription() : "");
+        map.put("unitPrice", product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO);
+        map.put("quantity", product.getQuantity() != null ? product.getQuantity() : 0.0);
+        map.put("totalPrice", product.getAmount() != null ? product.getAmount() : BigDecimal.ZERO);
+
+        return map;
+    }
 }

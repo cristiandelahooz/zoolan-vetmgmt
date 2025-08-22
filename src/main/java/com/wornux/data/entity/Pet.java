@@ -17,52 +17,50 @@ import org.hibernate.envers.Audited;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"medicalHistory"})
+@ToString(exclude = { "medicalHistory" })
 @Entity
 @Table(name = "pets")
 @Audited(withModifiedFlag = true)
 public class Pet {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private String name;
+    private String name;
 
-  @Enumerated(EnumType.STRING)
-  private PetType type;
+    @Enumerated(EnumType.STRING)
+    private PetType type;
 
-  private String breed;
+    private String breed;
 
-  private LocalDate birthDate;
+    private LocalDate birthDate;
 
-  @ManyToMany(fetch = FetchType.EAGER)
-  @JoinTable(
-      name = "pet_owners",
-      joinColumns = @JoinColumn(name = "pet_id"),
-      inverseJoinColumns = @JoinColumn(name = "owners"))
-  @Builder.Default
-  private List<Client> owners = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "pet_owners", joinColumns = @JoinColumn(name = "pet_id"), inverseJoinColumns = @JoinColumn(name = "owners"))
+    @Builder.Default
+    private List<Client> owners = new ArrayList<>();
 
-  @Enumerated(EnumType.STRING)
-  private Gender gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
-  @OneToOne(mappedBy = "pet", cascade = CascadeType.ALL)
-  @JsonIgnore
-  private MedicalHistory medicalHistory;
+    @OneToOne(mappedBy = "pet", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private MedicalHistory medicalHistory;
 
-  @Builder.Default private boolean active = true;
+    @Builder.Default
+    private boolean active = true;
 
-  @PostPersist
-  private void createMedicalHistory() {
-    this.medicalHistory =
-        MedicalHistory.builder().pet(this).notes("Historial médico creado automáticamente").build();
-  }
+    @PostPersist
+    private void createMedicalHistory() {
+        this.medicalHistory = MedicalHistory.builder().pet(this).notes("Historial médico creado automáticamente")
+                .build();
+    }
 
-  private String color;
+    private String color;
 
-  @Enumerated(EnumType.STRING)
-  private PetSize size;
+    @Enumerated(EnumType.STRING)
+    private PetSize size;
 
-  @Enumerated(EnumType.STRING)
-  private FurType furType;
+    @Enumerated(EnumType.STRING)
+    private FurType furType;
 }

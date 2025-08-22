@@ -1,5 +1,7 @@
 package com.wornux.views.clients;
 
+import static com.wornux.constants.ValidationConstants.*;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -26,19 +28,15 @@ import com.wornux.data.entity.Client;
 import com.wornux.data.enums.*;
 import com.wornux.dto.request.ClientCreateRequestDto;
 import com.wornux.dto.request.ClientUpdateRequestDto;
-import com.wornux.exception.DuplicateIdentificationException;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.UserService;
 import com.wornux.utils.NotificationUtils;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
-import static com.wornux.constants.ValidationConstants.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class IndividualClientForm extends Dialog {
@@ -56,8 +54,8 @@ public class IndividualClientForm extends Dialog {
     private final TextField passport = new TextField("Pasaporte");
 
     // Contact Information
-    private final ComboBox<PreferredContactMethod> preferredContactMethod =
-            new ComboBox<>("Método de Contacto Preferido");
+    private final ComboBox<PreferredContactMethod> preferredContactMethod = new ComboBox<>(
+            "Método de Contacto Preferido");
     private final TextField emergencyContactName = new TextField("Nombre del Contacto de Emergencia");
     private final TextField emergencyContactNumber = new TextField("Teléfono de Emergencia");
 
@@ -77,7 +75,8 @@ public class IndividualClientForm extends Dialog {
     private final Button cancelButton = new Button("Cancelar");
 
     private final Binder<ValidationBean> binder = new BeanValidationBinder<>(ValidationBean.class);
-    private final Binder<ClientUpdateRequestDto> binderUpdate = new BeanValidationBinder<>(ClientUpdateRequestDto.class);
+    private final Binder<ClientUpdateRequestDto> binderUpdate = new BeanValidationBinder<>(
+            ClientUpdateRequestDto.class);
     private ValidationBean validationBean = new ValidationBean();
     private final transient ClientService clientService;
     private final transient UserService userService;
@@ -101,11 +100,8 @@ public class IndividualClientForm extends Dialog {
         setHeight("85vh");
         setMaxHeight("95vh");
 
-        getHeader()
-                .getElement()
-                .getStyle()
-                .set("background", "var(--lumo-primary-color-10pct)")
-                .set("color", "var(--lumo-primary-text-color)");
+        getHeader().getElement().getStyle().set("background", "var(--lumo-primary-color-10pct)").set("color",
+                "var(--lumo-primary-text-color)");
 
         createForm();
         setupValidation();
@@ -116,29 +112,28 @@ public class IndividualClientForm extends Dialog {
     private void createForm() {
         FormLayout personalInfo = new FormLayout();
         personalInfo.add(firstName, lastName, email, phoneNumber, birthDate, nationality);
-        personalInfo.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
+        personalInfo.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px",
+                2));
 
         FormLayout identificationInfo = new FormLayout();
         identificationInfo.add(cedula, passport);
-        identificationInfo.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
+        identificationInfo.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep(
+                "500px", 2));
 
         FormLayout contactInfo = new FormLayout();
         contactInfo.add(preferredContactMethod, emergencyContactName, emergencyContactNumber);
-        contactInfo.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
+        contactInfo.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px",
+                2));
 
         FormLayout addressInfo = new FormLayout();
         addressInfo.add(province, municipality, sector, streetAddress);
-        addressInfo.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
+        addressInfo.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px",
+                2));
 
         FormLayout additionalInfo = new FormLayout();
         additionalInfo.add(rating, referenceSource);
-        additionalInfo.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
-
+        additionalInfo.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px",
+                2));
 
         preferredContactMethod.setItems(PreferredContactMethod.values());
         preferredContactMethod.setItemLabelGenerator(PreferredContactMethod::name);
@@ -164,19 +159,9 @@ public class IndividualClientForm extends Dialog {
         addIconsToFields();
 
         VerticalLayout content = new VerticalLayout();
-        content.add(
-                new H3("Información Personal"),
-                personalInfo,
-                new H3("Identificación"),
-                identificationInfo,
-                new H3("Información de Contacto"),
-                contactInfo,
-                new H3("Dirección"),
-                addressInfo,
-                referencePoints,
-                new H3("Información Adicional"),
-                additionalInfo,
-                notes);
+        content.add(new H3("Información Personal"), personalInfo, new H3("Identificación"), identificationInfo, new H3(
+                "Información de Contacto"), contactInfo, new H3("Dirección"), addressInfo, referencePoints, new H3(
+                        "Información Adicional"), additionalInfo, notes);
 
         content.addClassNames(LumoUtility.Padding.MEDIUM);
 
@@ -258,176 +243,143 @@ public class IndividualClientForm extends Dialog {
 
     private void setupCreateBinder() {
         // Personal information validation
-        binder.forField(firstName)
-                .asRequired("El nombre es requerido")
-                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
-                .bind(ValidationBean::getFirstName, ValidationBean::setFirstName);
+        binder.forField(firstName).asRequired("El nombre es requerido").withValidator(new StringLengthValidator(
+                "El nombre debe tener al menos 2 caracteres", 2, null)).bind(ValidationBean::getFirstName,
+                        ValidationBean::setFirstName);
 
-        binder.forField(lastName)
-                .asRequired("El apellido es requerido")
-                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
-                .bind(ValidationBean::getLastName, ValidationBean::setLastName);
+        binder.forField(lastName).asRequired("El apellido es requerido").withValidator(new StringLengthValidator(
+                "El apellido debe tener al menos 2 caracteres", 2, null)).bind(ValidationBean::getLastName,
+                        ValidationBean::setLastName);
 
-        binder.forField(email)
-                .asRequired("El correo electrónico es requerido")
-                .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
-                .bind(ValidationBean::getEmail, ValidationBean::setEmail);
+        binder.forField(email).asRequired("El correo electrónico es requerido").withValidator(new EmailValidator(
+                "Proporcione un correo electrónico válido")).bind(ValidationBean::getEmail, ValidationBean::setEmail);
 
-        binder.forField(phoneNumber)
-                .asRequired("El teléfono es requerido")
-                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)", DOMINICAN_PHONE_PATTERN))
-                .bind(ValidationBean::getPhoneNumber, ValidationBean::setPhoneNumber);
+        binder.forField(phoneNumber).asRequired("El teléfono es requerido").withValidator(new RegexpValidator(
+                "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)",
+                DOMINICAN_PHONE_PATTERN)).bind(ValidationBean::getPhoneNumber, ValidationBean::setPhoneNumber);
 
-        binder.forField(nationality)
-                .asRequired("La nacionalidad es requerida")
-                .withValidator(new StringLengthValidator("La nacionalidad no puede estar vacía", 1, null))
-                .bind(ValidationBean::getNationality, ValidationBean::setNationality);
+        binder.forField(nationality).asRequired("La nacionalidad es requerida").withValidator(new StringLengthValidator(
+                "La nacionalidad no puede estar vacía", 1, null)).bind(ValidationBean::getNationality,
+                        ValidationBean::setNationality);
 
         // Modified identification validation - conditional requirement
-        binder.forField(cedula)
-                .withValidator(this::validateCedulaConditional)
-                .bind(ValidationBean::getCedula, ValidationBean::setCedula);
+        binder.forField(cedula).withValidator(this::validateCedulaConditional).bind(ValidationBean::getCedula,
+                ValidationBean::setCedula);
 
-        binder.forField(passport)
-                .withValidator(this::validatePassportConditional)
-                .bind(ValidationBean::getPassport, ValidationBean::setPassport);
+        binder.forField(passport).withValidator(this::validatePassportConditional).bind(ValidationBean::getPassport,
+                ValidationBean::setPassport);
 
         // Emergency contact validation (optional)
-        binder.forField(emergencyContactNumber)
-                .withValidator(this::validateEmergencyPhone)
-                .bind(ValidationBean::getEmergencyContactNumber, ValidationBean::setEmergencyContactNumber);
+        binder.forField(emergencyContactNumber).withValidator(this::validateEmergencyPhone).bind(
+                ValidationBean::getEmergencyContactNumber, ValidationBean::setEmergencyContactNumber);
 
         // Address validations
-        binder.forField(province)
-                .asRequired("La provincia es requerida")
-                .withValidator(new StringLengthValidator("La provincia no puede estar vacía", 1, null))
-                .bind(ValidationBean::getProvince, ValidationBean::setProvince);
+        binder.forField(province).asRequired("La provincia es requerida").withValidator(new StringLengthValidator(
+                "La provincia no puede estar vacía", 1, null)).bind(ValidationBean::getProvince,
+                        ValidationBean::setProvince);
 
-        binder.forField(municipality)
-                .asRequired("El municipio es requerido")
-                .withValidator(new StringLengthValidator("El municipio no puede estar vacío", 1, null))
-                .bind(ValidationBean::getMunicipality, ValidationBean::setMunicipality);
+        binder.forField(municipality).asRequired("El municipio es requerido").withValidator(new StringLengthValidator(
+                "El municipio no puede estar vacío", 1, null)).bind(ValidationBean::getMunicipality,
+                        ValidationBean::setMunicipality);
 
-        binder.forField(sector)
-                .asRequired("El sector es requerido")
-                .withValidator(new StringLengthValidator("El sector no puede estar vacío", 1, null))
-                .bind(ValidationBean::getSector, ValidationBean::setSector);
+        binder.forField(sector).asRequired("El sector es requerido").withValidator(new StringLengthValidator(
+                "El sector no puede estar vacío", 1, null)).bind(ValidationBean::getSector, ValidationBean::setSector);
 
-        binder.forField(streetAddress)
-                .asRequired("La dirección es requerida")
-                .withValidator(new StringLengthValidator("La dirección no puede estar vacía", 1, null))
-                .bind(ValidationBean::getStreetAddress, ValidationBean::setStreetAddress);
+        binder.forField(streetAddress).asRequired("La dirección es requerida").withValidator(new StringLengthValidator(
+                "La dirección no puede estar vacía", 1, null)).bind(ValidationBean::getStreetAddress,
+                        ValidationBean::setStreetAddress);
 
         // Optional fields
-        binder.forField(birthDate)
-                .bind(ValidationBean::getBirthDate, ValidationBean::setBirthDate);
+        binder.forField(birthDate).bind(ValidationBean::getBirthDate, ValidationBean::setBirthDate);
 
+        binder.forField(preferredContactMethod).bind(ValidationBean::getPreferredContactMethod,
+                ValidationBean::setPreferredContactMethod);
 
-        binder.forField(preferredContactMethod)
-                .bind(ValidationBean::getPreferredContactMethod, ValidationBean::setPreferredContactMethod);
+        binder.forField(emergencyContactName).bind(ValidationBean::getEmergencyContactName,
+                ValidationBean::setEmergencyContactName);
 
-        binder.forField(emergencyContactName)
-                .bind(ValidationBean::getEmergencyContactName, ValidationBean::setEmergencyContactName);
+        binder.forField(rating).bind(ValidationBean::getRating, ValidationBean::setRating);
 
-        binder.forField(rating)
-                .bind(ValidationBean::getRating, ValidationBean::setRating);
+        binder.forField(referenceSource).bind(ValidationBean::getReferenceSource, ValidationBean::setReferenceSource);
 
-        binder.forField(referenceSource)
-                .bind(ValidationBean::getReferenceSource, ValidationBean::setReferenceSource);
+        binder.forField(referencePoints).withValidator(new StringLengthValidator(
+                "Los puntos de referencia no pueden exceder 500 caracteres", 0, 500)).bind(
+                        ValidationBean::getReferencePoints, ValidationBean::setReferencePoints);
 
-        binder.forField(referencePoints)
-                .withValidator(new StringLengthValidator("Los puntos de referencia no pueden exceder 500 caracteres", 0, 500))
-                .bind(ValidationBean::getReferencePoints, ValidationBean::setReferencePoints);
-
-        binder.forField(notes)
-                .withValidator(new StringLengthValidator("Las notas no pueden exceder 1000 caracteres", 0, 1000))
-                .bind(ValidationBean::getNotes, ValidationBean::setNotes);
+        binder.forField(notes).withValidator(new StringLengthValidator("Las notas no pueden exceder 1000 caracteres", 0,
+                1000)).bind(ValidationBean::getNotes, ValidationBean::setNotes);
     }
 
     private void setupUpdateBinder() {
         // Similar setup for update binder with same validation rules
-        binderUpdate.forField(firstName)
-                .asRequired("El nombre es requerido")
-                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
-                .bind(ClientUpdateRequestDto::getFirstName, ClientUpdateRequestDto::setFirstName);
+        binderUpdate.forField(firstName).asRequired("El nombre es requerido").withValidator(new StringLengthValidator(
+                "El nombre debe tener al menos 2 caracteres", 2, null)).bind(ClientUpdateRequestDto::getFirstName,
+                        ClientUpdateRequestDto::setFirstName);
 
-        binderUpdate.forField(lastName)
-                .asRequired("El apellido es requerido")
-                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
-                .bind(ClientUpdateRequestDto::getLastName, ClientUpdateRequestDto::setLastName);
+        binderUpdate.forField(lastName).asRequired("El apellido es requerido").withValidator(new StringLengthValidator(
+                "El apellido debe tener al menos 2 caracteres", 2, null)).bind(ClientUpdateRequestDto::getLastName,
+                        ClientUpdateRequestDto::setLastName);
 
-        binderUpdate.forField(email)
-                .asRequired("El correo electrónico es requerido")
-                .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
-                .bind(ClientUpdateRequestDto::getEmail, ClientUpdateRequestDto::setEmail);
+        binderUpdate.forField(email).asRequired("El correo electrónico es requerido").withValidator(new EmailValidator(
+                "Proporcione un correo electrónico válido")).bind(ClientUpdateRequestDto::getEmail,
+                        ClientUpdateRequestDto::setEmail);
 
-        binderUpdate.forField(phoneNumber)
-                .asRequired("El teléfono es requerido")
-                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido", DOMINICAN_PHONE_PATTERN))
-                .bind(ClientUpdateRequestDto::getPhoneNumber, ClientUpdateRequestDto::setPhoneNumber);
+        binderUpdate.forField(phoneNumber).asRequired("El teléfono es requerido").withValidator(new RegexpValidator(
+                "Proporcione un número de teléfono válido", DOMINICAN_PHONE_PATTERN)).bind(
+                        ClientUpdateRequestDto::getPhoneNumber, ClientUpdateRequestDto::setPhoneNumber);
 
-        binderUpdate.forField(nationality)
-                .asRequired("La nacionalidad es requerida")
-                .withValidator(new StringLengthValidator("La nacionalidad no puede estar vacía", 1, null))
-                .bind(ClientUpdateRequestDto::getNationality, ClientUpdateRequestDto::setNationality);
+        binderUpdate.forField(nationality).asRequired("La nacionalidad es requerida").withValidator(
+                new StringLengthValidator("La nacionalidad no puede estar vacía", 1, null)).bind(
+                        ClientUpdateRequestDto::getNationality, ClientUpdateRequestDto::setNationality);
 
         // Modified identification validation for update - conditional requirement
-        binderUpdate.forField(cedula)
-                .withValidator(this::validateCedulaConditional)
-                .bind(ClientUpdateRequestDto::getCedula, ClientUpdateRequestDto::setCedula);
+        binderUpdate.forField(cedula).withValidator(this::validateCedulaConditional).bind(
+                ClientUpdateRequestDto::getCedula, ClientUpdateRequestDto::setCedula);
 
-        binderUpdate.forField(passport)
-                .withValidator(this::validatePassportConditional)
-                .bind(ClientUpdateRequestDto::getPassport, ClientUpdateRequestDto::setPassport);
+        binderUpdate.forField(passport).withValidator(this::validatePassportConditional).bind(
+                ClientUpdateRequestDto::getPassport, ClientUpdateRequestDto::setPassport);
 
-        binderUpdate.forField(emergencyContactNumber)
-                .withValidator(this::validateEmergencyPhone)
-                .bind(ClientUpdateRequestDto::getEmergencyContactNumber, ClientUpdateRequestDto::setEmergencyContactNumber);
+        binderUpdate.forField(emergencyContactNumber).withValidator(this::validateEmergencyPhone).bind(
+                ClientUpdateRequestDto::getEmergencyContactNumber, ClientUpdateRequestDto::setEmergencyContactNumber);
 
-        binderUpdate.forField(province)
-                .asRequired("La provincia es requerida")
-                .withValidator(new StringLengthValidator("La provincia no puede estar vacía", 1, null))
-                .bind(ClientUpdateRequestDto::getProvince, ClientUpdateRequestDto::setProvince);
+        binderUpdate.forField(province).asRequired("La provincia es requerida").withValidator(new StringLengthValidator(
+                "La provincia no puede estar vacía", 1, null)).bind(ClientUpdateRequestDto::getProvince,
+                        ClientUpdateRequestDto::setProvince);
 
-        binderUpdate.forField(municipality)
-                .asRequired("El municipio es requerido")
-                .withValidator(new StringLengthValidator("El municipio no puede estar vacío", 1, null))
-                .bind(ClientUpdateRequestDto::getMunicipality, ClientUpdateRequestDto::setMunicipality);
+        binderUpdate.forField(municipality).asRequired("El municipio es requerido").withValidator(
+                new StringLengthValidator("El municipio no puede estar vacío", 1, null)).bind(
+                        ClientUpdateRequestDto::getMunicipality, ClientUpdateRequestDto::setMunicipality);
 
-        binderUpdate.forField(sector)
-                .asRequired("El sector es requerido")
-                .withValidator(new StringLengthValidator("El sector no puede estar vacío", 1, null))
-                .bind(ClientUpdateRequestDto::getSector, ClientUpdateRequestDto::setSector);
+        binderUpdate.forField(sector).asRequired("El sector es requerido").withValidator(new StringLengthValidator(
+                "El sector no puede estar vacío", 1, null)).bind(ClientUpdateRequestDto::getSector,
+                        ClientUpdateRequestDto::setSector);
 
-        binderUpdate.forField(streetAddress)
-                .asRequired("La dirección es requerida")
-                .withValidator(new StringLengthValidator("La dirección no puede estar vacía", 1, null))
-                .bind(ClientUpdateRequestDto::getStreetAddress, ClientUpdateRequestDto::setStreetAddress);
+        binderUpdate.forField(streetAddress).asRequired("La dirección es requerida").withValidator(
+                new StringLengthValidator("La dirección no puede estar vacía", 1, null)).bind(
+                        ClientUpdateRequestDto::getStreetAddress, ClientUpdateRequestDto::setStreetAddress);
 
         // Optional fields
-        binderUpdate.forField(birthDate)
-                .bind(ClientUpdateRequestDto::getBirthDate, ClientUpdateRequestDto::setBirthDate);
+        binderUpdate.forField(birthDate).bind(ClientUpdateRequestDto::getBirthDate,
+                ClientUpdateRequestDto::setBirthDate);
 
+        binderUpdate.forField(preferredContactMethod).bind(ClientUpdateRequestDto::getPreferredContactMethod,
+                ClientUpdateRequestDto::setPreferredContactMethod);
 
-        binderUpdate.forField(preferredContactMethod)
-                .bind(ClientUpdateRequestDto::getPreferredContactMethod, ClientUpdateRequestDto::setPreferredContactMethod);
+        binderUpdate.forField(emergencyContactName).bind(ClientUpdateRequestDto::getEmergencyContactName,
+                ClientUpdateRequestDto::setEmergencyContactName);
 
-        binderUpdate.forField(emergencyContactName)
-                .bind(ClientUpdateRequestDto::getEmergencyContactName, ClientUpdateRequestDto::setEmergencyContactName);
+        binderUpdate.forField(rating).bind(ClientUpdateRequestDto::getRating, ClientUpdateRequestDto::setRating);
 
-        binderUpdate.forField(rating)
-                .bind(ClientUpdateRequestDto::getRating, ClientUpdateRequestDto::setRating);
+        binderUpdate.forField(referenceSource).bind(ClientUpdateRequestDto::getReferenceSource,
+                ClientUpdateRequestDto::setReferenceSource);
 
-        binderUpdate.forField(referenceSource)
-                .bind(ClientUpdateRequestDto::getReferenceSource, ClientUpdateRequestDto::setReferenceSource);
+        binderUpdate.forField(referencePoints).withValidator(new StringLengthValidator(
+                "Los puntos de referencia no pueden exceder 500 caracteres", 0, 500)).bind(
+                        ClientUpdateRequestDto::getReferencePoints, ClientUpdateRequestDto::setReferencePoints);
 
-        binderUpdate.forField(referencePoints)
-                .withValidator(new StringLengthValidator("Los puntos de referencia no pueden exceder 500 caracteres", 0, 500))
-                .bind(ClientUpdateRequestDto::getReferencePoints, ClientUpdateRequestDto::setReferencePoints);
-
-        binderUpdate.forField(notes)
-                .withValidator(new StringLengthValidator("Las notas no pueden exceder 1000 caracteres", 0, 1000))
-                .bind(ClientUpdateRequestDto::getNotes, ClientUpdateRequestDto::setNotes);
+        binderUpdate.forField(notes).withValidator(new StringLengthValidator(
+                "Las notas no pueden exceder 1000 caracteres", 0, 1000)).bind(ClientUpdateRequestDto::getNotes,
+                        ClientUpdateRequestDto::setNotes);
     }
 
     // New conditional validation methods
@@ -503,7 +455,8 @@ public class IndividualClientForm extends Dialog {
         if (value.matches(DOMINICAN_PHONE_PATTERN)) {
             return ValidationResult.ok();
         }
-        return ValidationResult.error("Proporcione un número de emergencia válido (809, 849 o 829 seguido de 7 dígitos)");
+        return ValidationResult.error(
+                "Proporcione un número de emergencia válido (809, 849 o 829 seguido de 7 dígitos)");
     }
 
     private void setupDynamicFieldValidation() {
@@ -553,31 +506,15 @@ public class IndividualClientForm extends Dialog {
             return;
         }
 
-        ClientCreateRequestDto dto = new ClientCreateRequestDto(
-                email.getValue(),
-                firstName.getValue(),
-                lastName.getValue(),
-                phoneNumber.getValue(),
-                birthDate.getValue(),
-                null,
-                nationality.getValue(),
-                convertEmptyToNull(cedula.getValue()),
-                convertEmptyToNull(passport.getValue()),
-                null, // rnc is null for individuals
+        ClientCreateRequestDto dto = new ClientCreateRequestDto(email.getValue(), firstName.getValue(), lastName
+                .getValue(), phoneNumber.getValue(), birthDate.getValue(), null, nationality.getValue(),
+                convertEmptyToNull(cedula.getValue()), convertEmptyToNull(passport.getValue()), null, // rnc is null for individuals
                 null, // companyName is null for individuals
-                preferredContactMethod.getValue(),
-                convertEmptyToNull(emergencyContactName.getValue()),
-                convertEmptyToNull(emergencyContactNumber.getValue()),
-                rating.getValue(),
-                null,
-                null,
-                convertEmptyToNull(notes.getValue()),
-                referenceSource.getValue(),
-                province.getValue(),
-                municipality.getValue(),
-                sector.getValue(),
-                streetAddress.getValue(),
-                convertEmptyToNull(referencePoints.getValue()));
+                preferredContactMethod.getValue(), convertEmptyToNull(emergencyContactName.getValue()),
+                convertEmptyToNull(emergencyContactNumber.getValue()), rating.getValue(), null, null,
+                convertEmptyToNull(notes.getValue()), referenceSource.getValue(), province.getValue(), municipality
+                        .getValue(), sector.getValue(), streetAddress.getValue(), convertEmptyToNull(referencePoints
+                                .getValue()));
 
         clientService.createClient(dto);
         NotificationUtils.success("Cliente creado exitosamente");
@@ -600,31 +537,15 @@ public class IndividualClientForm extends Dialog {
             return;
         }
 
-        ClientUpdateRequestDto dto = new ClientUpdateRequestDto(
-                email.getValue(),
-                firstName.getValue(),
-                lastName.getValue(),
-                phoneNumber.getValue(),
-                birthDate.getValue(),
-                null,
-                nationality.getValue(),
-                convertEmptyToNull(cedula.getValue()),
-                convertEmptyToNull(passport.getValue()),
-                null, // rnc
+        ClientUpdateRequestDto dto = new ClientUpdateRequestDto(email.getValue(), firstName.getValue(), lastName
+                .getValue(), phoneNumber.getValue(), birthDate.getValue(), null, nationality.getValue(),
+                convertEmptyToNull(cedula.getValue()), convertEmptyToNull(passport.getValue()), null, // rnc
                 null, // companyName
-                preferredContactMethod.getValue(),
-                convertEmptyToNull(emergencyContactName.getValue()),
-                convertEmptyToNull(emergencyContactNumber.getValue()),
-                rating.getValue(),
-                null,
-                null,
-                convertEmptyToNull(notes.getValue()),
-                referenceSource.getValue(),
-                province.getValue(),
-                municipality.getValue(),
-                sector.getValue(),
-                streetAddress.getValue(),
-                convertEmptyToNull(referencePoints.getValue()));
+                preferredContactMethod.getValue(), convertEmptyToNull(emergencyContactName.getValue()),
+                convertEmptyToNull(emergencyContactNumber.getValue()), rating.getValue(), null, null,
+                convertEmptyToNull(notes.getValue()), referenceSource.getValue(), province.getValue(), municipality
+                        .getValue(), sector.getValue(), streetAddress.getValue(), convertEmptyToNull(referencePoints
+                                .getValue()));
 
         clientService.updateClient(currentClient.getId(), dto);
         NotificationUtils.success("Cliente actualizado exitosamente");
@@ -664,31 +585,15 @@ public class IndividualClientForm extends Dialog {
         currentClient = client;
         setHeaderTitle("Editar Cliente Individual");
 
-        ClientUpdateRequestDto dto = new ClientUpdateRequestDto(
-                client.getEmail(),
-                client.getFirstName(),
-                client.getLastName(),
-                client.getPhoneNumber(),
-                client.getBirthDate(),
-                null,
-                client.getNationality(),
-                client.getCedula(),
-                client.getPassport(),
-                null, // rnc
+        ClientUpdateRequestDto dto = new ClientUpdateRequestDto(client.getEmail(), client.getFirstName(), client
+                .getLastName(), client.getPhoneNumber(), client.getBirthDate(), null, client.getNationality(), client
+                        .getCedula(), client.getPassport(), null, // rnc
                 null, // companyName
-                client.getPreferredContactMethod(),
-                client.getEmergencyContactName(),
-                client.getEmergencyContactNumber(),
-                client.getRating(),
-                null, // creditLimit
+                client.getPreferredContactMethod(), client.getEmergencyContactName(), client
+                        .getEmergencyContactNumber(), client.getRating(), null, // creditLimit
                 null, // paymentTermsDays
-                client.getNotes(),
-                client.getReferenceSource(),
-                client.getProvince(),
-                client.getMunicipality(),
-                client.getSector(),
-                client.getStreetAddress(),
-                client.getReferencePoints());
+                client.getNotes(), client.getReferenceSource(), client.getProvince(), client.getMunicipality(), client
+                        .getSector(), client.getStreetAddress(), client.getReferencePoints());
 
         binderUpdate.readBean(dto);
         firstName.focus();

@@ -4,12 +4,10 @@ import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.dto.request.EmployeeCreateRequestDto;
-
-import java.util.List;
-import java.util.Optional;
-
 import com.wornux.dto.request.EmployeeUpdateRequestDto;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-/**
- * Service Interface for managing {@link Employee} entities.
- */
+/** Service Interface for managing {@link Employee} entities. */
 @BrowserCallable
 @Validated
 @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -28,7 +24,8 @@ public interface EmployeeService {
     /**
      * Retrieves an Employee by ID.
      *
-     * @param id the ID of the employee
+     * @param id
+     *     the ID of the employee
      * @return the Employee entity if found
      */
     Optional<Employee> getEmployeeById(Long id);
@@ -36,7 +33,8 @@ public interface EmployeeService {
     /**
      * Retrieves all Employees with pagination.
      *
-     * @param pageable pagination information
+     * @param pageable
+     *     pagination information
      * @return paginated list of Employees
      */
     Page<Employee> getAllEmployees(Pageable pageable);
@@ -58,7 +56,8 @@ public interface EmployeeService {
     /**
      * Saves a new Employee entity.
      *
-     * @param value the EmployeeCreateRequestDto containing employee data
+     * @param value
+     *     the EmployeeCreateRequestDto containing employee data
      * @return the saved EmployeeCreateRequestDto
      */
     EmployeeCreateRequestDto save(@NonNull EmployeeCreateRequestDto value);

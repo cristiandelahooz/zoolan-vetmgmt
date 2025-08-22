@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class ChangeDTO {
 
-  private String property;
-  private String previousValue;
-  private String currentValue;
+    private String property;
+    private String previousValue;
+    private String currentValue;
 }

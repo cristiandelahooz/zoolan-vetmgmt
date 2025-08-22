@@ -1,5 +1,8 @@
 package com.wornux.views.pets;
 
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+import static com.wornux.utils.PredicateUtils.predicateForTextField;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -28,23 +31,19 @@ import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.GridUtils;
 import com.wornux.views.MainLayout;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.*;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.util.Optional;
 import java.util.Set;
-
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
-import static com.wornux.utils.PredicateUtils.predicateForTextField;
-import jakarta.annotation.security.RolesAllowed;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @Route(value = "mascotas", layout = MainLayout.class)
 @PageTitle("Mascotas")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class PetView extends Div {
 
     private final Grid<Pet> grid = GridUtils.createBasicGrid(Pet.class);
@@ -93,7 +92,7 @@ public class PetView extends Div {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
         GridUtils.addColumn(grid, Pet::getName, "Nombre", "name");
-        //GridUtils.addColumn(grid, pet -> pet.getType().name(), "Tipo", "type");
+        // GridUtils.addColumn(grid, pet -> pet.getType().name(), "Tipo", "type");
         // Tipo con colores
         grid.addComponentColumn(pet -> {
             Span badge = new Span(pet.getType() != null ? pet.getType().name() : "");
@@ -117,7 +116,8 @@ public class PetView extends Div {
             return badge;
         }).setHeader("Tipo");
         GridUtils.addColumn(grid, Pet::getBreed, "Raza", "breed");
-        //GridUtils.addColumn(grid, pet -> pet.getGender() != null ? pet.getGender().name() : "", "Género", "gender");
+        // GridUtils.addColumn(grid, pet -> pet.getGender() != null ? pet.getGender().name() : "",
+        // "Género", "gender");
         // Género con colores
         grid.addComponentColumn(pet -> {
             Span badge = new Span(pet.getGender() != null ? pet.getGender().name() : "");
@@ -131,7 +131,8 @@ public class PetView extends Div {
             return badge;
         }).setHeader("Género");
         GridUtils.addColumn(grid, Pet::getColor, "Color", "color");
-        //GridUtils.addColumn(grid, pet -> pet.getSize() != null ? pet.getSize().name() : "", "Tamaño", "size");
+        // GridUtils.addColumn(grid, pet -> pet.getSize() != null ? pet.getSize().name() : "", "Tamaño",
+        // "size");
 
         // Tamaño con colores
         grid.addComponentColumn(pet -> {
@@ -147,11 +148,8 @@ public class PetView extends Div {
             return badge;
         }).setHeader("Tamaño");
 
-        GridUtils.addColumn(grid,
-                pet -> pet.getOwners().isEmpty()
-                        ? "Sin dueño"
-                        : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName(),
-                "Dueño", "owners");
+        GridUtils.addColumn(grid, pet -> pet.getOwners().isEmpty() ? "Sin dueño" : pet.getOwners().get(0)
+                .getFirstName() + " " + pet.getOwners().get(0).getLastName(), "Dueño", "owners");
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             Pet selected = event.getValue();
@@ -161,30 +159,27 @@ public class PetView extends Div {
         });
 
         grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
-
     }
 
     public Specification<Pet> createFilterSpecification() {
         return (root, query, builder) -> {
-
             Predicate searchPredicate = predicateForTextField(root, builder, new String[] { "name", "breed", "color" },
                     searchField.getValue());
 
-            Predicate typePredicate = createPredicateForSelectedItems(
-                    Optional.ofNullable(typeFilter.getSelectedItems()), items -> root.get("type").in(items), builder);
+            Predicate typePredicate = createPredicateForSelectedItems(Optional.ofNullable(typeFilter
+                    .getSelectedItems()), items -> root.get("type").in(items), builder);
 
-            Predicate genderPredicate = createPredicateForSelectedItems(
-                    Optional.ofNullable(genderFilter.getSelectedItems()), items -> root.get("gender").in(items),
-                    builder);
+            Predicate genderPredicate = createPredicateForSelectedItems(Optional.ofNullable(genderFilter
+                    .getSelectedItems()), items -> root.get("gender").in(items), builder);
 
-            Predicate sizePredicate = createPredicateForSelectedItems(
-                    Optional.ofNullable(sizeFilter.getSelectedItems()), items -> root.get("size").in(items), builder);
+            Predicate sizePredicate = createPredicateForSelectedItems(Optional.ofNullable(sizeFilter
+                    .getSelectedItems()), items -> root.get("size").in(items), builder);
 
             Predicate activePredicate = builder.isTrue(root.get("active"));
 
             return builder.and(activePredicate, searchPredicate, typePredicate, genderPredicate, sizePredicate);
 
-            //return builder.and(searchPredicate, typePredicate, genderPredicate, sizePredicate);
+            // return builder.and(searchPredicate, typePredicate, genderPredicate, sizePredicate);
         };
     }
 
@@ -219,8 +214,8 @@ public class PetView extends Div {
         quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
                 LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
                 LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
-                LumoUtility.Margin.Bottom.XSMALL,
-                LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY);
+                LumoUtility.Margin.Bottom.XSMALL, LumoUtility.TextColor.PRIMARY_CONTRAST,
+                LumoUtility.Background.PRIMARY);
 
         HorizontalLayout toolbar = new HorizontalLayout(searchField, typeFilter, genderFilter, sizeFilter, quantity);
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -260,16 +255,12 @@ public class PetView extends Div {
 
     public Component createActionsColumn(Pet pet) {
         Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(
-                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
         edit.getElement().setProperty("title", "Editar");
         edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(
-                ButtonVariant.LUMO_ICON,
-                ButtonVariant.LUMO_TERTIARY_INLINE,
-                ButtonVariant.LUMO_SMALL,
+        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_ERROR);
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");

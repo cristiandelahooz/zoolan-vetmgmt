@@ -18,10 +18,9 @@ import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import com.wornux.utils.NotificationUtils;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.function.Consumer;
+import lombok.Setter;
 
 public class WaitingRoomForm extends Dialog {
     private final ComboBox<Client> clientField = new ComboBox<>("Cliente");
@@ -78,9 +77,8 @@ public class WaitingRoomForm extends Dialog {
         }
 
         WaitingRoomCreateRequestDto dto = WaitingRoomCreateRequestDto.builder().clientId(clientField.getValue().getId())
-                .petId(petField.getValue().getId()).reasonForVisit(reasonField.getValue())
-                .priority(priorityField.getValue()).notes(notesField.getValue())
-                .arrivalTime(arrivalTimeField.getValue()).build();
+                .petId(petField.getValue().getId()).reasonForVisit(reasonField.getValue()).priority(priorityField
+                        .getValue()).notes(notesField.getValue()).arrivalTime(arrivalTimeField.getValue()).build();
 
         if (editingWaitingRoom == null) {
             waitingRoomService.save(dto);

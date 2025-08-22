@@ -5,14 +5,13 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.wornux.data.entity.Pet;
 import com.wornux.services.interfaces.PetService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -47,32 +46,22 @@ public class SelectPetDialog extends Dialog {
         HorizontalLayout filterBar = new HorizontalLayout(nameFilter, typeFilter, ownerFilter);
 
         nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        nameFilter.addValueChangeListener(e -> dataProvider.setFilter(Pet::getName,
-                name -> name != null && name.toLowerCase().contains(nameFilter.getValue().toLowerCase())));
-
+        nameFilter.addValueChangeListener(e -> dataProvider.setFilter(Pet::getName, name -> name != null && name
+                .toLowerCase().contains(nameFilter.getValue().toLowerCase())));
 
         typeFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        typeFilter.addValueChangeListener(e -> dataProvider.setFilter(
-                pet -> pet.getType() != null &&
-                        pet.getType().toString().toLowerCase()
-                                .contains(typeFilter.getValue().toLowerCase())
-        ));
+        typeFilter.addValueChangeListener(e -> dataProvider.setFilter(pet -> pet.getType() != null && pet.getType()
+                .toString().toLowerCase().contains(typeFilter.getValue().toLowerCase())));
 
         ownerFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        ownerFilter.addValueChangeListener(e -> dataProvider.setFilter(
-                pet -> pet.getOwners() != null && !pet.getOwners().isEmpty() &&
-                        (pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName())
-                                .toLowerCase().contains(ownerFilter.getValue().toLowerCase())
-        ));
-
+        ownerFilter.addValueChangeListener(e -> dataProvider.setFilter(pet -> pet.getOwners() != null && !pet
+                .getOwners().isEmpty() && (pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0)
+                        .getLastName()).toLowerCase().contains(ownerFilter.getValue().toLowerCase())));
 
         grid.addColumn(Pet::getName).setHeader("Nombre");
         grid.addColumn(p -> p.getType().toString()).setHeader("Tipo");
-        grid.addColumn(p ->
-                p.getOwners() != null && !p.getOwners().isEmpty()
-                        ? p.getOwners().get(0).getFirstName() + " " + p.getOwners().get(0).getLastName()
-                        : "Sin dueño"
-        ).setHeader("Dueño principal");
+        grid.addColumn(p -> p.getOwners() != null && !p.getOwners().isEmpty() ? p.getOwners().get(0)
+                .getFirstName() + " " + p.getOwners().get(0).getLastName() : "Sin dueño").setHeader("Dueño principal");
 
         Button cancel = new Button("Cancelar", e -> close());
         Button accept = new Button("Aceptar", e -> {
@@ -86,9 +75,7 @@ public class SelectPetDialog extends Dialog {
         grid.asSingleSelect().addValueChangeListener(event -> {
             selectedPet = event.getValue();
             accept.setEnabled(selectedPet != null);
-            selectedPetField.setValue(
-                    selectedPet != null ? selectedPet.getName() : ""
-            );
+            selectedPetField.setValue(selectedPet != null ? selectedPet.getName() : "");
         });
 
         HorizontalLayout buttons = new HorizontalLayout(cancel, accept);

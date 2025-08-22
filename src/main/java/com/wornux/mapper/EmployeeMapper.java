@@ -9,13 +9,12 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EmployeeMapper {
 
-  @Mapping(target = "id", ignore = true)
-  @Mapping(target = "systemRole", expression = "java(dto.getEmployeeRole().getSystemRole())")
-  Employee toEntity(EmployeeCreateRequestDto dto);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "systemRole", expression = "java(dto.getEmployeeRole().getSystemRole())")
+    Employee toEntity(EmployeeCreateRequestDto dto);
 
-  @Mapping(target = "id", ignore = true)
-  void updateEmployeeFromDto(EmployeeUpdateRequestDto dto, @MappingTarget Employee entity);
+    @Mapping(target = "id", ignore = true)
+    void updateEmployeeFromDto(EmployeeUpdateRequestDto dto, @MappingTarget Employee entity);
 
-  EmployeeCreateRequestDto toDTO(Employee employee);
-
+    EmployeeCreateRequestDto toDTO(Employee employee);
 }

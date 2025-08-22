@@ -5,14 +5,13 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.wornux.data.entity.Client;
 import com.wornux.services.interfaces.ClientService;
-
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -46,8 +45,8 @@ public class SelectOwnersMultiDialog extends Dialog {
         TextField cedulaFilter = new TextField();
         cedulaFilter.setPlaceholder("Filtrar por cédula");
         cedulaFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        cedulaFilter.addValueChangeListener(e -> dataProvider.setFilter(Client::getCedula,
-                ced -> ced != null && ced.contains(cedulaFilter.getValue())));
+        cedulaFilter.addValueChangeListener(e -> dataProvider.setFilter(Client::getCedula, ced -> ced != null && ced
+                .contains(cedulaFilter.getValue())));
 
         HorizontalLayout filterBar = new HorizontalLayout(firstNameFilter, lastNameFilter, cedulaFilter);
 
@@ -89,12 +88,11 @@ public class SelectOwnersMultiDialog extends Dialog {
 
         if (preSelectedOwners != null && !preSelectedOwners.isEmpty()) {
             preSelectedOwners.forEach(owner -> {
-                dataProvider.getItems().stream().filter(c -> c.getId().equals(owner.getId())).findFirst()
-                        .ifPresent(grid::select);
+                dataProvider.getItems().stream().filter(c -> c.getId().equals(owner.getId())).findFirst().ifPresent(
+                        grid::select);
             });
         }
 
         open();
     }
-
 }

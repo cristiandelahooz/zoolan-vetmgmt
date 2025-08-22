@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateConsultationRequestDto {
-  @NotBlank(message = "Notes are required")
-  private String notes;
+    @NotBlank(message = "Notes are required")
+    private String notes;
 
-  private String diagnosis;
-  private String treatment;
-  private String prescription;
+    private String diagnosis;
+    private String treatment;
+    private String prescription;
 
-  @NotNull(message = "Consultation date is required")
-  private LocalDateTime consultationDate;
+    @NotNull(message = "Consultation date is required")
+    private LocalDateTime consultationDate;
 
-  @NotNull(message = "Pet ID is required")
-  private Long petId;
+    @NotNull(message = "Pet ID is required")
+    private Long petId;
 
-  @NotNull(message = "Veterinarian ID is required")
-  private Long veterinarianId;
+    @NotNull(message = "Veterinarian ID is required")
+    private Long veterinarianId;
 }

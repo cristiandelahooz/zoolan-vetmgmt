@@ -1,16 +1,15 @@
 package com.wornux.dto.request;
 
+import static com.wornux.constants.ValidationConstants.*;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.Gender;
 import jakarta.validation.constraints.*;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
-
-import java.time.LocalDate;
-
-import static com.wornux.constants.ValidationConstants.*;
 
 @Data
 @AllArgsConstructor
@@ -49,7 +48,6 @@ public class EmployeeUpdateRequestDto {
 
     @NotBlank(message = "La dirección es requerida")
     private String streetAddress;
-
 
     @NotNull(message = "Employee role is required")
     private EmployeeRole employeeRole;

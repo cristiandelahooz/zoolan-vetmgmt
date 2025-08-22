@@ -39,17 +39,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
-
 @Slf4j
 @PageTitle("Inventario")
 @Route(value = "inventario")
 @Menu(order = 3, icon = "line-awesome/svg/boxes-solid.svg")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class InventoryView extends Div {
 
     private final ProductGrid productGrid;
     private final TextField searchField = new TextField("Buscar productos");
-    private final MultiSelectComboBox<ProductCategory> categoryFilter = new MultiSelectComboBox<>("Filtrar por Categoría");
+    private final MultiSelectComboBox<ProductCategory> categoryFilter = new MultiSelectComboBox<>(
+            "Filtrar por Categoría");
     private final ComboBox<Warehouse> warehouseFilter = new ComboBox<>("Filtrar por Almacén");
     private final Button newButton = new Button("Nuevo Producto");
     private final Span quantity = new Span();
@@ -58,7 +58,9 @@ public class InventoryView extends Div {
     private final transient WarehouseService warehouseService;
     private final transient ProductForm productForm;
 
-    public InventoryView(@Qualifier("productServiceImpl") ProductService productService, @Qualifier("supplierServiceImpl") SupplierService supplierService, @Qualifier("warehouseServiceImpl") WarehouseService warehouseService) {
+    public InventoryView(@Qualifier("productServiceImpl") ProductService productService,
+            @Qualifier("supplierServiceImpl") SupplierService supplierService,
+            @Qualifier("warehouseServiceImpl") WarehouseService warehouseService) {
         this.productService = productService;
         this.warehouseService = warehouseService;
         this.productForm = new ProductForm(productService, supplierService, warehouseService);
@@ -77,48 +79,45 @@ public class InventoryView extends Div {
         final Div gridLayout = new Div(productGrid);
         gridLayout.setHeightFull();
         gridLayout.setWidth("99%");
-        gridLayout.addClassNames(
-                LumoUtility.Margin.Bottom.LARGE,
-                LumoUtility.Overflow.HIDDEN
-        );
+        gridLayout.addClassNames(LumoUtility.Margin.Bottom.LARGE, LumoUtility.Overflow.HIDDEN);
 
         productGrid.setWidthFull();
         productGrid.setHeightFull();
 
         add(createTitle(), createFilter(), gridLayout);
 
-        addClassNames(
-                LumoUtility.Margin.Horizontal.SMALL,
-                LumoUtility.Display.FLEX,
-                LumoUtility.FlexDirection.COLUMN,
-                LumoUtility.Height.FULL,
-                LumoUtility.Overflow.HIDDEN
-        );
+        addClassNames(LumoUtility.Margin.Horizontal.SMALL, LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.Height.FULL, LumoUtility.Overflow.HIDDEN);
         newButton.addClickListener(event -> productForm.openForNew());
     }
 
     private void createGrid(Specification<Product> specification) {
         productGrid.setSpecification(specification);
-        var actionsColumn = productGrid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+        var actionsColumn = productGrid.addComponentColumn(this::createActionsColumn).setHeader("Acciones")
+                .setAutoWidth(true);
         actionsColumn.setFrozenToEnd(true);
     }
 
     private Div createTitle() {
         final Breadcrumb breadcrumb = new Breadcrumb();
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(new BreadcrumbItem("Inventario", InventoryView.class), new BreadcrumbItem("Lista de Productos", ConsultationsView.class));
-
+        breadcrumb.add(new BreadcrumbItem("Inventario", InventoryView.class), new BreadcrumbItem("Lista de Productos",
+                ConsultationsView.class));
 
         Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar productos de la clínica veterinaria.");
 
         Div headerLayout = new Div(breadcrumb, icon);
-        headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Margin.Top.SMALL);
+        headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW,
+                LumoUtility.Margin.Top.SMALL);
 
         newButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
         newButton.addClassNames(LumoUtility.Width.AUTO);
 
         Div layout = new Div(headerLayout, newButton);
-        layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.FlexDirection.Breakpoint.Large.ROW, LumoUtility.JustifyContent.BETWEEN, LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Gap.XSMALL, LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
+        layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.FlexDirection.Breakpoint.Large.ROW, LumoUtility.JustifyContent.BETWEEN,
+                LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Gap.XSMALL,
+                LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
 
         return layout;
     }
@@ -138,17 +137,10 @@ public class InventoryView extends Div {
         categoryFilter.addValueChangeListener(e -> refreshGrid());
         categoryFilter.setWidth("20%");
 
-        quantity.addClassNames(
-                LumoUtility.BorderRadius.SMALL,
-                LumoUtility.Height.XSMALL,
-                LumoUtility.FontWeight.MEDIUM,
-                LumoUtility.JustifyContent.CENTER,
-                LumoUtility.AlignItems.CENTER,
-                LumoUtility.Padding.XSMALL,
-                LumoUtility.Padding.Horizontal.SMALL,
-                LumoUtility.Margin.Horizontal.MEDIUM,
-                LumoUtility.Margin.Bottom.XSMALL,
-                LumoUtility.TextColor.PRIMARY_CONTRAST,
+        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
+                LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.MEDIUM,
+                LumoUtility.Margin.Bottom.XSMALL, LumoUtility.TextColor.PRIMARY_CONTRAST,
                 LumoUtility.Background.PRIMARY);
         quantity.setWidth("10%");
         updateQuantity();
@@ -167,12 +159,9 @@ public class InventoryView extends Div {
         HorizontalLayout toolbar = new HorizontalLayout(searchField, categoryFilter, warehouseFilter, quantity);
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         toolbar.setAlignItems(FlexComponent.Alignment.END);
-        toolbar.addClassNames(
-                LumoUtility.Margin.Horizontal.MEDIUM,
-                LumoUtility.Margin.Top.SMALL,
-                LumoUtility.Margin.Right.MEDIUM,
-                LumoUtility.Padding.MEDIUM,
-                LumoUtility.Gap.MEDIUM, LumoUtility.Width.FULL);
+        toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Margin.Right.MEDIUM, LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM,
+                LumoUtility.Width.FULL);
 
         return toolbar;
     }
@@ -190,7 +179,10 @@ public class InventoryView extends Div {
 
             Predicate searchPredicate = builder.conjunction();
             if (!search.isEmpty()) {
-                searchPredicate = builder.or(builder.like(builder.lower(root.get("name")), "%" + search + "%"), builder.like(builder.lower(root.get("description")), "%" + search + "%"), builder.like(builder.lower(root.get("supplier").get("companyName")), "%" + search + "%"), builder.like(builder.lower(root.get("warehouse").get("name")), "%" + search + "%"));
+                searchPredicate = builder.or(builder.like(builder.lower(root.get("name")), "%" + search + "%"), builder
+                        .like(builder.lower(root.get("description")), "%" + search + "%"), builder.like(builder.lower(
+                                root.get("supplier").get("companyName")), "%" + search + "%"), builder.like(builder
+                                        .lower(root.get("warehouse").get("name")), "%" + search + "%"));
             }
 
             Predicate categoryPredicate = builder.conjunction();
@@ -216,16 +208,12 @@ public class InventoryView extends Div {
 
     private Component createActionsColumn(Product product) {
         Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(
-                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
         edit.getElement().setProperty("title", "Editar");
         edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
         Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(
-                ButtonVariant.LUMO_ICON,
-                ButtonVariant.LUMO_TERTIARY_INLINE,
-                ButtonVariant.LUMO_SMALL,
+        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_ERROR);
         delete.getElement().setProperty("title", "Eliminar");
         delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
@@ -247,9 +235,8 @@ public class InventoryView extends Div {
         confirmDialog.setModal(true);
         confirmDialog.setWidth("400px");
 
-        Span message = new Span("¿Está seguro de que desea eliminar el producto \"" +
-                (product.getName() != null ? product.getName() : "") +
-                "\"? Esta acción no se puede deshacer.");
+        Span message = new Span("¿Está seguro de que desea eliminar el producto \"" + (product
+                .getName() != null ? product.getName() : "") + "\"? Esta acción no se puede deshacer.");
         message.getStyle().set("margin-bottom", "20px");
 
         Button confirmButton = new Button("Eliminar");
@@ -282,13 +269,14 @@ public class InventoryView extends Div {
     }
 
     private String getCategoryDisplayName(ProductCategory category) {
-        if (category == null) return "";
+        if (category == null)
+            return "";
         return switch (category) {
-            case ALIMENTO -> "Alimento";
-            case MEDICINA -> "Medicina";
-            case ACCESORIO -> "Accesorio";
-            case HIGIENE -> "Higiene";
-            case OTRO -> "Otro";
+        case ALIMENTO -> "Alimento";
+        case MEDICINA -> "Medicina";
+        case ACCESORIO -> "Accesorio";
+        case HIGIENE -> "Higiene";
+        case OTRO -> "Otro";
         };
     }
 

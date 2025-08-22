@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @PageTitle("Warehouses")
 @Route(value = "warehouses")
 @Menu(order = 4, icon = "line-awesome/svg/warehouse-solid.svg")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class WarehouseView extends VerticalLayout {
 
     private final WarehouseGrid warehouseGrid;
@@ -59,13 +59,12 @@ public class WarehouseView extends VerticalLayout {
     private final HorizontalLayout gridFilters;
     private final VerticalLayout contentLayout;
 
-    public WarehouseView(@Qualifier("warehouseServiceImpl") WarehouseService warehouseService, ProductService productService) {
+    public WarehouseView(@Qualifier("warehouseServiceImpl") WarehouseService warehouseService,
+            ProductService productService) {
         this.warehouseService = warehouseService;
         var warehouses = warehouseService.getAllWarehouses();
         warehouseDataProvider = new ListDataProvider<>(warehouses);
-        this.warehouseGrid = new WarehouseGrid(warehouseDataProvider,
-                this::editWarehouse,
-                this::deleteWarehouse);
+        this.warehouseGrid = new WarehouseGrid(warehouseDataProvider, this::editWarehouse, this::deleteWarehouse);
 
         gridFilters = createGridFilters();
         contentLayout = new VerticalLayout();
@@ -96,13 +95,8 @@ public class WarehouseView extends VerticalLayout {
 
         removeAll();
         add(contentLayout);
-        addClassNames(
-                LumoUtility.Margin.Horizontal.SMALL,
-                LumoUtility.Display.FLEX,
-                LumoUtility.FlexDirection.COLUMN,
-                LumoUtility.Height.FULL,
-                LumoUtility.Overflow.HIDDEN
-        );
+        addClassNames(LumoUtility.Margin.Horizontal.SMALL, LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.Height.FULL, LumoUtility.Overflow.HIDDEN);
     }
 
     private void setupComponents() {
@@ -170,27 +164,18 @@ public class WarehouseView extends VerticalLayout {
     }
 
     private void updateCancelButtonState() {
-        boolean hasContent = !name.isEmpty() ||
-                !warehouseType.isEmpty() ||
-                !availableForSale.isEmpty() ||
-                !status.isEmpty();
+        boolean hasContent = !name.isEmpty() || !warehouseType.isEmpty() || !availableForSale.isEmpty() || !status
+                .isEmpty();
         cancelButton.setEnabled(hasContent);
     }
 
     private HorizontalLayout createGridFilters() {
         searchField.setWidth("50%");
         statusFilter.setWidth("45%");
-        quantity.addClassNames(
-                LumoUtility.BorderRadius.SMALL,
-                LumoUtility.Height.XSMALL,
-                LumoUtility.FontWeight.MEDIUM,
-                LumoUtility.JustifyContent.CENTER,
-                LumoUtility.AlignItems.CENTER,
-                LumoUtility.Padding.XSMALL,
-                LumoUtility.Padding.Horizontal.SMALL,
-                LumoUtility.Margin.Horizontal.SMALL,
-                LumoUtility.Margin.Bottom.XSMALL,
-                LumoUtility.TextColor.PRIMARY_CONTRAST,
+        quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL, LumoUtility.FontWeight.MEDIUM,
+                LumoUtility.JustifyContent.CENTER, LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
+                LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
+                LumoUtility.Margin.Bottom.XSMALL, LumoUtility.TextColor.PRIMARY_CONTRAST,
                 LumoUtility.Background.PRIMARY);
         quantity.setWidth("15%");
         updateQuantity();
@@ -200,11 +185,8 @@ public class WarehouseView extends VerticalLayout {
         filters.setFlexGrow(1, searchField, statusFilter, quantity);
         filters.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         filters.setAlignItems(FlexComponent.Alignment.END);
-        filters.addClassNames(
-                LumoUtility.Margin.Horizontal.MEDIUM,
-                LumoUtility.Margin.Top.SMALL,
-                LumoUtility.Padding.MEDIUM,
-                LumoUtility.Gap.MEDIUM, LumoUtility.Width.FULL);
+        filters.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL,
+                LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM, LumoUtility.Width.FULL);
         return filters;
     }
 
@@ -212,10 +194,7 @@ public class WarehouseView extends VerticalLayout {
         FormLayout formLayout = new FormLayout();
         formLayout.addClassNames(LumoUtility.Padding.Right.XLARGE);
         formLayout.setWidth("500px");
-        formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("500px", 2)
-        );
+        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
         formLayout.add(new H3("Información del Almacén"), name, warehouseType, availableForSale, status);
         formLayout.setColspan(name, 2);
@@ -248,11 +227,8 @@ public class WarehouseView extends VerticalLayout {
 
     private void createWarehouse() {
         try {
-            WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder()
-                    .name(name.getValue())
-                    .warehouseType(warehouseType.getValue())
-                    .availableForSale(availableForSale.getValue())
-                    .status(status.getValue())
+            WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder().name(name.getValue()).warehouseType(
+                    warehouseType.getValue()).availableForSale(availableForSale.getValue()).status(status.getValue())
                     .build();
 
             warehouseService.createWarehouse(dto);
@@ -271,12 +247,9 @@ public class WarehouseView extends VerticalLayout {
     private void updateWarehouse() {
         try {
             if (selectedWarehouse != null) {
-                WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder()
-                        .name(name.getValue())
-                        .warehouseType(warehouseType.getValue())
-                        .availableForSale(availableForSale.getValue())
-                        .status(status.getValue())
-                        .build();
+                WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder().name(name.getValue()).warehouseType(
+                        warehouseType.getValue()).availableForSale(availableForSale.getValue()).status(status
+                                .getValue()).build();
 
                 warehouseService.updateWarehouse(selectedWarehouse.getId(), dto);
                 NotificationUtils.success("Almacén actualizado exitosamente");
@@ -380,8 +353,10 @@ public class WarehouseView extends VerticalLayout {
         String status = statusFilter.getValue();
 
         warehouseDataProvider.setFilter(warehouse -> {
-            boolean matchesSearch = search.isEmpty() || warehouse.getName().toLowerCase().contains(search) || (warehouse.getWarehouseType() != null && warehouse.getWarehouseType().name().toLowerCase().contains(search));
-            boolean matchesStatus = "Todos".equals(status) || ("Activo".equals(status) && warehouse.isStatus()) || ("Inactivo".equals(status) && !warehouse.isStatus());
+            boolean matchesSearch = search.isEmpty() || warehouse.getName().toLowerCase().contains(search) || (warehouse
+                    .getWarehouseType() != null && warehouse.getWarehouseType().name().toLowerCase().contains(search));
+            boolean matchesStatus = "Todos".equals(status) || ("Activo".equals(status) && warehouse
+                    .isStatus()) || ("Inactivo".equals(status) && !warehouse.isStatus());
             return matchesSearch && matchesStatus;
         });
     }
@@ -391,8 +366,7 @@ public class WarehouseView extends VerticalLayout {
             long count = warehouseService.getAllWarehouses().stream().filter(Warehouse::isStatus).count();
             quantity.setText("Almacenes (" + count + ")");
         } catch (Exception e) {
-            log.warn("Error getting warehouses" +
-                    " count", e);
+            log.warn("Error getting warehouses" + " count", e);
             quantity.setText("Almacenes (0)");
         }
     }

@@ -13,22 +13,24 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ConsultationMapperHelper {
 
-  @Lazy private final PetService petService;
-  @Lazy private final EmployeeService employeeService;
+    @Lazy
+    private final PetService petService;
+    @Lazy
+    private final EmployeeService employeeService;
 
-  @Named("petFromId")
-  public Pet petFromId(Long id) {
-    if (id == null) {
-      return null;
+    @Named("petFromId")
+    public Pet petFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return petService.getPetById(id).orElse(null);
     }
-    return petService.getPetById(id).orElse(null);
-  }
 
-  @Named("veterinarianFromId")
-  public Employee veterinarianFromId(Long id) {
-    if (id == null) {
-      return null;
+    @Named("veterinarianFromId")
+    public Employee veterinarianFromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return employeeService.getEmployeeById(id).orElse(null);
     }
-    return employeeService.getEmployeeById(id).orElse(null);
-  }
 }

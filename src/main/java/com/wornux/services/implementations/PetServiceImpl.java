@@ -7,34 +7,28 @@ import com.vaadin.hilla.crud.ListRepositoryService;
 import com.vaadin.hilla.crud.filter.Filter;
 import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Consultation;
-import com.wornux.data.repository.ConsultationRepository;
 import com.wornux.data.entity.Pet;
-
 import com.wornux.data.enums.PetType;
-import com.wornux.dto.request.PetCreateRequestDto;
-import com.wornux.mapper.PetMapper;
+import com.wornux.data.repository.ConsultationRepository;
 import com.wornux.data.repository.PetRepository;
-import com.wornux.dto.response.PetSummaryResponseDto;
+import com.wornux.dto.request.PetCreateRequestDto;
 import com.wornux.dto.request.PetUpdateRequestDto;
+import com.wornux.dto.response.PetSummaryResponseDto;
 import com.wornux.exception.PetNotFoundException;
-import com.wornux.services.interfaces.PetService;
+import com.wornux.mapper.PetMapper;
 import com.wornux.services.interfaces.ClientService;
+import com.wornux.services.interfaces.PetService;
 import jakarta.validation.Valid;
-
 import java.util.*;
-
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,8 +37,8 @@ import java.util.stream.Collectors;
 @BrowserCallable
 @Transactional
 @AnonymousAllowed
-public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetRepository>
-        implements PetService, FormService<PetCreateRequestDto, Long> {
+public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetRepository> implements PetService,
+        FormService<PetCreateRequestDto, Long> {
 
     private final PetRepository petRepository;
     private final PetMapper petMapper;
@@ -62,7 +56,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
     @Override
     @Transactional
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
     public Pet createPet(@Valid PetCreateRequestDto petDTO) {
         log.debug("Request to create Pet : {}", petDTO);
 
@@ -75,7 +69,7 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
     @Override
     @Transactional
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
     public Pet updatePet(Long id, @Valid PetUpdateRequestDto dto) {
         log.debug("Request to update Pet : {}", dto);
 
@@ -92,9 +86,8 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         Pet saved = petRepository.save(existing);
 
         if (log.isInfoEnabled()) {
-            String ownersTxt = saved.getOwners().stream()
-                    .map(o -> o.getId() + ":" + o.getFirstName() + " " + o.getLastName())
-                    .collect(Collectors.joining(", "));
+            String ownersTxt = saved.getOwners().stream().map(o -> o.getId() + ":" + o.getFirstName() + " " + o
+                    .getLastName()).collect(Collectors.joining(", "));
             log.info("Pet {} owners after update: [{}]", saved.getId(), ownersTxt);
         }
         return saved;
@@ -116,14 +109,10 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     @Override
     @Transactional(readOnly = true)
     public List<PetSummaryResponseDto> getAllPets(Pageable pageable) {
-        return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream()
-                .map(pet -> new PetSummaryResponseDto(pet.getId(), pet.getName(), pet.getType(), pet.getBreed(),
-                        pet.getBirthDate(), pet.getColor(), pet.getSize(), pet.getFurType(),
-                        pet.getOwners().isEmpty()
-                                ? "Sin dueño"
-                                : pet.getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName(),
-                        pet.isActive()))
-                .toList();
+        return petRepository.findByActiveTrueOrderByNameAsc(pageable).stream().map(pet -> new PetSummaryResponseDto(pet
+                .getId(), pet.getName(), pet.getType(), pet.getBreed(), pet.getBirthDate(), pet.getColor(), pet
+                        .getSize(), pet.getFurType(), pet.getOwners().isEmpty() ? "Sin dueño" : pet.getOwners().get(0)
+                                .getFirstName() + " " + pet.getOwners().get(0).getLastName(), pet.isActive())).toList();
     }
 
     @Override
@@ -198,15 +187,15 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
         Pet keepPet = petRepository.findById(keepPetId).orElseThrow(() -> new PetNotFoundException(keepPetId));
         Pet removePet = petRepository.findById(removePetId).orElseThrow(() -> new PetNotFoundException(removePetId));
 
-        if (!keepPet.getName().equalsIgnoreCase(removePet.getName())
-                || !keepPet.getType().equals(removePet.getType())) {
+        if (!keepPet.getName().equalsIgnoreCase(removePet.getName()) || !keepPet.getType().equals(removePet
+                .getType())) {
             throw new IllegalArgumentException("Las mascotas no parecen ser la misma (nombre o tipo diferentes)");
         }
 
         Set<Long> existingOwnerIds = keepPet.getOwners().stream().map(Client::getId).collect(Collectors.toSet());
 
-        List<Client> newOwners = removePet.getOwners().stream()
-                .filter(owner -> !existingOwnerIds.contains(owner.getId())).toList();
+        List<Client> newOwners = removePet.getOwners().stream().filter(owner -> !existingOwnerIds.contains(owner
+                .getId())).toList();
 
         keepPet.getOwners().addAll(newOwners);
         removePet.setActive(false);
@@ -229,5 +218,4 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
     public PetRepository getRepository() {
         return petRepository;
     }
-
 }

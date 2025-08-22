@@ -1,5 +1,7 @@
 package com.wornux.services.implementations;
 
+import static org.reflections.Reflections.log;
+
 import com.wornux.data.entity.Warehouse;
 import com.wornux.data.repository.WarehouseRepository;
 import com.wornux.dto.request.WarehouseCreateRequestDto;
@@ -9,11 +11,9 @@ import com.wornux.exception.WarehouseNotFoundException;
 import com.wornux.mapper.WarehouseMapper;
 import com.wornux.services.interfaces.WarehouseService;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import static org.reflections.Reflections.log;
 
 @Service
 @RequiredArgsConstructor
@@ -59,8 +59,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     @Transactional
     public void deleteWarehouse(Long id) {
-        Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new WarehouseNotFoundException(id));
+        Warehouse warehouse = warehouseRepository.findById(id).orElseThrow(() -> new WarehouseNotFoundException(id));
 
         if (warehouse.getProducts() != null && !warehouse.getProducts().isEmpty()) {
             // Opcional: validar si tiene productos activos

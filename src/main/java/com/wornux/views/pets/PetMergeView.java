@@ -12,6 +12,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -26,19 +27,17 @@ import com.wornux.data.entity.Pet;
 import com.wornux.data.enums.PetType;
 import com.wornux.services.implementations.PetServiceImpl;
 import jakarta.annotation.security.RolesAllowed;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import com.vaadin.flow.component.icon.VaadinIcon;
-
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Slf4j
 @Route("mascotas/fusionar")
 @PageTitle("Fusionar Mascotas Duplicadas")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER" })
 public class PetMergeView extends Div {
 
     private final PetServiceImpl petService;
@@ -81,8 +80,8 @@ public class PetMergeView extends Div {
                 box.getStyle().set("fontStyle", "italic").set("color", "#666");
                 return box;
             }
-            String txt = owners.stream().map(o -> (nvl(o.getFirstName()) + " " + nvl(o.getLastName())).trim())
-                    .collect(Collectors.joining(", "));
+            String txt = owners.stream().map(o -> (nvl(o.getFirstName()) + " " + nvl(o.getLastName())).trim()).collect(
+                    Collectors.joining(", "));
             box.setText(txt);
             return box;
         });
@@ -93,8 +92,8 @@ public class PetMergeView extends Div {
         head.setPadding(true);
         head.setSpacing(false);
         head.add(new H2("Fusionar Mascotas Duplicadas"));
-        Paragraph p = new Paragraph("Busca mascotas por nombre para encontrar posibles duplicados. "
-                + "Selecciona cuál mantener y cuál eliminar; los dueños se trasladarán a la mascota a mantener.");
+        Paragraph p = new Paragraph(
+                "Busca mascotas por nombre para encontrar posibles duplicados. " + "Selecciona cuál mantener y cuál eliminar; los dueños se trasladarán a la mascota a mantener.");
         p.getStyle().set("color", "#666");
         head.add(p);
         return head;
@@ -136,14 +135,13 @@ public class PetMergeView extends Div {
         grid.addColumn(Pet::getName).setHeader("Nombre").setAutoWidth(true);
         grid.addColumn(p -> getTypeLabel(p.getType())).setHeader("Tipo").setAutoWidth(true);
         grid.addColumn(Pet::getBreed).setHeader("Raza").setAutoWidth(true);
-        grid.addColumn(p -> p.getBirthDate() != null ? DATE_FMT.format(p.getBirthDate()) : "")
-                .setHeader("F. Nacimiento").setAutoWidth(true);
+        grid.addColumn(p -> p.getBirthDate() != null ? DATE_FMT.format(p.getBirthDate()) : "").setHeader(
+                "F. Nacimiento").setAutoWidth(true);
         grid.addColumn(Pet::getColor).setHeader("Color").setAutoWidth(true);
         grid.addColumn(p -> p.getSize() != null ? p.getSize().name() : "").setHeader("Tamaño").setAutoWidth(true);
         grid.addColumn(ownersRenderer()).setHeader("Dueños").setAutoWidth(true);
 
         grid.addColumn(new ComponentRenderer<>(pet -> {
-
             Button keepBtn = new Button(isKeep(pet) ? "✓ Mantener" : "Mantener");
             keepBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
             if (isKeep(pet))
@@ -360,8 +358,8 @@ public class PetMergeView extends Div {
             return d;
         }
         d.add(new Paragraph("Nombre: " + nvl(p.getName())), new Paragraph("Tipo: " + getTypeLabel(p.getType())),
-                new Paragraph("Raza: " + nvl(p.getBreed())),
-                new Paragraph("Dueños: " + (p.getOwners() != null ? p.getOwners().size() : 0)));
+                new Paragraph("Raza: " + nvl(p.getBreed())), new Paragraph("Dueños: " + (p.getOwners() != null ? p
+                        .getOwners().size() : 0)));
         return d;
     }
 

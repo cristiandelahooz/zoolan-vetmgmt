@@ -1,5 +1,7 @@
 package com.wornux.views.employees;
 
+import static com.wornux.constants.ValidationConstants.*;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
@@ -22,7 +24,6 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.constants.ValidationConstants;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.Gender;
@@ -32,17 +33,14 @@ import com.wornux.exception.DuplicateEmployeeException;
 import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.utils.NotificationUtils;
 import jakarta.validation.ValidationException;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import static com.wornux.constants.ValidationConstants.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class EmployeeForm extends Dialog {
@@ -175,23 +173,11 @@ public class EmployeeForm extends Dialog {
         FormLayout formLayout = new FormLayout();
         formLayout.addClassNames(LumoUtility.Padding.MEDIUM);
 
-        formLayout.add(
-                username, password,
-                firstName, lastName,
-                email, phoneNumber,
-                birthDate, gender,
-                nationality,
-                province, municipality,
-                sector, streetAddress,
-                employeeRole, salary,
-                hireDate, workSchedule,
-                emergencyContactName, emergencyContactPhone
-        );
+        formLayout.add(username, password, firstName, lastName, email, phoneNumber, birthDate, gender, nationality,
+                province, municipality, sector, streetAddress, employeeRole, salary, hireDate, workSchedule,
+                emergencyContactName, emergencyContactPhone);
 
-        formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("500px", 2)
-        );
+        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
         formLayout.setColspan(streetAddress, 2);
         formLayout.setColspan(workSchedule, 2);
@@ -214,147 +200,122 @@ public class EmployeeForm extends Dialog {
     }
 
     private void setupCreateBinder() {
-        binder.forField(username)
-                .withValidator(new StringLengthValidator("El usuario debe tener entre 3 y 50 caracteres", MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH))
-                .bind(ValidationBean::getUsername, ValidationBean::setUsername);
+        binder.forField(username).withValidator(new StringLengthValidator(
+                "El usuario debe tener entre 3 y 50 caracteres", MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH)).bind(
+                        ValidationBean::getUsername, ValidationBean::setUsername);
 
-        binder.forField(password)
-                .withValidator(new StringLengthValidator("La contraseña debe tener al menos 8 caracteres", MIN_PASSWORD_LENGTH, null))
-                .bind(ValidationBean::getPassword, ValidationBean::setPassword);
+        binder.forField(password).withValidator(new StringLengthValidator(
+                "La contraseña debe tener al menos 8 caracteres", MIN_PASSWORD_LENGTH, null)).bind(
+                        ValidationBean::getPassword, ValidationBean::setPassword);
 
-        binder.forField(firstName)
-                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
-                .bind(ValidationBean::getFirstName, ValidationBean::setFirstName);
+        binder.forField(firstName).withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres",
+                2, null)).bind(ValidationBean::getFirstName, ValidationBean::setFirstName);
 
-        binder.forField(lastName)
-                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
-                .bind(ValidationBean::getLastName, ValidationBean::setLastName);
+        binder.forField(lastName).withValidator(new StringLengthValidator(
+                "El apellido debe tener al menos 2 caracteres", 2, null)).bind(ValidationBean::getLastName,
+                        ValidationBean::setLastName);
 
-        binder.forField(email)
-                .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
-                .bind(ValidationBean::getEmail, ValidationBean::setEmail);
+        binder.forField(email).withValidator(new EmailValidator("Proporcione un correo electrónico válido")).bind(
+                ValidationBean::getEmail, ValidationBean::setEmail);
 
-        binder.forField(phoneNumber)
-                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido", DOMINICAN_PHONE_PATTERN, true))
-                .bind(ValidationBean::getPhoneNumber, ValidationBean::setPhoneNumber);
+        binder.forField(phoneNumber).withValidator(new RegexpValidator("Proporcione un número de teléfono válido",
+                DOMINICAN_PHONE_PATTERN, true)).bind(ValidationBean::getPhoneNumber, ValidationBean::setPhoneNumber);
 
-        binder.forField(birthDate)
-                .withValidator(this::validateBirthDate)
-                .bind(ValidationBean::getBirthDate, ValidationBean::setBirthDate);
+        binder.forField(birthDate).withValidator(this::validateBirthDate).bind(ValidationBean::getBirthDate,
+                ValidationBean::setBirthDate);
 
-        binder.forField(gender)
-                .bind(ValidationBean::getGender, ValidationBean::setGender);
+        binder.forField(gender).bind(ValidationBean::getGender, ValidationBean::setGender);
 
-        binder.forField(nationality)
-                .bind(ValidationBean::getNationality, ValidationBean::setNationality);
+        binder.forField(nationality).bind(ValidationBean::getNationality, ValidationBean::setNationality);
 
-        binder.forField(province)
-                .asRequired("La provincia es requerida")
-                .bind(ValidationBean::getProvince, ValidationBean::setProvince);
+        binder.forField(province).asRequired("La provincia es requerida").bind(ValidationBean::getProvince,
+                ValidationBean::setProvince);
 
-        binder.forField(municipality)
-                .asRequired("El municipio es requerido")
-                .bind(ValidationBean::getMunicipality, ValidationBean::setMunicipality);
+        binder.forField(municipality).asRequired("El municipio es requerido").bind(ValidationBean::getMunicipality,
+                ValidationBean::setMunicipality);
 
-        binder.forField(sector)
-                .asRequired("El sector es requerido")
-                .bind(ValidationBean::getSector, ValidationBean::setSector);
+        binder.forField(sector).asRequired("El sector es requerido").bind(ValidationBean::getSector,
+                ValidationBean::setSector);
 
-        binder.forField(streetAddress)
-                .asRequired("La dirección es requerida")
-                .bind(ValidationBean::getStreetAddress, ValidationBean::setStreetAddress);
+        binder.forField(streetAddress).asRequired("La dirección es requerida").bind(ValidationBean::getStreetAddress,
+                ValidationBean::setStreetAddress);
 
-        binder.forField(employeeRole)
-                .asRequired("El rol de empleado es requerido")
-                .bind(ValidationBean::getEmployeeRole, ValidationBean::setEmployeeRole);
+        binder.forField(employeeRole).asRequired("El rol de empleado es requerido").bind(
+                ValidationBean::getEmployeeRole, ValidationBean::setEmployeeRole);
 
-        binder.forField(salary)
-                .withValidator(this::validateSalary)
-                .bind(ValidationBean::getSalary, ValidationBean::setSalary);
+        binder.forField(salary).withValidator(this::validateSalary).bind(ValidationBean::getSalary,
+                ValidationBean::setSalary);
 
-        binder.forField(hireDate)
-                .asRequired("La fecha de contratación es requerida")
-                .bind(ValidationBean::getHireDate, ValidationBean::setHireDate);
+        binder.forField(hireDate).asRequired("La fecha de contratación es requerida").bind(ValidationBean::getHireDate,
+                ValidationBean::setHireDate);
 
-        binder.forField(workSchedule)
-                .asRequired("El horario de trabajo es requerido")
-                .bind(ValidationBean::getWorkSchedule, ValidationBean::setWorkSchedule);
+        binder.forField(workSchedule).asRequired("El horario de trabajo es requerido").bind(
+                ValidationBean::getWorkSchedule, ValidationBean::setWorkSchedule);
 
-        binder.forField(emergencyContactName)
-                .bind(ValidationBean::getEmergencyContactName, ValidationBean::setEmergencyContactName);
+        binder.forField(emergencyContactName).bind(ValidationBean::getEmergencyContactName,
+                ValidationBean::setEmergencyContactName);
 
-        binder.forField(emergencyContactPhone)
-                .bind(ValidationBean::getEmergencyContactPhone, ValidationBean::setEmergencyContactPhone);
+        binder.forField(emergencyContactPhone).bind(ValidationBean::getEmergencyContactPhone,
+                ValidationBean::setEmergencyContactPhone);
     }
 
     private void setupUpdateBinder() {
-        binderUpdate.forField(username)
-                .withValidator(new StringLengthValidator("El usuario debe tener entre 3 y 50 caracteres", MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH))
-                .bind(EmployeeUpdateRequestDto::getUsername, EmployeeUpdateRequestDto::setUsername);
+        binderUpdate.forField(username).withValidator(new StringLengthValidator(
+                "El usuario debe tener entre 3 y 50 caracteres", MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH)).bind(
+                        EmployeeUpdateRequestDto::getUsername, EmployeeUpdateRequestDto::setUsername);
 
-        binderUpdate.forField(firstName)
-                .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
-                .bind(EmployeeUpdateRequestDto::getFirstName, EmployeeUpdateRequestDto::setFirstName);
+        binderUpdate.forField(firstName).withValidator(new StringLengthValidator(
+                "El nombre debe tener al menos 2 caracteres", 2, null)).bind(EmployeeUpdateRequestDto::getFirstName,
+                        EmployeeUpdateRequestDto::setFirstName);
 
-        binderUpdate.forField(lastName)
-                .withValidator(new StringLengthValidator("El apellido debe tener al menos 2 caracteres", 2, null))
-                .bind(EmployeeUpdateRequestDto::getLastName, EmployeeUpdateRequestDto::setLastName);
+        binderUpdate.forField(lastName).withValidator(new StringLengthValidator(
+                "El apellido debe tener al menos 2 caracteres", 2, null)).bind(EmployeeUpdateRequestDto::getLastName,
+                        EmployeeUpdateRequestDto::setLastName);
 
-        binderUpdate.forField(email)
-                .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
-                .bind(EmployeeUpdateRequestDto::getEmail, EmployeeUpdateRequestDto::setEmail);
+        binderUpdate.forField(email).withValidator(new EmailValidator("Proporcione un correo electrónico válido")).bind(
+                EmployeeUpdateRequestDto::getEmail, EmployeeUpdateRequestDto::setEmail);
 
-        binderUpdate.forField(phoneNumber)
-                .withValidator(new RegexpValidator("Proporcione un número de teléfono válido", DOMINICAN_PHONE_PATTERN, true))
-                .bind(EmployeeUpdateRequestDto::getPhoneNumber, EmployeeUpdateRequestDto::setPhoneNumber);
+        binderUpdate.forField(phoneNumber).withValidator(new RegexpValidator("Proporcione un número de teléfono válido",
+                DOMINICAN_PHONE_PATTERN, true)).bind(EmployeeUpdateRequestDto::getPhoneNumber,
+                        EmployeeUpdateRequestDto::setPhoneNumber);
 
-        binderUpdate.forField(birthDate)
-                .withValidator(this::validateBirthDate)
-                .bind(EmployeeUpdateRequestDto::getBirthDate, EmployeeUpdateRequestDto::setBirthDate);
+        binderUpdate.forField(birthDate).withValidator(this::validateBirthDate).bind(
+                EmployeeUpdateRequestDto::getBirthDate, EmployeeUpdateRequestDto::setBirthDate);
 
-        binderUpdate.forField(gender)
-                .bind(EmployeeUpdateRequestDto::getGender, EmployeeUpdateRequestDto::setGender);
+        binderUpdate.forField(gender).bind(EmployeeUpdateRequestDto::getGender, EmployeeUpdateRequestDto::setGender);
 
-        binderUpdate.forField(nationality)
-                .bind(EmployeeUpdateRequestDto::getNationality, EmployeeUpdateRequestDto::setNationality);
+        binderUpdate.forField(nationality).bind(EmployeeUpdateRequestDto::getNationality,
+                EmployeeUpdateRequestDto::setNationality);
 
-        binderUpdate.forField(province)
-                .asRequired("La provincia es requerida")
-                .bind(EmployeeUpdateRequestDto::getProvince, EmployeeUpdateRequestDto::setProvince);
+        binderUpdate.forField(province).asRequired("La provincia es requerida").bind(
+                EmployeeUpdateRequestDto::getProvince, EmployeeUpdateRequestDto::setProvince);
 
-        binderUpdate.forField(municipality)
-                .asRequired("El municipio es requerido")
-                .bind(EmployeeUpdateRequestDto::getMunicipality, EmployeeUpdateRequestDto::setMunicipality);
+        binderUpdate.forField(municipality).asRequired("El municipio es requerido").bind(
+                EmployeeUpdateRequestDto::getMunicipality, EmployeeUpdateRequestDto::setMunicipality);
 
-        binderUpdate.forField(sector)
-                .asRequired("El sector es requerido")
-                .bind(EmployeeUpdateRequestDto::getSector, EmployeeUpdateRequestDto::setSector);
+        binderUpdate.forField(sector).asRequired("El sector es requerido").bind(EmployeeUpdateRequestDto::getSector,
+                EmployeeUpdateRequestDto::setSector);
 
-        binderUpdate.forField(streetAddress)
-                .asRequired("La dirección es requerida")
-                .bind(EmployeeUpdateRequestDto::getStreetAddress, EmployeeUpdateRequestDto::setStreetAddress);
+        binderUpdate.forField(streetAddress).asRequired("La dirección es requerida").bind(
+                EmployeeUpdateRequestDto::getStreetAddress, EmployeeUpdateRequestDto::setStreetAddress);
 
-        binderUpdate.forField(employeeRole)
-                .asRequired("El rol de empleado es requerido")
-                .bind(EmployeeUpdateRequestDto::getEmployeeRole, EmployeeUpdateRequestDto::setEmployeeRole);
+        binderUpdate.forField(employeeRole).asRequired("El rol de empleado es requerido").bind(
+                EmployeeUpdateRequestDto::getEmployeeRole, EmployeeUpdateRequestDto::setEmployeeRole);
 
-        binderUpdate.forField(salary)
-                .withValidator(this::validateSalary)
-                .bind(EmployeeUpdateRequestDto::getSalary, EmployeeUpdateRequestDto::setSalary);
+        binderUpdate.forField(salary).withValidator(this::validateSalary).bind(EmployeeUpdateRequestDto::getSalary,
+                EmployeeUpdateRequestDto::setSalary);
 
-        binderUpdate.forField(hireDate)
-                .asRequired("La fecha de contratación es requerida")
-                .bind(EmployeeUpdateRequestDto::getHireDate, EmployeeUpdateRequestDto::setHireDate);
+        binderUpdate.forField(hireDate).asRequired("La fecha de contratación es requerida").bind(
+                EmployeeUpdateRequestDto::getHireDate, EmployeeUpdateRequestDto::setHireDate);
 
-        binderUpdate.forField(workSchedule)
-                .asRequired("El horario de trabajo es requerido")
-                .bind(EmployeeUpdateRequestDto::getWorkSchedule, EmployeeUpdateRequestDto::setWorkSchedule);
+        binderUpdate.forField(workSchedule).asRequired("El horario de trabajo es requerido").bind(
+                EmployeeUpdateRequestDto::getWorkSchedule, EmployeeUpdateRequestDto::setWorkSchedule);
 
-        binderUpdate.forField(emergencyContactName)
-                .bind(EmployeeUpdateRequestDto::getEmergencyContactName, EmployeeUpdateRequestDto::setEmergencyContactName);
+        binderUpdate.forField(emergencyContactName).bind(EmployeeUpdateRequestDto::getEmergencyContactName,
+                EmployeeUpdateRequestDto::setEmergencyContactName);
 
-        binderUpdate.forField(emergencyContactPhone)
-                .bind(EmployeeUpdateRequestDto::getEmergencyContactPhone, EmployeeUpdateRequestDto::setEmergencyContactPhone);
+        binderUpdate.forField(emergencyContactPhone).bind(EmployeeUpdateRequestDto::getEmergencyContactPhone,
+                EmployeeUpdateRequestDto::setEmergencyContactPhone);
     }
 
     private ValidationResult validateBirthDate(LocalDate value, ValueContext context) {
@@ -397,27 +358,18 @@ public class EmployeeForm extends Dialog {
         }
 
         try {
-            EmployeeCreateRequestDto dto = EmployeeCreateRequestDto.builder()
-                    .username(validationBean.getUsername())
-                    .password(validationBean.getPassword())
-                    .firstName(validationBean.getFirstName())
-                    .lastName(validationBean.getLastName())
-                    .email(validationBean.getEmail())
-                    .phoneNumber(validationBean.getPhoneNumber())
-                    .birthDate(validationBean.getBirthDate())
-                    .gender(validationBean.getGender())
-                    .nationality(validationBean.getNationality())
-                    .province(validationBean.getProvince())
-                    .municipality(validationBean.getMunicipality())
-                    .sector(validationBean.getSector())
-                    .streetAddress(validationBean.getStreetAddress())
-                    .employeeRole(validationBean.getEmployeeRole())
-                    .salary(validationBean.getSalary())
-                    .hireDate(validationBean.getHireDate())
-                    .workSchedule(validationBean.getWorkSchedule())
-                    .emergencyContactName(validationBean.getEmergencyContactName())
-                    .emergencyContactPhone(validationBean.getEmergencyContactPhone())
-                    .build();
+            EmployeeCreateRequestDto dto = EmployeeCreateRequestDto.builder().username(validationBean.getUsername())
+                    .password(validationBean.getPassword()).firstName(validationBean.getFirstName()).lastName(
+                            validationBean.getLastName()).email(validationBean.getEmail()).phoneNumber(validationBean
+                                    .getPhoneNumber()).birthDate(validationBean.getBirthDate()).gender(validationBean
+                                            .getGender()).nationality(validationBean.getNationality()).province(
+                                                    validationBean.getProvince()).municipality(validationBean
+                                                            .getMunicipality()).sector(validationBean.getSector())
+                    .streetAddress(validationBean.getStreetAddress()).employeeRole(validationBean.getEmployeeRole())
+                    .salary(validationBean.getSalary()).hireDate(validationBean.getHireDate()).workSchedule(
+                            validationBean.getWorkSchedule()).emergencyContactName(validationBean
+                                    .getEmergencyContactName()).emergencyContactPhone(validationBean
+                                            .getEmergencyContactPhone()).build();
 
             employeeService.save(dto);
             NotificationUtils.success("Empleado creado exitosamente");
@@ -533,14 +485,16 @@ public class EmployeeForm extends Dialog {
         salary.setValue(employee.getSalary());
         hireDate.setValue(employee.getHireDate());
         workSchedule.setValue(employee.getWorkSchedule());
-        emergencyContactName.setValue(employee.getEmergencyContactName() != null ? employee.getEmergencyContactName() : "");
-        emergencyContactPhone.setValue(employee.getEmergencyContactPhone() != null ? employee.getEmergencyContactPhone() : "");
+        emergencyContactName.setValue(employee.getEmergencyContactName() != null ? employee
+                .getEmergencyContactName() : "");
+        emergencyContactPhone.setValue(employee.getEmergencyContactPhone() != null ? employee
+                .getEmergencyContactPhone() : "");
     }
 
     private void configureFieldValidation() {
         // Validación para campos requeridos
-        Stream.of(firstName, lastName, username, email, phoneNumber, province, municipality, sector, streetAddress, workSchedule)
-                .forEach(this::setupRequiredFieldValidation);
+        Stream.of(firstName, lastName, username, email, phoneNumber, province, municipality, sector, streetAddress,
+                workSchedule).forEach(this::setupRequiredFieldValidation);
 
         // Validación específica para email
         email.addValueChangeListener(event -> validateEmailFormat(event.getValue()));
@@ -619,8 +573,8 @@ public class EmployeeForm extends Dialog {
     }
 
     private void clearAllValidationErrors() {
-        Stream.of(firstName, lastName, username, email, phoneNumber, province, municipality, sector, streetAddress, workSchedule)
-                .forEach(field -> {
+        Stream.of(firstName, lastName, username, email, phoneNumber, province, municipality, sector, streetAddress,
+                workSchedule).forEach(field -> {
                     if (field instanceof HasValidation hasValidation) {
                         hasValidation.setInvalid(false);
                         hasValidation.setErrorMessage(null);
@@ -650,26 +604,11 @@ public class EmployeeForm extends Dialog {
     }
 
     private EmployeeUpdateRequestDto createUpdateDtoFromEmployee(Employee employee) {
-        return new EmployeeUpdateRequestDto(
-                employee.getUsername(),
-                employee.getFirstName(),
-                employee.getLastName(),
-                employee.getEmail(),
-                employee.getPhoneNumber(),
-                employee.getBirthDate(),
-                employee.getGender(),
-                employee.getNationality(),
-                employee.getProvince(),
-                employee.getMunicipality(),
-                employee.getSector(),
-                employee.getStreetAddress(),
-                employee.getEmployeeRole(),
-                employee.getSalary(),
-                employee.getHireDate(),
-                employee.getWorkSchedule(),
-                employee.getEmergencyContactName(),
-                employee.getEmergencyContactPhone()
-        );
+        return new EmployeeUpdateRequestDto(employee.getUsername(), employee.getFirstName(), employee.getLastName(),
+                employee.getEmail(), employee.getPhoneNumber(), employee.getBirthDate(), employee.getGender(), employee
+                        .getNationality(), employee.getProvince(), employee.getMunicipality(), employee.getSector(),
+                employee.getStreetAddress(), employee.getEmployeeRole(), employee.getSalary(), employee.getHireDate(),
+                employee.getWorkSchedule(), employee.getEmergencyContactName(), employee.getEmergencyContactPhone());
     }
 
     public void addEmployeeSavedListener(Consumer<EmployeeCreateRequestDto> listener) {

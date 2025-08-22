@@ -19,54 +19,56 @@ import org.springframework.validation.annotation.Validated;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface WaitingRoomService {
 
-  List<WaitingRoom> getCurrentWaitingRoom();
+    List<WaitingRoom> getCurrentWaitingRoom();
 
-  List<WaitingRoom> getWaitingEntries();
+    List<WaitingRoom> getWaitingEntries();
 
-  List<WaitingRoom> getInConsultationEntries();
+    List<WaitingRoom> getInConsultationEntries();
 
-  WaitingRoom moveToConsultation(Long waitingRoomId);
+    WaitingRoom moveToConsultation(Long waitingRoomId);
 
-  WaitingRoom completeConsultation(Long waitingRoomId);
+    WaitingRoom completeConsultation(Long waitingRoomId);
 
-  WaitingRoom cancelEntry(Long waitingRoomId, String reason);
+    WaitingRoom cancelEntry(Long waitingRoomId, String reason);
 
-  WaitingRoom updatePriority(Long waitingRoomId, Priority newPriority);
+    WaitingRoom updatePriority(Long waitingRoomId, Priority newPriority);
 
-  WaitingRoom addNotes(Long waitingRoomId, String additionalNotes);
+    WaitingRoom addNotes(Long waitingRoomId, String additionalNotes);
 
-  Optional<WaitingRoom> getWaitingRoomById(Long id);
+    Optional<WaitingRoom> getWaitingRoomById(Long id);
 
-  Page<WaitingRoom> getTodayHistory(Pageable pageable);
+    Page<WaitingRoom> getTodayHistory(Pageable pageable);
 
-  long getWaitingCount();
+    long getWaitingCount();
 
-  long getInConsultationCount();
+    long getInConsultationCount();
 
-  long getTodayCount();
+    long getTodayCount();
 
-  double getAverageWaitTime();
+    double getAverageWaitTime();
 
-  Page<WaitingRoom> searchWaitingRoom(String searchTerm, Pageable pageable);
+    Page<WaitingRoom> searchWaitingRoom(String searchTerm, Pageable pageable);
 
-  Page<WaitingRoom> getWaitingRoomByStatus(String status, Pageable pageable);
+    Page<WaitingRoom> getWaitingRoomByStatus(String status, Pageable pageable);
 
-  /**
-   * Save a waitingRoom.
-   *
-   * @param dto the entity to save.
-   * @return the persisted entity.
-   */
-  WaitingRoom save(WaitingRoomCreateRequestDto dto);
+    /**
+     * Save a waitingRoom.
+     *
+     * @param dto
+     *     the entity to save.
+     * @return the persisted entity.
+     */
+    WaitingRoom save(WaitingRoomCreateRequestDto dto);
 
-  /**
-   * Delete the waitingRoom by id.
-   *
-   * @param id the id of the entity.
-   */
-  void delete(Long id);
+    /**
+     * Delete the waitingRoom by id.
+     *
+     * @param id
+     *     the id of the entity.
+     */
+    void delete(Long id);
 
-  void update(WaitingRoom waitingRoom);
+    void update(WaitingRoom waitingRoom);
 
-  WaitingRoomRepository getRepository();
+    WaitingRoomRepository getRepository();
 }

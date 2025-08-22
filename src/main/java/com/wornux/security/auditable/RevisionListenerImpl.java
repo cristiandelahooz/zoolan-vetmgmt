@@ -3,11 +3,10 @@ package com.wornux.security.auditable;
 import com.wornux.data.entity.Revision;
 import com.wornux.data.entity.User;
 import com.wornux.security.UserUtils;
+import java.util.Objects;
 import org.hibernate.envers.RevisionListener;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Objects;
 
 public class RevisionListenerImpl implements RevisionListener {
 

@@ -25,6 +25,11 @@ import com.wornux.views.MainLayout;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import jakarta.annotation.security.RolesAllowed;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -32,16 +37,10 @@ import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Slf4j
 @Route(value = "appointments", layout = MainLayout.class)
 @PageTitle("Citas")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class AppointmentsCalendarView extends VerticalLayout {
 
     private final FullCalendar calendar;
@@ -64,8 +63,8 @@ public class AppointmentsCalendarView extends VerticalLayout {
         title.addClassName(LumoUtility.Margin.Bottom.MEDIUM);
 
         // Calendar setup
-        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withAutoBrowserLocale()
-                .withInitialOptions(createDefaultInitialOptions()).withEntryLimit(3).build();
+        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withAutoBrowserLocale().withInitialOptions(
+                createDefaultInitialOptions()).withEntryLimit(3).build();
 
         configureCalendar();
         loadAppointments();
@@ -87,9 +86,9 @@ public class AppointmentsCalendarView extends VerticalLayout {
         calendar.setSlotMinTime(LocalTime.of(8, 0));
         calendar.setSlotMaxTime(LocalTime.of(20, 0));
 
-        calendar.setBusinessHours(
-                new BusinessHours(LocalTime.of(8, 0), LocalTime.of(20, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
-                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(14, 0), DayOfWeek.SATURDAY));
+        calendar.setBusinessHours(new BusinessHours(LocalTime.of(8, 0), LocalTime.of(20, 0),
+                BusinessHours.DEFAULT_BUSINESS_WEEK), new BusinessHours(LocalTime.of(9, 0), LocalTime.of(14, 0),
+                        DayOfWeek.SATURDAY));
 
         // Event handlers
         calendar.addTimeslotsSelectedListener(this::onTimeslotSelected);
@@ -110,8 +109,8 @@ public class AppointmentsCalendarView extends VerticalLayout {
         initialOptions.put("headerToolbar", headerToolbar);
         initialOptions.put("weekNumbers", true);
         initialOptions.put("weekNumberCalculation", "ISO");
-        initialOptions.put("eventTimeFormat",
-                Json.parse("{\"hour\": \"2-digit\", \"minute\": \"2-digit\", \"meridiem\": false}"));
+        initialOptions.put("eventTimeFormat", Json.parse(
+                "{\"hour\": \"2-digit\", \"minute\": \"2-digit\", \"meridiem\": false}"));
 
         return initialOptions;
     }
@@ -143,8 +142,8 @@ public class AppointmentsCalendarView extends VerticalLayout {
             calendar.getEntryProvider().refreshAll();
         } catch (Exception e) {
             log.error("Error loading appointments", e);
-            Notification.show("Error al cargar las citas", 3000, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            Notification.show("Error al cargar las citas", 3000, Notification.Position.MIDDLE).addThemeVariants(
+                    NotificationVariant.LUMO_ERROR);
         }
     }
 
@@ -153,8 +152,8 @@ public class AppointmentsCalendarView extends VerticalLayout {
         entry.setTitle(appointment.getAppointmentTitle());
         entry.setStart(appointment.getStartAppointmentDate());
         entry.setEnd(appointment.getEndAppointmentDate());
-        entry.setDescription(
-                String.format("Mascota: %s | Servicio: %s", appointment.getPetName(), appointment.getServiceType()));
+        entry.setDescription(String.format("Mascota: %s | Servicio: %s", appointment.getPetName(), appointment
+                .getServiceType()));
 
         // Set color based on service type
         if (appointment.getServiceType() != null) {
@@ -178,8 +177,8 @@ public class AppointmentsCalendarView extends VerticalLayout {
     }
 
     /*private void onEntryDropped(EntryDroppedSchedulerEvent event) {
-        Entry entry = event.getEntry();
-        updateAppointmentTime(entry);
+      Entry entry = event.getEntry();
+      updateAppointmentTime(entry);
     }*/
 
     private void onEntryResized(EntryResizedEvent event) {
@@ -196,12 +195,12 @@ public class AppointmentsCalendarView extends VerticalLayout {
 
             appointmentService.updateAppointment(appointmentId, updateDto);
 
-            Notification.show("Cita actualizada", 3000, Notification.Position.BOTTOM_END)
-                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            Notification.show("Cita actualizada", 3000, Notification.Position.BOTTOM_END).addThemeVariants(
+                    NotificationVariant.LUMO_SUCCESS);
         } catch (Exception e) {
             log.error("Error updating appointment", e);
-            Notification.show("Error al actualizar la cita", 3000, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            Notification.show("Error al actualizar la cita", 3000, Notification.Position.MIDDLE).addThemeVariants(
+                    NotificationVariant.LUMO_ERROR);
             loadAppointments(); // Reload to revert changes
         }
     }
@@ -225,11 +224,8 @@ public class AppointmentsCalendarView extends VerticalLayout {
         petSelect.setLabel("Mascota");
         petSelect.setRequiredIndicatorVisible(true);
         petSelect.setWidthFull();
-        petSelect.setItemLabelGenerator(
-                pet -> pet.getName() + " - " + (pet.getOwners().isEmpty() ? "Sin dueño" : pet.getOwners().get(0)
-                                                                                                  .getFirstName() + " " + pet.getOwners()
-                                                                                                  .get(0)
-                                                                                                  .getLastName()));
+        petSelect.setItemLabelGenerator(pet -> pet.getName() + " - " + (pet.getOwners().isEmpty() ? "Sin dueño" : pet
+                .getOwners().get(0).getFirstName() + " " + pet.getOwners().get(0).getLastName()));
 
         // Load pets
         List<Pet> pets = petService.getAllPets(PageRequest.of(0, 1000)).stream().map(dto -> {
@@ -270,14 +266,14 @@ public class AppointmentsCalendarView extends VerticalLayout {
 
             try {
                 appointmentService.createAppointment(createDto);
-                Notification.show("Cita creada exitosamente", 3000, Notification.Position.BOTTOM_END)
-                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                Notification.show("Cita creada exitosamente", 3000, Notification.Position.BOTTOM_END).addThemeVariants(
+                        NotificationVariant.LUMO_SUCCESS);
                 appointmentDialog.close();
                 loadAppointments();
             } catch (Exception ex) {
                 log.error("Error creating appointment", ex);
-                Notification.show("Error al crear la cita", 3000, Notification.Position.MIDDLE)
-                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                Notification.show("Error al crear la cita", 3000, Notification.Position.MIDDLE).addThemeVariants(
+                        NotificationVariant.LUMO_ERROR);
             }
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -315,14 +311,14 @@ public class AppointmentsCalendarView extends VerticalLayout {
             // Confirm and delete
             try {
                 appointmentService.deleteAppointment(Long.parseLong(entry.getId()));
-                Notification.show("Cita eliminada", 3000, Notification.Position.BOTTOM_END)
-                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                Notification.show("Cita eliminada", 3000, Notification.Position.BOTTOM_END).addThemeVariants(
+                        NotificationVariant.LUMO_SUCCESS);
                 appointmentDialog.close();
                 loadAppointments();
             } catch (Exception ex) {
                 log.error("Error deleting appointment", ex);
-                Notification.show("Error al eliminar la cita", 3000, Notification.Position.MIDDLE)
-                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                Notification.show("Error al eliminar la cita", 3000, Notification.Position.MIDDLE).addThemeVariants(
+                        NotificationVariant.LUMO_ERROR);
             }
         });
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);

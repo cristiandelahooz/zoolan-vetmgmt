@@ -1,12 +1,10 @@
 package com.wornux.mapper;
 
-import com.wornux.data.entity.Client;
-
 import com.wornux.data.entity.Pet;
 import com.wornux.dto.request.PetCreateRequestDto;
 import com.wornux.dto.request.PetUpdateRequestDto;
-import org.mapstruct.*;
 import com.wornux.mapper.helper.PetMapperHelper;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = PetMapperHelper.class)
 public interface PetMapper {

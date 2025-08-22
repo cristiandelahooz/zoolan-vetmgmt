@@ -2,7 +2,6 @@ package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.enums.EmployeeRole;
@@ -13,11 +12,9 @@ import com.wornux.exception.*;
 import com.wornux.mapper.EmployeeMapper;
 import com.wornux.services.interfaces.EmployeeService;
 import jakarta.validation.Valid;
-
+import jakarta.validation.ValidationException;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.validation.ValidationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @BrowserCallable
 @AnonymousAllowed
-public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, EmployeeRepository>
-        implements EmployeeService {
+public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, EmployeeRepository> implements
+        EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
@@ -50,7 +47,8 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     /**
      * Retrieves all employees with pagination. This method can be accessed by any authenticated user.
      *
-     * @param pageable pagination information
+     * @param pageable
+     *     pagination information
      * @return paginated list of employees
      */
     @Override
@@ -96,8 +94,7 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     public void delete(@NonNull Long id) {
         log.debug("Request to delete Employee via FormService: {}", id);
 
-        Employee employee =
-                employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 
         employee.setActive(false);
         employee.setAvailable(false);
@@ -109,39 +106,37 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
     @Transactional(readOnly = true)
     public List<Employee> getVeterinarians() {
         log.debug("Request to get all veterinarians");
-        return employeeRepository.findAll().stream()
-                .filter(employee -> employee.getEmployeeRole() == EmployeeRole.VETERINARIAN)
-                .toList();
+        return employeeRepository.findAll().stream().filter(employee -> employee
+                .getEmployeeRole() == EmployeeRole.VETERINARIAN).toList();
     }
 
     /**
      * Updates an existing Employee entity.
      *
-     * @param id                       the ID of the employee to update
-     * @param employeeUpdateRequestDto the DTO containing updated employee data
+     * @param id
+     *     the ID of the employee to update
+     * @param employeeUpdateRequestDto
+     *     the DTO containing updated employee data
      */
     @Transactional
     @Override
     public void updateEmployee(@NonNull Long id, @Valid EmployeeUpdateRequestDto employeeUpdateRequestDto) {
         log.debug("Request to update Employee with ID: {}", id);
-        Employee employee = employeeRepository
-                .findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 
         // Validar email único (excluyendo el empleado actual)
-        if (employeeUpdateRequestDto.getEmail() != null &&
-                !employeeUpdateRequestDto.getEmail().equals(employee.getEmail())) {
-            employeeRepository.findByEmailAndIdNot(employeeUpdateRequestDto.getEmail(), id)
-                    .ifPresent(existing -> {
-                        throw new ValidationException("El correo electrónico ya existe");
-                    });
+        if (employeeUpdateRequestDto.getEmail() != null && !employeeUpdateRequestDto.getEmail().equals(employee
+                .getEmail())) {
+            employeeRepository.findByEmailAndIdNot(employeeUpdateRequestDto.getEmail(), id).ifPresent(existing -> {
+                throw new ValidationException("El correo electrónico ya existe");
+            });
         }
 
         // Validar username único (excluyendo el empleado actual)
-        if (employeeUpdateRequestDto.getUsername() != null &&
-                !employeeUpdateRequestDto.getUsername().equals(employee.getUsername())) {
-            employeeRepository.findByUsernameAndIdNot(employeeUpdateRequestDto.getUsername(), id)
-                    .ifPresent(existing -> {
+        if (employeeUpdateRequestDto.getUsername() != null && !employeeUpdateRequestDto.getUsername().equals(employee
+                .getUsername())) {
+            employeeRepository.findByUsernameAndIdNot(employeeUpdateRequestDto.getUsername(), id).ifPresent(
+                    existing -> {
                         throw new DuplicateEmployeeException("username", employeeUpdateRequestDto.getUsername());
                     });
         }

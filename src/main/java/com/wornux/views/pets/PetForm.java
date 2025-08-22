@@ -27,12 +27,11 @@ import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.clients.SelectOwnerDialog;
 import com.wornux.views.clients.SelectOwnersMultiDialog;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PetForm extends Dialog {
@@ -166,7 +165,6 @@ public class PetForm extends Dialog {
                 selectedOwners.addAll(owners);
             });
         });
-
     }
 
     private void save(ClickEvent<Button> e) {

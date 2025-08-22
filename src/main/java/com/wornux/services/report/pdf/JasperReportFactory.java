@@ -9,15 +9,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JasperReportFactory {
 
-  private final ResourceLoader resourceLoader;
+    private final ResourceLoader resourceLoader;
 
-  @Value("${application.version:unknown}")
-  private String version;
+    @Value("${application.version:unknown}")
+    private String version;
 
-  public ReportService<ReportServiceDatabase> getServiceFromDatabase() {
-    return ReportServiceDatabase.builder()
-        .resourceLoader(resourceLoader)
-        .version(version)
-        .build();
-  }
+    public ReportService<ReportServiceDatabase> getServiceFromDatabase() {
+        return ReportServiceDatabase.builder().resourceLoader(resourceLoader).version(version).build();
+    }
 }

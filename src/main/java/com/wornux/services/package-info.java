@@ -1,5 +1,4 @@
-@NullMarked
-@NonNullApi
+@NullMarked @NonNullApi
 package com.wornux.services;
 
 import org.jspecify.annotations.NullMarked;

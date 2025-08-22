@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.router.Layout;
+import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.security.UserUtils;
 import com.wornux.utils.MenuUtil;
@@ -25,9 +26,11 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 @PermitAll
 public class MainLayout extends AppLayout {
 
+    private final AccessAnnotationChecker accessChecker;
     private H1 viewTitle;
 
-    public MainLayout() {
+    public MainLayout(AccessAnnotationChecker accessChecker) {
+        this.accessChecker = accessChecker;
         setPrimarySection(Section.DRAWER);
         addClassNames(LumoUtility.Background.BASE, LumoUtility.TextColor.BODY);
         addHeaderContent();
@@ -83,7 +86,7 @@ public class MainLayout extends AppLayout {
     }
 
     private SideNav createNavigation() {
-        return MenuUtil.getMenuItemsForCurrentUser();
+        return MenuUtil.getMenuItemsForCurrentUser(accessChecker);
     }
 
     private MenuBar createUserMenu() {
@@ -97,8 +100,8 @@ public class MainLayout extends AppLayout {
             String username = UserUtils.getCurrentUsername();
             avatar.setName(username);
 
-            UserUtils.getCurrentSystemRole().ifPresent(
-                    role -> avatar.getElement().setAttribute("title", username + " - " + role.getDisplayName()));
+            UserUtils.getCurrentSystemRole().ifPresent(role -> avatar.getElement().setAttribute("title",
+                    username + " - " + role.getDisplayName()));
         } else {
             avatar.setName("Usuario");
         }
@@ -116,8 +119,8 @@ public class MainLayout extends AppLayout {
         SubMenu userSubMenu = userMenuItem.getSubMenu();
 
         userSubMenu.addSeparator();
-        userSubMenu.addItem(createMenuItemWithIcon(),
-                e -> getUI().ifPresent(ui -> ui.getPage().setLocation("/logout")));
+        userSubMenu.addItem(createMenuItemWithIcon(), e -> getUI().ifPresent(ui -> ui.getPage().setLocation(
+                "/logout")));
 
         return menuBar;
     }

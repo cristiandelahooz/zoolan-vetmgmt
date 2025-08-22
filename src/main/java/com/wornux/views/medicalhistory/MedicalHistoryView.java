@@ -17,12 +17,11 @@ import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.views.pets.SelectPetDialog;
 import jakarta.annotation.security.RolesAllowed;
-
 import java.util.List;
 
 @PageTitle("Historial Médico")
 @Route(value = "historial-medico")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class MedicalHistoryView extends VerticalLayout {
 
     private final PetService petService;
@@ -43,7 +42,6 @@ public class MedicalHistoryView extends VerticalLayout {
         H2 title = new H2("Historial Médico de Mascota");
         title.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.FontWeight.BOLD);
 
-
         // Campo para mostrar la mascota seleccionada
         TextField selectedPetField = new TextField("Mascota");
         selectedPetField.setReadOnly(true);
@@ -61,11 +59,9 @@ public class MedicalHistoryView extends VerticalLayout {
         HorizontalLayout petSelector = new HorizontalLayout(selectedPetField, selectPetBtn);
         petSelector.setAlignItems(Alignment.END);
 
-
         // Grid de consultas
         consultationsGrid = new Grid<>(Consultation.class, false);
-        consultationsGrid.addColumn(c -> c.getConsultationDate().toLocalDate())
-                .setHeader("Fecha").setAutoWidth(true);
+        consultationsGrid.addColumn(c -> c.getConsultationDate().toLocalDate()).setHeader("Fecha").setAutoWidth(true);
         consultationsGrid.addColumn(c -> c.getVeterinarian().getFirstName() + " " + c.getVeterinarian().getLastName())
                 .setHeader("Veterinario").setAutoWidth(true);
         consultationsGrid.addColumn(Consultation::getDiagnosis).setHeader("Diagnóstico").setAutoWidth(true);
@@ -86,7 +82,6 @@ public class MedicalHistoryView extends VerticalLayout {
         dialog.open();
     }
 
-
     private void loadMedicalHistory(Long petId) {
         List<Consultation> consultations = consultationService.findByPetId(petId);
         consultationsGrid.setItems(consultations);
@@ -98,9 +93,8 @@ public class MedicalHistoryView extends VerticalLayout {
 
         VerticalLayout content = new VerticalLayout();
         content.add(new H2("Consulta del " + consultation.getConsultationDate().toString()));
-        content.add(new Paragraph("Veterinario: " +
-                consultation.getVeterinarian().getFirstName() + " " +
-                consultation.getVeterinarian().getLastName()));
+        content.add(new Paragraph("Veterinario: " + consultation.getVeterinarian().getFirstName() + " " + consultation
+                .getVeterinarian().getLastName()));
         content.add(new Paragraph("Diagnóstico: " + consultation.getDiagnosis()));
         content.add(new Paragraph("Tratamiento: " + consultation.getTreatment()));
         content.add(new Paragraph("Prescripción: " + consultation.getPrescription()));

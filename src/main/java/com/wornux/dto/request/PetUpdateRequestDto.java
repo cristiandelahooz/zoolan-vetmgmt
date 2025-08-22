@@ -9,10 +9,7 @@ import com.wornux.validation.petsbreed.ValidPetBreed;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.List;
-
 import lombok.Data;
-import com.wornux.data.enums.FurType;
-import com.wornux.data.enums.PetSize;
 
 @Data
 @ValidPetBreed
@@ -32,7 +29,7 @@ public class PetUpdateRequestDto implements PetBreedValidatable {
         return birthDate == null || !birthDate.isAfter(LocalDate.now());
     }
 
-    //private Long ownerId;
+    // private Long ownerId;
     private List<Long> ownerIds;
 
     @NotNull(message = "El género es requerido")
@@ -52,5 +49,4 @@ public class PetUpdateRequestDto implements PetBreedValidatable {
     private PetSize size;
 
     private FurType furType;
-
 }

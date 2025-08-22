@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SupplierRepository extends AbstractRepository<Supplier, Long> {
 
-  @Query("SELECT s FROM Supplier s WHERE s.active = true")
-  Page<Supplier> findByActiveTrue(Pageable pageable);
+    @Query("SELECT s FROM Supplier s WHERE s.active = true")
+    Page<Supplier> findByActiveTrue(Pageable pageable);
 }

@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum SystemRole {
-  SYSTEM_ADMIN("System Administrator", "Full system access"),
-  MANAGER("Manager", "Business management access"),
-  USER("User", "Basic system access"),
-  GUEST("Guest", "Limited access");
+    SYSTEM_ADMIN("System Administrator", "Full system access"),
+    MANAGER("Manager", "Business management access"),
+    USER("User", "Basic system access"),
+    GUEST("Guest", "Limited access");
 
-  private final String displayName;
-  private final String description;
+    private final String displayName;
+    private final String description;
 }

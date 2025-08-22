@@ -34,142 +34,137 @@ import org.springframework.transaction.annotation.Transactional;
 @BrowserCallable
 @Transactional
 @AnonymousAllowed
-public class ProductServiceImpl extends CrudRepositoryService<Product, Long, ProductRepository>
-    implements ProductService {
+public class ProductServiceImpl extends CrudRepositoryService<Product, Long, ProductRepository> implements
+        ProductService {
 
-  @Getter private final ProductRepository productRepository;
-  private final SupplierRepository supplierRepository;
-  private final ProductMapper productMapper;
+    @Getter
+    private final ProductRepository productRepository;
+    private final SupplierRepository supplierRepository;
+    private final ProductMapper productMapper;
 
-  @Override
-  @Transactional(readOnly = true)
-  public List<Product> list(Pageable pageable, @Nullable Filter filter) {
-    log.debug("Listing active Products with pagination");
-    return productRepository.findByActiveTrue(pageable).getContent();
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public List<ProductListDto> listAsDto(Pageable pageable, @Nullable Filter filter) {
-    log.debug("Listing active Products as DTOs with pagination");
-    List<Product> products = productRepository.findByActiveTrue(pageable).getContent();
-    return productMapper.toListDtoList(products);
-  }
-
-  @Override
-  public Product save(Product entity) {
-    return productRepository.save(entity);
-  }
-
-  public ProductCreateRequestDto createProduct(ProductCreateRequestDto dto) {
-    try {
-      Supplier supplier =
-          supplierRepository
-              .findById(dto.getSupplierId())
-              .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
-
-      Product product = productMapper.toEntity(dto, supplier);
-      product.setActive(true);
-      Product savedProduct = productRepository.save(product);
-
-      log.info("Product created with ID: {}", savedProduct.getId());
-      return productMapper.toCreateDto(savedProduct);
-    } catch (Exception e) {
-      log.error("Error creating Product: {}", e.getMessage());
-      throw e;
-    }
-  }
-
-  @Override
-  public Product update(Long id, ProductUpdateRequestDto dto) {
-    log.debug("Updating Product ID: {}", id);
-
-    Product product =
-        productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-
-    Supplier supplier = null;
-    if (dto.getSupplierId() != null) {
-      supplier =
-          supplierRepository
-              .findById(dto.getSupplierId())
-              .orElseThrow(() -> new SupplierNotFoundException(dto.getSupplierId()));
+    @Override
+    @Transactional(readOnly = true)
+    public List<Product> list(Pageable pageable, @Nullable Filter filter) {
+        log.debug("Listing active Products with pagination");
+        return productRepository.findByActiveTrue(pageable).getContent();
     }
 
-    productMapper.updateProductFromDTO(dto, product, supplier);
-    Product updatedProduct = productRepository.save(product);
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductListDto> listAsDto(Pageable pageable, @Nullable Filter filter) {
+        log.debug("Listing active Products as DTOs with pagination");
+        List<Product> products = productRepository.findByActiveTrue(pageable).getContent();
+        return productMapper.toListDtoList(products);
+    }
 
-    log.info("Product updated with ID: {}", updatedProduct.getId());
-    return updatedProduct;
-  }
+    @Override
+    public Product save(Product entity) {
+        return productRepository.save(entity);
+    }
 
-  @Override
-  public void delete(Long id) {
-    log.debug("Deactivating Product ID: {}", id);
+    public ProductCreateRequestDto createProduct(ProductCreateRequestDto dto) {
+        try {
+            Supplier supplier = supplierRepository.findById(dto.getSupplierId()).orElseThrow(
+                    () -> new SupplierNotFoundException(dto.getSupplierId()));
 
-    Product product =
-        productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+            Product product = productMapper.toEntity(dto, supplier);
+            product.setActive(true);
+            Product savedProduct = productRepository.save(product);
 
-    product.setActive(false);
-    productRepository.save(product);
+            log.info("Product created with ID: {}", savedProduct.getId());
+            return productMapper.toCreateDto(savedProduct);
+        } catch (Exception e) {
+            log.error("Error creating Product: {}", e.getMessage());
+            throw e;
+        }
+    }
 
-    log.info("Product deactivated ID: {}", id);
-  }
+    @Override
+    public Product update(Long id, ProductUpdateRequestDto dto) {
+        log.debug("Updating Product ID: {}", id);
 
-  @Transactional(readOnly = true)
-  public Optional<Product> getProductById(Long id) {
-    return productRepository.findById(id);
-  }
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
-  @Transactional(readOnly = true)
-  public List<Product> getProductsByName(String name) {
-    return productRepository.findByNameContainingIgnoreCase(name);
-  }
+        Supplier supplier = null;
+        if (dto.getSupplierId() != null) {
+            supplier = supplierRepository.findById(dto.getSupplierId()).orElseThrow(() -> new SupplierNotFoundException(
+                    dto.getSupplierId()));
+        }
 
-  @Transactional(readOnly = true)
-  public List<Product> getProductsByCategory(String category) {
-    return productRepository.findByCategory(ProductCategory.valueOf(category));
-  }
+        productMapper.updateProductFromDTO(dto, product, supplier);
+        Product updatedProduct = productRepository.save(product);
 
-  @Transactional(readOnly = true)
-  public List<Product> getProductsBySupplier(Long supplierId) {
-    return productRepository.findBySupplierId(supplierId);
-  }
+        log.info("Product updated with ID: {}", updatedProduct.getId());
+        return updatedProduct;
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public Product update(Product product) {
-    log.debug("Updating Product: {}", product);
-    return productRepository.save(product);
-  }
+    @Override
+    public void delete(Long id) {
+        log.debug("Deactivating Product ID: {}", id);
 
-  @Transactional(readOnly = true)
-  public Page<Product> getAllProducts(Pageable pageable) {
-    return productRepository.findAllActiveWithSupplier(pageable);
-  }
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
-  @Override
-  public List<Product> getAllProducts() {
-    log.debug("Retrieving all active products");
-    return productRepository.findAllActiveWithSupplier();
-  }
+        product.setActive(false);
+        productRepository.save(product);
 
-  @Override
-  @Transactional(readOnly = true)
-  public List<Product> getLowStockProducts() {
-    log.debug("Retrieving products with low stock");
-    return productRepository.findLowStockProducts();
-  }
+        log.info("Product deactivated ID: {}", id);
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public long getCount(Specification<Product> specification) {
-    return productRepository.count(specification);
-  }
+    @Transactional(readOnly = true)
+    public Optional<Product> getProductById(Long id) {
+        return productRepository.findById(id);
+    }
 
-  @Override
-  @Transactional(readOnly = true)
-  public Page<Product> getAllProducts(Specification<Product> spec, Pageable pageable) {
-    log.debug("Retrieving all products with specification: {}", spec);
-    return productRepository.findAll(spec, pageable);
-  }
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByName(String name) {
+        return productRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByCategory(String category) {
+        return productRepository.findByCategory(ProductCategory.valueOf(category));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> getProductsBySupplier(Long supplierId) {
+        return productRepository.findBySupplierId(supplierId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Product update(Product product) {
+        log.debug("Updating Product: {}", product);
+        return productRepository.save(product);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productRepository.findAllActiveWithSupplier(pageable);
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        log.debug("Retrieving all active products");
+        return productRepository.findAllActiveWithSupplier();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Product> getLowStockProducts() {
+        log.debug("Retrieving products with low stock");
+        return productRepository.findLowStockProducts();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getCount(Specification<Product> specification) {
+        return productRepository.count(specification);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> getAllProducts(Specification<Product> spec, Pageable pageable) {
+        log.debug("Retrieving all products with specification: {}", spec);
+        return productRepository.findAll(spec, pageable);
+    }
 }

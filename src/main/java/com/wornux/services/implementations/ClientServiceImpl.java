@@ -2,7 +2,6 @@ package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.constants.ValidationConstants;
 import com.wornux.data.entity.Client;
@@ -15,14 +14,11 @@ import com.wornux.exception.DuplicateIdentificationException;
 import com.wornux.mapper.ClientMapper;
 import com.wornux.services.interfaces.ClientService;
 import jakarta.validation.Valid;
-
+import jakarta.validation.ValidationException;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,8 +36,7 @@ import org.springframework.validation.annotation.Validated;
 @Transactional
 // TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only
 // for development/testing purposes.
-public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository>
-        implements ClientService {
+public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository> implements ClientService {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
@@ -52,8 +47,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public Client createClient(@Valid ClientCreateRequestDto clientRequest) {
         log.debug("Request to create Client : {}", clientRequest);
 
-        validateUniqueIdentification(
-                clientRequest.cedula(), clientRequest.passport(), clientRequest.rnc());
+        validateUniqueIdentification(clientRequest.cedula(), clientRequest.passport(), clientRequest.rnc());
         try {
             Client client = clientMapper.toEntity(clientRequest);
             client = clientRepository.save(client);
@@ -64,9 +58,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
             handleConstraintViolation(e);
             throw e;
         }
-
     }
-
 
     @Override
     @Transactional
@@ -74,19 +66,15 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public Client updateClient(Long id, @Valid ClientUpdateRequestDto clientRequest) {
         log.debug("Request to update Client : {}", clientRequest);
 
-        Client existingClient =
-                clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client existingClient = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
-        if (clientRequest.getEmail() != null &&
-                !clientRequest.getEmail().equals(existingClient.getEmail())) {
-            clientRepository.findByEmail(clientRequest.getEmail())
-                    .ifPresent(client -> {
-                        throw new ValidationException("El correo electrónico ya existe");
-                    });
+        if (clientRequest.getEmail() != null && !clientRequest.getEmail().equals(existingClient.getEmail())) {
+            clientRepository.findByEmail(clientRequest.getEmail()).ifPresent(client -> {
+                throw new ValidationException("El correo electrónico ya existe");
+            });
         }
-        validateUniqueIdentificationForUpdate(
-                id, clientRequest.getCedula(), clientRequest.getPassport(), clientRequest.getRnc());
-
+        validateUniqueIdentificationForUpdate(id, clientRequest.getCedula(), clientRequest.getPassport(), clientRequest
+                .getRnc());
 
         try {
             clientMapper.updateClientFromDTO(clientRequest, existingClient);
@@ -143,17 +131,12 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     @Transactional(readOnly = true)
     public Page<Client> searchClients(String searchTerm, Pageable pageable) {
         log.debug("Request to search Clients with term: {}", searchTerm);
-        return clientRepository.findAll(
-                (root, query, cb) -> {
-                    String pattern = "%" + searchTerm.toLowerCase() + "%";
-                    return cb.or(
-                            cb.like(cb.lower(root.get("firstName")), pattern),
-                            cb.like(cb.lower(root.get("lastName")), pattern),
-                            cb.like(root.get("cedula"), pattern),
-                            cb.like(root.get("passport"), pattern),
-                            cb.like(root.get("rnc"), pattern));
-                },
-                pageable);
+        return clientRepository.findAll((root, query, cb) -> {
+            String pattern = "%" + searchTerm.toLowerCase() + "%";
+            return cb.or(cb.like(cb.lower(root.get("firstName")), pattern), cb.like(cb.lower(root.get("lastName")),
+                    pattern), cb.like(root.get("cedula"), pattern), cb.like(root.get("passport"), pattern), cb.like(root
+                            .get("rnc"), pattern));
+        }, pageable);
     }
 
     @Override
@@ -176,8 +159,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void updateClientRating(Long id, ClientRating newRating) {
         log.debug("Request to update Client rating : {} to {}", id, newRating);
 
-        Client client =
-                clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setRating(newRating);
         clientRepository.save(client);
@@ -191,8 +173,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void deactivateClient(Long id) {
         log.debug("Request to deactivate Client : {}", id);
 
-        Client client =
-                clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setActive(false);
         clientRepository.save(client);
@@ -206,8 +187,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void reactivateClient(Long id) {
         log.debug("Request to reactivate Client : {}", id);
 
-        Client client =
-                clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setActive(true);
         clientRepository.save(client);
@@ -221,8 +201,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public boolean verifyClient(Long id) {
         log.debug("Request to verify Client : {}", id);
 
-        Client client =
-                clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setVerified(true);
         clientRepository.save(client);
@@ -237,8 +216,7 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
     public void updateCreditLimit(Long id, Double newLimit) {
         log.debug("Request to update Client credit limit : {} to {}", id, newLimit);
 
-        Client client =
-                clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ClientNotFoundException(id));
 
         client.setCreditLimit(newLimit);
         clientRepository.save(client);
@@ -295,18 +273,19 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
         if (documentCount > ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT) {
             throw new IllegalArgumentException(
-                    "Máximo "
-                            + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT
-                            + " documento de identificación permitido");
+                    "Máximo " + ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT + " documento de identificación permitido");
         }
         return documentCount == ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
     }
 
     private int countNonEmptyDocuments(String cedula, String passport, String rnc) {
         int count = 0;
-        if (isNotEmpty(cedula)) count++;
-        if (isNotEmpty(passport)) count++;
-        if (isNotEmpty(rnc)) count++;
+        if (isNotEmpty(cedula))
+            count++;
+        if (isNotEmpty(passport))
+            count++;
+        if (isNotEmpty(rnc))
+            count++;
         return count;
     }
 

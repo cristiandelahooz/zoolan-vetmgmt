@@ -18,19 +18,19 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class Auditable implements Serializable {
-  @CreatedBy
-  @Column(nullable = false, updatable = false)
-  protected String createdBy;
+    @CreatedBy
+    @Column(nullable = false, updatable = false)
+    protected String createdBy;
 
-  @CreatedDate
-  @Column(nullable = false, updatable = false)
-  protected Instant createdDate;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    protected Instant createdDate;
 
-  @LastModifiedBy
-  @Column(nullable = false)
-  protected String lastModifiedBy;
+    @LastModifiedBy
+    @Column(nullable = false)
+    protected String lastModifiedBy;
 
-  @LastModifiedDate
-  @Column(nullable = false)
-  protected Instant lastModifiedDate;
+    @LastModifiedDate
+    @Column(nullable = false)
+    protected Instant lastModifiedDate;
 }

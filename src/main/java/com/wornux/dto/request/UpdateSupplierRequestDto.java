@@ -1,11 +1,11 @@
 package com.wornux.dto.request;
 
+import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
+import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
-
-import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
-import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 
 @Data
 public class UpdateSupplierRequestDto {

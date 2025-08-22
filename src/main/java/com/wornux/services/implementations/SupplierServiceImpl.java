@@ -6,7 +6,6 @@ import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.vaadin.hilla.crud.filter.Filter;
 import com.wornux.data.entity.Supplier;
-import com.wornux.data.repository.PetRepository;
 import com.wornux.data.repository.SupplierRepository;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.dto.request.UpdateSupplierRequestDto;
@@ -14,7 +13,8 @@ import com.wornux.dto.response.SupplierListDto;
 import com.wornux.mapper.SupplierMapper;
 import com.wornux.services.interfaces.SupplierService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -23,9 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-import java.util.Optional;
-
 @Slf4j
 @Service
 @Validated
@@ -33,8 +30,8 @@ import java.util.Optional;
 @BrowserCallable
 @AnonymousAllowed
 @Transactional
-public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, SupplierRepository>
-        implements SupplierService, FormService<SupplierCreateRequestDto, Long> {
+public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, SupplierRepository> implements
+        SupplierService, FormService<SupplierCreateRequestDto, Long> {
 
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
@@ -64,8 +61,8 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
 
     @Override
     public void delete(Long id) {
-        Supplier supplier = supplierRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado con ID: " + id));
+        Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new IllegalArgumentException(
+                "Proveedor no encontrado con ID: " + id));
         supplier.setActive(false);
         supplierRepository.save(supplier);
         log.info("Supplier deactivated with ID: {}", id);
@@ -83,8 +80,8 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
 
     @Override
     public Supplier update(UpdateSupplierRequestDto dto) {
-        Supplier existingSupplier = supplierRepository.findById(dto.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado"));
+        Supplier existingSupplier = supplierRepository.findById(dto.getId()).orElseThrow(
+                () -> new IllegalArgumentException("Proveedor no encontrado"));
 
         supplierMapper.updateSupplierFromDTO(dto, existingSupplier);
         Supplier updatedSupplier = supplierRepository.save(existingSupplier);
@@ -100,11 +97,9 @@ public class SupplierServiceImpl extends ListRepositoryService<Supplier, Long, S
 
     @Override
     public SupplierCreateRequestDto getCreateDtoById(Long id) {
-        Supplier supplier = getRepository().findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Proveedor no encontrado"));
+        Supplier supplier = getRepository().findById(id).orElseThrow(() -> new EntityNotFoundException(
+                "Proveedor no encontrado"));
 
         return supplierMapper.toDto(supplier);
-
     }
-
 }

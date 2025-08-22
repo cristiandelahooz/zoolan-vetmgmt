@@ -1,5 +1,7 @@
 package com.wornux.views.suppliers;
 
+import static com.wornux.constants.ValidationConstants.*;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -18,8 +20,6 @@ import com.wornux.services.interfaces.SupplierService;
 import com.wornux.utils.NotificationUtils;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.wornux.constants.ValidationConstants.*;
 
 @Slf4j
 public class SupplierForm extends Dialog {

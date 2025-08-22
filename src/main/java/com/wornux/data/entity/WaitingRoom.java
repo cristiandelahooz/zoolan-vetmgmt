@@ -4,12 +4,11 @@ import com.wornux.data.enums.Priority;
 import com.wornux.data.enums.WaitingRoomStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.proxy.HibernateProxy;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Table(name = "waiting_room")
@@ -86,8 +85,8 @@ public class WaitingRoom {
             return false;
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer()
                 .getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer()
-                .getPersistentClass() : this.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this)
+                .getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass)
             return false;
         WaitingRoom that = (WaitingRoom) o;

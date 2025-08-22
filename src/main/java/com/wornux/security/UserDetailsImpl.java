@@ -2,14 +2,13 @@ package com.wornux.security;
 
 import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.User;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @Slf4j
 public record UserDetailsImpl(User user) implements UserDetails {
@@ -26,8 +25,8 @@ public record UserDetailsImpl(User user) implements UserDetails {
         if (user instanceof Employee employee) {
             if (employee.getEmployeeRole() != null) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_EMP_" + employee.getEmployeeRole().name()));
-                log.debug("Added employee role for user {}: ROLE_EMP_{}", user.getUsername(),
-                        employee.getEmployeeRole().name());
+                log.debug("Added employee role for user {}: ROLE_EMP_{}", user.getUsername(), employee.getEmployeeRole()
+                        .name());
             }
         }
 
@@ -42,8 +41,8 @@ public record UserDetailsImpl(User user) implements UserDetails {
 
     @Override
     public String getPassword() {
-        log.debug("Password retrieved for user: {} - Hash length: {}", user.getUsername(),
-                user.getPassword() != null ? user.getPassword().length() : 0);
+        log.debug("Password retrieved for user: {} - Hash length: {}", user.getUsername(), user
+                .getPassword() != null ? user.getPassword().length() : 0);
         return user.getPassword();
     }
 

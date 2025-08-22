@@ -13,9 +13,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import lombok.extern.slf4j.Slf4j;
-
 import java.nio.charset.StandardCharsets;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Route("access-denied")

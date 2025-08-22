@@ -79,8 +79,8 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
     }
 
     private void displayAuthenticationErrorIfPresent(BeforeEnterEvent beforeEnterEvent) {
-        boolean hasErrorParameter = beforeEnterEvent.getLocation().getQueryParameters().getParameters()
-                .containsKey("error");
+        boolean hasErrorParameter = beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey(
+                "error");
         setError(hasErrorParameter);
     }
 }

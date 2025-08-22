@@ -17,17 +17,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductListDto {
 
-  private Long id;
+    private Long id;
 
-  private String name;
+    private String name;
 
-  private String description;
+    private String description;
 
-  private BigDecimal price;
+    private BigDecimal price;
 
-  private int stock;
+    private int stock;
 
-  private ProductCategory category;
+    private ProductCategory category;
 
-  private String supplierName;
+    private String supplierName;
 }

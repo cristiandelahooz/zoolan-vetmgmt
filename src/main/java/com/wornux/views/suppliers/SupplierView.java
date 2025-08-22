@@ -21,7 +21,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.Breadcrumb;
 import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
-import com.wornux.data.entity.Pet;
 import com.wornux.data.entity.Supplier;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.services.interfaces.SupplierService;
@@ -35,7 +34,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "proveedores")
 @PageTitle("Proveedores")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class SupplierView extends Div {
 
     private final Grid<Supplier> grid = GridUtils.createBasicGrid(Supplier.class);

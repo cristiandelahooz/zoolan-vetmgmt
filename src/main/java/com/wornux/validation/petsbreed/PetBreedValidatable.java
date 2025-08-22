@@ -9,17 +9,17 @@ import com.wornux.data.enums.PetType;
  */
 public interface PetBreedValidatable {
 
-  /**
-   * Gets the pet type for validation.
-   *
-   * @return the pet type, or null if not set
-   */
-  PetType getType();
+    /**
+     * Gets the pet type for validation.
+     *
+     * @return the pet type, or null if not set
+     */
+    PetType getType();
 
-  /**
-   * Gets the breed for validation.
-   *
-   * @return the breed string, or null if not set
-   */
-  String getBreed();
+    /**
+     * Gets the breed for validation.
+     *
+     * @return the breed string, or null if not set
+     */
+    String getBreed();
 }

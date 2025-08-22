@@ -16,35 +16,41 @@ import org.jspecify.annotations.Nullable;
 @BrowserCallable
 public class AppointmentUpdateRequestDto {
 
-  @Nullable
-  @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
-  private LocalDateTime startAppointmentDate;
+    @Nullable
+    @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
+    private LocalDateTime startAppointmentDate;
 
-  @Nullable
-  @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
-  private LocalDateTime endAppointmentDate;
+    @Nullable
+    @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
+    private LocalDateTime endAppointmentDate;
 
-  @Nullable private ServiceType serviceType;
+    @Nullable
+    private ServiceType serviceType;
 
-  @Nullable private AppointmentStatus status;
+    @Nullable
+    private AppointmentStatus status;
 
-  @Nullable
-  @Size(max = MAX_REASON_LENGTH, message = "El motivo no puede exceder {max} caracteres")
-  private String reason;
+    @Nullable
+    @Size(max = MAX_REASON_LENGTH, message = "El motivo no puede exceder {max} caracteres")
+    private String reason;
 
-  @Size(
-      max = MAX_APPOINTMENT_NOTES_LENGTH,
-      message = "Las notas no pueden exceder {max} caracteres")
-  @Nullable
-  private String notes;
+    @Size(max = MAX_APPOINTMENT_NOTES_LENGTH, message = "Las notas no pueden exceder {max} caracteres")
+    @Nullable
+    private String notes;
 
-  @Nullable private Long clientId;
+    @Nullable
+    private Long clientId;
 
-  @Nullable private Long petId;
+    @Nullable
+    private Long petId;
 
-  @Nullable private Long assignedEmployeeId;
+    @Nullable
+    private Long assignedEmployeeId;
 
-  @Valid @Nullable private AppointmentClientInfo guestClientInfo;
+    @Valid
+    @Nullable
+    private AppointmentClientInfo guestClientInfo;
 
-  @Nullable private String createdBy;
+    @Nullable
+    private String createdBy;
 }

@@ -2,21 +2,23 @@ package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
-import com.wornux.data.entity.Client;
-import com.wornux.data.repository.ClientRepository;
-import com.wornux.data.entity.Pet;
-import com.wornux.data.repository.PetRepository;
 import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.Priority;
 import com.wornux.data.enums.WaitingRoomStatus;
+import com.wornux.data.repository.ClientRepository;
+import com.wornux.data.repository.PetRepository;
 import com.wornux.data.repository.WaitingRoomRepository;
 import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import com.wornux.exception.WaitingRoomNotFoundException;
 import com.wornux.mapper.WaitingRoomMapper;
-import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.WaitingRoomService;
-import org.jspecify.annotations.Nullable;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,14 +27,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import com.wornux.data.enums.Priority;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -41,9 +35,10 @@ import java.util.Optional;
 @BrowserCallable
 @AnonymousAllowed
 @Transactional
-// TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only for development/testing purposes.
-public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, Long, WaitingRoomRepository>
-        implements WaitingRoomService {
+// TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only
+// for development/testing purposes.
+public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, Long, WaitingRoomRepository> implements
+        WaitingRoomService {
 
     private final WaitingRoomRepository waitingRoomRepository;
     private final ClientRepository clientRepository;
@@ -57,8 +52,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         WaitingRoom waitingRoom = waitingRoomMapper.toEntity(dto, clientRepository, petRepository);
 
         if (waitingRoom.getPet() != null && waitingRoom.getClient() != null) {
-            boolean petBelongsToClient = waitingRoom.getPet().getOwners().stream()
-                    .anyMatch(owner -> owner.getId().equals(waitingRoom.getClient().getId()));
+            boolean petBelongsToClient = waitingRoom.getPet().getOwners().stream().anyMatch(owner -> owner.getId()
+                    .equals(waitingRoom.getClient().getId()));
             if (!petBelongsToClient) {
                 throw new IllegalArgumentException("La mascota no pertenece al cliente especificado");
             }
@@ -112,12 +107,12 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
     public WaitingRoom moveToConsultation(Long waitingRoomId) {
         log.debug("Request to move to consultation: {}", waitingRoomId);
 
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
-                .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
+        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId).orElseThrow(
+                () -> new WaitingRoomNotFoundException(waitingRoomId));
 
         if (waitingRoom.getStatus() != WaitingRoomStatus.ESPERANDO) {
             throw new IllegalStateException("Solo se pueden mover a consulta las entradas en estado 'WAITING'");
@@ -126,18 +121,18 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.startConsultation();
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
 
-        log.info("Movido a consulta: {} - {} con {}", waitingRoomId, waitingRoom.getClient().getFirstName(),
-                waitingRoom.getPet().getName());
+        log.info("Movido a consulta: {} - {} con {}", waitingRoomId, waitingRoom.getClient().getFirstName(), waitingRoom
+                .getPet().getName());
         return updated;
     }
 
     @Override
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
     public WaitingRoom completeConsultation(Long waitingRoomId) {
         log.debug("Request to complete consultation: {}", waitingRoomId);
 
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
-                .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
+        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId).orElseThrow(
+                () -> new WaitingRoomNotFoundException(waitingRoomId));
 
         if (waitingRoom.getStatus() != WaitingRoomStatus.EN_CONSULTA) {
             throw new IllegalStateException("Solo se pueden completar las consultas en estado 'IN_CONSULTATION'");
@@ -152,15 +147,15 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     }
 
     @Override
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public WaitingRoom cancelEntry(Long waitingRoomId, String reason) {
         log.debug("Request to cancel entry: {}", waitingRoomId);
 
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
-                .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
+        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId).orElseThrow(
+                () -> new WaitingRoomNotFoundException(waitingRoomId));
 
-        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETADO
-                || waitingRoom.getStatus() == WaitingRoomStatus.CANCELADO) {
+        if (waitingRoom.getStatus() == WaitingRoomStatus.COMPLETADO || waitingRoom
+                .getStatus() == WaitingRoomStatus.CANCELADO) {
             throw new IllegalStateException("No se puede cancelar una entrada ya completada o cancelada");
         }
 
@@ -168,8 +163,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         waitingRoom.setCompletedAt(LocalDateTime.now());
 
         String currentNotes = waitingRoom.getNotes();
-        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + "Cancelado el " + LocalDateTime.now()
-                + ": " + reason;
+        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + "Cancelado el " + LocalDateTime
+                .now() + ": " + reason;
         waitingRoom.setNotes(newNotes);
 
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -182,8 +177,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     public WaitingRoom updatePriority(Long waitingRoomId, Priority newPriority) {
         log.debug("Request to update priority: {} to {}", waitingRoomId, newPriority);
 
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
-                .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
+        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId).orElseThrow(
+                () -> new WaitingRoomNotFoundException(waitingRoomId));
 
         if (newPriority == null) {
             throw new IllegalArgumentException("La prioridad no puede ser nula");
@@ -198,16 +193,16 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
     @Override
     @Transactional
-    //@PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public WaitingRoom addNotes(Long waitingRoomId, String additionalNotes) {
         log.debug("Request to add notes to: {}", waitingRoomId);
 
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
-                .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
+        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId).orElseThrow(
+                () -> new WaitingRoomNotFoundException(waitingRoomId));
 
         String currentNotes = waitingRoom.getNotes();
-        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + LocalDateTime.now() + " - "
-                + additionalNotes;
+        String newNotes = (currentNotes != null ? currentNotes + "\n" : "") + LocalDateTime
+                .now() + " - " + additionalNotes;
 
         waitingRoom.setNotes(newNotes);
         WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
@@ -248,10 +243,9 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
 
         Specification<WaitingRoom> spec = (root, query, cb) -> {
             String pattern = "%" + searchTerm.toLowerCase() + "%";
-            return cb.or(cb.like(cb.lower(root.get("client").get("firstName")), pattern),
-                    cb.like(cb.lower(root.get("client").get("lastName")), pattern),
-                    cb.like(cb.lower(root.get("pet").get("name")), pattern),
-                    cb.like(cb.lower(root.get("reasonForVisit")), pattern));
+            return cb.or(cb.like(cb.lower(root.get("client").get("firstName")), pattern), cb.like(cb.lower(root.get(
+                    "client").get("lastName")), pattern), cb.like(cb.lower(root.get("pet").get("name")), pattern), cb
+                            .like(cb.lower(root.get("reasonForVisit")), pattern));
         };
 
         return waitingRoomRepository.findAll(spec, pageable);
@@ -286,8 +280,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-        Page<WaitingRoom> todayEntries = waitingRoomRepository.findTodayHistory(startOfDay, endOfDay,
-                Pageable.unpaged());
+        Page<WaitingRoom> todayEntries = waitingRoomRepository.findTodayHistory(startOfDay, endOfDay, Pageable
+                .unpaged());
         return todayEntries.getTotalElements();
     }
 
@@ -296,19 +290,16 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
             LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
             LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-            List<WaitingRoom> completedToday = waitingRoomRepository
-                    .findTodayHistory(startOfDay, endOfDay, Pageable.unpaged()).getContent().stream()
-                    .filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETADO
-                            && wr.getConsultationStartedAt() != null)
-                    .toList();
+            List<WaitingRoom> completedToday = waitingRoomRepository.findTodayHistory(startOfDay, endOfDay, Pageable
+                    .unpaged()).getContent().stream().filter(wr -> wr.getStatus() == WaitingRoomStatus.COMPLETADO && wr
+                            .getConsultationStartedAt() != null).toList();
 
             if (completedToday.isEmpty()) {
                 return 0.0;
             }
 
-            double totalMinutes = completedToday.stream()
-                    .mapToDouble(wr -> Duration.between(wr.getArrivalTime(), wr.getConsultationStartedAt()).toMinutes())
-                    .average().orElse(0.0);
+            double totalMinutes = completedToday.stream().mapToDouble(wr -> Duration.between(wr.getArrivalTime(), wr
+                    .getConsultationStartedAt()).toMinutes()).average().orElse(0.0);
 
             return Math.round(totalMinutes * 100.0) / 100.0;
 
@@ -322,8 +313,8 @@ public class WaitingRoomServiceImpl extends ListRepositoryService<WaitingRoom, L
     public void delete(Long id) {
         log.debug("Request to soft delete WaitingRoom: {}", id);
 
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(id)
-                .orElseThrow(() -> new WaitingRoomNotFoundException(id));
+        WaitingRoom waitingRoom = waitingRoomRepository.findById(id).orElseThrow(() -> new WaitingRoomNotFoundException(
+                id));
 
         if (waitingRoom.getStatus() == WaitingRoomStatus.EN_CONSULTA) {
             throw new IllegalStateException("No se puede eliminar una entrada que está en consulta activa");

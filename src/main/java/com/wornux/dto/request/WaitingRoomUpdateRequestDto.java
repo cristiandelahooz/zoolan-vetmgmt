@@ -2,11 +2,10 @@ package com.wornux.dto.request;
 
 import com.wornux.data.enums.Priority;
 import jakarta.validation.constraints.Future;
-import lombok.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
-
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Data
 @Builder
@@ -34,5 +33,4 @@ public class WaitingRoomUpdateRequestDto {
     @NotNull(message = "La hora de llegada es requerida")
     @Future(message = "La hora de llegada debe ser en el futuro")
     private LocalDateTime arrivalTime;
-
 }
