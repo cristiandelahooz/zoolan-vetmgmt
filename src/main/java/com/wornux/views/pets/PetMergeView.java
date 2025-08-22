@@ -25,7 +25,7 @@ import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Pet;
 import com.wornux.data.enums.PetType;
 import com.wornux.services.implementations.PetServiceImpl;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Route("mascotas/fusionar")
 @PageTitle("Fusionar Mascotas Duplicadas")
-@PermitAll
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
 public class PetMergeView extends Div {
 
     private final PetServiceImpl petService;
