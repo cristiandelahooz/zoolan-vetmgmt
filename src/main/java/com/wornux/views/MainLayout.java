@@ -14,6 +14,7 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
+import com.vaadin.flow.server.menu.MenuConfiguration;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.security.UserUtils;
 import com.wornux.utils.MenuUtil;
@@ -72,9 +73,11 @@ public class MainLayout extends AppLayout {
                 LumoUtility.TextColor.PRIMARY_CONTRAST);
 
         brandLayout.add(brandIcon, appName);
+        brandLayout.getStyle().setFlexGrow("1");
         Header header = new Header(brandLayout);
 
         SideNav nav = createNavigation();
+
         nav.addClassNames(LumoUtility.Padding.Vertical.SMALL, LumoUtility.Background.BASE);
 
         Scroller drawerScroller = new Scroller(nav);
@@ -100,8 +103,8 @@ public class MainLayout extends AppLayout {
             String username = UserUtils.getCurrentUsername();
             avatar.setName(username);
 
-            UserUtils.getCurrentSystemRole().ifPresent(role -> avatar.getElement().setAttribute("title",
-                    username + " - " + role.getDisplayName()));
+            UserUtils.getCurrentSystemRole().ifPresent(
+                    role -> avatar.getElement().setAttribute("title", username + " - " + role.getDisplayName()));
         } else {
             avatar.setName("Usuario");
         }
@@ -119,8 +122,8 @@ public class MainLayout extends AppLayout {
         SubMenu userSubMenu = userMenuItem.getSubMenu();
 
         userSubMenu.addSeparator();
-        userSubMenu.addItem(createMenuItemWithIcon(), e -> getUI().ifPresent(ui -> ui.getPage().setLocation(
-                "/logout")));
+        userSubMenu.addItem(createMenuItemWithIcon(),
+                e -> getUI().ifPresent(ui -> ui.getPage().setLocation("/logout")));
 
         return menuBar;
     }
@@ -144,7 +147,7 @@ public class MainLayout extends AppLayout {
         footer.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.Background.CONTRAST_5,
                 LumoUtility.TextAlignment.CENTER, LumoUtility.BorderRadius.MEDIUM, LumoUtility.Margin.MEDIUM);
 
-        Span footerText = new Span("© 2024 Zoolandia VetMgmt");
+        Span footerText = new Span("© 2025 wornux dev-team");
         footerText.addClassNames(LumoUtility.FontSize.SMALL, LumoUtility.TextColor.TERTIARY);
 
         footer.add(footerText);
@@ -158,7 +161,6 @@ public class MainLayout extends AppLayout {
     }
 
     private String getCurrentPageTitle() {
-        String className = getContent().getClass().getSimpleName();
-        return className.replaceAll("View$", "").replaceAll("([a-z])([A-Z])", "$1 $2");
+        return MenuConfiguration.getPageHeader(getContent()).orElse("");
     }
 }
