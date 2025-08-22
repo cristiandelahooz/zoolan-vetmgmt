@@ -84,6 +84,7 @@ public class EmployeeView extends Div {
         gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL,
                 LumoUtility.Height.FULL);
 
+        create.setVisible(false);
         add(createTitle(), createFilter(), gridLayout);
         addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
         setSizeFull();
