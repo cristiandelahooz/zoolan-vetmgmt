@@ -1,5 +1,6 @@
 package com.wornux.services.implementations;
 
+import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Invoice;
 import com.wornux.data.entity.ServiceInvoice;
 import com.wornux.data.repository.InvoiceRepository;
@@ -49,6 +50,7 @@ public class InvoiceService {
         repository
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Invoice not found."));
+
     repository.delete(entity);
   }
 
@@ -72,6 +74,12 @@ public class InvoiceService {
     return repository.save(invoice);
   }
 
+  @Transactional()
+  public Invoice findByConsultation(Consultation consultation) {
+    return repository
+        .findByConsultation(consultation)
+        .orElseThrow(() -> new EntityNotFoundException("Invoice not found for consultation ID: " + consultation.getId()));
+  }
   @Transactional()
   public Invoice findByIdWithDetails(Long code) {
 
