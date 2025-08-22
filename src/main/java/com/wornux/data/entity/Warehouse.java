@@ -20,25 +20,28 @@ import org.hibernate.envers.Audited;
 @Slf4j
 @Audited(withModifiedFlag = true)
 public class Warehouse {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "name", nullable = false, length = MAX_WAREHOUSE_NAME_LENGTH)
-    @Size(min = 1, max = MAX_WAREHOUSE_NAME_LENGTH, message = "El nombre del almacén debe tener entre {min} y {max} caracteres")
-    private String name;
+  @Column(name = "name", nullable = false, length = MAX_WAREHOUSE_NAME_LENGTH)
+  @Size(
+      min = 1,
+      max = MAX_WAREHOUSE_NAME_LENGTH,
+      message = "El nombre del almacén debe tener entre {min} y {max} caracteres")
+  private String name;
 
-    @Column(name = "warehouse_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private WarehouseType warehouseType;
+  @Column(name = "warehouse_type", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private WarehouseType warehouseType;
 
-    @Column(name = "status", nullable = false)
-    @Builder.Default
-    private boolean status = true;
+  @Column(name = "status", nullable = false)
+  @Builder.Default
+  private boolean status = true;
 
-    @Column(name = "available_for_sale")
-    private boolean availableForSale;
+  @Column(name = "available_for_sale")
+  private boolean availableForSale;
 
-    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Product> products;
+  @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Product> products;
 }

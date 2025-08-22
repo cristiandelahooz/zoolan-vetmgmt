@@ -18,17 +18,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InvoiceReportDto {
 
-    private Long invoiceId;
-    private LocalDate invoiceDate;
-    private String clientEmail;
-    private String clientName;
-    private String clientAddress;
-    private String clientPhone;
-    private String totalAmount;
-    private String subtotal;
-    private String tax;
-    private String notes;
-    private String salesOrder;
+  private Long invoiceId;
+  private LocalDate invoiceDate;
+  private String clientEmail;
+  private String clientName;
+  private String clientAddress;
+  private String clientPhone;
+  private String totalAmount;
+  private String subtotal;
+  private String tax;
+  private String notes;
+  private String salesOrder;
 
-    private List<Map<String, Object>> productsData;
+  private List<Map<String, Object>> productsData;
 }

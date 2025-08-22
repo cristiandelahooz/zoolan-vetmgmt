@@ -12,44 +12,70 @@ import org.springframework.transaction.annotation.Transactional;
 
 class ArchitectureTest {
 
-    static final String BASE_PACKAGE = "com.wornux";
+  static final String BASE_PACKAGE = "com.wornux";
 
-    private final JavaClasses importedClasses = new ClassFileImporter().importPackages(BASE_PACKAGE);
+  private final JavaClasses importedClasses = new ClassFileImporter().importPackages(BASE_PACKAGE);
 
-    // TODO Add your own rules and remove those that don't apply to your project
+  // TODO Add your own rules and remove those that don't apply to your project
 
-    @Test
-    void data_model_should_not_depend_on_application_services() {
-        noClasses().that().resideInAPackage(BASE_PACKAGE + "..data..").should().dependOnClassesThat().resideInAPackage(
-                BASE_PACKAGE + "..service..").check(importedClasses);
-    }
+  @Test
+  void data_model_should_not_depend_on_application_services() {
+    noClasses()
+        .that()
+        .resideInAPackage(BASE_PACKAGE + "..data..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAPackage(BASE_PACKAGE + "..service..")
+        .check(importedClasses);
+  }
 
-    @Test
-    void data_model_should_not_depend_on_the_user_interface() {
-        noClasses().that().resideInAPackage(BASE_PACKAGE + "..data..").should().dependOnClassesThat()
-                .resideInAnyPackage(BASE_PACKAGE + "..ui..").check(importedClasses);
-    }
+  @Test
+  void data_model_should_not_depend_on_the_user_interface() {
+    noClasses()
+        .that()
+        .resideInAPackage(BASE_PACKAGE + "..data..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAnyPackage(BASE_PACKAGE + "..ui..")
+        .check(importedClasses);
+  }
 
-    @Test
-    void repositories_should_only_be_used_by_application_services_and_other_data_classes() {
-        classes().that().areAssignableTo(Repository.class).should().onlyHaveDependentClassesThat().resideInAnyPackage(
-                BASE_PACKAGE + "..data..", BASE_PACKAGE + "..service..").check(importedClasses);
-    }
+  @Test
+  void repositories_should_only_be_used_by_application_services_and_other_data_classes() {
+    classes()
+        .that()
+        .areAssignableTo(Repository.class)
+        .should()
+        .onlyHaveDependentClassesThat()
+        .resideInAnyPackage(BASE_PACKAGE + "..data..", BASE_PACKAGE + "..service..")
+        .check(importedClasses);
+  }
 
-    @Test
-    void repositories_should_only_be_accessed_by_transactional_classes() {
-        classes().that().areAssignableTo(Repository.class).should().onlyBeAccessed().byClassesThat().areAnnotatedWith(
-                Transactional.class).check(importedClasses);
-    }
+  @Test
+  void repositories_should_only_be_accessed_by_transactional_classes() {
+    classes()
+        .that()
+        .areAssignableTo(Repository.class)
+        .should()
+        .onlyBeAccessed()
+        .byClassesThat()
+        .areAnnotatedWith(Transactional.class)
+        .check(importedClasses);
+  }
 
-    @Test
-    void application_services_should_not_depend_on_the_user_interface() {
-        noClasses().that().resideInAPackage(BASE_PACKAGE + "..service..").should().dependOnClassesThat()
-                .resideInAnyPackage(BASE_PACKAGE + "..ui..").check(importedClasses);
-    }
+  @Test
+  void application_services_should_not_depend_on_the_user_interface() {
+    noClasses()
+        .that()
+        .resideInAPackage(BASE_PACKAGE + "..service..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAnyPackage(BASE_PACKAGE + "..ui..")
+        .check(importedClasses);
+  }
 
-    @Test
-    void there_should_not_be_circular_dependencies_between_feature_packages() {
-        slices().matching(BASE_PACKAGE + ".(*)..").should().beFreeOfCycles().check(importedClasses);
-    }
+  @Test
+  void there_should_not_be_circular_dependencies_between_feature_packages() {
+    slices().matching(BASE_PACKAGE + ".(*)..").should().beFreeOfCycles().check(importedClasses);
+  }
 }

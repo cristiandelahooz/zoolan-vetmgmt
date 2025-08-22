@@ -13,21 +13,21 @@ import lombok.*;
 @AllArgsConstructor
 public class WaitingRoomCreateRequestDto {
 
-    @NotNull(message = "El cliente es requerido")
-    private Long clientId;
+  @NotNull(message = "El cliente es requerido")
+  private Long clientId;
 
-    @NotNull(message = "La mascota es requerida")
-    private Long petId;
+  @NotNull(message = "La mascota es requerida")
+  private Long petId;
 
-    @NotBlank(message = "La razón de la visita es requerida")
-    private String reasonForVisit;
+  @NotBlank(message = "La razón de la visita es requerida")
+  private String reasonForVisit;
 
-    @NotNull(message = "La prioridad es requerida")
-    private Priority priority;
+  @NotNull(message = "La prioridad es requerida")
+  private Priority priority;
 
-    private String notes;
+  private String notes;
 
-    @NotNull(message = "La hora de llegada es requerida")
-    @Future(message = "La hora de llegada debe ser en el futuro")
-    private LocalDateTime arrivalTime;
+  @NotNull(message = "La hora de llegada es requerida")
+  @Future(message = "La hora de llegada debe ser en el futuro")
+  private LocalDateTime arrivalTime;
 }

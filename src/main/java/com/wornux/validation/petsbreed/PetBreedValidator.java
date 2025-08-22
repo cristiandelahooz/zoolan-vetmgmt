@@ -9,12 +9,13 @@ import jakarta.validation.ConstraintValidatorContext;
  */
 public class PetBreedValidator implements ConstraintValidator<ValidPetBreed, PetBreedValidatable> {
 
-    @Override
-    public boolean isValid(PetBreedValidatable validatable, ConstraintValidatorContext context) {
-        if (validatable == null) {
-            return true;
-        }
-
-        return PetBreedValidationHelper.isValidBreedForType(validatable.getType(), validatable.getBreed(), context);
+  @Override
+  public boolean isValid(PetBreedValidatable validatable, ConstraintValidatorContext context) {
+    if (validatable == null) {
+      return true;
     }
+
+    return PetBreedValidationHelper.isValidBreedForType(
+        validatable.getType(), validatable.getBreed(), context);
+  }
 }

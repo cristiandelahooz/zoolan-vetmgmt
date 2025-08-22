@@ -18,92 +18,111 @@ import com.wornux.services.interfaces.PetService;
 import com.wornux.views.MainLayout;
 import com.wornux.views.pets.SelectPetDialog;
 import jakarta.annotation.security.RolesAllowed;
-
 import java.util.List;
 
 @PageTitle("Historial Médico")
 @Route(value = "historial-medico", layout = MainLayout.class)
-@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class MedicalHistoryView extends VerticalLayout {
 
-    private final PetService petService;
-    private final ConsultationService consultationService;
+  private final PetService petService;
+  private final ConsultationService consultationService;
 
-    private final Grid<Consultation> consultationsGrid;
-    private Pet selectedPet;
+  private final Grid<Consultation> consultationsGrid;
+  private Pet selectedPet;
 
-    public MedicalHistoryView(PetService petService, ConsultationService consultationService) {
-        this.petService = petService;
-        this.consultationService = consultationService;
+  public MedicalHistoryView(PetService petService, ConsultationService consultationService) {
+    this.petService = petService;
+    this.consultationService = consultationService;
 
-        setSizeFull();
-        setPadding(true);
-        setSpacing(true);
+    setSizeFull();
+    setPadding(true);
+    setSpacing(true);
 
-        // Título
-        H2 title = new H2("Historial Médico de Mascota");
-        title.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.FontWeight.BOLD);
+    // Título
+    H2 title = new H2("Historial Médico de Mascota");
+    title.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.FontWeight.BOLD);
 
-        // Campo para mostrar la mascota seleccionada
-        TextField selectedPetField = new TextField("Mascota");
-        selectedPetField.setReadOnly(true);
+    // Campo para mostrar la mascota seleccionada
+    TextField selectedPetField = new TextField("Mascota");
+    selectedPetField.setReadOnly(true);
 
-        Button selectPetBtn = new Button("Seleccionar", e -> {
-            SelectPetDialog dialog = new SelectPetDialog(petService);
-            dialog.addPetSelectedListener(pet -> {
-                selectedPet = pet;
-                selectedPetField.setValue(pet.getName());
-                loadMedicalHistory(pet.getId());
+    Button selectPetBtn =
+        new Button(
+            "Seleccionar",
+            e -> {
+              SelectPetDialog dialog = new SelectPetDialog(petService);
+              dialog.addPetSelectedListener(
+                  pet -> {
+                    selectedPet = pet;
+                    selectedPetField.setValue(pet.getName());
+                    loadMedicalHistory(pet.getId());
+                  });
+              dialog.open();
             });
-            dialog.open();
+
+    HorizontalLayout petSelector = new HorizontalLayout(selectedPetField, selectPetBtn);
+    petSelector.setAlignItems(Alignment.END);
+
+    // Grid de consultas
+    consultationsGrid = new Grid<>(Consultation.class, false);
+    consultationsGrid
+        .addColumn(c -> c.getConsultationDate().toLocalDate())
+        .setHeader("Fecha")
+        .setAutoWidth(true);
+    consultationsGrid
+        .addColumn(
+            c -> c.getVeterinarian().getFirstName() + " " + c.getVeterinarian().getLastName())
+        .setHeader("Veterinario")
+        .setAutoWidth(true);
+    consultationsGrid
+        .addColumn(Consultation::getDiagnosis)
+        .setHeader("Diagnóstico")
+        .setAutoWidth(true);
+    consultationsGrid
+        .addColumn(Consultation::getTreatment)
+        .setHeader("Tratamiento")
+        .setAutoWidth(true);
+
+    consultationsGrid.addItemClickListener(event -> openConsultationDetail(event.getItem()));
+
+    add(title, petSelector, consultationsGrid);
+    setFlexGrow(1, consultationsGrid);
+  }
+
+  private void openPetSelectionDialog() {
+    SelectPetDialog dialog = new SelectPetDialog(petService);
+    dialog.addPetSelectedListener(
+        pet -> {
+          selectedPet = pet;
+          loadMedicalHistory(pet.getId());
         });
+    dialog.open();
+  }
 
-        HorizontalLayout petSelector = new HorizontalLayout(selectedPetField, selectPetBtn);
-        petSelector.setAlignItems(Alignment.END);
+  private void loadMedicalHistory(Long petId) {
+    List<Consultation> consultations = consultationService.findByPetId(petId);
+    consultationsGrid.setItems(consultations);
+  }
 
-        // Grid de consultas
-        consultationsGrid = new Grid<>(Consultation.class, false);
-        consultationsGrid.addColumn(c -> c.getConsultationDate().toLocalDate()).setHeader("Fecha").setAutoWidth(true);
-        consultationsGrid.addColumn(c -> c.getVeterinarian().getFirstName() + " " + c.getVeterinarian().getLastName())
-                .setHeader("Veterinario").setAutoWidth(true);
-        consultationsGrid.addColumn(Consultation::getDiagnosis).setHeader("Diagnóstico").setAutoWidth(true);
-        consultationsGrid.addColumn(Consultation::getTreatment).setHeader("Tratamiento").setAutoWidth(true);
+  private void openConsultationDetail(Consultation consultation) {
+    Dialog detailDialog = new Dialog();
+    detailDialog.setWidth("500px");
 
-        consultationsGrid.addItemClickListener(event -> openConsultationDetail(event.getItem()));
+    VerticalLayout content = new VerticalLayout();
+    content.add(new H2("Consulta del " + consultation.getConsultationDate().toString()));
+    content.add(
+        new Paragraph(
+            "Veterinario: "
+                + consultation.getVeterinarian().getFirstName()
+                + " "
+                + consultation.getVeterinarian().getLastName()));
+    content.add(new Paragraph("Diagnóstico: " + consultation.getDiagnosis()));
+    content.add(new Paragraph("Tratamiento: " + consultation.getTreatment()));
+    content.add(new Paragraph("Prescripción: " + consultation.getPrescription()));
+    content.add(new Paragraph("Notas: " + consultation.getNotes()));
 
-        add(title, petSelector, consultationsGrid);
-        setFlexGrow(1, consultationsGrid);
-    }
-
-    private void openPetSelectionDialog() {
-        SelectPetDialog dialog = new SelectPetDialog(petService);
-        dialog.addPetSelectedListener(pet -> {
-            selectedPet = pet;
-            loadMedicalHistory(pet.getId());
-        });
-        dialog.open();
-    }
-
-    private void loadMedicalHistory(Long petId) {
-        List<Consultation> consultations = consultationService.findByPetId(petId);
-        consultationsGrid.setItems(consultations);
-    }
-
-    private void openConsultationDetail(Consultation consultation) {
-        Dialog detailDialog = new Dialog();
-        detailDialog.setWidth("500px");
-
-        VerticalLayout content = new VerticalLayout();
-        content.add(new H2("Consulta del " + consultation.getConsultationDate().toString()));
-        content.add(new Paragraph(
-                "Veterinario: " + consultation.getVeterinarian().getFirstName() + " " + consultation.getVeterinarian()
-                        .getLastName()));
-        content.add(new Paragraph("Diagnóstico: " + consultation.getDiagnosis()));
-        content.add(new Paragraph("Tratamiento: " + consultation.getTreatment()));
-        content.add(new Paragraph("Prescripción: " + consultation.getPrescription()));
-        content.add(new Paragraph("Notas: " + consultation.getNotes()));
-
-        detailDialog.add(content);
-        detailDialog.open();
-    }
+    detailDialog.add(content);
+    detailDialog.open();
+  }
 }

@@ -7,13 +7,14 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 public class SearchComponent extends TextField {
 
-    public SearchComponent() {
-        addClassNames(LumoUtility.Flex.GROW, LumoUtility.MinWidth.NONE, LumoUtility.Padding.Vertical.NONE);
-        setAriaLabel("Search");
-        setClearButtonVisible(true);
-        setWidthFull();
-        setPlaceholder("Search");
-        setPrefixComponent(LumoIcon.SEARCH.create());
-        setValueChangeMode(ValueChangeMode.EAGER);
-    }
+  public SearchComponent() {
+    addClassNames(
+        LumoUtility.Flex.GROW, LumoUtility.MinWidth.NONE, LumoUtility.Padding.Vertical.NONE);
+    setAriaLabel("Search");
+    setClearButtonVisible(true);
+    setWidthFull();
+    setPlaceholder("Search");
+    setPrefixComponent(LumoIcon.SEARCH.create());
+    setValueChangeMode(ValueChangeMode.EAGER);
+  }
 }

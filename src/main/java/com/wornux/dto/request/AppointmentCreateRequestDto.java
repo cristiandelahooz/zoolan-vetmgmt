@@ -21,45 +21,41 @@ import org.jspecify.annotations.Nullable;
 @AllArgsConstructor
 public class AppointmentCreateRequestDto {
 
-    @NotNull(message = "La fecha y hora de inicio es obligatoria")
-    @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
-    private LocalDateTime startAppointmentDate;
+  @NotNull(message = "La fecha y hora de inicio es obligatoria")
+  @Future(message = "La fecha de inicio de la cita debe ser en el futuro")
+  private LocalDateTime startAppointmentDate;
 
-    @NotNull(message = "La fecha y hora de cierre es obligatoria")
-    @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
-    private LocalDateTime endAppointmentDate;
+  @NotNull(message = "La fecha y hora de cierre es obligatoria")
+  @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
+  private LocalDateTime endAppointmentDate;
 
-    @NotNull(message = "El tipo de servicio es obligatorio")
-    private ServiceType serviceType;
+  @NotNull(message = "El tipo de servicio es obligatorio")
+  private ServiceType serviceType;
 
-    private AppointmentStatus status;
+  private AppointmentStatus status;
 
-    @Size(max = MAX_REASON_LENGTH, message = "El motivo no puede exceder {max} caracteres")
-    @Nullable
-    private String reason;
+  @Size(max = MAX_REASON_LENGTH, message = "El motivo no puede exceder {max} caracteres")
+  @Nullable
+  private String reason;
 
-    @Size(max = MAX_APPOINTMENT_NOTES_LENGTH, message = "Las notas no pueden exceder {max} caracteres")
-    @Nullable
-    private String notes;
+  @Size(
+      max = MAX_APPOINTMENT_NOTES_LENGTH,
+      message = "Las notas no pueden exceder {max} caracteres")
+  @Nullable
+  private String notes;
 
-    @Nullable
-    private Long clientId;
+  @Nullable private Long clientId;
 
-    @Nullable
-    private Long petId;
+  @Nullable private Long petId;
 
-    @Nullable
-    private Long assignedEmployeeId;
+  @Nullable private Long assignedEmployeeId;
 
-    @Valid
-    @Nullable
-    private AppointmentClientInfo guestClientInfo;
+  @Valid @Nullable private AppointmentClientInfo guestClientInfo;
 
-    @Nullable
-    private String createdBy;
+  @Nullable private String createdBy;
 
-    public String getAppointmentDateTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        return startAppointmentDate.format(formatter) + " - " + endAppointmentDate.format(formatter);
-    }
+  public String getAppointmentDateTime() {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    return startAppointmentDate.format(formatter) + " - " + endAppointmentDate.format(formatter);
+  }
 }

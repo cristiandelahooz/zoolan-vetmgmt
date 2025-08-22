@@ -10,21 +10,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class AuditorAwareImpl implements AuditorAware<String> {
 
-    @Override
-    @NonNull
-    public Optional<String> getCurrentAuditor() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+  @Override
+  @NonNull
+  public Optional<String> getCurrentAuditor() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return Optional.of("Sistema");
-        }
-
-        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))) {
-            return Optional.of("ANONYMOUS");
-        }
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-        return Optional.ofNullable(userDetails.getUsername());
+    if (authentication == null || !authentication.isAuthenticated()) {
+      return Optional.of("Sistema");
     }
+
+    if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))) {
+      return Optional.of("ANONYMOUS");
+    }
+
+    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+    return Optional.ofNullable(userDetails.getUsername());
+  }
 }

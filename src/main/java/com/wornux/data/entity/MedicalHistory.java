@@ -15,65 +15,64 @@ import org.hibernate.envers.Audited;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString(exclude = { "consultations", "pet" })
+@ToString(exclude = {"consultations", "pet"})
 @Audited(withModifiedFlag = true)
 public class MedicalHistory {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "pet", unique = true)
-    @JsonIgnore
-    private Pet pet;
+  @OneToOne
+  @JoinColumn(name = "pet", unique = true)
+  @JsonIgnore
+  private Pet pet;
 
-    @OneToMany(mappedBy = "medicalHistory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    @Builder.Default
-    private List<Consultation> consultations = new ArrayList<>();
+  @OneToMany(mappedBy = "medicalHistory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JsonIgnore
+  @Builder.Default
+  private List<Consultation> consultations = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT")
-    private String allergies;
+  @Column(columnDefinition = "TEXT")
+  private String allergies;
 
-    @Column(columnDefinition = "TEXT")
-    private String medications;
+  @Column(columnDefinition = "TEXT")
+  private String medications;
 
-    @Column(columnDefinition = "TEXT")
-    private String vaccinations;
+  @Column(columnDefinition = "TEXT")
+  private String vaccinations;
 
-    @Column(columnDefinition = "TEXT")
-    private String surgeries;
+  @Column(columnDefinition = "TEXT")
+  private String surgeries;
 
-    @Column(columnDefinition = "TEXT")
-    private String chronicConditions;
+  @Column(columnDefinition = "TEXT")
+  private String chronicConditions;
 
-    @Column(columnDefinition = "TEXT")
-    private String notes;
+  @Column(columnDefinition = "TEXT")
+  private String notes;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 
-    @Builder.Default
-    private boolean active = true;
+  @Builder.Default private boolean active = true;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+  @PrePersist
+  protected void onCreate() {
+    createdAt = LocalDateTime.now();
+    updatedAt = LocalDateTime.now();
+  }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+  @PreUpdate
+  protected void onUpdate() {
+    updatedAt = LocalDateTime.now();
+  }
 
-    public void addConsultation(Consultation consultation) {
-        consultations.add(consultation);
-        consultation.setMedicalHistory(this);
-        updateLastModified();
-    }
+  public void addConsultation(Consultation consultation) {
+    consultations.add(consultation);
+    consultation.setMedicalHistory(this);
+    updateLastModified();
+  }
 
-    private void updateLastModified() {
-        this.updatedAt = LocalDateTime.now();
-    }
+  private void updateLastModified() {
+    this.updatedAt = LocalDateTime.now();
+  }
 }

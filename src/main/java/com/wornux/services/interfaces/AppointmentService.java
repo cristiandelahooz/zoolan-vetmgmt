@@ -11,33 +11,34 @@ import org.springframework.data.domain.Pageable;
 
 public interface AppointmentService {
 
-    AppointmentResponseDto createAppointment(AppointmentCreateRequestDto createDTO);
+  AppointmentResponseDto createAppointment(AppointmentCreateRequestDto createDTO);
 
-    AppointmentResponseDto updateAppointment(Long id, AppointmentUpdateRequestDto updateDTO);
+  AppointmentResponseDto updateAppointment(Long id, AppointmentUpdateRequestDto updateDTO);
 
-    AppointmentResponseDto getAppointmentById(Long id);
+  AppointmentResponseDto getAppointmentById(Long id);
 
-    Page<AppointmentResponseDto> getAllAppointments(Pageable pageable);
+  Page<AppointmentResponseDto> getAllAppointments(Pageable pageable);
 
-    List<AppointmentResponseDto> getAllAppointments();
+  List<AppointmentResponseDto> getAllAppointments();
 
-    List<AppointmentResponseDto> getAppointmentsByDateRange(LocalDateTime start, LocalDateTime end);
+  List<AppointmentResponseDto> getAppointmentsByDateRange(LocalDateTime start, LocalDateTime end);
 
-    List<AppointmentResponseDto> getAppointmentsByDate(LocalDateTime date);
+  List<AppointmentResponseDto> getAppointmentsByDate(LocalDateTime date);
 
-    List<AppointmentResponseDto> getAppointmentsByClient(Long clientId);
+  List<AppointmentResponseDto> getAppointmentsByClient(Long clientId);
 
-    List<AppointmentResponseDto> getAppointmentsByPet(Long petId);
+  List<AppointmentResponseDto> getAppointmentsByPet(Long petId);
 
-    List<AppointmentResponseDto> getAppointmentsByEmployee(Long employeeId, LocalDateTime start, LocalDateTime end);
+  List<AppointmentResponseDto> getAppointmentsByEmployee(
+      Long employeeId, LocalDateTime start, LocalDateTime end);
 
-    List<AppointmentResponseDto> getTodayAppointments();
+  List<AppointmentResponseDto> getTodayAppointments();
 
-    List<AppointmentResponseDto> getUpcomingAppointments();
+  List<AppointmentResponseDto> getUpcomingAppointments();
 
-    AppointmentResponseDto changeAppointmentStatus(Long id, AppointmentStatus newStatus);
+  AppointmentResponseDto changeAppointmentStatus(Long id, AppointmentStatus newStatus);
 
-    void cancelAppointment(Long id, String reason);
+  void cancelAppointment(Long id, String reason);
 
-    void deleteAppointment(Long id);
+  void deleteAppointment(Long id);
 }

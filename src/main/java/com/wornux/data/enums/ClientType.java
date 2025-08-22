@@ -4,11 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum ClientType {
-    COMMERCIAL("Comercial"), RESIDENTIAL("Residencial");
+  COMMERCIAL("Comercial"),
+  RESIDENTIAL("Residencial");
 
-    private final String display;
+  private final String display;
 
-    ClientType(String display) {
-        this.display = display;
-    }
+  ClientType(String display) {
+    this.display = display;
+  }
 }

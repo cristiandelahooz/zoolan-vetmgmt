@@ -15,99 +15,95 @@ import org.springframework.stereotype.Repository;
 
 /** Spring Data JPA repository for the {@link Employee} entity. */
 @Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSpecificationExecutor<Employee> {
+public interface EmployeeRepository
+    extends JpaRepository<Employee, Long>, JpaSpecificationExecutor<Employee> {
 
-    /**
-     * Finds an employee by their username.
-     *
-     * @param username
-     *     the username to search for
-     * @return the employee if found
-     */
-    Optional<Employee> findByUsername(String username);
+  /**
+   * Finds an employee by their username.
+   *
+   * @param username the username to search for
+   * @return the employee if found
+   */
+  Optional<Employee> findByUsername(String username);
 
-    /**
-     * Checks if an employee exists with the given username.
-     *
-     * @param username
-     *     the username to check
-     * @return true if an employee exists with the username
-     */
-    boolean existsByUsername(String username);
+  /**
+   * Checks if an employee exists with the given username.
+   *
+   * @param username the username to check
+   * @return true if an employee exists with the username
+   */
+  boolean existsByUsername(String username);
 
-    /**
-     * Finds all employees with a specific role.
-     *
-     * @param employeeRole
-     *     the role to filter by
-     * @param pageable
-     *     pagination information
-     * @return page of employees with the specified role
-     */
-    Page<Employee> findByEmployeeRole(EmployeeRole employeeRole, Pageable pageable);
+  /**
+   * Finds all employees with a specific role.
+   *
+   * @param employeeRole the role to filter by
+   * @param pageable pagination information
+   * @return page of employees with the specified role
+   */
+  Page<Employee> findByEmployeeRole(EmployeeRole employeeRole, Pageable pageable);
 
-    /**
-     * Finds employees hired between two dates.
-     *
-     * @param startDate
-     *     start of the date range
-     * @param endDate
-     *     end of the date range
-     * @param pageable
-     *     pagination information
-     * @return page of employees hired within the date range
-     */
-    Page<Employee> findByHireDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+  /**
+   * Finds employees hired between two dates.
+   *
+   * @param startDate start of the date range
+   * @param endDate end of the date range
+   * @param pageable pagination information
+   * @return page of employees hired within the date range
+   */
+  Page<Employee> findByHireDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    /**
-     * Searches for employees based on various fields.
-     *
-     * @param searchTerm
-     *     the term to search for
-     * @param pageable
-     *     pagination information
-     * @return page of employees matching the search term
-     */
-    @Query("SELECT e FROM Employee e WHERE " + "LOWER(e.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " + "LOWER(e.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " + "LOWER(e.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " + "LOWER(e.username) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
-    Page<Employee> findBySearchTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
+  /**
+   * Searches for employees based on various fields.
+   *
+   * @param searchTerm the term to search for
+   * @param pageable pagination information
+   * @return page of employees matching the search term
+   */
+  @Query(
+      "SELECT e FROM Employee e WHERE "
+          + "LOWER(e.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+          + "LOWER(e.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+          + "LOWER(e.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR "
+          + "LOWER(e.username) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+  Page<Employee> findBySearchTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
 
-    /**
-     * Finds all available veterinarians for emergency services.
-     *
-     * @return list of available veterinarians
-     */
-    @Query("SELECT e FROM Employee e WHERE e.employeeRole = 'VETERINARIAN' " + "AND e.active = true AND e.available = true")
-    List<Employee> findAvailableVeterinarians();
+  /**
+   * Finds all available veterinarians for emergency services.
+   *
+   * @return list of available veterinarians
+   */
+  @Query(
+      "SELECT e FROM Employee e WHERE e.employeeRole = 'VETERINARIAN' "
+          + "AND e.active = true AND e.available = true")
+  List<Employee> findAvailableVeterinarians();
 
-    /**
-     * Finds all employees by salary range.
-     *
-     * @param minSalary
-     *     minimum salary
-     * @param maxSalary
-     *     maximum salary
-     * @param pageable
-     *     pagination information
-     * @return page of employees within the salary range
-     */
-    Page<Employee> findBySalaryBetween(Double minSalary, Double maxSalary, Pageable pageable);
+  /**
+   * Finds all employees by salary range.
+   *
+   * @param minSalary minimum salary
+   * @param maxSalary maximum salary
+   * @param pageable pagination information
+   * @return page of employees within the salary range
+   */
+  Page<Employee> findBySalaryBetween(Double minSalary, Double maxSalary, Pageable pageable);
 
-    /**
-     * Counts active employees by role.
-     *
-     * @param employeeRole
-     *     the role to count
-     * @return number of active employees with the specified role
-     */
-    long countByEmployeeRoleAndAvailableTrue(EmployeeRole employeeRole);
+  /**
+   * Counts active employees by role.
+   *
+   * @param employeeRole the role to count
+   * @return number of active employees with the specified role
+   */
+  long countByEmployeeRoleAndAvailableTrue(EmployeeRole employeeRole);
 
-    /** Encuentra todos los empleados disponibles con un rol específico */
-    @Query("SELECT e FROM Employee e WHERE e.employeeRole = :role AND e.available = true AND e.active = true")
-    List<Employee> findAvailableEmployeesByRole(@Param("employeeRole") EmployeeRole employeeRole);
+  /** Encuentra todos los empleados disponibles con un rol específico */
+  @Query(
+      "SELECT e FROM Employee e WHERE e.employeeRole = :role AND e.available = true AND e.active = true")
+  List<Employee> findAvailableEmployeesByRole(@Param("employeeRole") EmployeeRole employeeRole);
 
-    Optional<Employee> findByEmail(String email);
+  Optional<Employee> findByEmail(String email);
 
-    Optional<Employee> findByEmailAndIdNot(String email, Long id);
+  Optional<Employee> findByEmailAndIdNot(String email, Long id);
 
-    Optional<Employee> findByUsernameAndIdNot(String username, Long id);
+  Optional<Employee> findByUsernameAndIdNot(String username, Long id);
 }

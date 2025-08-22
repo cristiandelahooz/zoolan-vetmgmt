@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface WarehouseService {
 
-    WarehouseResponseDto createWarehouse(WarehouseCreateRequestDto createDTO);
+  WarehouseResponseDto createWarehouse(WarehouseCreateRequestDto createDTO);
 
-    Warehouse updateWarehouse(Long id, WarehouseUpdateRequestDto updateDTO);
+  Warehouse updateWarehouse(Long id, WarehouseUpdateRequestDto updateDTO);
 
-    WarehouseResponseDto getWarehouseById(Long id);
+  WarehouseResponseDto getWarehouseById(Long id);
 
-    List<Warehouse> getAllWarehouses();
+  List<Warehouse> getAllWarehouses();
 
-    void deleteWarehouse(Long id);
+  void deleteWarehouse(Long id);
 }

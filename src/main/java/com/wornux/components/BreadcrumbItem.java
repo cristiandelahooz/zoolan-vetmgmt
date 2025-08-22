@@ -10,29 +10,30 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Display;
 
 public class BreadcrumbItem extends ListItem implements AfterNavigationObserver {
 
-    private final RouterLink link;
+  private final RouterLink link;
 
-    public BreadcrumbItem(RouterLink link) {
-        addClassNames(Display.FLEX);
+  public BreadcrumbItem(RouterLink link) {
+    addClassNames(Display.FLEX);
 
-        this.link = link;
-        add(this.link);
+    this.link = link;
+    add(this.link);
+  }
+
+  public BreadcrumbItem(String text, Class<? extends Component> navigationTarget) {
+    this(new RouterLink(text, navigationTarget));
+  }
+
+  public BreadcrumbItem(
+      String text, Class<? extends Component> navigationTarget, RouteParameters parameters) {
+    this(new RouterLink(text, navigationTarget, parameters));
+  }
+
+  @Override
+  public void afterNavigation(AfterNavigationEvent event) {
+    if (this.link.getHref().equals(event.getLocation().getFirstSegment())) {
+      this.link.getElement().setAttribute("aria-current", "page");
+    } else {
+      this.link.getElement().removeAttribute("aria-current");
     }
-
-    public BreadcrumbItem(String text, Class<? extends Component> navigationTarget) {
-        this(new RouterLink(text, navigationTarget));
-    }
-
-    public BreadcrumbItem(String text, Class<? extends Component> navigationTarget, RouteParameters parameters) {
-        this(new RouterLink(text, navigationTarget, parameters));
-    }
-
-    @Override
-    public void afterNavigation(AfterNavigationEvent event) {
-        if (this.link.getHref().equals(event.getLocation().getFirstSegment())) {
-            this.link.getElement().setAttribute("aria-current", "page");
-        } else {
-            this.link.getElement().removeAttribute("aria-current");
-        }
-    }
+  }
 }

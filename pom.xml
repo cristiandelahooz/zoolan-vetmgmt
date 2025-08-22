@@ -405,12 +405,12 @@
                 <configuration>
                     <!-- Java Code Formatting -->
                     <java>
-                        <eclipse>
-                            <file>formatter-spec.xml</file>
-                        </eclipse>
                         <toggleOffOn/>
-                    </java>
-                    <!-- TypeScript Code Formatting -->
+                        <googleJavaFormat>
+                            <version>1.19.2</version>
+                            <style>GOOGLE</style>
+                        </googleJavaFormat>
+                    </java>                    <!-- TypeScript Code Formatting -->
                     <typescript>
                         <biome>
                             <version>1.9.4</version>

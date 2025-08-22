@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MedicalHistoryRepository extends AbstractRepository<MedicalHistory, Long> {
-    Optional<MedicalHistory> findByPetId(Long petId);
+  Optional<MedicalHistory> findByPetId(Long petId);
 }

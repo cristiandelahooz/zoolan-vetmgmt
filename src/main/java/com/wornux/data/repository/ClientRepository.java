@@ -12,34 +12,35 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ClientRepository extends JpaRepository<Client, Long>, JpaSpecificationExecutor<Client> {
-    Optional<Client> findByCedula(String cedula);
+public interface ClientRepository
+    extends JpaRepository<Client, Long>, JpaSpecificationExecutor<Client> {
+  Optional<Client> findByCedula(String cedula);
 
-    Optional<Client> findByCedulaAndIdNot(String cedula, Long id);
+  Optional<Client> findByCedulaAndIdNot(String cedula, Long id);
 
-    Optional<Client> findByPassport(String passport);
+  Optional<Client> findByPassport(String passport);
 
-    Optional<Client> findByPassportAndIdNot(String passport, Long id);
+  Optional<Client> findByPassportAndIdNot(String passport, Long id);
 
-    Optional<Client> findByRnc(String rnc);
+  Optional<Client> findByRnc(String rnc);
 
-    Optional<Client> findByRncAndIdNot(String rnc, Long id);
+  Optional<Client> findByRncAndIdNot(String rnc, Long id);
 
-    boolean existsByCedula(String cedula);
+  boolean existsByCedula(String cedula);
 
-    boolean existsByPassport(String passport);
+  boolean existsByPassport(String passport);
 
-    boolean existsByRnc(String rnc);
+  boolean existsByRnc(String rnc);
 
-    Page<Client> findByRating(ClientRating rating, Pageable pageable);
+  Page<Client> findByRating(ClientRating rating, Pageable pageable);
 
-    Page<Client> findByProvince(String province, Pageable pageable);
+  Page<Client> findByProvince(String province, Pageable pageable);
 
-    List<Client> findAllByActiveTrue();
+  List<Client> findAllByActiveTrue();
 
-    // List<Client> findByIdIn(Collection<Long> ids);
+  // List<Client> findByIdIn(Collection<Long> ids);
 
-    List<Client> findByIdInAndActiveTrue(Collection<Long> ids); // si solo permites dueños activos
+  List<Client> findByIdInAndActiveTrue(Collection<Long> ids); // si solo permites dueños activos
 
-    Optional<Client> findByEmail(String email);
+  Optional<Client> findByEmail(String email);
 }

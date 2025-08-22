@@ -15,38 +15,38 @@ import lombok.Data;
 @ValidPetBreed
 public class PetUpdateRequestDto implements PetBreedValidatable {
 
-    @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")
-    private String name;
+  @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")
+  private String name;
 
-    private PetType type;
+  private PetType type;
 
-    private String breed;
+  private String breed;
 
-    private LocalDate birthDate;
+  private LocalDate birthDate;
 
-    @AssertTrue(message = "La fecha no puede ser futura")
-    public boolean isBirthDateValid() {
-        return birthDate == null || !birthDate.isAfter(LocalDate.now());
+  @AssertTrue(message = "La fecha no puede ser futura")
+  public boolean isBirthDateValid() {
+    return birthDate == null || !birthDate.isAfter(LocalDate.now());
+  }
+
+  // private Long ownerId;
+  private List<Long> ownerIds;
+
+  @NotNull(message = "El género es requerido")
+  private Gender gender;
+
+  @AssertTrue(message = "La raza no es válida para el tipo de mascota seleccionado")
+  public boolean isValidBreed() {
+    if (type == null || breed == null) {
+      return true;
     }
+    return type.isValidBreedForType(breed);
+  }
 
-    // private Long ownerId;
-    private List<Long> ownerIds;
+  @Size(max = 50, message = "El color no puede exceder 50 caracteres")
+  private String color;
 
-    @NotNull(message = "El género es requerido")
-    private Gender gender;
+  private PetSize size;
 
-    @AssertTrue(message = "La raza no es válida para el tipo de mascota seleccionado")
-    public boolean isValidBreed() {
-        if (type == null || breed == null) {
-            return true;
-        }
-        return type.isValidBreedForType(breed);
-    }
-
-    @Size(max = 50, message = "El color no puede exceder 50 caracteres")
-    private String color;
-
-    private PetSize size;
-
-    private FurType furType;
+  private FurType furType;
 }

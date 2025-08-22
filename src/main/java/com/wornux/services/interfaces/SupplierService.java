@@ -21,21 +21,21 @@ import org.springframework.validation.annotation.Validated;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface SupplierService {
 
-    SupplierCreateRequestDto save(SupplierCreateRequestDto supplierDto);
+  SupplierCreateRequestDto save(SupplierCreateRequestDto supplierDto);
 
-    Supplier update(UpdateSupplierRequestDto supplierDto);
+  Supplier update(UpdateSupplierRequestDto supplierDto);
 
-    void delete(Long id);
+  void delete(Long id);
 
-    Optional<Supplier> getSupplierById(Long id);
+  Optional<Supplier> getSupplierById(Long id);
 
-    List<Supplier> getAllSuppliers();
+  List<Supplier> getAllSuppliers();
 
-    List<Supplier> list(Pageable pageable, @Nullable Filter filter);
+  List<Supplier> list(Pageable pageable, @Nullable Filter filter);
 
-    List<SupplierListDto> listAsDto(Pageable pageable, @Nullable Filter filter);
+  List<SupplierListDto> listAsDto(Pageable pageable, @Nullable Filter filter);
 
-    SupplierRepository getRepository();
+  SupplierRepository getRepository();
 
-    SupplierCreateRequestDto getCreateDtoById(Long id);
+  SupplierCreateRequestDto getCreateDtoById(Long id);
 }

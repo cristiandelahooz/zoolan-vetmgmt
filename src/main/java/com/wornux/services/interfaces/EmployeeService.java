@@ -21,48 +21,45 @@ import org.springframework.validation.annotation.Validated;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface EmployeeService {
 
-    /**
-     * Retrieves an Employee by ID.
-     *
-     * @param id
-     *     the ID of the employee
-     * @return the Employee entity if found
-     */
-    Optional<Employee> getEmployeeById(Long id);
+  /**
+   * Retrieves an Employee by ID.
+   *
+   * @param id the ID of the employee
+   * @return the Employee entity if found
+   */
+  Optional<Employee> getEmployeeById(Long id);
 
-    /**
-     * Retrieves all Employees with pagination.
-     *
-     * @param pageable
-     *     pagination information
-     * @return paginated list of Employees
-     */
-    Page<Employee> getAllEmployees(Pageable pageable);
+  /**
+   * Retrieves all Employees with pagination.
+   *
+   * @param pageable pagination information
+   * @return paginated list of Employees
+   */
+  Page<Employee> getAllEmployees(Pageable pageable);
 
-    /**
-     * Retrieves all employees who are veterinarians.
-     *
-     * @return list of veterinarian employees
-     */
-    List<Employee> getVeterinarians();
+  /**
+   * Retrieves all employees who are veterinarians.
+   *
+   * @return list of veterinarian employees
+   */
+  List<Employee> getVeterinarians();
 
-    /**
-     * Retrieves the Employee repository for direct database operations.
-     *
-     * @return the EmployeeRepository instance
-     */
-    EmployeeRepository getRepository();
+  /**
+   * Retrieves the Employee repository for direct database operations.
+   *
+   * @return the EmployeeRepository instance
+   */
+  EmployeeRepository getRepository();
 
-    /**
-     * Saves a new Employee entity.
-     *
-     * @param value
-     *     the EmployeeCreateRequestDto containing employee data
-     * @return the saved EmployeeCreateRequestDto
-     */
-    EmployeeCreateRequestDto save(@NonNull EmployeeCreateRequestDto value);
+  /**
+   * Saves a new Employee entity.
+   *
+   * @param value the EmployeeCreateRequestDto containing employee data
+   * @return the saved EmployeeCreateRequestDto
+   */
+  EmployeeCreateRequestDto save(@NonNull EmployeeCreateRequestDto value);
 
-    void delete(@NonNull Long id);
+  void delete(@NonNull Long id);
 
-    void updateEmployee(@NonNull Long id, @Valid EmployeeUpdateRequestDto dto);
+  void updateEmployee(@NonNull Long id, @Valid EmployeeUpdateRequestDto dto);
 }

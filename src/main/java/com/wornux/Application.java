@@ -16,22 +16,22 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class Application implements AppShellConfigurator {
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(Application.class, args);
+  }
 
-    @Bean
-    Clock clock() {
-        return Clock.systemDefaultZone();
-    }
+  @Bean
+  Clock clock() {
+    return Clock.systemDefaultZone();
+  }
 
-    @Override
-    public void configurePage(AppShellSettings settings) {
-        settings.addFavIcon("icon", "icons/icon.png", "512x512");
-    }
+  @Override
+  public void configurePage(AppShellSettings settings) {
+    settings.addFavIcon("icon", "icons/icon.png", "512x512");
+  }
 
-    @Bean
-    AuditorAware<String> auditorAware() {
-        return new AuditorAwareImpl();
-    }
+  @Bean
+  AuditorAware<String> auditorAware() {
+    return new AuditorAwareImpl();
+  }
 }

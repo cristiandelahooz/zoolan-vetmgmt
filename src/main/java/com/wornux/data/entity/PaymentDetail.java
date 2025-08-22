@@ -17,40 +17,41 @@ import org.hibernate.proxy.HibernateProxy;
 @Table(name = "payments_detail")
 public class PaymentDetail extends Auditable implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long code;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long code;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "payment", referencedColumnName = "code", nullable = false)
-    private Payment payment;
+  @ManyToOne(optional = false, fetch = FetchType.EAGER)
+  @JoinColumn(name = "payment", referencedColumnName = "code", nullable = false)
+  private Payment payment;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "invoice", referencedColumnName = "code", nullable = false)
-    private Invoice invoice;
+  @ManyToOne(optional = false, fetch = FetchType.EAGER)
+  @JoinColumn(name = "invoice", referencedColumnName = "code", nullable = false)
+  private Invoice invoice;
 
-    @NotNull
-    private BigDecimal amount;
+  @NotNull private BigDecimal amount;
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer()
-                .getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this)
-                .getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass)
-            return false;
-        PaymentDetail that = (PaymentDetail) o;
-        return getCode() != null && Objects.equals(getCode(), that.getCode());
-    }
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass =
+        o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+    Class<?> thisEffectiveClass =
+        this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    PaymentDetail that = (PaymentDetail) o;
+    return getCode() != null && Objects.equals(getCode(), that.getCode());
+  }
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer()
-                .getPersistentClass().hashCode() : getClass().hashCode();
-    }
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
+  }
 }

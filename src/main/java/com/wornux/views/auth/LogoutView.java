@@ -15,14 +15,14 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 @AnonymousAllowed
 public class LogoutView extends Div {
 
-    private final transient AuthenticationContext authenticationContext;
+  private final transient AuthenticationContext authenticationContext;
 
-    public LogoutView(AuthenticationContext authenticationContext) {
-        this.authenticationContext = authenticationContext;
-        logout();
-    }
+  public LogoutView(AuthenticationContext authenticationContext) {
+    this.authenticationContext = authenticationContext;
+    logout();
+  }
 
-    public void logout() {
-        authenticationContext.logout();
-    }
+  public void logout() {
+    authenticationContext.logout();
+  }
 }

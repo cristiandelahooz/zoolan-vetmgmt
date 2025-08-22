@@ -12,13 +12,13 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface MedicalHistoryService {
-    MedicalHistory findOrCreateByPet(Pet pet);
+  MedicalHistory findOrCreateByPet(Pet pet);
 
-    MedicalHistory findByPetId(Long petId);
+  MedicalHistory findByPetId(Long petId);
 
-    MedicalHistory getOrCreateMedicalHistory(Pet pet);
+  MedicalHistory getOrCreateMedicalHistory(Pet pet);
 
-    MedicalHistory updateMedicalHistory(MedicalHistory medicalHistory);
+  MedicalHistory updateMedicalHistory(MedicalHistory medicalHistory);
 
-    List<MedicalHistory> getConsultationsByPetId(Long petId);
+  List<MedicalHistory> getConsultationsByPetId(Long petId);
 }

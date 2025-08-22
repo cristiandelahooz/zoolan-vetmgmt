@@ -20,102 +20,111 @@ import lombok.extern.slf4j.Slf4j;
 @Route("access-denied")
 @PageTitle("Acceso Denegado")
 @AnonymousAllowed
-public class AccessDeniedView extends VerticalLayout implements HasUrlParameter<String>, AfterNavigationObserver {
+public class AccessDeniedView extends VerticalLayout
+    implements HasUrlParameter<String>, AfterNavigationObserver {
 
-    private String message = "No tiene permisos para acceder a esta sección.";
-    private String attemptedRoute = "";
+  private String message = "No tiene permisos para acceder a esta sección.";
+  private String attemptedRoute = "";
 
-    public AccessDeniedView() {
-        setSizeFull();
-        setAlignItems(FlexComponent.Alignment.CENTER);
-        setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        addClassName(LumoUtility.Background.CONTRAST_5);
+  public AccessDeniedView() {
+    setSizeFull();
+    setAlignItems(FlexComponent.Alignment.CENTER);
+    setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+    addClassName(LumoUtility.Background.CONTRAST_5);
 
-        createContent();
+    createContent();
+  }
+
+  private void createContent() {
+    removeAll();
+
+    Div container = new Div();
+    container.addClassName(LumoUtility.Background.BASE);
+    container.addClassName(LumoUtility.BorderRadius.LARGE);
+    container.addClassName(LumoUtility.Padding.XLARGE);
+    container.addClassName(LumoUtility.BoxShadow.MEDIUM);
+    container.setMaxWidth("600px");
+
+    Icon lockIcon = VaadinIcon.LOCK.create();
+    lockIcon.setSize("64px");
+    lockIcon.setColor("var(--lumo-error-color)");
+
+    H2 title = new H2("Acceso Denegado");
+    title.addClassName(LumoUtility.Margin.Top.NONE);
+    title.addClassName(LumoUtility.Margin.Bottom.SMALL);
+    title.addClassName(LumoUtility.TextColor.ERROR);
+
+    Paragraph messageParagraph = new Paragraph(message);
+    messageParagraph.addClassName(LumoUtility.TextColor.SECONDARY);
+    messageParagraph.addClassName(LumoUtility.Margin.Bottom.MEDIUM);
+
+    if (!attemptedRoute.isEmpty()) {
+      Paragraph attemptInfo = new Paragraph("Intentó acceder a: " + attemptedRoute);
+      attemptInfo.addClassName(LumoUtility.FontSize.SMALL);
+      attemptInfo.addClassName(LumoUtility.TextColor.TERTIARY);
+      container.add(attemptInfo);
     }
 
-    private void createContent() {
-        removeAll();
-
-        Div container = new Div();
-        container.addClassName(LumoUtility.Background.BASE);
-        container.addClassName(LumoUtility.BorderRadius.LARGE);
-        container.addClassName(LumoUtility.Padding.XLARGE);
-        container.addClassName(LumoUtility.BoxShadow.MEDIUM);
-        container.setMaxWidth("600px");
-
-        Icon lockIcon = VaadinIcon.LOCK.create();
-        lockIcon.setSize("64px");
-        lockIcon.setColor("var(--lumo-error-color)");
-
-        H2 title = new H2("Acceso Denegado");
-        title.addClassName(LumoUtility.Margin.Top.NONE);
-        title.addClassName(LumoUtility.Margin.Bottom.SMALL);
-        title.addClassName(LumoUtility.TextColor.ERROR);
-
-        Paragraph messageParagraph = new Paragraph(message);
-        messageParagraph.addClassName(LumoUtility.TextColor.SECONDARY);
-        messageParagraph.addClassName(LumoUtility.Margin.Bottom.MEDIUM);
-
-        if (!attemptedRoute.isEmpty()) {
-            Paragraph attemptInfo = new Paragraph("Intentó acceder a: " + attemptedRoute);
-            attemptInfo.addClassName(LumoUtility.FontSize.SMALL);
-            attemptInfo.addClassName(LumoUtility.TextColor.TERTIARY);
-            container.add(attemptInfo);
-        }
-
-        Button homeButton = new Button("Ir al Inicio", VaadinIcon.HOME.create());
-        homeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        homeButton.addClickListener(e -> {
-            log.info("User redirected to home from access denied page");
-            getUI().ifPresent(ui -> ui.navigate(""));
+    Button homeButton = new Button("Ir al Inicio", VaadinIcon.HOME.create());
+    homeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    homeButton.addClickListener(
+        e -> {
+          log.info("User redirected to home from access denied page");
+          getUI().ifPresent(ui -> ui.navigate(""));
         });
-        homeButton.addClickShortcut(Key.ENTER);
+    homeButton.addClickShortcut(Key.ENTER);
 
-        Button backButton = new Button("Volver", VaadinIcon.ARROW_LEFT.create());
-        backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        backButton.addClickListener(e -> {
-            log.info("User going back from access denied page");
-            getUI().ifPresent(ui -> ui.getPage().getHistory().back());
+    Button backButton = new Button("Volver", VaadinIcon.ARROW_LEFT.create());
+    backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+    backButton.addClickListener(
+        e -> {
+          log.info("User going back from access denied page");
+          getUI().ifPresent(ui -> ui.getPage().getHistory().back());
         });
-        backButton.addClickShortcut(Key.ESCAPE);
+    backButton.addClickShortcut(Key.ESCAPE);
 
-        Div buttonLayout = new Div(homeButton, backButton);
-        buttonLayout.addClassName(LumoUtility.Display.FLEX);
-        buttonLayout.addClassName(LumoUtility.Gap.MEDIUM);
-        buttonLayout.addClassName(LumoUtility.Margin.Top.LARGE);
+    Div buttonLayout = new Div(homeButton, backButton);
+    buttonLayout.addClassName(LumoUtility.Display.FLEX);
+    buttonLayout.addClassName(LumoUtility.Gap.MEDIUM);
+    buttonLayout.addClassName(LumoUtility.Margin.Top.LARGE);
 
-        VerticalLayout content = new VerticalLayout(lockIcon, title, messageParagraph, buttonLayout);
-        content.setAlignItems(FlexComponent.Alignment.CENTER);
-        content.setPadding(false);
-        content.setSpacing(true);
+    VerticalLayout content = new VerticalLayout(lockIcon, title, messageParagraph, buttonLayout);
+    content.setAlignItems(FlexComponent.Alignment.CENTER);
+    content.setPadding(false);
+    content.setSpacing(true);
 
-        container.add(content);
-        add(container);
+    container.add(content);
+    add(container);
+  }
+
+  @Override
+  public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+    if (parameter != null && !parameter.isEmpty()) {
+      try {
+        this.message = java.net.URLDecoder.decode(parameter, StandardCharsets.UTF_8);
+      } catch (Exception e) {
+        log.error("Error decoding access denied message", e);
+        this.message = parameter;
+      }
     }
 
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        if (parameter != null && !parameter.isEmpty()) {
-            try {
-                this.message = java.net.URLDecoder.decode(parameter, StandardCharsets.UTF_8);
-            } catch (Exception e) {
-                log.error("Error decoding access denied message", e);
-                this.message = parameter;
-            }
-        }
-
-        event.getLocation().getQueryParameters().getParameters().forEach((key, values) -> {
-            if ("route".equals(key) && !values.isEmpty()) {
+    event
+        .getLocation()
+        .getQueryParameters()
+        .getParameters()
+        .forEach(
+            (key, values) -> {
+              if ("route".equals(key) && !values.isEmpty()) {
                 this.attemptedRoute = values.get(0);
-            }
-        });
-    }
+              }
+            });
+  }
 
-    @Override
-    public void afterNavigation(AfterNavigationEvent event) {
-        createContent();
+  @Override
+  public void afterNavigation(AfterNavigationEvent event) {
+    createContent();
 
-        log.warn("Access denied page shown. Message: '{}', Attempted route: '{}'", message, attemptedRoute);
-    }
+    log.warn(
+        "Access denied page shown. Message: '{}', Attempted route: '{}'", message, attemptedRoute);
+  }
 }

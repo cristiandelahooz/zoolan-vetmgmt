@@ -18,52 +18,54 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class InvoiceService {
 
-    @Getter
-    private final InvoiceRepository repository;
+  @Getter private final InvoiceRepository repository;
 
-    public Optional<Invoice> get(Long id) {
-        if (id == null)
-            return Optional.empty();
+  public Optional<Invoice> get(Long id) {
+    if (id == null) return Optional.empty();
 
-        return repository.findById(id);
-    }
+    return repository.findById(id);
+  }
 
-    public Page<Invoice> list(Pageable pageable) {
-        return repository.findAll(pageable);
-    }
+  public Page<Invoice> list(Pageable pageable) {
+    return repository.findAll(pageable);
+  }
 
-    public Page<Invoice> list(Pageable pageable, Specification<Invoice> filter) {
-        return repository.findAll(filter, pageable);
-    }
+  public Page<Invoice> list(Pageable pageable, Specification<Invoice> filter) {
+    return repository.findAll(filter, pageable);
+  }
 
-    @Transactional
-    public Invoice create(Invoice entity) {
-        repository.save(entity);
+  @Transactional
+  public Invoice create(Invoice entity) {
+    repository.save(entity);
 
-        return entity;
-    }
+    return entity;
+  }
 
-    public void delete(Long id) {
-        Invoice entity = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Invoice not found."));
-        repository.delete(entity);
-    }
+  public void delete(Long id) {
+    Invoice entity =
+        repository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Invoice not found."));
+    repository.delete(entity);
+  }
 
-    public long getCount(Specification<Invoice> specification) {
-        return repository.count(specification);
-    }
+  public long getCount(Specification<Invoice> specification) {
+    return repository.count(specification);
+  }
 
-    public String getNextInvoiceNumber() {
-        long count = repository.count();
-        return String.valueOf(count + 1);
-    }
+  public String getNextInvoiceNumber() {
+    long count = repository.count();
+    return String.valueOf(count + 1);
+  }
 
-    public Invoice markInvoiceAsPaid(Invoice invoice, BigDecimal paymentAmount, LocalDate paymentDate) {
-        invoice.markAsPaid(paymentAmount, paymentDate);
-        return repository.save(invoice);
-    }
+  public Invoice markInvoiceAsPaid(
+      Invoice invoice, BigDecimal paymentAmount, LocalDate paymentDate) {
+    invoice.markAsPaid(paymentAmount, paymentDate);
+    return repository.save(invoice);
+  }
 
-    public Invoice markInvoiceAsOverdue(Invoice invoice) {
-        invoice.markAsOverdue();
-        return repository.save(invoice);
-    }
+  public Invoice markInvoiceAsOverdue(Invoice invoice) {
+    invoice.markAsOverdue();
+    return repository.save(invoice);
+  }
 }

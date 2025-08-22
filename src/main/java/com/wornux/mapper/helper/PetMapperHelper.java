@@ -14,14 +14,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PetMapperHelper {
 
-    @Lazy
-    private final ClientService clientService;
+  @Lazy private final ClientService clientService;
 
-    @Named("mapOwnerAsList")
-    public List<Client> mapOwner(Long ownerId) {
-        if (ownerId == null)
-            return Collections.emptyList();
-        Client client = clientService.getClientById(ownerId).orElseThrow(() -> new OwnerNotFoundException(ownerId));
-        return List.of(client);
-    }
+  @Named("mapOwnerAsList")
+  public List<Client> mapOwner(Long ownerId) {
+    if (ownerId == null) return Collections.emptyList();
+    Client client =
+        clientService.getClientById(ownerId).orElseThrow(() -> new OwnerNotFoundException(ownerId));
+    return List.of(client);
+  }
 }
