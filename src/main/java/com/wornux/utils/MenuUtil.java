@@ -36,19 +36,24 @@ public class MenuUtil {
             nav.addItem(new SideNavItem("Citas", AppointmentsCalendarView.class,
                     LineAwesomeIcon.CALENDAR_ALT_SOLID.create()));
 
-        if (accessChecker.hasAccess(InventoryView.class) && accessChecker.hasAccess(WarehouseView.class)) {
+        if (accessChecker.hasAccess(InventoryView.class) || accessChecker.hasAccess(WarehouseView.class)) {
             SideNavItem inventory = new SideNavItem("Inventario");
             inventory.setPrefixComponent(LineAwesomeIcon.BOXES_SOLID.create());
-            inventory.addItem(new SideNavItem("Productos", InventoryView.class, LineAwesomeIcon.BOX_SOLID.create()));
-            inventory.addItem(
-                    new SideNavItem("Almacenes", WarehouseView.class, LineAwesomeIcon.WAREHOUSE_SOLID.create()));
+
+            if (accessChecker.hasAccess(InventoryView.class))
+                inventory.addItem(
+                        new SideNavItem("Productos", InventoryView.class, LineAwesomeIcon.BOX_SOLID.create()));
+            if (accessChecker.hasAccess(WarehouseView.class))
+                inventory.addItem(
+                        new SideNavItem("Almacenes", WarehouseView.class, LineAwesomeIcon.WAREHOUSE_SOLID.create()));
+
             nav.addItem(inventory);
         }
 
         if (accessChecker.hasAccess(ConsultationsView.class))
             nav.addItem(new SideNavItem("Consultas", ConsultationsView.class, LineAwesomeIcon.USER_MD_SOLID.create()));
 
-        if (accessChecker.hasAccess(InventoryView.class)) {
+        if (accessChecker.hasAccess(InvoiceView.class)) {
             SideNavItem transactions = new SideNavItem("Transacciones");
             transactions.setPrefixComponent(LineAwesomeIcon.CREDIT_CARD_SOLID.create());
             transactions.addItem(
