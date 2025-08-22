@@ -759,7 +759,7 @@ SELECT NOW() + (INTERVAL '1 day' * (ROW_NUMBER() OVER ())),
            END,
        CASE (ROW_NUMBER() OVER () % 3)
            WHEN 0 THEN 'PROGRAMADA'
-           WHEN 1 THEN 'CONFIRMADA'
+           WHEN 1 THEN 'EN_PROGRESO'
            ELSE 'COMPLETADA'
            END,
        CASE (ROW_NUMBER() OVER () % 4)
