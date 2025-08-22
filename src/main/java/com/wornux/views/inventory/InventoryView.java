@@ -15,7 +15,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -29,6 +28,7 @@ import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.SupplierService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
 import com.wornux.views.consultations.ConsultationsView;
 import com.wornux.views.products.ProductForm;
 import com.wornux.views.products.ProductGrid;
@@ -41,8 +41,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @PageTitle("Inventario")
-@Route(value = "inventario")
-@Menu(order = 3, icon = "line-awesome/svg/boxes-solid.svg")
+@Route(value = "inventario", layout = MainLayout.class)
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class InventoryView extends Div {
 
@@ -101,8 +100,8 @@ public class InventoryView extends Div {
     private Div createTitle() {
         final Breadcrumb breadcrumb = new Breadcrumb();
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(new BreadcrumbItem("Inventario", InventoryView.class), new BreadcrumbItem("Lista de Productos",
-                ConsultationsView.class));
+        breadcrumb.add(new BreadcrumbItem("Inventario", InventoryView.class),
+                new BreadcrumbItem("Lista de Productos", ConsultationsView.class));
 
         Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar productos de la clínica veterinaria.");
 
@@ -179,10 +178,10 @@ public class InventoryView extends Div {
 
             Predicate searchPredicate = builder.conjunction();
             if (!search.isEmpty()) {
-                searchPredicate = builder.or(builder.like(builder.lower(root.get("name")), "%" + search + "%"), builder
-                        .like(builder.lower(root.get("description")), "%" + search + "%"), builder.like(builder.lower(
-                                root.get("supplier").get("companyName")), "%" + search + "%"), builder.like(builder
-                                        .lower(root.get("warehouse").get("name")), "%" + search + "%"));
+                searchPredicate = builder.or(builder.like(builder.lower(root.get("name")), "%" + search + "%"),
+                        builder.like(builder.lower(root.get("description")), "%" + search + "%"),
+                        builder.like(builder.lower(root.get("supplier").get("companyName")), "%" + search + "%"),
+                        builder.like(builder.lower(root.get("warehouse").get("name")), "%" + search + "%"));
             }
 
             Predicate categoryPredicate = builder.conjunction();
@@ -235,8 +234,8 @@ public class InventoryView extends Div {
         confirmDialog.setModal(true);
         confirmDialog.setWidth("400px");
 
-        Span message = new Span("¿Está seguro de que desea eliminar el producto \"" + (product
-                .getName() != null ? product.getName() : "") + "\"? Esta acción no se puede deshacer.");
+        Span message = new Span(
+                "¿Está seguro de que desea eliminar el producto \"" + (product.getName() != null ? product.getName() : "") + "\"? Esta acción no se puede deshacer.");
         message.getStyle().set("margin-bottom", "20px");
 
         Button confirmButton = new Button("Eliminar");
@@ -272,11 +271,11 @@ public class InventoryView extends Div {
         if (category == null)
             return "";
         return switch (category) {
-        case ALIMENTO -> "Alimento";
-        case MEDICINA -> "Medicina";
-        case ACCESORIO -> "Accesorio";
-        case HIGIENE -> "Higiene";
-        case OTRO -> "Otro";
+            case ALIMENTO -> "Alimento";
+            case MEDICINA -> "Medicina";
+            case ACCESORIO -> "Accesorio";
+            case HIGIENE -> "Higiene";
+            case OTRO -> "Otro";
         };
     }
 

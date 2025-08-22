@@ -25,6 +25,7 @@ import com.wornux.data.entity.Supplier;
 import com.wornux.dto.request.SupplierCreateRequestDto;
 import com.wornux.services.interfaces.SupplierService;
 import com.wornux.utils.GridUtils;
+import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
-@Route(value = "proveedores")
+@Route(value = "proveedores", layout = MainLayout.class)
 @PageTitle("Proveedores")
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class SupplierView extends Div {

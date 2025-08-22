@@ -13,7 +13,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -24,14 +23,14 @@ import com.wornux.dto.request.WarehouseUpdateRequestDto;
 import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 @Slf4j
 @PageTitle("Warehouses")
-@Route(value = "warehouses")
-@Menu(order = 4, icon = "line-awesome/svg/warehouse-solid.svg")
+@Route(value = "warehouses", layout = MainLayout.class)
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class WarehouseView extends VerticalLayout {
 
@@ -50,14 +49,12 @@ public class WarehouseView extends VerticalLayout {
     private final ComboBox<Boolean> availableForSale = new ComboBox<>("Disponible para Venta");
     private final ComboBox<Boolean> status = new ComboBox<>("Estado");
     private final ProductService productService;
-
-    private transient Warehouse selectedWarehouse;
     private final transient WarehouseService warehouseService;
-    private boolean isEditMode = false;
-    private ListDataProvider<Warehouse> warehouseDataProvider;
-
     private final HorizontalLayout gridFilters;
     private final VerticalLayout contentLayout;
+    private final ListDataProvider<Warehouse> warehouseDataProvider;
+    private transient Warehouse selectedWarehouse;
+    private boolean isEditMode = false;
 
     public WarehouseView(@Qualifier("warehouseServiceImpl") WarehouseService warehouseService,
             ProductService productService) {
@@ -164,8 +161,7 @@ public class WarehouseView extends VerticalLayout {
     }
 
     private void updateCancelButtonState() {
-        boolean hasContent = !name.isEmpty() || !warehouseType.isEmpty() || !availableForSale.isEmpty() || !status
-                .isEmpty();
+        boolean hasContent = !name.isEmpty() || !warehouseType.isEmpty() || !availableForSale.isEmpty() || !status.isEmpty();
         cancelButton.setEnabled(hasContent);
     }
 
@@ -227,9 +223,9 @@ public class WarehouseView extends VerticalLayout {
 
     private void createWarehouse() {
         try {
-            WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder().name(name.getValue()).warehouseType(
-                    warehouseType.getValue()).availableForSale(availableForSale.getValue()).status(status.getValue())
-                    .build();
+            WarehouseCreateRequestDto dto = WarehouseCreateRequestDto.builder().name(name.getValue())
+                    .warehouseType(warehouseType.getValue()).availableForSale(availableForSale.getValue())
+                    .status(status.getValue()).build();
 
             warehouseService.createWarehouse(dto);
             NotificationUtils.success("Almacén creado exitosamente");
@@ -247,9 +243,9 @@ public class WarehouseView extends VerticalLayout {
     private void updateWarehouse() {
         try {
             if (selectedWarehouse != null) {
-                WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder().name(name.getValue()).warehouseType(
-                        warehouseType.getValue()).availableForSale(availableForSale.getValue()).status(status
-                                .getValue()).build();
+                WarehouseUpdateRequestDto dto = WarehouseUpdateRequestDto.builder().name(name.getValue())
+                        .warehouseType(warehouseType.getValue()).availableForSale(availableForSale.getValue())
+                        .status(status.getValue()).build();
 
                 warehouseService.updateWarehouse(selectedWarehouse.getId(), dto);
                 NotificationUtils.success("Almacén actualizado exitosamente");
@@ -353,10 +349,11 @@ public class WarehouseView extends VerticalLayout {
         String status = statusFilter.getValue();
 
         warehouseDataProvider.setFilter(warehouse -> {
-            boolean matchesSearch = search.isEmpty() || warehouse.getName().toLowerCase().contains(search) || (warehouse
-                    .getWarehouseType() != null && warehouse.getWarehouseType().name().toLowerCase().contains(search));
-            boolean matchesStatus = "Todos".equals(status) || ("Activo".equals(status) && warehouse
-                    .isStatus()) || ("Inactivo".equals(status) && !warehouse.isStatus());
+            boolean matchesSearch = search.isEmpty() || warehouse.getName().toLowerCase()
+                    .contains(search) || (warehouse.getWarehouseType() != null && warehouse.getWarehouseType().name()
+                    .toLowerCase().contains(search));
+            boolean matchesStatus = "Todos".equals(status) || ("Activo".equals(
+                    status) && warehouse.isStatus()) || ("Inactivo".equals(status) && !warehouse.isStatus());
             return matchesSearch && matchesStatus;
         });
     }

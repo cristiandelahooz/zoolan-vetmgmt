@@ -15,19 +15,21 @@ import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
 import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.PetService;
+import com.wornux.views.MainLayout;
 import com.wornux.views.pets.SelectPetDialog;
 import jakarta.annotation.security.RolesAllowed;
+
 import java.util.List;
 
 @PageTitle("Historial Médico")
-@Route(value = "historial-medico")
+@Route(value = "historial-medico", layout = MainLayout.class)
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class MedicalHistoryView extends VerticalLayout {
 
     private final PetService petService;
     private final ConsultationService consultationService;
 
-    private Grid<Consultation> consultationsGrid;
+    private final Grid<Consultation> consultationsGrid;
     private Pet selectedPet;
 
     public MedicalHistoryView(PetService petService, ConsultationService consultationService) {
@@ -93,8 +95,9 @@ public class MedicalHistoryView extends VerticalLayout {
 
         VerticalLayout content = new VerticalLayout();
         content.add(new H2("Consulta del " + consultation.getConsultationDate().toString()));
-        content.add(new Paragraph("Veterinario: " + consultation.getVeterinarian().getFirstName() + " " + consultation
-                .getVeterinarian().getLastName()));
+        content.add(new Paragraph(
+                "Veterinario: " + consultation.getVeterinarian().getFirstName() + " " + consultation.getVeterinarian()
+                        .getLastName()));
         content.add(new Paragraph("Diagnóstico: " + consultation.getDiagnosis()));
         content.add(new Paragraph("Tratamiento: " + consultation.getTreatment()));
         content.add(new Paragraph("Prescripción: " + consultation.getPrescription()));

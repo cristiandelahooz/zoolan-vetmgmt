@@ -1,9 +1,5 @@
 package com.wornux.views.transactions;
 
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
-import static com.wornux.utils.PredicateUtils.predicateForNumericField;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
@@ -38,11 +34,7 @@ import com.vaadin.flow.server.streams.DownloadResponse;
 import com.vaadin.flow.server.streams.InputStreamDownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.BoardCard;
-import com.wornux.components.BoardCards;
-import com.wornux.components.Breadcrumb;
-import com.wornux.components.BreadcrumbItem;
-import com.wornux.components.InfoIcon;
+import com.wornux.components.*;
 import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Invoice;
 import com.wornux.data.enums.InvoiceStatus;
@@ -54,25 +46,31 @@ import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.UserService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.GridUtils;
+import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.core5.http.ContentType;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.io.ByteArrayInputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.core5.http.ContentType;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.domain.Specification;
+
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+import static com.wornux.utils.PredicateUtils.predicateForNumericField;
 
 @Slf4j
 @Uses(Icon.class)
-@Route(value = "invoices")
+@Route(value = "invoices", layout = MainLayout.class)
 @PageTitle("Invoices Management")
 @CssImport("./themes/zoolan-vetmgmt/view/invoice.css")
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
@@ -127,15 +125,16 @@ public class InvoiceView extends Div {
 
     private static Renderer<Invoice> renderCustomer() {
         return LitRenderer.<Invoice> of("""
-                <vaadin-horizontal-layout style="align-items: center;" theme="spacing">
-                    <vaadin-avatar img="${item.pictureUrl}" name="${item.pictureUrl}"></vaadin-avatar>
-                    <vaadin-vertical-layout style="line-height: var(--lumo-line-height-m);">
-                        <span class="font-semibold">${item.name}</span>
-                        <span class="text-s text-secondary">${item.address}</span>
-                    </vaadin-vertical-layout>
-                </vaadin-horizontal-layout>
-                """).withProperty("pictureUrl", c -> c.getClient().getFirstName()).withProperty("name", c -> c
-                .getClient().getFirstName()).withProperty("address", c -> c.getClient().getEmail());
+                        <vaadin-horizontal-layout style="align-items: center;" theme="spacing">
+                            <vaadin-avatar img="${item.pictureUrl}" name="${item.pictureUrl}"></vaadin-avatar>
+                            <vaadin-vertical-layout style="line-height: var(--lumo-line-height-m);">
+                                <span class="font-semibold">${item.name}</span>
+                                <span class="text-s text-secondary">${item.address}</span>
+                            </vaadin-vertical-layout>
+                        </vaadin-horizontal-layout>
+                        """).withProperty("pictureUrl", c -> c.getClient().getFirstName())
+                .withProperty("name", c -> c.getClient().getFirstName())
+                .withProperty("address", c -> c.getClient().getEmail());
     }
 
     static void exportInvoiceInPdfFormat(String fileName, byte[] data) {
@@ -149,8 +148,8 @@ public class InvoiceView extends Div {
                 }
             });
 
-            final StreamRegistration registration = VaadinSession.getCurrent().getResourceRegistry().registerResource(
-                    downloadHandler);
+            final StreamRegistration registration = VaadinSession.getCurrent().getResourceRegistry()
+                    .registerResource(downloadHandler);
             UI.getCurrent().getPage().open(registration.getResourceUri().toString(), "_blank");
         });
     }
@@ -173,8 +172,8 @@ public class InvoiceView extends Div {
         GridUtils.addColumn(grid, c -> new DecimalFormat("#,##0.00").format(c.getTotal().subtract(c.getPaidToDate())),
                 "Deuda total").setTextAlign(ColumnTextAlign.END);
 
-        GridUtils.addComponentColumn(grid, this::renderActions, "Acciones").setFlexGrow(0).setTextAlign(
-                ColumnTextAlign.CENTER);
+        GridUtils.addComponentColumn(grid, this::renderActions, "Acciones").setFlexGrow(0)
+                .setTextAlign(ColumnTextAlign.CENTER);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             if (event.getValue() != null) {
@@ -195,8 +194,8 @@ public class InvoiceView extends Div {
                 query.orderBy(order);
             }
 
-            Predicate predicateCode = predicateForNumericField(root, builder, "code", docNum.getValue().toLowerCase()
-                    .trim(), Long.class);
+            Predicate predicateCode = predicateForNumericField(root, builder, "code",
+                    docNum.getValue().toLowerCase().trim(), Long.class);
 
             Predicate customerPredicate = createCustomerPredicate(root, builder);
 
@@ -207,13 +206,13 @@ public class InvoiceView extends Div {
     }
 
     private Predicate createCustomerPredicate(Root<Invoice> root, CriteriaBuilder builder) {
-        return createPredicateForSelectedItems(Optional.ofNullable(customer.getSelectedItems()), items -> root.get(
-                "client").in(items), builder);
+        return createPredicateForSelectedItems(Optional.ofNullable(customer.getSelectedItems()),
+                items -> root.get("client").in(items), builder);
     }
 
     private Predicate createStatusPredicate(Root<Invoice> root, CriteriaBuilder builder) {
-        return createPredicateForSelectedItems(Optional.ofNullable(status.getSelectedItems()), items -> root.get(
-                "status").in(items), builder);
+        return createPredicateForSelectedItems(Optional.ofNullable(status.getSelectedItems()),
+                items -> root.get("status").in(items), builder);
     }
 
     private void refreshAll() {
@@ -271,8 +270,8 @@ public class InvoiceView extends Div {
         final Breadcrumb breadcrumb = new Breadcrumb();
 
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(new BreadcrumbItem("Transacciones", InvoiceView.class), new BreadcrumbItem("Facturas",
-                InvoiceView.class));
+        breadcrumb.add(new BreadcrumbItem("Transacciones", InvoiceView.class),
+                new BreadcrumbItem("Facturas", InvoiceView.class));
 
         Icon icon = InfoIcon.INFO_CIRCLE.create("Visualizar y gestionar las facturas de tus clientes.");
 

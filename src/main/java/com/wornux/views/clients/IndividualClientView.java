@@ -1,7 +1,5 @@
 package com.wornux.views.clients;
 
-import static com.wornux.utils.PredicateUtils.predicateForTextField;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,12 +19,15 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.*;
+import com.wornux.components.Breadcrumb;
+import com.wornux.components.BreadcrumbItem;
+import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Client;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.UserService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
@@ -36,8 +37,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
+import static com.wornux.utils.PredicateUtils.predicateForTextField;
+
 @Slf4j
-@Route(value = "individual-clients")
+@Route(value = "individual-clients", layout = MainLayout.class)
 @PageTitle("Clientes Individuales")
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class IndividualClientView extends Div {
@@ -125,8 +128,8 @@ public class IndividualClientView extends Div {
     }
 
     private Predicate createSearchPredicate(Root<Client> root, CriteriaBuilder builder) {
-        return predicateForTextField(root, builder, new String[] { "firstName", "lastName", "cedula", "passport",
-                "email" }, searchField.getValue());
+        return predicateForTextField(root, builder,
+                new String[] { "firstName", "lastName", "cedula", "passport", "email" }, searchField.getValue());
     }
 
     private void refreshAll() {
@@ -165,8 +168,8 @@ public class IndividualClientView extends Div {
         final Breadcrumb breadcrumb = new Breadcrumb();
 
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(new BreadcrumbItem("Clientes", IndividualClientView.class), new BreadcrumbItem(
-                "Clientes Individuales", IndividualClientView.class));
+        breadcrumb.add(new BreadcrumbItem("Clientes", IndividualClientView.class),
+                new BreadcrumbItem("Clientes Individuales", IndividualClientView.class));
 
         Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar clientes individuales mediante cédula o pasaporte.");
 

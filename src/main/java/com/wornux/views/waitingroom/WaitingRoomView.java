@@ -1,7 +1,5 @@
 package com.wornux.views.waitingroom;
 
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -28,18 +26,22 @@ import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Predicate;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
+
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 
 @Slf4j
-@Route("sala-espera")
+@Route(value = "sala-espera", layout = MainLayout.class)
 @PageTitle("Sala de Espera")
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class WaitingRoomView extends VerticalLayout {
@@ -71,8 +73,8 @@ public class WaitingRoomView extends VerticalLayout {
 
         Icon infoIcon = VaadinIcon.INFO_CIRCLE_O.create();
         infoIcon.getStyle().set("cursor", "pointer").set("color", "var(--lumo-primary-color)");
-        infoIcon.getElement().setProperty("title",
-                "Aquí puedes gestionar las mascotas que están esperando ser atendidas.");
+        infoIcon.getElement()
+                .setProperty("title", "Aquí puedes gestionar las mascotas que están esperando ser atendidas.");
 
         HorizontalLayout titleWithInfo = new HorizontalLayout(title, infoIcon);
         titleWithInfo.setAlignItems(Alignment.CENTER);
@@ -145,8 +147,8 @@ public class WaitingRoomView extends VerticalLayout {
 
         grid.addComponentColumn(this::renderPriority).setHeader("Prioridad");
 
-        grid.addColumn(wr -> wr.getArrivalTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).setHeader(
-                "Hora de Llegada");
+        grid.addColumn(wr -> wr.getArrivalTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+                .setHeader("Hora de Llegada");
 
         grid.addComponentColumn(this::renderStatus).setHeader("Estado");
 
@@ -212,8 +214,8 @@ public class WaitingRoomView extends VerticalLayout {
 
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
-        layout.getStyle().set("padding", "1.5rem").set("border-radius", "10px").set("background-color",
-                "var(--lumo-base-color)").set("box-shadow", "var(--lumo-box-shadow-m)");
+        layout.getStyle().set("padding", "1.5rem").set("border-radius", "10px")
+                .set("background-color", "var(--lumo-base-color)").set("box-shadow", "var(--lumo-box-shadow-m)");
         layout.setSpacing(true);
         layout.setPadding(false);
 
@@ -260,8 +262,8 @@ public class WaitingRoomView extends VerticalLayout {
         // Datos del animal
         Span petInfo = new Span(wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • " + wr.getPet()
                 .getBreed() + " • " + wr.getPet().getGender());
-        petInfo.getElement().getStyle().set("font-weight", "600").set("color", "var(--lumo-primary-text-color)").set(
-                "font-size", "1.05em");
+        petInfo.getElement().getStyle().set("font-weight", "600").set("color", "var(--lumo-primary-text-color)")
+                .set("font-size", "1.05em");
 
         // Datos de visita
 
@@ -272,14 +274,14 @@ public class WaitingRoomView extends VerticalLayout {
 
         Icon notesIcon = VaadinIcon.NOTEBOOK.create();
         notesIcon.setColor("var(--lumo-secondary-text-color)");
-        Span notesText = new Span("Notas: " + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr
-                .getNotes() : "N/A"));
+        Span notesText = new Span(
+                "Notas: " + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr.getNotes() : "N/A"));
         HorizontalLayout notes = new HorizontalLayout(notesIcon, notesText);
 
         Icon arrivalIcon = VaadinIcon.CLOCK.create();
         arrivalIcon.setColor("var(--lumo-secondary-text-color)");
-        Span arrivalText = new Span("Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern(
-                "hh:mm a")));
+        Span arrivalText = new Span(
+                "Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
         HorizontalLayout arrival = new HorizontalLayout(arrivalIcon, arrivalText);
 
         Icon motivoIcon = VaadinIcon.CLIPBOARD_TEXT.create();
@@ -375,15 +377,17 @@ public class WaitingRoomView extends VerticalLayout {
                 String likeSearch = "%" + searchTerm.toLowerCase() + "%";
 
                 searchPredicate = builder.or(builder.like(builder.lower(clientJoin.get("firstName")), likeSearch),
-                        builder.like(builder.lower(clientJoin.get("lastName")), likeSearch), builder.like(builder.lower(
-                                petJoin.get("name")), likeSearch));
+                        builder.like(builder.lower(clientJoin.get("lastName")), likeSearch),
+                        builder.like(builder.lower(petJoin.get("name")), likeSearch));
             }
 
-            Predicate priorityPredicate = createPredicateForSelectedItems(Optional.ofNullable(priorityFilter
-                    .getSelectedItems()), items -> root.get("priority").in(items), builder);
+            Predicate priorityPredicate = createPredicateForSelectedItems(
+                    Optional.ofNullable(priorityFilter.getSelectedItems()), items -> root.get("priority").in(items),
+                    builder);
 
-            Predicate statusPredicate = createPredicateForSelectedItems(Optional.ofNullable(statusFilter
-                    .getSelectedItems()), items -> root.get("status").in(items), builder);
+            Predicate statusPredicate = createPredicateForSelectedItems(
+                    Optional.ofNullable(statusFilter.getSelectedItems()), items -> root.get("status").in(items),
+                    builder);
 
             return builder.and(searchPredicate, priorityPredicate, statusPredicate);
         };

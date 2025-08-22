@@ -27,6 +27,7 @@ import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.UserService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
@@ -38,7 +39,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
-@Route(value = "business-clients")
+@Route(value = "business-clients", layout = MainLayout.class)
 @PageTitle("Clientes Empresariales")
 public class CompanyClientView extends Div {
 
@@ -122,8 +123,8 @@ public class CompanyClientView extends Div {
     }
 
     private Predicate createSearchPredicate(Root<Client> root, CriteriaBuilder builder) {
-        return predicateForTextField(root, builder, new String[] { "companyName", "rnc", "email" }, searchField
-                .getValue());
+        return predicateForTextField(root, builder, new String[] { "companyName", "rnc", "email" },
+                searchField.getValue());
     }
 
     private void refreshAll() {
@@ -162,8 +163,8 @@ public class CompanyClientView extends Div {
         final Breadcrumb breadcrumb = new Breadcrumb();
 
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(new BreadcrumbItem("Clientes", CompanyClientView.class), new BreadcrumbItem(
-                "Clientes Empresariales", CompanyClientView.class));
+        breadcrumb.add(new BreadcrumbItem("Clientes", CompanyClientView.class),
+                new BreadcrumbItem("Clientes Empresariales", CompanyClientView.class));
 
         Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar clientes empresariales mediante RNC.");
 
@@ -213,8 +214,8 @@ public class CompanyClientView extends Div {
         confirmDialog.setModal(true);
         confirmDialog.setWidth("400px");
 
-        Span message = new Span("¿Está seguro de que desea eliminar la empresa \"" + client
-                .getCompanyName() + "\"? Esta acción no se puede deshacer.");
+        Span message = new Span(
+                "¿Está seguro de que desea eliminar la empresa \"" + client.getCompanyName() + "\"? Esta acción no se puede deshacer.");
         message.getStyle().set("margin-bottom", "20px");
 
         Button confirmButton = new Button("Eliminar");

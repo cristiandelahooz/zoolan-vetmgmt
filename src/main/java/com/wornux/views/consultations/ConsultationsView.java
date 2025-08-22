@@ -27,17 +27,19 @@ import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
+
 @Slf4j
-@Route(value = "consultations")
+@Route(value = "consultations", layout = MainLayout.class)
 @PageTitle("Consultas")
 @RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
 public class ConsultationsView extends Div {
@@ -101,22 +103,20 @@ public class ConsultationsView extends Div {
                 query.orderBy(order);
             }
 
-            Predicate searchPredicate = builder.or(builder.like(builder.lower(root.get("notes")), "%" + searchField
-                    .getValue().toLowerCase() + "%"), builder.like(builder.lower(root.get("diagnosis")),
-                            "%" + searchField.getValue().toLowerCase() + "%"), builder.like(builder.lower(root.get(
-                                    "treatment")), "%" + searchField.getValue().toLowerCase() + "%"), builder.like(
-                                            builder.lower(root.get("prescription")), "%" + searchField.getValue()
-                                                    .toLowerCase() + "%"), builder.like(builder.lower(root.get("pet")
-                                                            .get("name")), "%" + searchField.getValue()
-                                                                    .toLowerCase() + "%"), builder.like(builder.lower(
-                                                                            root.get("veterinarian").get("firstName")),
-                                                                            "%" + searchField.getValue()
-                                                                                    .toLowerCase() + "%"), builder.like(
-                                                                                            builder.lower(root.get(
-                                                                                                    "veterinarian").get(
-                                                                                                            "lastName")),
-                                                                                            "%" + searchField.getValue()
-                                                                                                    .toLowerCase() + "%"));
+            Predicate searchPredicate = builder.or(
+                    builder.like(builder.lower(root.get("notes")), "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("diagnosis")),
+                            "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("treatment")),
+                            "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("prescription")),
+                            "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("pet").get("name")),
+                            "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("veterinarian").get("firstName")),
+                            "%" + searchField.getValue().toLowerCase() + "%"),
+                    builder.like(builder.lower(root.get("veterinarian").get("lastName")),
+                            "%" + searchField.getValue().toLowerCase() + "%"));
 
             return searchPredicate;
         };
@@ -125,8 +125,8 @@ public class ConsultationsView extends Div {
     private Div createTitle() {
         final Breadcrumb breadcrumb = new Breadcrumb();
         breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-        breadcrumb.add(new BreadcrumbItem("Consultas", ConsultationsView.class), new BreadcrumbItem(
-                "Lista de Consultas", ConsultationsView.class));
+        breadcrumb.add(new BreadcrumbItem("Consultas", ConsultationsView.class),
+                new BreadcrumbItem("Lista de Consultas", ConsultationsView.class));
 
         Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar consultas de la clínica veterinaria.");
 
@@ -178,13 +178,12 @@ public class ConsultationsView extends Div {
 
         if (!filter.isEmpty()) {
             consultations = consultations.stream().filter(c -> (c.getNotes() != null && c.getNotes().toLowerCase()
-                    .contains(filter)) || (c.getDiagnosis() != null && c.getDiagnosis().toLowerCase().contains(
-                            filter)) || (c.getTreatment() != null && c.getTreatment().toLowerCase().contains(
-                                    filter)) || (c.getPrescription() != null && c.getPrescription().toLowerCase()
-                                            .contains(filter)) || (c.getPet() != null && c.getPet().getId().toString()
-                                                    .contains(filter)) || (c.getVeterinarian() != null && c
-                                                            .getVeterinarian().getId().toString().contains(filter)))
-                    .toList();
+                    .contains(filter)) || (c.getDiagnosis() != null && c.getDiagnosis().toLowerCase()
+                    .contains(filter)) || (c.getTreatment() != null && c.getTreatment().toLowerCase()
+                    .contains(filter)) || (c.getPrescription() != null && c.getPrescription().toLowerCase()
+                    .contains(filter)) || (c.getPet() != null && c.getPet().getId().toString()
+                    .contains(filter)) || (c.getVeterinarian() != null && c.getVeterinarian().getId().toString()
+                    .contains(filter))).toList();
         }
         grid.setItems(consultations);
         updateQuantity();
@@ -219,8 +218,9 @@ public class ConsultationsView extends Div {
         confirmDialog.setModal(true);
         confirmDialog.setWidth("400px");
 
-        Span message = new Span("¿Está seguro de que desea eliminar la consulta de la mascota \"" + (consultation
-                .getPet() != null ? consultation.getPet().getName() : "") + "\"? Esta acción no se puede deshacer.");
+        Span message = new Span(
+                "¿Está seguro de que desea eliminar la consulta de la mascota \"" + (consultation.getPet() != null ? consultation.getPet()
+                        .getName() : "") + "\"? Esta acción no se puede deshacer.");
         message.getStyle().set("margin-bottom", "20px");
 
         Button confirmButton = new Button("Eliminar");
