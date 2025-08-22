@@ -8,10 +8,16 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.wornux.data.entity.Consultation;
+import com.wornux.data.entity.GroomingSession;
+
 public interface InvoiceRepository
     extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
 
   @EntityGraph(attributePaths = {"client", "products.product", "services.service"})
   @Query("SELECT i FROM Invoice i WHERE i.code = :code")
   Optional<Invoice> findByCodeWithServicesAndProducts(@Param("code") Long code);
+
+  @EntityGraph(attributePaths = {"client", "products.product", "services.service"})
+  Optional<Invoice> findByConsultation(Consultation consultation);
 }
