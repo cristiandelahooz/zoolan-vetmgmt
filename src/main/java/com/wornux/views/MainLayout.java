@@ -116,17 +116,17 @@ public class MainLayout extends AppLayout {
         SubMenu userSubMenu = userMenuItem.getSubMenu();
 
         userSubMenu.addSeparator();
-        userSubMenu.addItem(createMenuItemWithIcon(LineAwesomeIcon.SIGN_OUT_ALT_SOLID, "Cerrar sesión"),
+        userSubMenu.addItem(createMenuItemWithIcon(),
                 e -> getUI().ifPresent(ui -> ui.getPage().setLocation("/logout")));
 
         return menuBar;
     }
 
-    private HorizontalLayout createMenuItemWithIcon(LineAwesomeIcon iconType, String text) {
-        SvgIcon icon = iconType.create();
+    private HorizontalLayout createMenuItemWithIcon() {
+        SvgIcon icon = LineAwesomeIcon.SIGN_OUT_ALT_SOLID.create();
         icon.addClassNames(LumoUtility.IconSize.SMALL, LumoUtility.TextColor.SECONDARY);
 
-        Span label = new Span(text);
+        Span label = new Span("Cerrar sesión");
         label.addClassNames(LumoUtility.Margin.Start.SMALL);
 
         HorizontalLayout layout = new HorizontalLayout(icon, label);
