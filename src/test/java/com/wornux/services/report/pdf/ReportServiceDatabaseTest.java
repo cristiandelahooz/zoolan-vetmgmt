@@ -21,10 +21,8 @@ class ReportServiceDatabaseTest {
   @BeforeEach
   void setUp() {
     resourceLoader = mock(ResourceLoader.class);
-    reportService = ReportServiceDatabase.builder()
-        .resourceLoader(resourceLoader)
-        .version("1.0")
-        .build();
+    reportService =
+        ReportServiceDatabase.builder().resourceLoader(resourceLoader).version("1.0").build();
   }
 
   @Test

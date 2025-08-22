@@ -16,10 +16,12 @@ import org.jspecify.annotations.Nullable;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"username"}),
-    @UniqueConstraint(columnNames = {"email"})
-})
+@Table(
+    name = "users",
+    uniqueConstraints = {
+      @UniqueConstraint(columnNames = {"username"}),
+      @UniqueConstraint(columnNames = {"email"})
+    })
 @Getter
 @Setter
 @NoArgsConstructor

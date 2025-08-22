@@ -9,13 +9,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
-
 import java.util.Optional;
-
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Setter
@@ -26,9 +23,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(
     name = "invoices",
     indexes = {
-        @Index(columnList = "issuedDate"),
-        @Index(columnList = "paymentDate"),
-        @Index(columnList = "status")
+      @Index(columnList = "issuedDate"),
+      @Index(columnList = "paymentDate"),
+      @Index(columnList = "status")
     })
 @NoArgsConstructor
 @AllArgsConstructor
@@ -53,7 +50,11 @@ public class Invoice extends Auditable implements Serializable {
   @Builder.Default
   private Set<InvoiceProduct> products = new HashSet<>();
 
-  @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "invoice",
+      cascade = CascadeType.ALL,
+      fetch = FetchType.LAZY,
+      orphanRemoval = true)
   @Builder.Default
   private List<ServiceInvoice> services = new ArrayList<>();
 
@@ -73,11 +74,9 @@ public class Invoice extends Auditable implements Serializable {
   @Builder.Default
   private Set<PaymentDetail> paymentDetails = new HashSet<>();
 
-  @NotNull
-  private LocalDate issuedDate;
+  @NotNull private LocalDate issuedDate;
 
-  @NotNull
-  private LocalDate paymentDate;
+  @NotNull private LocalDate paymentDate;
 
   @Size(max = 100)
   private String salesOrder;
@@ -86,21 +85,18 @@ public class Invoice extends Auditable implements Serializable {
   @Enumerated(EnumType.STRING)
   private InvoiceStatus status = InvoiceStatus.DRAFT;
 
-  @NotNull
-  private BigDecimal subtotal;
+  @NotNull private BigDecimal subtotal;
 
   private BigDecimal discountPercentage;
 
   private BigDecimal discount;
 
-  @NotNull
-  private BigDecimal tax;
-  private static final BigDecimal TAX_RATE = new BigDecimal("0.18").setScale(2, RoundingMode.HALF_UP);
-  @NotNull
-  private BigDecimal total;
+  @NotNull private BigDecimal tax;
+  private static final BigDecimal TAX_RATE =
+      new BigDecimal("0.18").setScale(2, RoundingMode.HALF_UP);
+  @NotNull private BigDecimal total;
 
-  @NotNull
-  private BigDecimal paidToDate = BigDecimal.ZERO;
+  @NotNull private BigDecimal paidToDate = BigDecimal.ZERO;
 
   @Size(max = 500)
   private String notes;
@@ -183,13 +179,11 @@ public class Invoice extends Auditable implements Serializable {
   }
 
   public void calculateTotals() {
-    BigDecimal servicesTotal = services.stream()
-        .map(ServiceInvoice::getAmount)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal servicesTotal =
+        services.stream().map(ServiceInvoice::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    BigDecimal productsTotal = products.stream()
-        .map(InvoiceProduct::getAmount)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal productsTotal =
+        products.stream().map(InvoiceProduct::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
     this.subtotal = servicesTotal.add(productsTotal);
     this.tax = this.subtotal.multiply(TAX_RATE);
@@ -197,9 +191,8 @@ public class Invoice extends Auditable implements Serializable {
   }
 
   public void addProduct(InvoiceProduct productToAdd) {
-    Optional<InvoiceProduct> existingProductOpt = products.stream()
-        .filter(p -> p.getProduct().equals(productToAdd.getProduct()))
-        .findFirst();
+    Optional<InvoiceProduct> existingProductOpt =
+        products.stream().filter(p -> p.getProduct().equals(productToAdd.getProduct())).findFirst();
 
     if (existingProductOpt.isPresent()) {
       InvoiceProduct existingProduct = existingProductOpt.get();
@@ -212,5 +205,4 @@ public class Invoice extends Auditable implements Serializable {
 
     calculateTotals();
   }
-
 }

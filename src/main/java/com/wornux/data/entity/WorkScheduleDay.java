@@ -2,15 +2,12 @@ package com.wornux.data.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-
-/**
- * Embeddable entity representing a single day's work schedule
- */
+/** Embeddable entity representing a single day's work schedule */
 @Embeddable
 @Getter
 @Setter
@@ -37,9 +34,7 @@ public class WorkScheduleDay {
   @Builder.Default
   private boolean isOffDay = false;
 
-  /**
-   * Validates that start time is before end time
-   */
+  /** Validates that start time is before end time */
   public boolean isValidTimeRange() {
     if (isOffDay) {
       return true;
@@ -50,9 +45,7 @@ public class WorkScheduleDay {
     return startTime.isBefore(endTime);
   }
 
-  /**
-   * Returns a formatted string representation of the schedule
-   */
+  /** Returns a formatted string representation of the schedule */
   @Override
   public String toString() {
     if (isOffDay) {

@@ -5,15 +5,8 @@ import com.wornux.data.entity.WorkScheduleDay;
 import com.wornux.dto.request.EmployeeCreateRequestDto;
 import com.wornux.dto.request.EmployeeUpdateRequestDto;
 import com.wornux.dto.request.WorkScheduleDayDto;
-import org.mapstruct.*;
-
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import org.mapstruct.*;
 
 /** Mapper for the {@link Employee} entity and its DTOs. */
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -31,15 +24,18 @@ public interface EmployeeMapper {
   void updateWorkScheduleDayFromDto(WorkScheduleDayDto dto, @MappingTarget WorkScheduleDay entity);
 
   @AfterMapping
-  default void updateWorkScheduleDays(EmployeeUpdateRequestDto dto, @MappingTarget Employee entity) {
-      if (dto.getWorkScheduleDays() != null) {
-          // Clear existing work schedule days
-          entity.getWorkScheduleDays().clear();
-          // Add new work schedule days from DTO
-          dto.getWorkScheduleDays().forEach(workScheduleDayDto -> {
-              entity.getWorkScheduleDays().add(toEntity(workScheduleDayDto));
-          });
-      }
+  default void updateWorkScheduleDays(
+      EmployeeUpdateRequestDto dto, @MappingTarget Employee entity) {
+    if (dto.getWorkScheduleDays() != null) {
+      // Clear existing work schedule days
+      entity.getWorkScheduleDays().clear();
+      // Add new work schedule days from DTO
+      dto.getWorkScheduleDays()
+          .forEach(
+              workScheduleDayDto -> {
+                entity.getWorkScheduleDays().add(toEntity(workScheduleDayDto));
+              });
+    }
   }
 
   @Mapping(target = "workScheduleDays", source = "workScheduleDays")
@@ -47,8 +43,10 @@ public interface EmployeeMapper {
 
   // Mapping methods for WorkScheduleDay
   WorkScheduleDay toEntity(WorkScheduleDayDto dto);
+
   WorkScheduleDayDto toDto(WorkScheduleDay entity);
 
   List<WorkScheduleDay> toEntityList(List<WorkScheduleDayDto> dtoList);
+
   List<WorkScheduleDayDto> toDtoList(List<WorkScheduleDay> entityList);
 }

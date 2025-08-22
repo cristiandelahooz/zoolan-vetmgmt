@@ -13,15 +13,15 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GroomingSessionRepository
-        extends AbstractRepository<GroomingSession, Long>, JpaSpecificationExecutor<GroomingSession> {
+    extends AbstractRepository<GroomingSession, Long>, JpaSpecificationExecutor<GroomingSession> {
 
-    Optional<GroomingSession> findByPet(Pet pet);
+  Optional<GroomingSession> findByPet(Pet pet);
 
-    Optional<GroomingSession> findByGroomer(Employee groomer);
+  Optional<GroomingSession> findByGroomer(Employee groomer);
 
-    Page<GroomingSession> findByActiveTrue(Pageable pageable);
+  Page<GroomingSession> findByActiveTrue(Pageable pageable);
 
-    List<GroomingSession> findByPetIdAndActiveTrue(Long petId);
+  List<GroomingSession> findByPetIdAndActiveTrue(Long petId);
 
-    List<GroomingSession> findByGroomerIdAndActiveTrue(Long groomerId);
+  List<GroomingSession> findByGroomerIdAndActiveTrue(Long groomerId);
 }

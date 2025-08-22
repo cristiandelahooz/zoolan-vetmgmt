@@ -11,8 +11,7 @@ import org.mapstruct.*;
  */
 @Mapper(
     componentModel = "spring",
-    uses = {InvoiceReportMapperHelper.class}
-)
+    uses = {InvoiceReportMapperHelper.class})
 public interface InvoiceReportMapper {
 
   @Mapping(target = "invoiceId", source = "code")
@@ -28,5 +27,4 @@ public interface InvoiceReportMapper {
   @Mapping(target = "salesOrder", source = "salesOrder")
   @Mapping(target = "productsData", qualifiedByName = "mapProductsToData", source = "products")
   InvoiceReportDto toReportDto(Invoice invoice);
-
 }

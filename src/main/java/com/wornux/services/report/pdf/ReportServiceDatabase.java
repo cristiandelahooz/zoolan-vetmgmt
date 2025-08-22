@@ -33,8 +33,7 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
   private ResourceLoader resourceLoader;
   private String version;
 
-  @Setter
-  private List<Map<String, Object>> productsData; // Cambio: bookData → productsData
+  @Setter private List<Map<String, Object>> productsData; // Cambio: bookData → productsData
 
   @Override
   public ReportServiceDatabase put(String key, Object value) {
@@ -99,14 +98,16 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     } else {
       log.warn("No product data provided, filling report with empty dataset");
     }
-    JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(
-        productsData != null ? productsData : new ArrayList<>());
+    JRBeanCollectionDataSource dataSource =
+        new JRBeanCollectionDataSource(productsData != null ? productsData : new ArrayList<>());
 
     parameters.put("productsDataSource", dataSource);
 
     JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
 
-    log.info("Report filled successfully with {} parameters and {} products", parameters.size(),
+    log.info(
+        "Report filled successfully with {} parameters and {} products",
+        parameters.size(),
         productsData != null ? productsData.size() : 0);
 
     return jasperPrint;

@@ -25,12 +25,10 @@ import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.SupplierService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,8 +56,7 @@ public class ProductForm extends Dialog {
   private final transient SupplierService supplierService;
   private final transient WarehouseService warehouseService;
 
-  @Setter
-  private transient Runnable onSaveCallback;
+  @Setter private transient Runnable onSaveCallback;
 
   private final List<Consumer<Product>> productSavedListeners = new ArrayList<>();
   private final List<Runnable> productCancelledListeners = new ArrayList<>();
@@ -97,8 +94,8 @@ public class ProductForm extends Dialog {
         accountingStock,
         availableStock,
         reorderLevel,
-        unit,           // Nuevo campo
-        usageType,      // Nuevo campo
+        unit, // Nuevo campo
+        usageType, // Nuevo campo
         category,
         supplier,
         warehouse);

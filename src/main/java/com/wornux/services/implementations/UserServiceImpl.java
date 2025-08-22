@@ -6,7 +6,6 @@ import com.wornux.data.entity.User;
 import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.SystemRole;
 import com.wornux.data.repository.UserRepository;
-import com.wornux.exception.DuplicateIdentificationException;
 import com.wornux.services.interfaces.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
@@ -250,5 +249,4 @@ public class UserServiceImpl implements UserService {
 
     return userRepository.findAll(spec, pageable).getContent();
   }
-
 }

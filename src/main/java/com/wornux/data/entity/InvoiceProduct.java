@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
-
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.proxy.HibernateProxy;
@@ -32,20 +31,17 @@ public class InvoiceProduct extends Auditable implements Serializable {
   @JoinColumn(name = "product", referencedColumnName = "product_id", nullable = false)
   private Product product;
 
-  @NotNull
-  private Double quantity;
+  @NotNull private Double quantity;
 
-  @NotNull
-  private BigDecimal price;
+  @NotNull private BigDecimal price;
 
-  @NotNull
-  private BigDecimal amount;
+  @NotNull private BigDecimal amount;
 
   public void calculateAmount() {
     if (this.price != null && this.quantity != null) {
-        this.amount = this.price.multiply(BigDecimal.valueOf(this.quantity));
+      this.amount = this.price.multiply(BigDecimal.valueOf(this.quantity));
     } else {
-        this.amount = BigDecimal.ZERO;
+      this.amount = BigDecimal.ZERO;
     }
   }
 

@@ -1,14 +1,11 @@
 package com.wornux.data.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.envers.Audited;
 
-import java.time.LocalDateTime;
-
-/**
- * Entity representing a veterinary consultation
- */
+/** Entity representing a veterinary consultation */
 @Entity
 @Table(name = "consultations")
 @Getter

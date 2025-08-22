@@ -2,11 +2,10 @@ package com.wornux.dto.request;
 
 import com.wornux.data.enums.Priority;
 import jakarta.validation.constraints.Future;
-import lombok.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
-
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Data
 @Builder
@@ -14,21 +13,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class WaitingRoomCreateRequestDto {
 
-    @NotNull(message = "El cliente es requerido")
-    private Long clientId;
+  @NotNull(message = "El cliente es requerido")
+  private Long clientId;
 
-    @NotNull(message = "La mascota es requerida")
-    private Long petId;
+  @NotNull(message = "La mascota es requerida")
+  private Long petId;
 
-    @NotBlank(message = "La razón de la visita es requerida")
-    private String reasonForVisit;
+  @NotBlank(message = "La razón de la visita es requerida")
+  private String reasonForVisit;
 
-    @NotNull(message = "La prioridad es requerida")
-    private Priority priority;
+  @NotNull(message = "La prioridad es requerida")
+  private Priority priority;
 
-    private String notes;
+  private String notes;
 
-    @NotNull(message = "La hora de llegada es requerida")
-    @Future(message = "La hora de llegada debe ser en el futuro")
-    private LocalDateTime arrivalTime;
+  @NotNull(message = "La hora de llegada es requerida")
+  @Future(message = "La hora de llegada debe ser en el futuro")
+  private LocalDateTime arrivalTime;
 }

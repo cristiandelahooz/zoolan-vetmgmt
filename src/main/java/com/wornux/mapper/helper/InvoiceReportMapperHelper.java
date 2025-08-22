@@ -48,9 +48,7 @@ public class InvoiceReportMapperHelper {
       return new ArrayList<>();
     }
 
-    return products.stream()
-        .map(this::productToMap)
-        .toList();
+    return products.stream().map(this::productToMap).toList();
   }
 
   /**
@@ -64,9 +62,11 @@ public class InvoiceReportMapperHelper {
 
     // Validación null-safe para cada campo
     map.put("productName", product.getProduct() != null ? product.getProduct().getName() : "");
-    map.put("description",
+    map.put(
+        "description",
         product.getProduct() != null && product.getProduct().getDescription() != null
-            ? product.getProduct().getDescription() : "");
+            ? product.getProduct().getDescription()
+            : "");
     map.put("unitPrice", product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO);
     map.put("quantity", product.getQuantity() != null ? product.getQuantity() : 0.0);
     map.put("totalPrice", product.getAmount() != null ? product.getAmount() : BigDecimal.ZERO);

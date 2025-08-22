@@ -1,22 +1,16 @@
 package com.wornux.services.interfaces;
 
-import com.wornux.data.entity.Invoice;
 import com.wornux.data.entity.Service;
 import com.wornux.data.enums.ServiceCategory;
-import com.wornux.data.enums.ServiceType;
 import com.wornux.data.repository.ServiceRepository;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-/**
- * Enhanced service interface for managing veterinary services with consultation integration
- */
+/** Enhanced service interface for managing veterinary services with consultation integration */
 public interface ServiceService {
 
   Service save(Service service);
@@ -52,7 +46,6 @@ public interface ServiceService {
   List<Service> getServicesByCategory(ServiceCategory serviceCategory);
 
   Service getServiceById(Long id);
-
 
   ServiceRepository getRepository();
 }

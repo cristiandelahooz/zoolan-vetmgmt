@@ -15,9 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-/**
- * DTO for creating a new Employee with structured work schedule
- */
+/** DTO for creating a new Employee with structured work schedule */
 @Data
 @Builder
 @NoArgsConstructor
@@ -72,12 +70,8 @@ public class EmployeeCreateRequestDto {
   @NotNull(message = "Hire date is required")
   private LocalDate hireDate;
 
-  
-
   // New structured work schedule
-  @Valid
-  @Builder.Default
-  private List<WorkScheduleDayDto> workScheduleDays = new ArrayList<>();
+  @Valid @Builder.Default private List<WorkScheduleDayDto> workScheduleDays = new ArrayList<>();
 
   @Nullable private String emergencyContactName;
 

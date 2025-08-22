@@ -98,7 +98,6 @@ public interface ProductService {
    */
   List<Product> getProductsByCategory(String category);
 
-
   /**
    * Lists Products marked for internal use.
    *

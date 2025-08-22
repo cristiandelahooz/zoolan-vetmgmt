@@ -1,7 +1,6 @@
 package com.wornux.dto.request;
 
 import com.wornux.data.enums.ServiceCategory;
-import com.wornux.data.enums.ServiceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

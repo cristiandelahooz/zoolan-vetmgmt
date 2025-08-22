@@ -13,18 +13,14 @@ import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
-import static com.wornux.constants.ValidationConstants.*;
-
-import com.wornux.data.enums.PreferredContactMethod;
-import com.wornux.data.enums.ClientRating;
-import com.wornux.data.enums.ReferenceSource;
-
 @Entity
-@Table(name = "client", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"cedula"}),
-    @UniqueConstraint(columnNames = {"passport"}),
-    @UniqueConstraint(columnNames = {"rnc"})
-})
+@Table(
+    name = "client",
+    uniqueConstraints = {
+      @UniqueConstraint(columnNames = {"cedula"}),
+      @UniqueConstraint(columnNames = {"passport"}),
+      @UniqueConstraint(columnNames = {"rnc"})
+    })
 @PrimaryKeyJoinColumn(name = "client_id")
 @Getter
 @Setter
@@ -35,20 +31,14 @@ import com.wornux.data.enums.ReferenceSource;
 public class Client extends User {
 
   @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
-  @Column(
-      name = "cedula",
-      length = 11,
-      columnDefinition = "CHAR(11)")
+  @Column(name = "cedula", length = 11, columnDefinition = "CHAR(11)")
   @Nullable
   private String cedula;
 
   @Pattern(
       regexp = PASSPORT_PATTERN,
       message = "El pasaporte debe contener 9 caracteres alfanuméricos")
-  @Column(
-      name = "passport",
-      length = 9,
-      columnDefinition = "CHAR(9)")
+  @Column(name = "passport", length = 9, columnDefinition = "CHAR(9)")
   @Nullable
   private String passport;
 

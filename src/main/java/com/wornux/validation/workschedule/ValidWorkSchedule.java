@@ -10,6 +10,8 @@ import java.lang.annotation.*;
 @Documented
 public @interface ValidWorkSchedule {
   String message() default "Invalid work schedule";
+
   Class<?>[] groups() default {};
+
   Class<? extends Payload>[] payload() default {};
 }

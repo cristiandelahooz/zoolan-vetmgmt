@@ -3,6 +3,7 @@ package com.wornux.views.transactions;
 import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 import static com.wornux.utils.PredicateUtils.predicateForNumericField;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
@@ -51,7 +52,6 @@ import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.ServiceService;
-import com.wornux.services.interfaces.UserService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.GridUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -79,10 +79,10 @@ public class InvoiceView extends Div {
   private final Grid<Invoice> grid = GridUtils.createBasicGrid(Invoice.class);
 
   private final TextField docNum = new TextField("Número de factura#");
-  private final MultiSelectComboBox<Client> customer = new MultiSelectComboBox<>(
-      "Todos los clientes");
-  private final MultiSelectComboBox<InvoiceStatus> status = new MultiSelectComboBox<>(
-      "Todos los estados");
+  private final MultiSelectComboBox<Client> customer =
+      new MultiSelectComboBox<>("Todos los clientes");
+  private final MultiSelectComboBox<InvoiceStatus> status =
+      new MultiSelectComboBox<>("Todos los estados");
   private final DatePicker fromPeriod = new DatePicker("Desde");
   private final DatePicker toPeriod = new DatePicker("Hasta");
   private final Span quantity = new Span();
@@ -95,9 +95,12 @@ public class InvoiceView extends Div {
   private final transient InvoiceReportService invoiceReportService;
   private final transient ServiceService serviceService;
 
-  public InvoiceView(InvoiceService service,
-      @Qualifier("clientServiceImpl") ClientService customerService, ProductService productService,
-      AuditService auditService, ClientMapper clientMapper,
+  public InvoiceView(
+      InvoiceService service,
+      @Qualifier("clientServiceImpl") ClientService customerService,
+      ProductService productService,
+      AuditService auditService,
+      ClientMapper clientMapper,
       ServiceService serviceService,
       InvoiceReportService invoiceReportService) {
     this.service = service;
@@ -106,14 +109,21 @@ public class InvoiceView extends Div {
 
     setId("invoices-view");
 
-    invoiceForm = new InvoiceForm(service, customerService, productService, serviceService, auditService,
-        clientMapper, invoiceReportService);
+    invoiceForm =
+        new InvoiceForm(
+            service,
+            customerService,
+            productService,
+            serviceService,
+            auditService,
+            clientMapper,
+            invoiceReportService);
 
     createGrid(service, createFilterSpecification());
 
     final Div gridLayout = new Div(grid);
-    gridLayout.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL,
-        LumoUtility.Height.FULL);
+    gridLayout.addClassNames(
+        LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
 
     add(createTitle(), createBoardCards(), createFilter(), gridLayout, invoiceForm);
     addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
@@ -131,7 +141,8 @@ public class InvoiceView extends Div {
   }
 
   private static Renderer<Invoice> renderCustomer() {
-    return LitRenderer.<Invoice>of("""
+    return LitRenderer.<Invoice>of(
+            """
             <vaadin-horizontal-layout style="align-items: center;" theme="spacing">
                 <vaadin-avatar img="${item.pictureUrl}" name="${item.pictureUrl}"></vaadin-avatar>
                 <vaadin-vertical-layout style="line-height: var(--lumo-line-height-m);">
@@ -139,28 +150,36 @@ public class InvoiceView extends Div {
                     <span class="text-s text-secondary">${item.address}</span>
                 </vaadin-vertical-layout>
             </vaadin-horizontal-layout>
-            """).withProperty("pictureUrl", c -> c.getClient().getFirstName())
+            """)
+        .withProperty("pictureUrl", c -> c.getClient().getFirstName())
         .withProperty("name", c -> c.getClient().getFirstName())
         .withProperty("address", c -> c.getClient().getEmail());
   }
 
-  static void exportInvoiceInPdfFormat(String fileName,
-      byte[] data) {
-    UI.getCurrent().access(() -> {
-      InputStreamDownloadHandler downloadHandler = DownloadHandler.fromInputStream(event -> {
-        try {
-          return new DownloadResponse(new ByteArrayInputStream(data),
-              "%s.pdf".formatted(fileName), ContentType.APPLICATION_JSON.getMimeType(),
-              data.length);
-        } catch (Exception e) {
-          return DownloadResponse.error(500);
-        }
-      });
+  static void exportInvoiceInPdfFormat(String fileName, byte[] data) {
+    UI.getCurrent()
+        .access(
+            () -> {
+              InputStreamDownloadHandler downloadHandler =
+                  DownloadHandler.fromInputStream(
+                      event -> {
+                        try {
+                          return new DownloadResponse(
+                              new ByteArrayInputStream(data),
+                              "%s.pdf".formatted(fileName),
+                              ContentType.APPLICATION_JSON.getMimeType(),
+                              data.length);
+                        } catch (Exception e) {
+                          return DownloadResponse.error(500);
+                        }
+                      });
 
-      final StreamRegistration registration = VaadinSession.getCurrent().getResourceRegistry()
-          .registerResource(downloadHandler);
-      UI.getCurrent().getPage().open(registration.getResourceUri().toString(), "_blank");
-    });
+              final StreamRegistration registration =
+                  VaadinSession.getCurrent()
+                      .getResourceRegistry()
+                      .registerResource(downloadHandler);
+              UI.getCurrent().getPage().open(registration.getResourceUri().toString(), "_blank");
+            });
   }
 
   private void createGrid(InvoiceService service, Specification<Invoice> specification) {
@@ -175,24 +194,30 @@ public class InvoiceView extends Div {
 
     GridUtils.addColumn(grid, renderCustomer(), "Cliente", "customer.name", "customer.email");
 
-    GridUtils.addColumn(grid, c -> new DecimalFormat("#,##0.00").format(c.getTotal()), "Total",
-        "total").setTextAlign(ColumnTextAlign.END);
+    GridUtils.addColumn(
+            grid, c -> new DecimalFormat("#,##0.00").format(c.getTotal()), "Total", "total")
+        .setTextAlign(ColumnTextAlign.END);
 
-    GridUtils.addColumn(grid,
-        c -> new DecimalFormat("#,##0.00").format(c.getTotal().subtract(c.getPaidToDate())),
-        "Deuda total").setTextAlign(ColumnTextAlign.END);
+    GridUtils.addColumn(
+            grid,
+            c -> new DecimalFormat("#,##0.00").format(c.getTotal().subtract(c.getPaidToDate())),
+            "Deuda total")
+        .setTextAlign(ColumnTextAlign.END);
 
-    GridUtils.addComponentColumn(grid, this::renderActions, "Acciones").setFlexGrow(0)
+    GridUtils.addComponentColumn(grid, this::renderActions, "Acciones")
+        .setFlexGrow(0)
         .setTextAlign(ColumnTextAlign.CENTER);
 
-    grid.asSingleSelect().addValueChangeListener(event -> {
-      if (event.getValue() != null) {
-        Invoice completeInvoice = service.findByIdWithDetails(event.getValue().getCode());
-        invoiceForm.edit(completeInvoice);
-      } else {
-        invoiceForm.close();
-      }
-    });
+    grid.asSingleSelect()
+        .addValueChangeListener(
+            event -> {
+              if (event.getValue() != null) {
+                Invoice completeInvoice = service.findByIdWithDetails(event.getValue().getCode());
+                invoiceForm.edit(completeInvoice);
+              } else {
+                invoiceForm.close();
+              }
+            });
   }
 
   public Specification<Invoice> createFilterSpecification() {
@@ -203,8 +228,9 @@ public class InvoiceView extends Div {
         query.orderBy(order);
       }
 
-      Predicate predicateCode = predicateForNumericField(root, builder, "code",
-          docNum.getValue().toLowerCase().trim(), Long.class);
+      Predicate predicateCode =
+          predicateForNumericField(
+              root, builder, "code", docNum.getValue().toLowerCase().trim(), Long.class);
 
       Predicate customerPredicate = createCustomerPredicate(root, builder);
 
@@ -215,13 +241,17 @@ public class InvoiceView extends Div {
   }
 
   private Predicate createCustomerPredicate(Root<Invoice> root, CriteriaBuilder builder) {
-    return createPredicateForSelectedItems(Optional.ofNullable(customer.getSelectedItems()),
-        items -> root.get("client").in(items), builder);
+    return createPredicateForSelectedItems(
+        Optional.ofNullable(customer.getSelectedItems()),
+        items -> root.get("client").in(items),
+        builder);
   }
 
   private Predicate createStatusPredicate(Root<Invoice> root, CriteriaBuilder builder) {
-    return createPredicateForSelectedItems(Optional.ofNullable(status.getSelectedItems()),
-        items -> root.get("status").in(items), builder);
+    return createPredicateForSelectedItems(
+        Optional.ofNullable(status.getSelectedItems()),
+        items -> root.get("status").in(items),
+        builder);
   }
 
   private void refreshAll() {
@@ -237,12 +267,19 @@ public class InvoiceView extends Div {
     docNum.setValueChangeMode(ValueChangeMode.EAGER);
     docNum.addValueChangeListener(e -> refreshAll());
 
-    quantity.addClassNames(LumoUtility.BorderRadius.SMALL, LumoUtility.Height.XSMALL,
-        LumoUtility.FontWeight.MEDIUM, LumoUtility.JustifyContent.CENTER,
-        LumoUtility.AlignItems.CENTER, LumoUtility.Padding.XSMALL,
-        LumoUtility.Padding.Horizontal.SMALL, LumoUtility.Margin.Horizontal.SMALL,
-        LumoUtility.TextColor.PRIMARY_CONTRAST, LumoUtility.Background.PRIMARY,
-        LumoUtility.Display.HIDDEN, LumoUtility.Display.Breakpoint.Large.FLEX);
+    quantity.addClassNames(
+        LumoUtility.BorderRadius.SMALL,
+        LumoUtility.Height.XSMALL,
+        LumoUtility.FontWeight.MEDIUM,
+        LumoUtility.JustifyContent.CENTER,
+        LumoUtility.AlignItems.CENTER,
+        LumoUtility.Padding.XSMALL,
+        LumoUtility.Padding.Horizontal.SMALL,
+        LumoUtility.Margin.Horizontal.SMALL,
+        LumoUtility.TextColor.PRIMARY_CONTRAST,
+        LumoUtility.Background.PRIMARY,
+        LumoUtility.Display.HIDDEN,
+        LumoUtility.Display.Breakpoint.Large.FLEX);
     quantity.setMinWidth(10, Unit.REM);
     quantity.setText("Facturas (%s)".formatted(service.getCount(createFilterSpecification())));
 
@@ -251,27 +288,34 @@ public class InvoiceView extends Div {
     status.setItems(InvoiceStatus.values());
     status.setItemLabelGenerator(InvoiceStatus::getDisplay);
 
-    Set.of(fromPeriod, toPeriod).forEach(c -> {
-      c.setValue(LocalDate.now());
-      c.setVisible(false);
-      c.addValueChangeListener(e -> refreshAll());
-    });
+    Set.of(fromPeriod, toPeriod)
+        .forEach(
+            c -> {
+              c.setValue(LocalDate.now());
+              c.setVisible(false);
+              c.addValueChangeListener(e -> refreshAll());
+            });
     Span periodDiv = new Span("-");
     periodDiv.setVisible(false);
 
-    Set.of(customer, status).forEach(c -> {
-      c.setWidthFull();
-      c.setClearButtonVisible(true);
-      c.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
-      c.addValueChangeListener(e -> refreshAll());
-    });
+    Set.of(customer, status)
+        .forEach(
+            c -> {
+              c.setWidthFull();
+              c.setClearButtonVisible(true);
+              c.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+              c.addValueChangeListener(e -> refreshAll());
+            });
 
-    HorizontalLayout toolbar = new HorizontalLayout(docNum, customer, status, fromPeriod, periodDiv,
-        toPeriod, quantity);
+    HorizontalLayout toolbar =
+        new HorizontalLayout(docNum, customer, status, fromPeriod, periodDiv, toPeriod, quantity);
     toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
     toolbar.setAlignItems(FlexComponent.Alignment.END);
-    toolbar.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL,
-        LumoUtility.Padding.MEDIUM, LumoUtility.Gap.MEDIUM);
+    toolbar.addClassNames(
+        LumoUtility.Margin.Horizontal.MEDIUM,
+        LumoUtility.Margin.Top.SMALL,
+        LumoUtility.Padding.MEDIUM,
+        LumoUtility.Gap.MEDIUM);
 
     return toolbar;
   }
@@ -280,25 +324,32 @@ public class InvoiceView extends Div {
     final Breadcrumb breadcrumb = new Breadcrumb();
 
     breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-    breadcrumb.add(new BreadcrumbItem("Transacciones", InvoiceView.class),
+    breadcrumb.add(
+        new BreadcrumbItem("Transacciones", InvoiceView.class),
         new BreadcrumbItem("Facturas", InvoiceView.class));
 
     Icon icon = InfoIcon.INFO_CIRCLE.create("Visualizar y gestionar las facturas de tus clientes.");
 
     Div headerLayout = new Div(breadcrumb, icon);
-    headerLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW,
-        LumoUtility.Margin.Top.SMALL);
+    headerLayout.addClassNames(
+        LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Margin.Top.SMALL);
 
     create.setText("Crear Factura");
-    create.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST,
-        ButtonVariant.LUMO_SMALL);
+    create.addThemeVariants(
+        ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
     create.addClassNames(LumoUtility.Width.AUTO);
 
     Div layout = new Div(headerLayout, create);
-    layout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
-        LumoUtility.FlexDirection.Breakpoint.Large.ROW, LumoUtility.JustifyContent.BETWEEN,
-        LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Margin.Top.SMALL, LumoUtility.Gap.XSMALL,
-        LumoUtility.AlignItems.STRETCH, LumoUtility.AlignItems.Breakpoint.Large.END);
+    layout.addClassNames(
+        LumoUtility.Display.FLEX,
+        LumoUtility.FlexDirection.COLUMN,
+        LumoUtility.FlexDirection.Breakpoint.Large.ROW,
+        LumoUtility.JustifyContent.BETWEEN,
+        LumoUtility.Margin.Horizontal.MEDIUM,
+        LumoUtility.Margin.Top.SMALL,
+        LumoUtility.Gap.XSMALL,
+        LumoUtility.AlignItems.STRETCH,
+        LumoUtility.AlignItems.Breakpoint.Large.END);
 
     return layout;
   }
@@ -315,8 +366,11 @@ public class InvoiceView extends Div {
     } catch (Exception e) {
       log.error("Error al generar el PDF de la factura: {}", invoice.getCode(), e);
 
-      Notification.show("Error al generar el PDF, favor intentar nuevamente en unos minutos", 5000,
-          Notification.Position.TOP_CENTER).addThemeVariants(NotificationVariant.LUMO_ERROR);
+      Notification.show(
+              "Error al generar el PDF, favor intentar nuevamente en unos minutos",
+              5000,
+              Notification.Position.TOP_CENTER)
+          .addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
   }
 
@@ -326,9 +380,13 @@ public class InvoiceView extends Div {
     section.getElement().setAttribute("aria-label", "statistics");
 
     Div layout = new Div(section);
-    layout.addClassNames(LumoUtility.Width.FULL, LumoUtility.Display.FLEX,
-        LumoUtility.Margin.Horizontal.AUTO, LumoUtility.BoxSizing.BORDER,
-        LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.LARGE);
+    layout.addClassNames(
+        LumoUtility.Width.FULL,
+        LumoUtility.Display.FLEX,
+        LumoUtility.Margin.Horizontal.AUTO,
+        LumoUtility.BoxSizing.BORDER,
+        LumoUtility.FlexDirection.COLUMN,
+        LumoUtility.Gap.LARGE);
 
     return layout;
   }
@@ -342,8 +400,9 @@ public class InvoiceView extends Div {
     BoardCard card = createBoardCard("Vencido", decimalFormat.format(0.00), "DOP");
     boardCards.add(card);
 
-    card = createBoardCard("Deuda a pagar dentro de los próximos 30 días",
-        decimalFormat.format(0.00), "DOP");
+    card =
+        createBoardCard(
+            "Deuda a pagar dentro de los próximos 30 días", decimalFormat.format(0.00), "DOP");
     boardCards.add(card);
 
     card = createBoardCard("Tiempo promedio para recibir pago", numberFormat.format(0), "días");
@@ -396,8 +455,8 @@ public class InvoiceView extends Div {
     exportPDF.addClickListener(e -> generateInvoice(item));
 
     Button delete = new Button("Borrar");
-    delete.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR,
-        ButtonVariant.LUMO_SMALL);
+    delete.addThemeVariants(
+        ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
 
     Div buttonLayout = new Div(edit, new Hr(), exportPDF, new Hr(), delete);
     buttonLayout.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);

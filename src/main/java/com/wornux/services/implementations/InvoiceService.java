@@ -78,12 +78,17 @@ public class InvoiceService {
   public Invoice findByConsultation(Consultation consultation) {
     return repository
         .findByConsultation(consultation)
-        .orElseThrow(() -> new EntityNotFoundException("Invoice not found for consultation ID: " + consultation.getId()));
+        .orElseThrow(
+            () ->
+                new EntityNotFoundException(
+                    "Invoice not found for consultation ID: " + consultation.getId()));
   }
+
   @Transactional()
   public Invoice findByIdWithDetails(Long code) {
 
-    return repository.findByCodeWithServicesAndProducts(code)
+    return repository
+        .findByCodeWithServicesAndProducts(code)
         .orElseThrow(() -> new EntityNotFoundException("Invoice not found with ID: " + code));
   }
 

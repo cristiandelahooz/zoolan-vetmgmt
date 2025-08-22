@@ -1,15 +1,11 @@
 package com.wornux.data.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.*;
 import org.hibernate.envers.Audited;
 
-import java.math.BigDecimal;
-
-/**
- * Composite entity linking invoices with services
- * Similar to InvoiceProduct but for services
- */
+/** Composite entity linking invoices with services Similar to InvoiceProduct but for services */
 @Entity
 @Table(name = "invoice_services")
 @Getter
@@ -41,18 +37,14 @@ public class ServiceInvoice {
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal amount;
 
-  /**
-   * Calculate amount based on service price and quantity
-   */
+  /** Calculate amount based on service price and quantity */
   public void calculateAmount() {
     if (service != null && service.getPrice() != null && quantity != null) {
       this.amount = service.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
   }
 
-  /**
-   * Get service price for convenience
-   */
+  /** Get service price for convenience */
   public BigDecimal getPrice() {
     return service != null ? service.getPrice() : BigDecimal.ZERO;
   }

@@ -1,5 +1,7 @@
 package com.wornux.views.waitingroom;
 
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -18,436 +20,478 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.WaitingRoom;
 import com.wornux.data.enums.Priority;
 import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
-import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.GridUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
+import com.wornux.utils.NotificationUtils;
 import jakarta.persistence.criteria.Predicate;
-
-import java.util.Optional;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @Route("sala-espera")
 @PageTitle("Sala de Espera")
 public class WaitingRoomView extends VerticalLayout {
 
-    private final WaitingRoomService waitingRoomService;
-    private final ClientService clientService;
-    private final PetService petService;
+  private final WaitingRoomService waitingRoomService;
+  private final ClientService clientService;
+  private final PetService petService;
 
-    //private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
-    private final Grid<WaitingRoom> grid = GridUtils.createBasicGrid(WaitingRoom.class);
-    private final WaitingRoomForm form;
-    private final VerticalLayout cardContainer = new VerticalLayout();
-    TextField searchField = new TextField();
-    private final MultiSelectComboBox<Priority> priorityFilter = new MultiSelectComboBox<>("Prioridad");
-    private final MultiSelectComboBox<WaitingRoomStatus> statusFilter = new MultiSelectComboBox<>("Estado");
-    private final Span quantity = new Span();
+  // private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
+  private final Grid<WaitingRoom> grid = GridUtils.createBasicGrid(WaitingRoom.class);
+  private final WaitingRoomForm form;
+  private final VerticalLayout cardContainer = new VerticalLayout();
+  TextField searchField = new TextField();
+  private final MultiSelectComboBox<Priority> priorityFilter =
+      new MultiSelectComboBox<>("Prioridad");
+  private final MultiSelectComboBox<WaitingRoomStatus> statusFilter =
+      new MultiSelectComboBox<>("Estado");
+  private final Span quantity = new Span();
 
+  public WaitingRoomView(
+      WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {
+    this.waitingRoomService = waitingRoomService;
+    this.clientService = clientService;
+    this.petService = petService;
 
-    public WaitingRoomView(WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {
-        this.waitingRoomService = waitingRoomService;
-        this.clientService = clientService;
-        this.petService = petService;
+    setSizeFull();
+    setPadding(true);
+    setSpacing(true);
+    setClassName(LumoUtility.Padding.LARGE);
 
-        setSizeFull();
-        setPadding(true);
-        setSpacing(true);
-        setClassName(LumoUtility.Padding.LARGE);
+    Span title = new Span("Sala de Espera");
+    title.addClassNames(LumoUtility.FontWeight.BOLD, LumoUtility.FontSize.XLARGE);
 
-        Span title = new Span("Sala de Espera");
-        title.addClassNames(LumoUtility.FontWeight.BOLD, LumoUtility.FontSize.XLARGE);
+    Icon infoIcon = VaadinIcon.INFO_CIRCLE_O.create();
+    infoIcon.getStyle().set("cursor", "pointer").set("color", "var(--lumo-primary-color)");
+    infoIcon
+        .getElement()
+        .setProperty(
+            "title", "Aquí puedes gestionar las mascotas que están esperando ser atendidas.");
 
-        Icon infoIcon = VaadinIcon.INFO_CIRCLE_O.create();
-        infoIcon.getStyle().set("cursor", "pointer").set("color", "var(--lumo-primary-color)");
-        infoIcon.getElement().setProperty("title",
-                "Aquí puedes gestionar las mascotas que están esperando ser atendidas.");
+    HorizontalLayout titleWithInfo = new HorizontalLayout(title, infoIcon);
+    titleWithInfo.setAlignItems(Alignment.CENTER);
+    titleWithInfo.setSpacing(true);
 
-        HorizontalLayout titleWithInfo = new HorizontalLayout(title, infoIcon);
-        titleWithInfo.setAlignItems(Alignment.CENTER);
-        titleWithInfo.setSpacing(true);
+    priorityFilter.setItems(Priority.values());
+    priorityFilter.setClearButtonVisible(true);
+    priorityFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+    priorityFilter.addValueChangeListener(e -> refreshGrid());
 
-        priorityFilter.setItems(Priority.values());
-        priorityFilter.setClearButtonVisible(true);
-        priorityFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
-        priorityFilter.addValueChangeListener(e -> refreshGrid());
+    statusFilter.setItems(WaitingRoomStatus.values());
+    statusFilter.setClearButtonVisible(true);
+    statusFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+    statusFilter.addValueChangeListener(e -> refreshGrid());
 
-        statusFilter.setItems(WaitingRoomStatus.values());
-        statusFilter.setClearButtonVisible(true);
-        statusFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
-        statusFilter.addValueChangeListener(e -> refreshGrid());
+    searchField.setClearButtonVisible(true);
+    searchField.setPlaceholder("Buscar por cliente o mascota...");
+    searchField.setWidth("50%");
+    searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+    searchField.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
+    searchField.addValueChangeListener(e -> refreshGrid());
 
-        searchField.setClearButtonVisible(true);
-        searchField.setPlaceholder("Buscar por cliente o mascota...");
-        searchField.setWidth("50%");
-        searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        searchField.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
-        searchField.addValueChangeListener(e -> refreshGrid());
+    quantity.addClassNames(
+        LumoUtility.BorderRadius.SMALL,
+        LumoUtility.Height.XSMALL,
+        LumoUtility.FontWeight.MEDIUM,
+        LumoUtility.TextAlignment.CENTER,
+        LumoUtility.JustifyContent.CENTER,
+        LumoUtility.AlignItems.CENTER,
+        LumoUtility.Padding.XSMALL,
+        LumoUtility.Padding.Horizontal.SMALL,
+        LumoUtility.Margin.Horizontal.SMALL,
+        LumoUtility.Margin.Bottom.XSMALL,
+        LumoUtility.TextColor.PRIMARY_CONTRAST,
+        LumoUtility.Background.PRIMARY);
+    quantity.setWidth("15%");
+    updateQuantity();
 
-        quantity.addClassNames(
-                LumoUtility.BorderRadius.SMALL,
-                LumoUtility.Height.XSMALL,
-                LumoUtility.FontWeight.MEDIUM,
-                LumoUtility.TextAlignment.CENTER,
-                LumoUtility.JustifyContent.CENTER,
-                LumoUtility.AlignItems.CENTER,
-                LumoUtility.Padding.XSMALL,
-                LumoUtility.Padding.Horizontal.SMALL,
-                LumoUtility.Margin.Horizontal.SMALL,
-                LumoUtility.Margin.Bottom.XSMALL,
-                LumoUtility.TextColor.PRIMARY_CONTRAST,
-                LumoUtility.Background.PRIMARY);
-        quantity.setWidth("15%");
-        updateQuantity();
+    statusFilter.setItems(WaitingRoomStatus.values());
+    statusFilter.setClearButtonVisible(true);
+    statusFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+    statusFilter.addValueChangeListener(e -> refreshGrid());
 
-        statusFilter.setItems(WaitingRoomStatus.values());
-        statusFilter.setClearButtonVisible(true);
-        statusFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
-        statusFilter.addValueChangeListener(e -> refreshGrid());
+    HorizontalLayout filters =
+        new HorizontalLayout(searchField, priorityFilter, statusFilter, quantity);
+    filters.setAlignItems(Alignment.END);
+    filters.setWidthFull();
+    filters.setSpacing(true);
 
-        HorizontalLayout filters = new HorizontalLayout(searchField, priorityFilter, statusFilter, quantity);
-        filters.setAlignItems(Alignment.END);
-        filters.setWidthFull();
-        filters.setSpacing(true);
+    Button newEntryButton = new Button("Nueva Entrada", e -> openForm());
+    newEntryButton.addThemeVariants(
+        ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
 
-        Button newEntryButton = new Button("Nueva Entrada", e -> openForm());
-        newEntryButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST,
-                ButtonVariant.LUMO_SMALL);
+    HorizontalLayout header = new HorizontalLayout(titleWithInfo, newEntryButton);
+    header.setWidthFull();
+    header.setJustifyContentMode(JustifyContentMode.BETWEEN);
+    header.setAlignItems(Alignment.CENTER);
 
-        HorizontalLayout header = new HorizontalLayout(titleWithInfo, newEntryButton);
-        header.setWidthFull();
-        header.setJustifyContentMode(JustifyContentMode.BETWEEN);
-        header.setAlignItems(Alignment.CENTER);
+    configureGrid();
+    form = new WaitingRoomForm(waitingRoomService, clientService, petService);
+    form.setOnSave(dto -> refreshGrid());
+    form.addDialogCloseActionListener(e -> refreshGrid());
 
-        configureGrid();
-        form = new WaitingRoomForm(waitingRoomService, clientService, petService);
-        form.setOnSave(dto -> refreshGrid());
-        form.addDialogCloseActionListener(e -> refreshGrid());
+    // add(header, grid);
+    add(header, filters, grid, cardContainer);
+    refreshGrid();
+  }
 
-        //add(header, grid);
-        add(header, filters, grid, cardContainer);
-        refreshGrid();
-    }
+  private void configureGrid() {
+    grid.setSizeFull();
 
-    private void configureGrid() {
-        grid.setSizeFull();
+    grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+    grid.addColumn(wr -> wr.getClient().getFirstName() + " " + wr.getClient().getLastName())
+        .setHeader("Cliente");
 
-        grid.addColumn(wr -> wr.getClient().getFirstName() + " " + wr.getClient().getLastName()).setHeader("Cliente");
+    grid.addColumn(wr -> wr.getPet().getName()).setHeader("Mascota");
 
-        grid.addColumn(wr -> wr.getPet().getName()).setHeader("Mascota");
+    grid.addColumn(WaitingRoom::getReasonForVisit).setHeader("Razón de Visita");
 
-        grid.addColumn(WaitingRoom::getReasonForVisit).setHeader("Razón de Visita");
+    grid.addComponentColumn(this::renderPriority).setHeader("Prioridad");
 
-        grid.addComponentColumn(this::renderPriority).setHeader("Prioridad");
+    grid.addColumn(
+            wr -> wr.getArrivalTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+        .setHeader("Hora de Llegada");
 
-        grid.addColumn(wr -> wr.getArrivalTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
-                .setHeader("Hora de Llegada");
+    grid.addComponentColumn(this::renderStatus).setHeader("Estado");
 
-        grid.addComponentColumn(this::renderStatus).setHeader("Estado");
-
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            WaitingRoom selected = event.getValue();
-            if (selected != null) {
+    grid.asSingleSelect()
+        .addValueChangeListener(
+            event -> {
+              WaitingRoom selected = event.getValue();
+              if (selected != null) {
                 openDetailsDialog(selected);
-            }
-        });
+              }
+            });
 
-        grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+    grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+  }
 
+  private void openForm() {
+    form.openForNew();
+  }
+
+  private void refreshGrid() {
+    Specification<WaitingRoom> spec = createFilterSpecification();
+    List<WaitingRoom> filtered = waitingRoomService.getRepository().findAll(spec);
+    grid.setItems(filtered);
+  }
+
+  private Component renderPriority(WaitingRoom wr) {
+    Span badge = new Span(wr.getPriority().name());
+    badge.getElement().getThemeList().add("badge pill");
+
+    switch (wr.getPriority()) {
+      case URGENTE -> badge.getElement().getThemeList().add("error");
+      case EMERGENCIA -> badge.getElement().getThemeList().add("warning");
+      case NORMAL -> badge.getElement().getThemeList().add("success");
     }
 
-    private void openForm() {
-        form.openForNew();
+    return badge;
+  }
+
+  private Component renderStatus(WaitingRoom wr) {
+    if (wr.getStatus() == null) {
+      return new Span("-");
     }
 
-    private void refreshGrid() {
-        Specification<WaitingRoom> spec = createFilterSpecification();
-        List<WaitingRoom> filtered = waitingRoomService.getRepository().findAll(spec);
-        grid.setItems(filtered);
+    Span badge = new Span(wr.getStatus().name().replace("_", " "));
+    badge.getElement().getThemeList().add("badge pill");
+
+    switch (wr.getStatus()) {
+      case ESPERANDO -> badge.getElement().getThemeList().add("primary");
+      case EN_CONSULTA -> badge.getElement().getThemeList().add("success");
+      case COMPLETADO -> badge.getElement().getThemeList().add("contrast");
+      case CANCELADO -> badge.getElement().getThemeList().add("error");
+      default -> badge.getElement().getThemeList().add("badge");
     }
 
-    private Component renderPriority(WaitingRoom wr) {
-        Span badge = new Span(wr.getPriority().name());
-        badge.getElement().getThemeList().add("badge pill");
+    return badge;
+  }
 
-        switch (wr.getPriority()) {
-        case URGENTE -> badge.getElement().getThemeList().add("error");
-        case EMERGENCIA -> badge.getElement().getThemeList().add("warning");
-        case NORMAL -> badge.getElement().getThemeList().add("success");
-        }
+  private void openDetailsDialog(WaitingRoom wr) {
+    Dialog dialog = new Dialog();
+    dialog.setHeaderTitle("Detalles de la Consulta");
+    dialog.setModal(true);
+    dialog.setDraggable(true);
+    dialog.setResizable(true);
+    dialog.setWidth("600px");
 
-        return badge;
+    VerticalLayout layout = new VerticalLayout();
+    layout.setWidthFull();
+    layout
+        .getStyle()
+        .set("padding", "1.5rem")
+        .set("border-radius", "10px")
+        .set("background-color", "var(--lumo-base-color)")
+        .set("box-shadow", "var(--lumo-box-shadow-m)");
+    layout.setSpacing(true);
+    layout.setPadding(false);
+
+    // Encabezado: Prioridad y Estado
+    Span priority = new Span(wr.getPriority().name());
+    priority.getElement().getThemeList().add("badge pill");
+    switch (wr.getPriority()) {
+      case URGENTE -> priority.getElement().getThemeList().add("error");
+      case EMERGENCIA -> priority.getElement().getThemeList().add("warning");
+      case NORMAL -> priority.getElement().getThemeList().add("success");
     }
 
-    private Component renderStatus(WaitingRoom wr) {
-        if (wr.getStatus() == null) {
-            return new Span("-");
-        }
-
-        Span badge = new Span(wr.getStatus().name().replace("_", " "));
-        badge.getElement().getThemeList().add("badge pill");
-
-        switch (wr.getStatus()) {
-        case ESPERANDO -> badge.getElement().getThemeList().add("primary");
-        case EN_CONSULTA -> badge.getElement().getThemeList().add("success");
-        case COMPLETADO -> badge.getElement().getThemeList().add("contrast");
-        case CANCELADO -> badge.getElement().getThemeList().add("error");
-        default -> badge.getElement().getThemeList().add("badge");
-        }
-
-        return badge;
+    Span status = new Span(wr.getStatus().name().replace("_", " "));
+    status.getElement().getThemeList().add("badge pill");
+    switch (wr.getStatus()) {
+      case EN_CONSULTA -> status.getElement().getThemeList().add("success");
+      case COMPLETADO -> status.getElement().getThemeList().add("contrast");
+      case CANCELADO -> status.getElement().getThemeList().add("error");
+      default -> status.getElement().getThemeList().add("primary");
     }
 
-    private void openDetailsDialog(WaitingRoom wr) {
-        Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Detalles de la Consulta");
-        dialog.setModal(true);
-        dialog.setDraggable(true);
-        dialog.setResizable(true);
-        dialog.setWidth("600px");
+    HorizontalLayout header = new HorizontalLayout(priority, status);
+    header.setWidthFull();
+    header.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-        VerticalLayout layout = new VerticalLayout();
-        layout.setWidthFull();
-        layout.getStyle().set("padding", "1.5rem").set("border-radius", "10px")
-                .set("background-color", "var(--lumo-base-color)").set("box-shadow", "var(--lumo-box-shadow-m)");
-        layout.setSpacing(true);
-        layout.setPadding(false);
+    // Datos del cliente
+    Span clientName = new Span(wr.getClient().getFirstName() + " " + wr.getClient().getLastName());
+    clientName.getElement().getStyle().set("font-weight", "bold").set("font-size", "1.2em");
 
-        // Encabezado: Prioridad y Estado
-        Span priority = new Span(wr.getPriority().name());
-        priority.getElement().getThemeList().add("badge pill");
-        switch (wr.getPriority()) {
-        case URGENTE -> priority.getElement().getThemeList().add("error");
-        case EMERGENCIA -> priority.getElement().getThemeList().add("warning");
-        case NORMAL -> priority.getElement().getThemeList().add("success");
-        }
+    Icon phoneIcon = VaadinIcon.PHONE.create();
+    phoneIcon.setColor("var(--lumo-secondary-text-color)");
 
-        Span status = new Span(wr.getStatus().name().replace("_", " "));
-        status.getElement().getThemeList().add("badge pill");
-        switch (wr.getStatus()) {
-        case EN_CONSULTA -> status.getElement().getThemeList().add("success");
-        case COMPLETADO -> status.getElement().getThemeList().add("contrast");
-        case CANCELADO -> status.getElement().getThemeList().add("error");
-        default -> status.getElement().getThemeList().add("primary");
-        }
+    Span phoneText = new Span(wr.getClient().getPhoneNumber());
 
-        HorizontalLayout header = new HorizontalLayout(priority, status);
-        header.setWidthFull();
-        header.setJustifyContentMode(JustifyContentMode.BETWEEN);
+    Icon mailIcon = VaadinIcon.ENVELOPE.create();
+    mailIcon.setColor("var(--lumo-secondary-text-color)");
 
-        // Datos del cliente
-        Span clientName = new Span(wr.getClient().getFirstName() + " " + wr.getClient().getLastName());
-        clientName.getElement().getStyle().set("font-weight", "bold").set("font-size", "1.2em");
+    Span emailText = new Span(wr.getClient().getEmail());
 
-        Icon phoneIcon = VaadinIcon.PHONE.create();
-        phoneIcon.setColor("var(--lumo-secondary-text-color)");
+    HorizontalLayout contactInfo =
+        new HorizontalLayout(phoneIcon, phoneText, new Span("•"), mailIcon, emailText);
+    contactInfo.setAlignItems(FlexComponent.Alignment.CENTER);
+    contactInfo.setSpacing(true);
 
-        Span phoneText = new Span(wr.getClient().getPhoneNumber());
+    // Datos del animal
+    Span petInfo =
+        new Span(
+            wr.getPet().getName()
+                + " • "
+                + wr.getPet().getType().name()
+                + " • "
+                + wr.getPet().getBreed()
+                + " • "
+                + wr.getPet().getGender());
+    petInfo
+        .getElement()
+        .getStyle()
+        .set("font-weight", "600")
+        .set("color", "var(--lumo-primary-text-color)")
+        .set("font-size", "1.05em");
 
-        Icon mailIcon = VaadinIcon.ENVELOPE.create();
-        mailIcon.setColor("var(--lumo-secondary-text-color)");
+    // Datos de visita
 
-        Span emailText = new Span(wr.getClient().getEmail());
+    Icon reasonIcon = VaadinIcon.CLIPBOARD_TEXT.create();
+    reasonIcon.setColor("var(--lumo-secondary-text-color)");
+    Span reasonText = new Span("Motivo: " + wr.getReasonForVisit());
+    HorizontalLayout reason = new HorizontalLayout(reasonIcon, reasonText);
 
-        HorizontalLayout contactInfo = new HorizontalLayout(phoneIcon, phoneText, new Span("•"), mailIcon, emailText);
-        contactInfo.setAlignItems(FlexComponent.Alignment.CENTER);
-        contactInfo.setSpacing(true);
+    Icon notesIcon = VaadinIcon.NOTEBOOK.create();
+    notesIcon.setColor("var(--lumo-secondary-text-color)");
+    Span notesText =
+        new Span(
+            "Notas: "
+                + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr.getNotes() : "N/A"));
+    HorizontalLayout notes = new HorizontalLayout(notesIcon, notesText);
 
-        // Datos del animal
-        Span petInfo = new Span(wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • "
-                + wr.getPet().getBreed() + " • " + wr.getPet().getGender());
-        petInfo.getElement().getStyle().set("font-weight", "600").set("color", "var(--lumo-primary-text-color)")
-                .set("font-size", "1.05em");
+    Icon arrivalIcon = VaadinIcon.CLOCK.create();
+    arrivalIcon.setColor("var(--lumo-secondary-text-color)");
+    Span arrivalText =
+        new Span(
+            "Hora de llegada: "
+                + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
+    HorizontalLayout arrival = new HorizontalLayout(arrivalIcon, arrivalText);
 
-        // Datos de visita
+    Icon motivoIcon = VaadinIcon.CLIPBOARD_TEXT.create();
+    motivoIcon.setColor("var(--lumo-secondary-text-color)");
 
-        Icon reasonIcon = VaadinIcon.CLIPBOARD_TEXT.create();
-        reasonIcon.setColor("var(--lumo-secondary-text-color)");
-        Span reasonText = new Span("Motivo: " + wr.getReasonForVisit());
-        HorizontalLayout reason = new HorizontalLayout(reasonIcon, reasonText);
+    Duration waitTime = Duration.ZERO;
+    if (wr.getArrivalTime() != null && !wr.getArrivalTime().isAfter(LocalDateTime.now())) {
+      waitTime = Duration.between(wr.getArrivalTime(), LocalDateTime.now());
+    }
+    String formattedWait = String.format("%dh %02dm", waitTime.toHours(), waitTime.toMinutesPart());
 
-        Icon notesIcon = VaadinIcon.NOTEBOOK.create();
-        notesIcon.setColor("var(--lumo-secondary-text-color)");
-        Span notesText = new Span(
-                "Notas: " + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr.getNotes() : "N/A"));
-        HorizontalLayout notes = new HorizontalLayout(notesIcon, notesText);
+    Icon waitIcon = VaadinIcon.HOURGLASS.create();
+    waitIcon.setColor("var(--lumo-secondary-text-color)");
+    Span waitingText = new Span("Esperando: " + formattedWait);
+    HorizontalLayout waiting = new HorizontalLayout(waitIcon, waitingText);
 
-        Icon arrivalIcon = VaadinIcon.CLOCK.create();
-        arrivalIcon.setColor("var(--lumo-secondary-text-color)");
-        Span arrivalText = new Span(
-                "Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
-        HorizontalLayout arrival = new HorizontalLayout(arrivalIcon, arrivalText);
+    // Botones según el estado
+    Button completeButton =
+        new Button(
+            "Finalizar Consulta",
+            e -> {
+              wr.setStatus(WaitingRoomStatus.COMPLETADO);
+              waitingRoomService.update(wr);
+              refreshGrid();
+              dialog.close();
+            });
+    completeButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+    completeButton.setWidth("220px");
 
-        Icon motivoIcon = VaadinIcon.CLIPBOARD_TEXT.create();
-        motivoIcon.setColor("var(--lumo-secondary-text-color)");
+    Button startButton =
+        new Button(
+            "Iniciar Consulta",
+            e -> {
+              wr.setStatus(WaitingRoomStatus.EN_CONSULTA);
+              waitingRoomService.update(wr);
+              refreshGrid();
+              dialog.close();
+            });
+    startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        Duration waitTime = Duration.ZERO;
-        if (wr.getArrivalTime() != null && !wr.getArrivalTime().isAfter(LocalDateTime.now())) {
-            waitTime = Duration.between(wr.getArrivalTime(), LocalDateTime.now());
-        }
-        String formattedWait = String.format("%dh %02dm", waitTime.toHours(), waitTime.toMinutesPart());
+    Button cancelConsultation = new Button("Cancelar Consulta");
+    cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        Icon waitIcon = VaadinIcon.HOURGLASS.create();
-        waitIcon.setColor("var(--lumo-secondary-text-color)");
-        Span waitingText = new Span("Esperando: " + formattedWait);
-        HorizontalLayout waiting = new HorizontalLayout(waitIcon, waitingText);
+    HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
+    actions.setSpacing(true);
+    actions.setJustifyContentMode(JustifyContentMode.CENTER);
+    actions.setWidthFull();
 
-        // Botones según el estado
-        Button completeButton = new Button("Finalizar Consulta", e -> {
-            wr.setStatus(WaitingRoomStatus.COMPLETADO);
-            waitingRoomService.update(wr);
-            refreshGrid();
-            dialog.close();
-        });
-        completeButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        completeButton.setWidth("220px");
+    actions.getStyle().set("margin-top", "1rem");
 
-        Button startButton = new Button("Iniciar Consulta", e -> {
-            wr.setStatus(WaitingRoomStatus.EN_CONSULTA);
-            waitingRoomService.update(wr);
-            refreshGrid();
-            dialog.close();
-        });
-        startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    startButton.setMinWidth("200px");
+    cancelConsultation.setMinWidth("200px");
 
-        Button cancelConsultation = new Button("Cancelar Consulta");
-        cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
+    cancelConsultation.addClickListener(
+        e -> {
+          ConfirmDialog dialogConfirm = new ConfirmDialog();
+          dialogConfirm.setHeader("¿Estás seguro?");
+          dialogConfirm.setText("Esto cancelará la consulta y marcará al paciente como cancelado.");
 
-        HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
-        actions.setSpacing(true);
-        actions.setJustifyContentMode(JustifyContentMode.CENTER);
-        actions.setWidthFull();
+          dialogConfirm.setCancelable(true);
+          dialogConfirm.setCancelText("No");
+          dialogConfirm.setConfirmText("Sí, cancelar");
 
-        actions.getStyle().set("margin-top", "1rem");
-
-        startButton.setMinWidth("200px");
-        cancelConsultation.setMinWidth("200px");
-
-        cancelConsultation.addClickListener(e -> {
-            ConfirmDialog dialogConfirm = new ConfirmDialog();
-            dialogConfirm.setHeader("¿Estás seguro?");
-            dialogConfirm.setText("Esto cancelará la consulta y marcará al paciente como cancelado.");
-
-            dialogConfirm.setCancelable(true);
-            dialogConfirm.setCancelText("No");
-            dialogConfirm.setConfirmText("Sí, cancelar");
-
-            dialogConfirm.addConfirmListener(event -> {
+          dialogConfirm.addConfirmListener(
+              event -> {
                 if (wr.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
-                    NotificationUtils.error("No se puede cancelar una entrada que está en consulta.");
-                    return;
+                  NotificationUtils.error("No se puede cancelar una entrada que está en consulta.");
+                  return;
                 }
                 waitingRoomService.delete(wr.getId());
                 refreshGrid();
                 dialog.close();
-            });
+              });
 
-            dialogConfirm.open();
+          dialogConfirm.open();
         });
 
-        cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
+    cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-        HorizontalLayout buttons = new HorizontalLayout();
-        if (wr.getStatus() == WaitingRoomStatus.ESPERANDO) {
-            buttons.add(startButton, cancelConsultation);
-        } else if (wr.getStatus() == WaitingRoomStatus.EN_CONSULTA) {
-            buttons.add(completeButton, cancelConsultation);
-        }
-
-        layout.add(header, clientName, contactInfo, petInfo, reason, notes, arrival, waiting, buttons);
-        dialog.add(layout);
-        dialog.open();
+    HorizontalLayout buttons = new HorizontalLayout();
+    if (wr.getStatus() == WaitingRoomStatus.ESPERANDO) {
+      buttons.add(startButton, cancelConsultation);
+    } else if (wr.getStatus() == WaitingRoomStatus.EN_CONSULTA) {
+      buttons.add(completeButton, cancelConsultation);
     }
 
-    public Specification<WaitingRoom> createFilterSpecification() {
-        return (root, query, builder) -> {
-            var clientJoin = root.join("client");
-            var petJoin = root.join("pet");
+    layout.add(header, clientName, contactInfo, petInfo, reason, notes, arrival, waiting, buttons);
+    dialog.add(layout);
+    dialog.open();
+  }
 
-            String searchTerm = searchField.getValue();
-            Predicate searchPredicate = builder.conjunction();
+  public Specification<WaitingRoom> createFilterSpecification() {
+    return (root, query, builder) -> {
+      var clientJoin = root.join("client");
+      var petJoin = root.join("pet");
 
-            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-                String likeSearch = "%" + searchTerm.toLowerCase() + "%";
+      String searchTerm = searchField.getValue();
+      Predicate searchPredicate = builder.conjunction();
 
-                searchPredicate = builder.or(builder.like(builder.lower(clientJoin.get("firstName")), likeSearch),
-                        builder.like(builder.lower(clientJoin.get("lastName")), likeSearch),
-                        builder.like(builder.lower(petJoin.get("name")), likeSearch));
-            }
+      if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+        String likeSearch = "%" + searchTerm.toLowerCase() + "%";
 
-            Predicate priorityPredicate = createPredicateForSelectedItems(
-                    Optional.ofNullable(priorityFilter.getSelectedItems()), items -> root.get("priority").in(items),
-                    builder);
+        searchPredicate =
+            builder.or(
+                builder.like(builder.lower(clientJoin.get("firstName")), likeSearch),
+                builder.like(builder.lower(clientJoin.get("lastName")), likeSearch),
+                builder.like(builder.lower(petJoin.get("name")), likeSearch));
+      }
 
-            Predicate statusPredicate = createPredicateForSelectedItems(
-                    Optional.ofNullable(statusFilter.getSelectedItems()), items -> root.get("status").in(items),
-                    builder);
+      Predicate priorityPredicate =
+          createPredicateForSelectedItems(
+              Optional.ofNullable(priorityFilter.getSelectedItems()),
+              items -> root.get("priority").in(items),
+              builder);
 
-            return builder.and(searchPredicate, priorityPredicate, statusPredicate);
-        };
-    }
+      Predicate statusPredicate =
+          createPredicateForSelectedItems(
+              Optional.ofNullable(statusFilter.getSelectedItems()),
+              items -> root.get("status").in(items),
+              builder);
 
-    private Component createActionsColumn(WaitingRoom waitingRoom) {
-        Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-        edit.getElement().setProperty("title", "Editar");
-        edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+      return builder.and(searchPredicate, priorityPredicate, statusPredicate);
+    };
+  }
 
-        Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL,
-                ButtonVariant.LUMO_ERROR);
-        delete.getElement().setProperty("title", "Eliminar");
-        delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+  private Component createActionsColumn(WaitingRoom waitingRoom) {
+    Button edit = new Button(new Icon(VaadinIcon.EDIT));
+    edit.addThemeVariants(
+        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+    edit.getElement().setProperty("title", "Editar");
+    edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
-        edit.addClickListener(e -> form.openForEdit(waitingRoom));
-        delete.addClickListener(e -> {
-            if (waitingRoom.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
-                NotificationUtils.error("No se puede eliminar una entrada que está en consulta.");
-                return;
-            }
-            waitingRoomService.delete(waitingRoom.getId());
-            NotificationUtils.success("Espera eliminada correctamente.");
-            refreshAll();
+    Button delete = new Button(new Icon(VaadinIcon.TRASH));
+    delete.addThemeVariants(
+        ButtonVariant.LUMO_ICON,
+        ButtonVariant.LUMO_TERTIARY_INLINE,
+        ButtonVariant.LUMO_SMALL,
+        ButtonVariant.LUMO_ERROR);
+    delete.getElement().setProperty("title", "Eliminar");
+    delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+    edit.addClickListener(e -> form.openForEdit(waitingRoom));
+    delete.addClickListener(
+        e -> {
+          if (waitingRoom.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
+            NotificationUtils.error("No se puede eliminar una entrada que está en consulta.");
+            return;
+          }
+          waitingRoomService.delete(waitingRoom.getId());
+          NotificationUtils.success("Espera eliminada correctamente.");
+          refreshAll();
         });
 
-        HorizontalLayout actions = new HorizontalLayout(edit, delete);
-        actions.setSpacing(true);
-        actions.setPadding(false);
-        actions.setMargin(false);
-        actions.setWidth(null);
-        return actions;
-    }
+    HorizontalLayout actions = new HorizontalLayout(edit, delete);
+    actions.setSpacing(true);
+    actions.setPadding(false);
+    actions.setMargin(false);
+    actions.setWidth(null);
+    return actions;
+  }
 
-    public void refreshAll() {
-        form.close();
-        refreshGrid();
-        updateQuantity();
-    }
+  public void refreshAll() {
+    form.close();
+    refreshGrid();
+    updateQuantity();
+  }
 
-    private void updateQuantity() {
-        try{
-            long count = waitingRoomService.getWaitingCount() + waitingRoomService.getInConsultationCount();
-            quantity.setText("En sala de espera (" + count + ")");
-        }catch (Exception e) {
-            log.warn("Error getting employee count", e);
-            quantity.setText("En sala de espera:");
-        }
+  private void updateQuantity() {
+    try {
+      long count =
+          waitingRoomService.getWaitingCount() + waitingRoomService.getInConsultationCount();
+      quantity.setText("En sala de espera (" + count + ")");
+    } catch (Exception e) {
+      log.warn("Error getting employee count", e);
+      quantity.setText("En sala de espera:");
     }
-
+  }
 }

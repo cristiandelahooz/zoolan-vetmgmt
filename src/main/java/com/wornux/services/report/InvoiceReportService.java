@@ -5,13 +5,11 @@ import com.wornux.dto.report.InvoiceReportDto;
 import com.wornux.mapper.InvoiceReportMapper;
 import com.wornux.services.report.pdf.JasperReportFactory;
 import com.wornux.services.report.pdf.ReportErrorException;
-import com.wornux.services.report.pdf.ReportService;
 import com.wornux.services.report.pdf.ReportServiceDatabase;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.format.DateTimeFormatter;
 
 /**
  * Servicio para generar reportes de facturas en formato PDF. Utiliza MapStruct para mapear
@@ -37,18 +35,24 @@ public class InvoiceReportService {
 
     InvoiceReportDto reportDto = invoiceReportMapper.toReportDto(invoice);
 
-    ReportServiceDatabase reportService = (ReportServiceDatabase) reportFactory.getServiceFromDatabase();
+    ReportServiceDatabase reportService =
+        (ReportServiceDatabase) reportFactory.getServiceFromDatabase();
 
     return reportService
         .withProductsData(reportDto.getProductsData())
         .put("invoiceId", String.valueOf(reportDto.getInvoiceId()))
-        .put("invoiceDate", reportDto.getInvoiceDate() != null
-            ? reportDto.getInvoiceDate().format(DATE_FORMAT) : "")
+        .put(
+            "invoiceDate",
+            reportDto.getInvoiceDate() != null
+                ? reportDto.getInvoiceDate().format(DATE_FORMAT)
+                : "")
         .put("clientEmail", reportDto.getClientEmail() != null ? reportDto.getClientEmail() : "")
         .put("clientName", reportDto.getClientName() != null ? reportDto.getClientName() : "")
-        .put("clientAddress",
+        .put(
+            "clientAddress",
             reportDto.getClientAddress() != null ? reportDto.getClientAddress() : "")
-        .put("totalInvoice",
+        .put(
+            "totalInvoice",
             reportDto.getTotalAmount() != null ? reportDto.getTotalAmount() : "0.00")
         .put("subtotal", reportDto.getSubtotal() != null ? reportDto.getSubtotal() : "0.00")
         .put("tax", reportDto.getTax() != null ? reportDto.getTax() : "0.00")
@@ -68,8 +72,10 @@ public class InvoiceReportService {
       ReportServiceDatabase reportService = prepareInvoiceReport(invoice);
       byte[] pdfData = reportService.execute();
 
-      log.info("PDF generado exitosamente para factura #{}, tamaño: {} bytes",
-          invoice.getCode(), pdfData.length);
+      log.info(
+          "PDF generado exitosamente para factura #{}, tamaño: {} bytes",
+          invoice.getCode(),
+          pdfData.length);
 
       return pdfData;
     } catch (Exception e) {

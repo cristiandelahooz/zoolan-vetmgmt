@@ -2,15 +2,14 @@ package com.wornux.data.entity;
 
 import com.wornux.data.enums.ServiceCategory;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.envers.Audited;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 /**
- * Entity representing a service that can be provided to pets
- * Services are simpler than products - no stock management, warehousing, etc.
+ * Entity representing a service that can be provided to pets Services are simpler than products -
+ * no stock management, warehousing, etc.
  */
 @Entity
 @Table(name = "services")

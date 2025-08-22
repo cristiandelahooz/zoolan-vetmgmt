@@ -25,7 +25,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
 import com.wornux.data.entity.Service;
 import com.wornux.data.enums.ServiceCategory;
-import com.wornux.data.enums.ServiceType;
 import com.wornux.services.interfaces.ServiceService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
@@ -33,13 +32,12 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @Route(value = "services")
@@ -49,7 +47,8 @@ public class ServiceView extends Div {
   private final Grid<Service> grid = GridUtils.createBasicGrid(Service.class);
 
   private final TextField searchField = new TextField("Buscar servicios");
-  private final ComboBox<ServiceCategory> serviceCategoryFilter = new ComboBox<>("Filtrar por tipo");
+  private final ComboBox<ServiceCategory> serviceCategoryFilter =
+      new ComboBox<>("Filtrar por tipo");
   private final Span quantity = new Span();
 
   private final Button create = new Button();
@@ -64,19 +63,18 @@ public class ServiceView extends Div {
 
     // Configure form event listeners
     serviceForm.setOnSaveCallback(this::refreshAll);
-    serviceForm.addServiceSavedListener(event -> {
-      refreshAll();
-      serviceForm.close();
-    });
+    serviceForm.addServiceSavedListener(
+        event -> {
+          refreshAll();
+          serviceForm.close();
+        });
     serviceForm.addServiceCancelledListener(serviceForm::close);
 
     createGrid(serviceService, createFilterSpecification());
 
     final Div gridLayout = new Div(grid);
     gridLayout.addClassNames(
-        LumoUtility.Margin.Horizontal.MEDIUM,
-        LumoUtility.Padding.SMALL,
-        LumoUtility.Height.FULL);
+        LumoUtility.Margin.Horizontal.MEDIUM, LumoUtility.Padding.SMALL, LumoUtility.Height.FULL);
 
     add(createTitle(), createFilter(), gridLayout);
     addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
@@ -98,24 +96,29 @@ public class ServiceView extends Div {
         .setAutoWidth(true);
 
     // Format price column
-    grid.addColumn(serviceEntity -> {
-          NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("es", "DO"));
-          return formatter.format(serviceEntity.getPrice());
-        }).setHeader("Precio")
+    grid.addColumn(
+            serviceEntity -> {
+              NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("es", "DO"));
+              return formatter.format(serviceEntity.getPrice());
+            })
+        .setHeader("Precio")
         .setTextAlign(ColumnTextAlign.END)
         .setSortable(true)
         .setAutoWidth(true);
 
-    grid.addComponentColumn(this::renderStatus).setHeader("Estado").setTextAlign(ColumnTextAlign.CENTER);
+    grid.addComponentColumn(this::renderStatus)
+        .setHeader("Estado")
+        .setTextAlign(ColumnTextAlign.CENTER);
 
-    var actionsColumn = grid.addComponentColumn(this::createActionsColumn)
-        .setHeader("Acciones")
-        .setAutoWidth(true);
+    var actionsColumn =
+        grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
     actionsColumn.setFrozenToEnd(true);
 
-    grid.asSingleSelect().addValueChangeListener(event -> {
-      // Optional: implement inline editing
-    });
+    grid.asSingleSelect()
+        .addValueChangeListener(
+            event -> {
+              // Optional: implement inline editing
+            });
   }
 
   public Specification<Service> createFilterSpecification() {
@@ -138,7 +141,8 @@ public class ServiceView extends Div {
 
       // Service type filter
       if (serviceCategoryFilter.getValue() != null) {
-        predicates.add(builder.equal(root.get("serviceCategory"), serviceCategoryFilter.getValue()));
+        predicates.add(
+            builder.equal(root.get("serviceCategory"), serviceCategoryFilter.getValue()));
       }
 
       return builder.and(predicates.toArray(new Predicate[0]));
@@ -147,9 +151,7 @@ public class ServiceView extends Div {
 
   private Predicate createSearchPredicate(Root<Service> root, CriteriaBuilder builder) {
     return predicateForTextField(
-        root, builder,
-        new String[]{"name", "description"},
-        searchField.getValue());
+        root, builder, new String[] {"name", "description"}, searchField.getValue());
   }
 
   private void refreshAll() {
@@ -208,22 +210,17 @@ public class ServiceView extends Div {
   private Div createTitle() {
     final Breadcrumb breadcrumb = new Breadcrumb();
     breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-    breadcrumb.add(
-        new BreadcrumbItem("Servicios", ServiceView.class));
+    breadcrumb.add(new BreadcrumbItem("Servicios", ServiceView.class));
 
     Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar servicios médicos y de peluquería.");
 
     Div headerLayout = new Div(breadcrumb, icon);
     headerLayout.addClassNames(
-        LumoUtility.Display.FLEX,
-        LumoUtility.FlexDirection.ROW,
-        LumoUtility.Margin.Top.SMALL);
+        LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.Margin.Top.SMALL);
 
     create.setText("Nuevo Servicio");
     create.addThemeVariants(
-        ButtonVariant.LUMO_PRIMARY,
-        ButtonVariant.LUMO_CONTRAST,
-        ButtonVariant.LUMO_SMALL);
+        ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
     create.addClassNames(LumoUtility.Width.AUTO);
 
     Div layout = new Div(headerLayout, create);
@@ -244,9 +241,7 @@ public class ServiceView extends Div {
   private Component createActionsColumn(Service service) {
     Button edit = new Button(new Icon(VaadinIcon.EDIT));
     edit.addThemeVariants(
-        ButtonVariant.LUMO_ICON,
-        ButtonVariant.LUMO_TERTIARY,
-        ButtonVariant.LUMO_SMALL);
+        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
     edit.getElement().setProperty("title", "Editar");
     edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
@@ -276,20 +271,24 @@ public class ServiceView extends Div {
     confirmDialog.setModal(true);
     confirmDialog.setWidth("400px");
 
-    Span message = new Span("¿Está seguro de que desea eliminar el servicio \"" +
-        service.getName() + "\"? Esta acción no se puede deshacer.");
+    Span message =
+        new Span(
+            "¿Está seguro de que desea eliminar el servicio \""
+                + service.getName()
+                + "\"? Esta acción no se puede deshacer.");
     message.getStyle().set("margin-bottom", "20px");
 
     Button confirmButton = new Button("Eliminar");
     confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
-    confirmButton.addClickListener(e -> {
-      try {
-        deleteService(service);
-        confirmDialog.close();
-      } catch (Exception ex) {
-        NotificationUtils.error("Error al eliminar el servicio: " + ex.getMessage());
-      }
-    });
+    confirmButton.addClickListener(
+        e -> {
+          try {
+            deleteService(service);
+            confirmDialog.close();
+          } catch (Exception ex) {
+            NotificationUtils.error("Error al eliminar el servicio: " + ex.getMessage());
+          }
+        });
 
     Button cancelButton = new Button("Cancelar");
     cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);

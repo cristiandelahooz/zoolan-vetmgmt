@@ -53,9 +53,13 @@ public class SelectOwnerDialog extends Dialog {
     filterBar.setWidthFull();
     filterBar.setPadding(false);
     filterBar.setSpacing(true);
-    
-    firstNameFilter.setWidthFull(); lastNameFilter.setWidthFull(); cedulaFilter.setWidthFull();
-    firstNameFilter.setMinWidth("0"); lastNameFilter.setMinWidth("0"); cedulaFilter.setMinWidth("0");
+
+    firstNameFilter.setWidthFull();
+    lastNameFilter.setWidthFull();
+    cedulaFilter.setWidthFull();
+    firstNameFilter.setMinWidth("0");
+    lastNameFilter.setMinWidth("0");
+    cedulaFilter.setMinWidth("0");
     filterBar.setFlexGrow(1, firstNameFilter, lastNameFilter, cedulaFilter);
 
     firstNameFilter.setValueChangeMode(ValueChangeMode.EAGER);

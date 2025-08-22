@@ -18,7 +18,6 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
@@ -34,7 +33,6 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.ConfirmationDialog;
 import com.wornux.components.DecimalField;
 import com.wornux.components.Sidebar;
 import com.wornux.data.entity.*;
@@ -56,7 +54,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -103,8 +100,7 @@ public class InvoiceForm extends Div {
   private final ClientCreationDialog clientCreationDialog;
   private final transient List<Product> products;
   private Invoice element;
-  @Setter
-  private transient Runnable callable;
+  @Setter private transient Runnable callable;
 
   public InvoiceForm(
       InvoiceService invoiceService,
@@ -237,95 +233,114 @@ public class InvoiceForm extends Div {
         .setTextAlign(ColumnTextAlign.CENTER);
 
     gridItems
-        .addColumn(item -> {
-          if (item instanceof InvoiceProduct) {
-            return Optional.ofNullable(((InvoiceProduct) item).getProduct()).map(Product::getName).orElse("");
-          } else if (item instanceof ServiceInvoice) {
-            return Optional.ofNullable(((ServiceInvoice) item).getService()).map(com.wornux.data.entity.Service::getName).orElse("");
-          }
-          return "";
-        })
+        .addColumn(
+            item -> {
+              if (item instanceof InvoiceProduct) {
+                return Optional.ofNullable(((InvoiceProduct) item).getProduct())
+                    .map(Product::getName)
+                    .orElse("");
+              } else if (item instanceof ServiceInvoice) {
+                return Optional.ofNullable(((ServiceInvoice) item).getService())
+                    .map(com.wornux.data.entity.Service::getName)
+                    .orElse("");
+              }
+              return "";
+            })
         .setHeader("Productos y Servicios")
         .setAutoWidth(true);
 
     gridItems
-        .addColumn(item -> {
-          if (item instanceof InvoiceProduct) {
-            return Optional.ofNullable(((InvoiceProduct) item).getProduct()).map(Product::getDescription).orElse("");
-          } else if (item instanceof ServiceInvoice) {
-            return Optional.ofNullable(((ServiceInvoice) item).getService()).map(com.wornux.data.entity.Service::getDescription).orElse("");
-          }
-          return "";
-        })
+        .addColumn(
+            item -> {
+              if (item instanceof InvoiceProduct) {
+                return Optional.ofNullable(((InvoiceProduct) item).getProduct())
+                    .map(Product::getDescription)
+                    .orElse("");
+              } else if (item instanceof ServiceInvoice) {
+                return Optional.ofNullable(((ServiceInvoice) item).getService())
+                    .map(com.wornux.data.entity.Service::getDescription)
+                    .orElse("");
+              }
+              return "";
+            })
         .setHeader("Descripción")
         .setAutoWidth(true);
 
     gridItems
-        .addColumn(item -> {
-          Double quantity = 0.0;
-          if (item instanceof InvoiceProduct) {
-            quantity = ((InvoiceProduct) item).getQuantity();
-          } else if (item instanceof ServiceInvoice) {
-            quantity = ((ServiceInvoice) item).getQuantity();
-          }
-          return new DecimalFormat("#,##0.00").format(Optional.ofNullable(quantity).orElse(0.0));
-        })
+        .addColumn(
+            item -> {
+              Double quantity = 0.0;
+              if (item instanceof InvoiceProduct) {
+                quantity = ((InvoiceProduct) item).getQuantity();
+              } else if (item instanceof ServiceInvoice) {
+                quantity = ((ServiceInvoice) item).getQuantity();
+              }
+              return new DecimalFormat("#,##0.00")
+                  .format(Optional.ofNullable(quantity).orElse(0.0));
+            })
         .setHeader("Cantidad")
         .setAutoWidth(true)
         .setTextAlign(ColumnTextAlign.CENTER);
 
     gridItems
-        .addColumn(item -> {
-          BigDecimal price = BigDecimal.ZERO;
-          if (item instanceof InvoiceProduct) {
-            price = ((InvoiceProduct) item).getPrice();
-          } else if (item instanceof ServiceInvoice) {
-            price = ((ServiceInvoice) item).getPrice();
-          }
-          return new DecimalFormat("#,##0.00").format(Optional.ofNullable(price).orElse(BigDecimal.ZERO));
-        })
+        .addColumn(
+            item -> {
+              BigDecimal price = BigDecimal.ZERO;
+              if (item instanceof InvoiceProduct) {
+                price = ((InvoiceProduct) item).getPrice();
+              } else if (item instanceof ServiceInvoice) {
+                price = ((ServiceInvoice) item).getPrice();
+              }
+              return new DecimalFormat("#,##0.00")
+                  .format(Optional.ofNullable(price).orElse(BigDecimal.ZERO));
+            })
         .setHeader("Precio")
         .setAutoWidth(true)
         .setTextAlign(ColumnTextAlign.END);
 
     gridItems
-        .addColumn(item -> {
-          BigDecimal amount = BigDecimal.ZERO;
-          if (item instanceof InvoiceProduct) {
-            amount = ((InvoiceProduct) item).getAmount();
-          } else if (item instanceof ServiceInvoice) {
-            amount = ((ServiceInvoice) item).getAmount();
-          }
-          return new DecimalFormat("#,##0.00").format(Optional.ofNullable(amount).orElse(BigDecimal.ZERO));
-        })
+        .addColumn(
+            item -> {
+              BigDecimal amount = BigDecimal.ZERO;
+              if (item instanceof InvoiceProduct) {
+                amount = ((InvoiceProduct) item).getAmount();
+              } else if (item instanceof ServiceInvoice) {
+                amount = ((ServiceInvoice) item).getAmount();
+              }
+              return new DecimalFormat("#,##0.00")
+                  .format(Optional.ofNullable(amount).orElse(BigDecimal.ZERO));
+            })
         .setHeader("Importe")
         .setAutoWidth(true)
         .setTextAlign(ColumnTextAlign.END);
 
     gridItems.getDataProvider().addDataProviderListener(event -> calculateTotals());
-    gridItems.addItemDoubleClickListener(event -> {
-      Object item = event.getItem();
-      if (item instanceof InvoiceProduct) {
-        createProductDialog((InvoiceProduct) item);
-      }
-    });
+    gridItems.addItemDoubleClickListener(
+        event -> {
+          Object item = event.getItem();
+          if (item instanceof InvoiceProduct) {
+            createProductDialog((InvoiceProduct) item);
+          }
+        });
   }
 
   private static final BigDecimal TAX_RATE = new BigDecimal("0.18"); // Assuming 18% tax rate
 
   private void calculateTotals() {
-    BigDecimal productsTotal = invoiceProducts.stream()
-        .filter(p -> p.getProduct() != null && p.getAmount() != null)
-        .map(InvoiceProduct::getAmount)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal productsTotal =
+        invoiceProducts.stream()
+            .filter(p -> p.getProduct() != null && p.getAmount() != null)
+            .map(InvoiceProduct::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    BigDecimal servicesTotal = Optional.ofNullable(element)
-        .map(Invoice::getServices)
-        .map(List::stream)
-        .orElse(Stream.empty())
-        .filter(s -> s.getService() != null && s.getAmount() != null)
-        .map(ServiceInvoice::getAmount)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal servicesTotal =
+        Optional.ofNullable(element)
+            .map(Invoice::getServices)
+            .map(List::stream)
+            .orElse(Stream.empty())
+            .filter(s -> s.getService() != null && s.getAmount() != null)
+            .map(ServiceInvoice::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     BigDecimal currentSubtotal = productsTotal.add(servicesTotal);
     BigDecimal currentTax = currentSubtotal.multiply(TAX_RATE);
@@ -352,10 +367,11 @@ public class InvoiceForm extends Div {
 
         Button removeButton = new Button(VaadinIcon.MINUS_CIRCLE_O.create());
         removeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-        removeButton.addClickListener(e -> {
-          invoiceProducts.remove(item);
-          refreshGrid();
-        });
+        removeButton.addClickListener(
+            e -> {
+              invoiceProducts.remove(item);
+              refreshGrid();
+            });
 
         Div actions = new Div(actionButton, removeButton);
         actions.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, "-mx-s");
@@ -421,7 +437,7 @@ public class InvoiceForm extends Div {
           try {
             binderLine.writeBean(line);
             if (element == null) {
-                element = new Invoice();
+              element = new Invoice();
             }
             line.setInvoice(element);
             line.calculateAmount();
@@ -461,7 +477,11 @@ public class InvoiceForm extends Div {
 
     copy.removeIf(
         product ->
-            invoiceProducts.stream().map(InvoiceProduct::getProduct).filter(Objects::nonNull).toList().contains(product));
+            invoiceProducts.stream()
+                .map(InvoiceProduct::getProduct)
+                .filter(Objects::nonNull)
+                .toList()
+                .contains(product));
     fieldProduct.setItems(copy);
     fieldProduct.addValueChangeListener(
         event -> {
@@ -496,77 +516,83 @@ public class InvoiceForm extends Div {
 
   private void saveOrUpdate(ClickEvent<Button> buttonClickEvent) {
     try {
-        // 1. Initialize Invoice element
-        if (element == null) {
-            element = new Invoice();
+      // 1. Initialize Invoice element
+      if (element == null) {
+        element = new Invoice();
+      }
+
+      // 2. Populate basic fields from binder
+      binder.writeBean(this.element);
+
+      // Set calculated subtotal, tax, and total on the Invoice entity
+      this.element.setSubtotal(BigDecimal.valueOf(subtotalField.getValue()));
+      this.element.setTax(BigDecimal.valueOf(taxField.getValue()));
+      this.element.setTotal(BigDecimal.valueOf(total.getValue()));
+
+      // 3. Validate and manage Client
+      if (element.getClient() == null) {
+        NotificationUtils.error("Debes seleccionar un cliente");
+        return;
+      }
+      // Fetch a managed client instance if not already managed
+      if (element.getClient().getId() != null) {
+        Client managedClient =
+            customerService.getClientById(element.getClient().getId()).orElse(null);
+        if (managedClient == null) {
+          NotificationUtils.error("El cliente seleccionado no se encontró en la base de datos.");
+          return;
         }
+        element.setClient(managedClient);
+      } else {
+        NotificationUtils.error(
+            "El cliente no ha sido guardado correctamente. Intenta crearlo de nuevo.");
+        return;
+      }
 
-        // 2. Populate basic fields from binder
-        binder.writeBean(this.element);
+      boolean isNewInvoice = (element.getCode() == null || element.getCode() == 0);
 
-        // Set calculated subtotal, tax, and total on the Invoice entity
-        this.element.setSubtotal(BigDecimal.valueOf(subtotalField.getValue()));
-        this.element.setTax(BigDecimal.valueOf(taxField.getValue()));
-        this.element.setTotal(BigDecimal.valueOf(total.getValue()));
+      if (isNewInvoice) {
+        element =
+            invoiceService.create(
+                element); // This saves the Invoice and returns the managed instance
+      }
 
-        // 3. Validate and manage Client
-        if (element.getClient() == null) {
-            NotificationUtils.error("Debes seleccionar un cliente");
-            return;
-        }
-        // Fetch a managed client instance if not already managed
-        if (element.getClient().getId() != null) {
-            Client managedClient = customerService.getClientById(element.getClient().getId()).orElse(null);
-            if (managedClient == null) {
-                NotificationUtils.error("El cliente seleccionado no se encontró en la base de datos.");
-                return;
-            }
-            element.setClient(managedClient);
-        } else {
-            NotificationUtils.error("El cliente no ha sido guardado correctamente. Intenta crearlo de nuevo.");
-            return;
-        }
+      element.getProducts().clear();
+      element.getServices().clear();
 
-        boolean isNewInvoice = (element.getCode() == null || element.getCode() == 0);
+      Set<InvoiceProduct> finalProducts =
+          invoiceProducts.stream().filter(p -> p.getProduct() != null).collect(Collectors.toSet());
+      finalProducts.forEach(
+          element::addProduct); // addProduct sets the back-reference to the managed 'element'
 
-        if (isNewInvoice) {
-            element = invoiceService.create(element); // This saves the Invoice and returns the managed instance
-        }
+      List<ServiceInvoice> servicesFromDisplayedItems =
+          displayedItems.stream()
+              .filter(item -> item instanceof ServiceInvoice)
+              .map(item -> (ServiceInvoice) item)
+              .collect(Collectors.toList());
+      servicesFromDisplayedItems.forEach(
+          element::addService); // addService sets the back-reference to the managed 'element'
 
-        element.getProducts().clear();
-        element.getServices().clear();
+      if (element.getProducts().isEmpty() && element.getServices().isEmpty()) {
+        NotificationUtils.error("Debes seleccionar al menos un producto o servicio");
+        return;
+      }
 
-        Set<InvoiceProduct> finalProducts = invoiceProducts.stream()
-            .filter(p -> p.getProduct() != null)
-            .collect(Collectors.toSet());
-        finalProducts.forEach(element::addProduct); // addProduct sets the back-reference to the managed 'element'
+      invoiceService.create(element);
 
-        List<ServiceInvoice> servicesFromDisplayedItems = displayedItems.stream()
-            .filter(item -> item instanceof ServiceInvoice)
-            .map(item -> (ServiceInvoice) item)
-            .collect(Collectors.toList());
-        servicesFromDisplayedItems.forEach(element::addService); // addService sets the back-reference to the managed 'element'
-
-        if (element.getProducts().isEmpty() && element.getServices().isEmpty()) {
-            NotificationUtils.error("Debes seleccionar al menos un producto o servicio");
-            return;
-        }
-
-        invoiceService.create(element);
-
-        populateForm(element);
-        Optional.ofNullable(callable).ifPresent(Runnable::run);
+      populateForm(element);
+      Optional.ofNullable(callable).ifPresent(Runnable::run);
 
     } catch (ObjectOptimisticLockingFailureException ex) {
-        log.error(ex.getLocalizedMessage());
-        NotificationUtils.error(
-            "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
+      log.error(ex.getLocalizedMessage());
+      NotificationUtils.error(
+          "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
     } catch (ValidationException ex) {
-        log.error(ex.getLocalizedMessage());
-        NotificationUtils.error(ex);
+      log.error(ex.getLocalizedMessage());
+      NotificationUtils.error(ex);
     } catch (Exception ex) {
-        log.error("Error al guardar la factura: {}", ex.getMessage(), ex);
-        NotificationUtils.error("Error al guardar la factura: " + ex.getMessage());
+      log.error("Error al guardar la factura: {}", ex.getMessage(), ex);
+      NotificationUtils.error("Error al guardar la factura: " + ex.getMessage());
     }
   }
 
@@ -693,13 +719,10 @@ public class InvoiceForm extends Div {
         LumoUtility.Padding.SMALL,
         LumoUtility.Gap.MEDIUM,
         LumoUtility.Background.CONTRAST_10,
-        LumoUtility.BorderRadius.MEDIUM
-    );
+        LumoUtility.BorderRadius.MEDIUM);
 
     Div container = new Div(header, gridItems);
-    container.addClassNames(
-        LumoUtility.BorderRadius.MEDIUM,
-        CARD_BACKGROUND_COLOR);
+    container.addClassNames(LumoUtility.BorderRadius.MEDIUM, CARD_BACKGROUND_COLOR);
 
     return container;
   }

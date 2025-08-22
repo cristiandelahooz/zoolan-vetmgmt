@@ -2,14 +2,11 @@ package com.wornux.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import lombok.*;
 
-/**
- * DTO for WorkScheduleDay used in create/update requests
- */
+/** DTO for WorkScheduleDay used in create/update requests */
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,12 +22,9 @@ public class WorkScheduleDayDto {
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
   private LocalTime endTime;
 
-  @Builder.Default
-  private boolean isOffDay = false;
+  @Builder.Default private boolean isOffDay = false;
 
-  /**
-   * Validates that start time is before end time
-   */
+  /** Validates that start time is before end time */
   public boolean isValidTimeRange() {
     if (isOffDay) {
       return true;

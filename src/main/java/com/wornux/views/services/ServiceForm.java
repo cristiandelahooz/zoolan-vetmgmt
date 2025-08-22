@@ -22,20 +22,17 @@ import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Service;
 import com.wornux.data.enums.ServiceCategory;
-import com.wornux.data.enums.ServiceType;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
 import com.wornux.services.interfaces.ServiceService;
 import com.wornux.utils.NotificationUtils;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ServiceForm extends Dialog {
@@ -55,7 +52,8 @@ public class ServiceForm extends Dialog {
 
   // Binders
   private final Binder<ValidationBean> binder = new BeanValidationBinder<>(ValidationBean.class);
-  private final Binder<ServiceUpdateRequestDto> binderUpdate = new BeanValidationBinder<>(ServiceUpdateRequestDto.class);
+  private final Binder<ServiceUpdateRequestDto> binderUpdate =
+      new BeanValidationBinder<>(ServiceUpdateRequestDto.class);
 
   // Services
   private final transient ServiceService serviceService;
@@ -140,17 +138,10 @@ public class ServiceForm extends Dialog {
     FormLayout formLayout = new FormLayout();
     formLayout.addClassNames(LumoUtility.Padding.MEDIUM);
 
-    formLayout.add(
-        name,
-        serviceCategory,
-        price,
-        description
-    );
+    formLayout.add(name, serviceCategory, price, description);
 
     formLayout.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1),
-        new FormLayout.ResponsiveStep("500px", 2)
-    );
+        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
     // Make description span full width
     formLayout.setColspan(description, 2);
@@ -173,39 +164,53 @@ public class ServiceForm extends Dialog {
   }
 
   private void setupCreateBinder() {
-    binder.forField(name)
+    binder
+        .forField(name)
         .asRequired("El nombre del servicio es requerido")
-        .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, 100))
+        .withValidator(
+            new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, 100))
         .bind(ValidationBean::getName, ValidationBean::setName);
 
-    binder.forField(description)
-        .withValidator(new StringLengthValidator("La descripción no puede exceder 500 caracteres", 0, 500))
+    binder
+        .forField(description)
+        .withValidator(
+            new StringLengthValidator("La descripción no puede exceder 500 caracteres", 0, 500))
         .bind(ValidationBean::getDescription, ValidationBean::setDescription);
 
-    binder.forField(serviceCategory)
+    binder
+        .forField(serviceCategory)
         .asRequired("El tipo de servicio es requerido")
         .bind(ValidationBean::getServiceCategory, ValidationBean::setServiceCategory);
 
-    binder.forField(price)
+    binder
+        .forField(price)
         .withValidator(this::validatePrice)
         .bind(ValidationBean::getPrice, ValidationBean::setPrice);
   }
 
   private void setupUpdateBinder() {
-    binderUpdate.forField(name)
+    binderUpdate
+        .forField(name)
         .asRequired("El nombre del servicio es requerido")
-        .withValidator(new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, 100))
+        .withValidator(
+            new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, 100))
         .bind(ServiceUpdateRequestDto::getName, ServiceUpdateRequestDto::setName);
 
-    binderUpdate.forField(description)
-        .withValidator(new StringLengthValidator("La descripción no puede exceder 500 caracteres", 0, 500))
+    binderUpdate
+        .forField(description)
+        .withValidator(
+            new StringLengthValidator("La descripción no puede exceder 500 caracteres", 0, 500))
         .bind(ServiceUpdateRequestDto::getDescription, ServiceUpdateRequestDto::setDescription);
 
-    binderUpdate.forField(serviceCategory)
+    binderUpdate
+        .forField(serviceCategory)
         .asRequired("El tipo de servicio es requerido")
-        .bind(ServiceUpdateRequestDto::getServiceCategory, ServiceUpdateRequestDto::setServiceCategory);
+        .bind(
+            ServiceUpdateRequestDto::getServiceCategory,
+            ServiceUpdateRequestDto::setServiceCategory);
 
-    binderUpdate.forField(price)
+    binderUpdate
+        .forField(price)
         .withValidator(this::validatePrice)
         .bind(ServiceUpdateRequestDto::getPrice, ServiceUpdateRequestDto::setPrice);
   }
@@ -225,10 +230,11 @@ public class ServiceForm extends Dialog {
 
   private void setupEventListeners() {
     saveButton.addClickListener(this::save);
-    cancelButton.addClickListener(e -> {
-      close();
-      fireServiceCancelledEvent();
-    });
+    cancelButton.addClickListener(
+        e -> {
+          close();
+          fireServiceCancelledEvent();
+        });
   }
 
   private void save(ClickEvent<Button> event) {
@@ -246,12 +252,16 @@ public class ServiceForm extends Dialog {
     }
 
     try {
-      ServiceCreateRequestDto dto = ServiceCreateRequestDto.builder()
-          .name(validationBean.getName().trim())
-          .description(validationBean.getDescription() != null ? validationBean.getDescription().trim() : null)
-          .serviceCategory(validationBean.getServiceCategory())
-          .price(BigDecimal.valueOf(validationBean.getPrice()))
-          .build();
+      ServiceCreateRequestDto dto =
+          ServiceCreateRequestDto.builder()
+              .name(validationBean.getName().trim())
+              .description(
+                  validationBean.getDescription() != null
+                      ? validationBean.getDescription().trim()
+                      : null)
+              .serviceCategory(validationBean.getServiceCategory())
+              .price(BigDecimal.valueOf(validationBean.getPrice()))
+              .build();
 
       serviceService.save(dto);
       NotificationUtils.success("Servicio creado exitosamente");
@@ -333,8 +343,7 @@ public class ServiceForm extends Dialog {
         service.getName(),
         service.getDescription(),
         service.getServiceCategory(),
-        service.getPrice().doubleValue()
-    );
+        service.getPrice().doubleValue());
   }
 
   public void addServiceSavedListener(Consumer<ServiceCreateRequestDto> listener) {

@@ -16,32 +16,32 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductUpdateRequestDto {
 
-    @NotBlank(message = "El nombre del producto es obligatorio")
-    private String name;
+  @NotBlank(message = "El nombre del producto es obligatorio")
+  private String name;
 
-    private String description;
+  private String description;
 
-    @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")
-    private BigDecimal purchasePrice;
+  @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")
+  private BigDecimal purchasePrice;
 
-    @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")
-    private BigDecimal salesPrice;
+  @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")
+  private BigDecimal salesPrice;
 
-    @Min(value = 0, message = "El stock no puede ser negativo")
-    private Integer availableStock;
+  @Min(value = 0, message = "El stock no puede ser negativo")
+  private Integer availableStock;
 
-    @Min(value = 0, message = "El stock contable no puede ser negativo")
-    private Integer accountingStock;
+  @Min(value = 0, message = "El stock contable no puede ser negativo")
+  private Integer accountingStock;
 
-    private int reorderLevel;
+  private int reorderLevel;
 
-    private Long supplierId;
+  private Long supplierId;
 
-    private ProductCategory category;
+  private ProductCategory category;
 
-    private Long warehouseId;
+  private Long warehouseId;
 
-    private ProductUnit unit;
+  private ProductUnit unit;
 
-    private ProductUsageType usageType;
+  private ProductUsageType usageType;
 }

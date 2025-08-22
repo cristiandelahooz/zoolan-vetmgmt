@@ -2,7 +2,6 @@ package com.wornux.services.implementations;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import com.vaadin.hilla.crud.FormService;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Employee;
@@ -47,7 +46,6 @@ public class ConsultationServiceImpl
   private final PetRepository petRepository;
   private final ConsultationMapper consultationMapper;
   private final EmployeeRepository employeeRepository;
-
 
   public Consultation save(Consultation item) {
     log.debug("Saving Consultation: {}", item.getId());

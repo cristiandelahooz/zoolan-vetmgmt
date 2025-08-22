@@ -1,6 +1,5 @@
 package com.wornux.services.implementations;
 
-import com.wornux.data.entity.Invoice;
 import com.wornux.data.entity.Service;
 import com.wornux.data.enums.ServiceCategory;
 import com.wornux.data.repository.InvoiceRepository;
@@ -8,27 +7,22 @@ import com.wornux.data.repository.InvoiceServiceRepository;
 import com.wornux.data.repository.ServiceRepository;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
-import com.wornux.exception.InvoiceNotFoundException;
 import com.wornux.mapper.ServiceMapper;
 import com.wornux.services.interfaces.ServiceService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
+import java.util.List;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
-/**
- * Implementation of ServiceService for managing veterinary services
- */
+/** Implementation of ServiceService for managing veterinary services */
 @Slf4j
 @Component("serviceServiceImpl")
 @RequiredArgsConstructor
@@ -136,16 +130,19 @@ public class ServiceServiceImpl implements ServiceService {
   public Service updateService(@NonNull Long id, @Valid ServiceUpdateRequestDto dto) {
     log.debug("Request to update Service with ID: {}", id);
 
-    Service service = serviceRepository
-        .findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + id));
+    Service service =
+        serviceRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + id));
 
     // Validate unique name (excluding current service)
     if (dto.getName() != null && !dto.getName().equals(service.getName())) {
-      serviceRepository.findByNameAndActiveTrueAndIdNot(dto.getName(), id)
-          .ifPresent(existing -> {
-            throw new ValidationException("Ya existe un servicio activo con ese nombre");
-          });
+      serviceRepository
+          .findByNameAndActiveTrueAndIdNot(dto.getName(), id)
+          .ifPresent(
+              existing -> {
+                throw new ValidationException("Ya existe un servicio activo con ese nombre");
+              });
     }
 
     serviceMapper.updateServiceFromDto(dto, service);
@@ -160,9 +157,10 @@ public class ServiceServiceImpl implements ServiceService {
   public void deactivateService(@NonNull Long id) {
     log.debug("Request to deactivate Service with ID: {}", id);
 
-    Service service = serviceRepository
-        .findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + id));
+    Service service =
+        serviceRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + id));
 
     service.setActive(false);
     serviceRepository.save(service);
@@ -197,5 +195,4 @@ public class ServiceServiceImpl implements ServiceService {
   public ServiceRepository getRepository() {
     return this.serviceRepository;
   }
-
 }

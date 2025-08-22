@@ -30,28 +30,23 @@ import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.pets.SelectPetDialog;
 import com.wornux.views.services.ServiceForm;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
-import com.wornux.views.pets.SelectPetDialog;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
-/**
- * Enhanced form for creating and editing consultations with service and product integration
- */
+/** Enhanced form for creating and editing consultations with service and product integration */
 @Slf4j
 public class ConsultationsForm extends Dialog {
 
   // Form fields
-  //private final ComboBox<Pet> petComboBox = new ComboBox<>("Mascota");
-  //NUEVO
+  // private final ComboBox<Pet> petComboBox = new ComboBox<>("Mascota");
+  // NUEVO
 
   // Mascota (selector por diálogo)
   private final TextField petName = new TextField("Mascota");
@@ -103,15 +98,15 @@ public class ConsultationsForm extends Dialog {
   private final List<ProductItem> selectedProducts = new ArrayList<>();
   private final ServiceForm serviceForm;
 
-  @Setter
-  private transient Consumer<Consultation> onSaveCallback;
+  @Setter private transient Consumer<Consultation> onSaveCallback;
 
-  public ConsultationsForm(ConsultationService consultationService,
-                           EmployeeService employeeService,
-                           PetService petService,
-                           ServiceService serviceService,
-                           InvoiceService invoiceService,
-                           ProductService productService) {
+  public ConsultationsForm(
+      ConsultationService consultationService,
+      EmployeeService employeeService,
+      PetService petService,
+      ServiceService serviceService,
+      InvoiceService invoiceService,
+      ProductService productService) {
     this.consultationService = consultationService;
     this.employeeService = employeeService;
     this.petService = petService;
@@ -119,16 +114,17 @@ public class ConsultationsForm extends Dialog {
     this.productService = productService;
     this.invoiceService = invoiceService;
     this.serviceForm = new ServiceForm(serviceService);
-    //NUEVO
+    // NUEVO
     this.selectPetDialog = new SelectPetDialog(petService);
 
     petName.setReadOnly(true);
     selectPetButton.addClickListener(e -> selectPetDialog.open());
-    selectPetDialog.addPetSelectedListener(pet -> {
-      selectedPet = pet;
-      petName.setInvalid(false);
-      petName.setValue(pet != null ? pet.getName() : "");
-    });
+    selectPetDialog.addPetSelectedListener(
+        pet -> {
+          selectedPet = pet;
+          petName.setInvalid(false);
+          petName.setValue(pet != null ? pet.getName() : "");
+        });
 
     setHeaderTitle("Consulta Veterinaria");
     setModal(true);
@@ -144,9 +140,9 @@ public class ConsultationsForm extends Dialog {
 
   private void createForm() {
     // Configure basic fields
-    //petComboBox.setItemLabelGenerator(pet -> pet.getName() + " (" + pet.getType() + ")");
-    //petComboBox.setRequired(true);
-    //petComboBox.setWidthFull();
+    // petComboBox.setItemLabelGenerator(pet -> pet.getName() + " (" + pet.getType() + ")");
+    // petComboBox.setRequired(true);
+    // petComboBox.setWidthFull();
 
     HorizontalLayout petPickerLayout = new HorizontalLayout(petName, selectPetButton);
     petPickerLayout.setAlignItems(FlexComponent.Alignment.END);
@@ -170,14 +166,16 @@ public class ConsultationsForm extends Dialog {
     prescriptionTextArea.setWidthFull();
 
     // Configure service selection
-    serviceComboBox.setItemLabelGenerator(service -> service.getName() + " - $" + service.getPrice());
+    serviceComboBox.setItemLabelGenerator(
+        service -> service.getName() + " - $" + service.getPrice());
     serviceComboBox.setWidthFull();
     serviceComboBox.setPlaceholder("Buscar servicios médicos...");
 
     addServiceButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
 
     // Configure product selection
-    productComboBox.setItemLabelGenerator(product -> product.getName() + " - $" + product.getSalesPrice());
+    productComboBox.setItemLabelGenerator(
+        product -> product.getName() + " - $" + product.getSalesPrice());
     productComboBox.setWidthFull();
     productComboBox.setPlaceholder("Buscar productos de uso interno...");
 
@@ -190,7 +188,7 @@ public class ConsultationsForm extends Dialog {
 
     // Create layout
     FormLayout basicInfoLayout = new FormLayout();
-    //basicInfoLayout.add(petComboBox, veterinarianComboBox);
+    // basicInfoLayout.add(petComboBox, veterinarianComboBox);
     basicInfoLayout.add(petPickerLayout, veterinarianComboBox);
     basicInfoLayout.add(notesTextArea, 2);
     basicInfoLayout.add(diagnosisTextArea, treatmentTextArea);
@@ -250,24 +248,48 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void configureServicesGrid() {
-    servicesGrid.addColumn(item -> item.getService().getName()).setHeader("Servicio").setAutoWidth(true);
-    servicesGrid.addColumn(item -> "$" + item.getService().getPrice()).setHeader("Precio").setAutoWidth(true);
+    servicesGrid
+        .addColumn(item -> item.getService().getName())
+        .setHeader("Servicio")
+        .setAutoWidth(true);
+    servicesGrid
+        .addColumn(item -> "$" + item.getService().getPrice())
+        .setHeader("Precio")
+        .setAutoWidth(true);
     servicesGrid.addColumn(ServiceItem::getQuantity).setHeader("Cantidad").setAutoWidth(true);
-    servicesGrid.addColumn(item -> "$" + item.getSubtotal()).setHeader("Subtotal").setAutoWidth(true);
+    servicesGrid
+        .addColumn(item -> "$" + item.getSubtotal())
+        .setHeader("Subtotal")
+        .setAutoWidth(true);
 
-    servicesGrid.addComponentColumn(this::createServiceRemoveButton).setHeader("Acciones").setAutoWidth(true);
+    servicesGrid
+        .addComponentColumn(this::createServiceRemoveButton)
+        .setHeader("Acciones")
+        .setAutoWidth(true);
 
     servicesGrid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES);
     servicesGrid.setHeight("200px");
   }
 
   private void configureProductsGrid() {
-    productsGrid.addColumn(item -> item.getProduct().getName()).setHeader("Producto").setAutoWidth(true);
-    productsGrid.addColumn(item -> "$" + item.getProduct().getSalesPrice()).setHeader("Precio").setAutoWidth(true);
+    productsGrid
+        .addColumn(item -> item.getProduct().getName())
+        .setHeader("Producto")
+        .setAutoWidth(true);
+    productsGrid
+        .addColumn(item -> "$" + item.getProduct().getSalesPrice())
+        .setHeader("Precio")
+        .setAutoWidth(true);
     productsGrid.addColumn(ProductItem::getQuantity).setHeader("Cantidad").setAutoWidth(true);
-    productsGrid.addColumn(item -> "$" + item.getSubtotal()).setHeader("Subtotal").setAutoWidth(true);
+    productsGrid
+        .addColumn(item -> "$" + item.getSubtotal())
+        .setHeader("Subtotal")
+        .setAutoWidth(true);
 
-    productsGrid.addComponentColumn(this::createProductRemoveButton).setHeader("Acciones").setAutoWidth(true);
+    productsGrid
+        .addComponentColumn(this::createProductRemoveButton)
+        .setHeader("Acciones")
+        .setAutoWidth(true);
 
     productsGrid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES);
     productsGrid.setHeight("200px");
@@ -282,8 +304,7 @@ public class ConsultationsForm extends Dialog {
     totalsLayout.add(
         new HorizontalLayout(new Span("Total Servicios:"), totalServicesSpan),
         new HorizontalLayout(new Span("Total Productos:"), totalProductsSpan),
-        new HorizontalLayout(new Span("Total General:"), grandTotalSpan)
-    );
+        new HorizontalLayout(new Span("Total General:"), grandTotalSpan));
     totalsLayout.setPadding(false);
     totalsLayout.setSpacing(false);
 
@@ -297,46 +318,52 @@ public class ConsultationsForm extends Dialog {
 
   private Button createServiceRemoveButton(ServiceItem item) {
     Button removeButton = new Button(new Icon(VaadinIcon.TRASH));
-    removeButton.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
-    removeButton.addClickListener(e -> {
-      selectedServices.remove(item);
-      servicesGrid.setItems(selectedServices);
-      updateTotals();
-    });
+    removeButton.addThemeVariants(
+        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
+    removeButton.addClickListener(
+        e -> {
+          selectedServices.remove(item);
+          servicesGrid.setItems(selectedServices);
+          updateTotals();
+        });
     return removeButton;
   }
 
   private Button createProductRemoveButton(ProductItem item) {
     Button removeButton = new Button(new Icon(VaadinIcon.TRASH));
-    removeButton.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
-    removeButton.addClickListener(e -> {
-      selectedProducts.remove(item);
-      productsGrid.setItems(selectedProducts);
-      updateTotals();
-    });
+    removeButton.addThemeVariants(
+        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
+    removeButton.addClickListener(
+        e -> {
+          selectedProducts.remove(item);
+          productsGrid.setItems(selectedProducts);
+          updateTotals();
+        });
     return removeButton;
   }
 
   private void setupValidation() {
     /*binder.forField(petComboBox)
-        .withValidator(pet -> pet != null, "Debe seleccionar una mascota")
-        .bind(Consultation::getPet, Consultation::setPet);*/
+    .withValidator(pet -> pet != null, "Debe seleccionar una mascota")
+    .bind(Consultation::getPet, Consultation::setPet);*/
 
-    binder.forField(veterinarianComboBox)
+    binder
+        .forField(veterinarianComboBox)
         .withValidator(vet -> vet != null, "Debe seleccionar un veterinario")
         .bind(Consultation::getVeterinarian, Consultation::setVeterinarian);
 
-    binder.forField(notesTextArea)
-        .withValidator(notes -> notes != null && !notes.trim().isEmpty(), "Las notas son requeridas")
+    binder
+        .forField(notesTextArea)
+        .withValidator(
+            notes -> notes != null && !notes.trim().isEmpty(), "Las notas son requeridas")
         .bind(Consultation::getNotes, Consultation::setNotes);
 
-    binder.forField(diagnosisTextArea)
-        .bind(Consultation::getDiagnosis, Consultation::setDiagnosis);
+    binder.forField(diagnosisTextArea).bind(Consultation::getDiagnosis, Consultation::setDiagnosis);
 
-    binder.forField(treatmentTextArea)
-        .bind(Consultation::getTreatment, Consultation::setTreatment);
+    binder.forField(treatmentTextArea).bind(Consultation::getTreatment, Consultation::setTreatment);
 
-    binder.forField(prescriptionTextArea)
+    binder
+        .forField(prescriptionTextArea)
         .bind(Consultation::getPrescription, Consultation::setPrescription);
   }
 
@@ -345,9 +372,12 @@ public class ConsultationsForm extends Dialog {
     serviceComboBox.addValueChangeListener(e -> addServiceButton.setEnabled(e.getValue() != null));
 
     addProductButton.addClickListener(e -> addSelectedProduct());
-    productComboBox.addValueChangeListener(e ->
-        addProductButton.setEnabled(e.getValue() != null && productQuantityField.getValue() != null && productQuantityField.getValue() > 0)
-    );
+    productComboBox.addValueChangeListener(
+        e ->
+            addProductButton.setEnabled(
+                e.getValue() != null
+                    && productQuantityField.getValue() != null
+                    && productQuantityField.getValue() > 0));
 
     createServiceButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
     createServiceButton.setIcon(VaadinIcon.PLUS.create());
@@ -362,8 +392,9 @@ public class ConsultationsForm extends Dialog {
     if (selectedService == null) return;
 
     // Check if service already added
-    boolean alreadyAdded = selectedServices.stream()
-        .anyMatch(item -> item.getService().getId().equals(selectedService.getId()));
+    boolean alreadyAdded =
+        selectedServices.stream()
+            .anyMatch(item -> item.getService().getId().equals(selectedService.getId()));
 
     if (alreadyAdded) {
       NotificationUtils.error("Este servicio ya ha sido agregado");
@@ -388,8 +419,9 @@ public class ConsultationsForm extends Dialog {
     if (selectedProduct == null || quantity == null || quantity <= 0) return;
 
     // Check if product already added
-    boolean alreadyAdded = selectedProducts.stream()
-        .anyMatch(item -> item.getProduct().getId().equals(selectedProduct.getId()));
+    boolean alreadyAdded =
+        selectedProducts.stream()
+            .anyMatch(item -> item.getProduct().getId().equals(selectedProduct.getId()));
 
     if (alreadyAdded) {
       NotificationUtils.error("Este producto ya ha sido agregado");
@@ -405,13 +437,15 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void updateTotals() {
-    BigDecimal servicesTotal = selectedServices.stream()
-        .map(ServiceItem::getSubtotal)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal servicesTotal =
+        selectedServices.stream()
+            .map(ServiceItem::getSubtotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    BigDecimal productsTotal = selectedProducts.stream()
-        .map(ProductItem::getSubtotal)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal productsTotal =
+        selectedProducts.stream()
+            .map(ProductItem::getSubtotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     BigDecimal grandTotal = servicesTotal.add(productsTotal);
 
@@ -431,7 +465,6 @@ public class ConsultationsForm extends Dialog {
     productComboBox.setItems(productService.findInternalUseProducts());
   }
 
-
   private void save(ClickEvent<Button> event) {
     try {
       if (editingConsultation == null) {
@@ -446,11 +479,9 @@ public class ConsultationsForm extends Dialog {
         return;
       }
 
-
       binder.writeBean(editingConsultation);
 
       editingConsultation.setPet(selectedPet);
-
 
       // Save consultation
       Consultation savedConsultation = consultationService.save(editingConsultation);
@@ -476,8 +507,6 @@ public class ConsultationsForm extends Dialog {
     }
   }
 
-  
-
   public void openForNew() {
     clearForm();
 
@@ -501,21 +530,33 @@ public class ConsultationsForm extends Dialog {
     petName.setInvalid(false);
 
     // Load services and products from existing invoice
-    invoiceService.getRepository().findByConsultation(consultation).ifPresent(invoice -> {
-      this.editingInvoice = invoice;
+    invoiceService
+        .getRepository()
+        .findByConsultation(consultation)
+        .ifPresent(
+            invoice -> {
+              this.editingInvoice = invoice;
 
-      invoice.getServices().forEach(serviceInvoice ->
-          selectedServices.add(new ServiceItem(serviceInvoice.getService(), serviceInvoice.getQuantity()))
-      );
+              invoice
+                  .getServices()
+                  .forEach(
+                      serviceInvoice ->
+                          selectedServices.add(
+                              new ServiceItem(
+                                  serviceInvoice.getService(), serviceInvoice.getQuantity())));
 
-      invoice.getProducts().forEach(invoiceProduct ->
-          selectedProducts.add(new ProductItem(invoiceProduct.getProduct(), invoiceProduct.getQuantity()))
-      );
+              invoice
+                  .getProducts()
+                  .forEach(
+                      invoiceProduct ->
+                          selectedProducts.add(
+                              new ProductItem(
+                                  invoiceProduct.getProduct(), invoiceProduct.getQuantity())));
 
-      servicesGrid.setItems(selectedServices);
-      productsGrid.setItems(selectedProducts);
-      updateTotals();
-    });
+              servicesGrid.setItems(selectedServices);
+              productsGrid.setItems(selectedProducts);
+              updateTotals();
+            });
 
     saveButton.setText("Actualizar Consulta");
     setHeaderTitle("Editar Consulta");
@@ -535,18 +576,18 @@ public class ConsultationsForm extends Dialog {
     selectedPet = null;
     petName.clear();
     editingInvoice = null;
-
   }
 
   private void setupServiceForm() {
-    serviceForm.addServiceSavedListener(dto -> {
-      var medicalServices = serviceService.findMedicalServices();
-      serviceComboBox.setItems(medicalServices);
-      medicalServices.stream()
-          .filter(s -> s.getName().equalsIgnoreCase(dto.getName()))
-          .findFirst()
-          .ifPresent(serviceComboBox::setValue);
-    });
+    serviceForm.addServiceSavedListener(
+        dto -> {
+          var medicalServices = serviceService.findMedicalServices();
+          serviceComboBox.setItems(medicalServices);
+          medicalServices.stream()
+              .filter(s -> s.getName().equalsIgnoreCase(dto.getName()))
+              .findFirst()
+              .ifPresent(serviceComboBox::setValue);
+        });
   }
 
   private void saveOrUpdateInvoice(Consultation consultation) {
@@ -562,7 +603,8 @@ public class ConsultationsForm extends Dialog {
             NotificationUtils.error("Error al eliminar la factura asociada pendiente.");
           }
         } else {
-          NotificationUtils.info("Factura asociada pagada. No se realizaron cambios en la factura.");
+          NotificationUtils.info(
+              "Factura asociada pagada. No se realizaron cambios en la factura.");
         }
       }
       return;
@@ -583,44 +625,48 @@ public class ConsultationsForm extends Dialog {
           NotificationUtils.error("Error al eliminar la factura asociada pendiente anterior.");
           return;
         }
-        invoiceToSave = Invoice.builder()
-            .client(consultation.getPet().getOwners().iterator().next())
-            .consultation(consultation)
-            .issuedDate(LocalDate.now())
-            .paymentDate(LocalDate.now().plusDays(30))
-            .status(InvoiceStatus.PENDING)
-            .paidToDate(BigDecimal.ZERO)
-            .build();
+        invoiceToSave =
+            Invoice.builder()
+                .client(consultation.getPet().getOwners().iterator().next())
+                .consultation(consultation)
+                .issuedDate(LocalDate.now())
+                .paymentDate(LocalDate.now().plusDays(30))
+                .status(InvoiceStatus.PENDING)
+                .paidToDate(BigDecimal.ZERO)
+                .build();
       }
     } else {
-      invoiceToSave = Invoice.builder()
-          .client(consultation.getPet().getOwners().iterator().next())
-          .consultation(consultation)
-          .issuedDate(LocalDate.now())
-          .paymentDate(LocalDate.now().plusDays(30))
-          .status(InvoiceStatus.PENDING)
-          .paidToDate(BigDecimal.ZERO)
-          .build();
+      invoiceToSave =
+          Invoice.builder()
+              .client(consultation.getPet().getOwners().iterator().next())
+              .consultation(consultation)
+              .issuedDate(LocalDate.now())
+              .paymentDate(LocalDate.now().plusDays(30))
+              .status(InvoiceStatus.PENDING)
+              .paidToDate(BigDecimal.ZERO)
+              .build();
     }
 
     invoiceToSave.getServices().clear();
     for (ServiceItem serviceItem : selectedServices) {
-      ServiceInvoice serviceInvoice = ServiceInvoice.builder()
-          .service(serviceItem.getService())
-          .quantity(serviceItem.getQuantity())
-          .amount(serviceItem.getSubtotal())
-          .build();
+      ServiceInvoice serviceInvoice =
+          ServiceInvoice.builder()
+              .service(serviceItem.getService())
+              .quantity(serviceItem.getQuantity())
+              .amount(serviceItem.getSubtotal())
+              .build();
       invoiceToSave.addService(serviceInvoice);
     }
 
     invoiceToSave.getProducts().clear();
     for (ProductItem productItem : selectedProducts) {
-      InvoiceProduct invoiceProduct = InvoiceProduct.builder()
-          .product(productItem.getProduct())
-          .quantity(productItem.getQuantity())
-          .price(productItem.getProduct().getSalesPrice())
-          .amount(productItem.getSubtotal())
-          .build();
+      InvoiceProduct invoiceProduct =
+          InvoiceProduct.builder()
+              .product(productItem.getProduct())
+              .quantity(productItem.getQuantity())
+              .price(productItem.getProduct().getSalesPrice())
+              .amount(productItem.getSubtotal())
+              .build();
       invoiceToSave.addProduct(invoiceProduct);
     }
 
@@ -635,7 +681,6 @@ public class ConsultationsForm extends Dialog {
       NotificationUtils.error("Error al generar/actualizar la factura: " + e.getMessage());
     }
   }
-
 
   public static class ServiceItem {
     private final Service service;

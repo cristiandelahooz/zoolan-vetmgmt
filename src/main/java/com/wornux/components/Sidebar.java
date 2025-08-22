@@ -16,16 +16,12 @@ public class Sidebar extends Section implements HasEnabled, HasTheme {
 
   private final H2 title = new H2();
   private final Span subTitle = new Span();
-  @Getter
-  private final Div content = new Div();
+  @Getter private final Div content = new Div();
   private final Div headerContent = new Div();
 
-  @Getter
-  private final Button save = new Button("Guardar");
-  @Getter
-  private final Button cancel = new Button("Descartar cambios");
-  @Getter
-  private final Button delete = new Button("Eliminar");
+  @Getter private final Button save = new Button("Guardar");
+  @Getter private final Button cancel = new Button("Descartar cambios");
+  @Getter private final Button delete = new Button("Eliminar");
 
   public Sidebar() {
     addClassNames(

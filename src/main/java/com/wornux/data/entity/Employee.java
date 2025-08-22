@@ -49,10 +49,7 @@ public class Employee extends User {
 
   @NotAudited
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(
-      name = "employee_work_schedule",
-      joinColumns = @JoinColumn(name = "employee_id")
-  )
+  @CollectionTable(name = "employee_work_schedule", joinColumns = @JoinColumn(name = "employee_id"))
   @Builder.Default
   private List<WorkScheduleDay> workScheduleDays = new ArrayList<>();
 

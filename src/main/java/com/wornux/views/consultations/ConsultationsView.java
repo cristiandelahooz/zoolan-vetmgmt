@@ -29,11 +29,7 @@ import com.wornux.services.interfaces.*;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
 import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Predicate;
 import java.util.List;
-
-import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
@@ -66,7 +62,13 @@ public class ConsultationsView extends Div {
     this.productService = productService;
     this.serviceService = serviceService;
     this.consultationsForm =
-        new ConsultationsForm(consultationService, employeeService, petService, serviceService, invoiceService, productService);
+        new ConsultationsForm(
+            consultationService,
+            employeeService,
+            petService,
+            serviceService,
+            invoiceService,
+            productService);
 
     setId("consultations-view");
 
@@ -121,27 +123,26 @@ public class ConsultationsView extends Div {
       }
 
       return builder.or(
-              builder.like(
-                  builder.lower(root.get("notes")),
-                  "%" + searchField.getValue().toLowerCase() + "%"),
-              builder.like(
-                  builder.lower(root.get("diagnosis")),
-                  "%" + searchField.getValue().toLowerCase() + "%"),
-              builder.like(
-                  builder.lower(root.get("treatment")),
-                  "%" + searchField.getValue().toLowerCase() + "%"),
-              builder.like(
-                  builder.lower(root.get("prescription")),
-                  "%" + searchField.getValue().toLowerCase() + "%"),
-              builder.like(
-                  builder.lower(root.get("pet").get("name")),
-                  "%" + searchField.getValue().toLowerCase() + "%"),
-              builder.like(
-                  builder.lower(root.get("veterinarian").get("firstName")),
-                  "%" + searchField.getValue().toLowerCase() + "%"),
-              builder.like(
-                  builder.lower(root.get("veterinarian").get("lastName")),
-                  "%" + searchField.getValue().toLowerCase() + "%"));
+          builder.like(
+              builder.lower(root.get("notes")), "%" + searchField.getValue().toLowerCase() + "%"),
+          builder.like(
+              builder.lower(root.get("diagnosis")),
+              "%" + searchField.getValue().toLowerCase() + "%"),
+          builder.like(
+              builder.lower(root.get("treatment")),
+              "%" + searchField.getValue().toLowerCase() + "%"),
+          builder.like(
+              builder.lower(root.get("prescription")),
+              "%" + searchField.getValue().toLowerCase() + "%"),
+          builder.like(
+              builder.lower(root.get("pet").get("name")),
+              "%" + searchField.getValue().toLowerCase() + "%"),
+          builder.like(
+              builder.lower(root.get("veterinarian").get("firstName")),
+              "%" + searchField.getValue().toLowerCase() + "%"),
+          builder.like(
+              builder.lower(root.get("veterinarian").get("lastName")),
+              "%" + searchField.getValue().toLowerCase() + "%"));
     };
   }
 
@@ -186,20 +187,20 @@ public class ConsultationsView extends Div {
     searchField.addValueChangeListener(e -> refreshAll());
     searchField.setWidth("50%");
 
-      quantity.addClassNames(
-              LumoUtility.BorderRadius.SMALL,
-              LumoUtility.Height.XSMALL,
-              LumoUtility.FontWeight.MEDIUM,
-              LumoUtility.TextAlignment.CENTER,
-              LumoUtility.JustifyContent.CENTER,
-              LumoUtility.AlignItems.CENTER,
-              LumoUtility.Padding.XSMALL,
-              LumoUtility.Padding.Horizontal.SMALL,
-              LumoUtility.Margin.Horizontal.SMALL,
-              LumoUtility.Margin.Bottom.XSMALL,
-              LumoUtility.TextColor.PRIMARY_CONTRAST,
-              LumoUtility.Background.PRIMARY);
-      quantity.setWidth("15%");
+    quantity.addClassNames(
+        LumoUtility.BorderRadius.SMALL,
+        LumoUtility.Height.XSMALL,
+        LumoUtility.FontWeight.MEDIUM,
+        LumoUtility.TextAlignment.CENTER,
+        LumoUtility.JustifyContent.CENTER,
+        LumoUtility.AlignItems.CENTER,
+        LumoUtility.Padding.XSMALL,
+        LumoUtility.Padding.Horizontal.SMALL,
+        LumoUtility.Margin.Horizontal.SMALL,
+        LumoUtility.Margin.Bottom.XSMALL,
+        LumoUtility.TextColor.PRIMARY_CONTRAST,
+        LumoUtility.Background.PRIMARY);
+    quantity.setWidth("15%");
 
     HorizontalLayout toolbar = new HorizontalLayout(searchField, quantity);
     toolbar.setWidthFull();
@@ -209,7 +210,8 @@ public class ConsultationsView extends Div {
         LumoUtility.Margin.Horizontal.MEDIUM,
         LumoUtility.Margin.Top.SMALL,
         LumoUtility.Padding.MEDIUM,
-        LumoUtility.Gap.MEDIUM, LumoUtility.Width.FULL);
+        LumoUtility.Gap.MEDIUM,
+        LumoUtility.Width.FULL);
 
     return toolbar;
   }
@@ -239,90 +241,94 @@ public class ConsultationsView extends Div {
     updateQuantity();
   }
 
-    private Component createActionsColumn(Consultation consultation) {
-        Button edit = new Button(new Icon(VaadinIcon.EDIT));
-        edit.addThemeVariants(
-                ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
-        edit.getElement().setProperty("title", "Editar");
-        edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+  private Component createActionsColumn(Consultation consultation) {
+    Button edit = new Button(new Icon(VaadinIcon.EDIT));
+    edit.addThemeVariants(
+        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+    edit.getElement().setProperty("title", "Editar");
+    edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
-        Button delete = new Button(new Icon(VaadinIcon.TRASH));
-        delete.addThemeVariants(
-                ButtonVariant.LUMO_ICON,
-                ButtonVariant.LUMO_TERTIARY_INLINE,
-                ButtonVariant.LUMO_SMALL,
-                ButtonVariant.LUMO_ERROR);
-        delete.getElement().setProperty("title", "Eliminar");
-        delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+    Button delete = new Button(new Icon(VaadinIcon.TRASH));
+    delete.addThemeVariants(
+        ButtonVariant.LUMO_ICON,
+        ButtonVariant.LUMO_TERTIARY_INLINE,
+        ButtonVariant.LUMO_SMALL,
+        ButtonVariant.LUMO_ERROR);
+    delete.getElement().setProperty("title", "Eliminar");
+    delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
-        edit.addClickListener(e -> evaluateForEdit(consultation));
-        delete.addClickListener(e -> showDeleteConfirmationDialog(consultation));
+    edit.addClickListener(e -> evaluateForEdit(consultation));
+    delete.addClickListener(e -> showDeleteConfirmationDialog(consultation));
 
-        HorizontalLayout actions = new HorizontalLayout(edit, delete);
-        actions.setSpacing(true);
-        actions.setPadding(false);
-        actions.setMargin(false);
-        actions.setWidth(null);
-        return actions;
-    }
+    HorizontalLayout actions = new HorizontalLayout(edit, delete);
+    actions.setSpacing(true);
+    actions.setPadding(false);
+    actions.setMargin(false);
+    actions.setWidth(null);
+    return actions;
+  }
 
-    public void evaluateForEdit(Consultation consultation) {
-      try {
-        Invoice invoice = invoiceService.findByConsultation(consultation);
-        if(invoice != null) {
-          if (invoice.getStatus() != InvoiceStatus.PENDING) {
-            NotificationUtils.error("No se puede editar la consulta porque su factura asociada no está en estado PENDIENTE.");
-            refreshAll();
-          } else {
-            consultationsForm.openForEdit(consultation);
-          }
-        } else {
-          NotificationUtils.error("No se encontró una factura asociada a esta consulta.");
+  public void evaluateForEdit(Consultation consultation) {
+    try {
+      Invoice invoice = invoiceService.findByConsultation(consultation);
+      if (invoice != null) {
+        if (invoice.getStatus() != InvoiceStatus.PENDING) {
+          NotificationUtils.error(
+              "No se puede editar la consulta porque su factura asociada no está en estado PENDIENTE.");
           refreshAll();
+        } else {
+          consultationsForm.openForEdit(consultation);
         }
-      } catch (Exception e) {
-        NotificationUtils.error("La consulta esta corrupta porque no tiene factura asociada.");
+      } else {
+        NotificationUtils.error("No se encontró una factura asociada a esta consulta.");
+        refreshAll();
       }
+    } catch (Exception e) {
+      NotificationUtils.error("La consulta esta corrupta porque no tiene factura asociada.");
     }
+  }
 
-    private void showDeleteConfirmationDialog(Consultation consultation) {
-        Dialog confirmDialog = new Dialog();
-        confirmDialog.setHeaderTitle("Confirmar eliminación");
-        confirmDialog.setModal(true);
-        confirmDialog.setWidth("400px");
+  private void showDeleteConfirmationDialog(Consultation consultation) {
+    Dialog confirmDialog = new Dialog();
+    confirmDialog.setHeaderTitle("Confirmar eliminación");
+    confirmDialog.setModal(true);
+    confirmDialog.setWidth("400px");
 
-        Span message = new Span("¿Está seguro de que desea eliminar la consulta de la mascota \"" +
-                (consultation.getPet() != null ? consultation.getPet().getName() : "") +
-                "\"? Esta acción no se puede deshacer.");
-        message.getStyle().set("margin-bottom", "20px");
+    Span message =
+        new Span(
+            "¿Está seguro de que desea eliminar la consulta de la mascota \""
+                + (consultation.getPet() != null ? consultation.getPet().getName() : "")
+                + "\"? Esta acción no se puede deshacer.");
+    message.getStyle().set("margin-bottom", "20px");
 
-        Button confirmButton = new Button("Eliminar");
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
-        confirmButton.addClickListener(e -> {
-            try {
-              NotificationUtils.error("Favor solicite al manager que borre la factura.");
-              //refreshAll();
-              confirmDialog.close();
-            } catch (Exception ex) {
-                NotificationUtils.error("Error al eliminar la consulta: " + ex.getMessage());
-            }
+    Button confirmButton = new Button("Eliminar");
+    confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+    confirmButton.addClickListener(
+        e -> {
+          try {
+            NotificationUtils.error("Favor solicite al manager que borre la factura.");
+            // refreshAll();
+            confirmDialog.close();
+          } catch (Exception ex) {
+            NotificationUtils.error("Error al eliminar la consulta: " + ex.getMessage());
+          }
         });
 
-        Button cancelButton = new Button("Cancelar");
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        cancelButton.addClickListener(e -> confirmDialog.close());
+    Button cancelButton = new Button("Cancelar");
+    cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+    cancelButton.addClickListener(e -> confirmDialog.close());
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, confirmButton);
-        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        buttonLayout.setSpacing(true);
+    HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, confirmButton);
+    buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+    buttonLayout.setSpacing(true);
 
-        VerticalLayout content = new VerticalLayout(message, buttonLayout);
-        content.setPadding(false);
-        content.setSpacing(true);
+    VerticalLayout content = new VerticalLayout(message, buttonLayout);
+    content.setPadding(false);
+    content.setSpacing(true);
 
-        confirmDialog.add(content);
-        confirmDialog.open();
-    }
+    confirmDialog.add(content);
+    confirmDialog.open();
+  }
 
   private Component renderStatus(Consultation consultation) {
     boolean isActive = consultation.isActive();
@@ -332,13 +338,13 @@ public class ConsultationsView extends Div {
     return badge;
   }
 
-    private void updateQuantity() {
-        try {
-            long count = consultationService.getRepository().count();
-            quantity.setText("Consultas (" + count + ")");
-        } catch (Exception e) {
-            log.warn("Error getting consultations count", e);
-            quantity.setText("Consultas");
-        }
+  private void updateQuantity() {
+    try {
+      long count = consultationService.getRepository().count();
+      quantity.setText("Consultas (" + count + ")");
+    } catch (Exception e) {
+      log.warn("Error getting consultations count", e);
+      quantity.setText("Consultas");
     }
+  }
 }

@@ -1,18 +1,15 @@
 package com.wornux.dto.request;
 
+import static com.wornux.constants.ValidationConstants.*;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
 import jakarta.validation.constraints.*;
-import lombok.Data;
-import static com.wornux.constants.ValidationConstants.*;
-
-
 import java.time.LocalDate;
-
 import lombok.AllArgsConstructor;
-
+import lombok.Data;
 
 @Data
 @AllArgsConstructor
@@ -51,7 +48,9 @@ public class ClientUpdateRequestDto {
 
   private String emergencyContactName;
 
-  @Pattern(regexp = DOMINICAN_PHONE_PATTERN_OPTIONAL, message = "Proporcione un número de emergencia válido")
+  @Pattern(
+      regexp = DOMINICAN_PHONE_PATTERN_OPTIONAL,
+      message = "Proporcione un número de emergencia válido")
   private String emergencyContactNumber;
 
   private ClientRating rating;

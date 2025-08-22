@@ -2,9 +2,7 @@ package com.wornux.data.enums;
 
 import lombok.Getter;
 
-/**
- * Enum for categorizing services by type (Medical or Grooming)
- */
+/** Enum for categorizing services by type (Medical or Grooming) */
 @Getter
 public enum ServiceCategory {
   MEDICAL("Médico", "Servicios médicos veterinarios"),

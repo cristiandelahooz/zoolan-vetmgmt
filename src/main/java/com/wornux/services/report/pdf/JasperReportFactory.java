@@ -15,9 +15,6 @@ public class JasperReportFactory {
   private String version;
 
   public ReportService<ReportServiceDatabase> getServiceFromDatabase() {
-    return ReportServiceDatabase.builder()
-        .resourceLoader(resourceLoader)
-        .version(version)
-        .build();
+    return ReportServiceDatabase.builder().resourceLoader(resourceLoader).version(version).build();
   }
 }
