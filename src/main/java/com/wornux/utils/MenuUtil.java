@@ -33,15 +33,15 @@ public class MenuUtil {
             nav.addItem(new SideNavItem("Inicio", DashboardView.class, LineAwesomeIcon.HOME_SOLID.create()));
 
         if (accessChecker.hasAccess(AppointmentsCalendarView.class))
-            nav.addItem(new SideNavItem("Citas", AppointmentsCalendarView.class, LineAwesomeIcon.CALENDAR_ALT_SOLID
-                    .create()));
+            nav.addItem(new SideNavItem("Citas", AppointmentsCalendarView.class,
+                    LineAwesomeIcon.CALENDAR_ALT_SOLID.create()));
 
         if (accessChecker.hasAccess(InventoryView.class) && accessChecker.hasAccess(WarehouseView.class)) {
             SideNavItem inventory = new SideNavItem("Inventario");
             inventory.setPrefixComponent(LineAwesomeIcon.BOXES_SOLID.create());
             inventory.addItem(new SideNavItem("Productos", InventoryView.class, LineAwesomeIcon.BOX_SOLID.create()));
-            inventory.addItem(new SideNavItem("Almacenes", WarehouseView.class, LineAwesomeIcon.WAREHOUSE_SOLID
-                    .create()));
+            inventory.addItem(
+                    new SideNavItem("Almacenes", WarehouseView.class, LineAwesomeIcon.WAREHOUSE_SOLID.create()));
             nav.addItem(inventory);
         }
 
@@ -51,31 +51,31 @@ public class MenuUtil {
         if (accessChecker.hasAccess(InventoryView.class)) {
             SideNavItem transactions = new SideNavItem("Transacciones");
             transactions.setPrefixComponent(LineAwesomeIcon.CREDIT_CARD_SOLID.create());
-            transactions.addItem(new SideNavItem("Facturas", InvoiceView.class,
-                    LineAwesomeIcon.FILE_INVOICE_DOLLAR_SOLID.create()));
+            transactions.addItem(
+                    new SideNavItem("Facturas", InvoiceView.class, LineAwesomeIcon.FILE_INVOICE_DOLLAR_SOLID.create()));
             nav.addItem(transactions);
         }
 
         if (accessChecker.hasAccess(WaitingRoomView.class))
-            nav.addItem(new SideNavItem("Sala de Espera", WaitingRoomView.class, LineAwesomeIcon.CHAIR_SOLID.create()));
+            nav.addItem(new SideNavItem("Sala de Espera", WaitingRoomView.class, LineAwesomeIcon.COUCH_SOLID.create()));
 
         if (accessChecker.hasAccess(IndividualClientView.class) || accessChecker.hasAccess(CompanyClientView.class)) {
             SideNavItem clients = new SideNavItem("Clientes");
             clients.setPrefixComponent(LineAwesomeIcon.USERS_SOLID.create());
             if (accessChecker.hasAccess(IndividualClientView.class))
-                clients.addItem(new SideNavItem("Individuales", IndividualClientView.class, LineAwesomeIcon.USER_SOLID
-                        .create()));
+                clients.addItem(new SideNavItem("Individuales", IndividualClientView.class,
+                        LineAwesomeIcon.USER_SOLID.create()));
             if (accessChecker.hasAccess(CompanyClientView.class))
-                clients.addItem(new SideNavItem("Empresariales", CompanyClientView.class, LineAwesomeIcon.BUILDING_SOLID
-                        .create()));
+                clients.addItem(new SideNavItem("Empresariales", CompanyClientView.class,
+                        LineAwesomeIcon.BUILDING_SOLID.create()));
             nav.addItem(clients);
         }
 
         if (accessChecker.hasAccess(PetView.class)) {
             SideNavItem pets = new SideNavItem("Mascotas", PetView.class, LineAwesomeIcon.PAW_SOLID.create());
             if (accessChecker.hasAccess(PetMergeView.class))
-                pets.addItem(new SideNavItem("Fusionar", PetMergeView.class, LineAwesomeIcon.CODE_BRANCH_SOLID
-                        .create()));
+                pets.addItem(
+                        new SideNavItem("Fusionar", PetMergeView.class, LineAwesomeIcon.CODE_BRANCH_SOLID.create()));
             nav.addItem(pets);
         }
 
