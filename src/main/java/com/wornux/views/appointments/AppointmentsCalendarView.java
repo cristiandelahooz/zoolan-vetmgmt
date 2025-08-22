@@ -24,7 +24,7 @@ import com.wornux.services.interfaces.PetService;
 import com.wornux.views.MainLayout;
 import elemental.json.Json;
 import elemental.json.JsonObject;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Route(value = "appointments", layout = MainLayout.class)
 @PageTitle("Citas")
-@PermitAll
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class AppointmentsCalendarView extends VerticalLayout {
 
     private final FullCalendar calendar;

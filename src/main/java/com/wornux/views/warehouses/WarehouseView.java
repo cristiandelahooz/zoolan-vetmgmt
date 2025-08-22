@@ -24,7 +24,7 @@ import com.wornux.dto.request.WarehouseUpdateRequestDto;
 import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.utils.NotificationUtils;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @PageTitle("Warehouses")
 @Route(value = "warehouses")
 @Menu(order = 4, icon = "line-awesome/svg/warehouse-solid.svg")
-@PermitAll
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class WarehouseView extends VerticalLayout {
 
     private final WarehouseGrid warehouseGrid;

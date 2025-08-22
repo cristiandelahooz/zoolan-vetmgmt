@@ -53,7 +53,7 @@ import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.UserService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.GridUtils;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
@@ -74,7 +74,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Route(value = "invoices")
 @PageTitle("Invoices Management")
 @CssImport("./themes/zoolan-vetmgmt/view/invoice.css")
-@PermitAll
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class InvoiceView extends Div {
 
   private final Grid<Invoice> grid = GridUtils.createBasicGrid(Invoice.class);

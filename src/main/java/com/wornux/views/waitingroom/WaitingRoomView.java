@@ -26,7 +26,7 @@ import com.wornux.services.interfaces.PetService;
 import com.wornux.services.interfaces.WaitingRoomService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -42,7 +42,7 @@ import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 @Slf4j
 @Route("sala-espera")
 @PageTitle("Sala de Espera")
-@PermitAll
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class WaitingRoomView extends VerticalLayout {
 
     private final WaitingRoomService waitingRoomService;

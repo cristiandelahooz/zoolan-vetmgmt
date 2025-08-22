@@ -32,7 +32,7 @@ import com.wornux.utils.NotificationUtils;
 import com.wornux.views.consultations.ConsultationsView;
 import com.wornux.views.products.ProductForm;
 import com.wornux.views.products.ProductGrid;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ import org.springframework.data.jpa.domain.Specification;
 @PageTitle("Inventario")
 @Route(value = "inventario")
 @Menu(order = 3, icon = "line-awesome/svg/boxes-solid.svg")
-@PermitAll
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
 public class InventoryView extends Div {
 
     private final ProductGrid productGrid;
