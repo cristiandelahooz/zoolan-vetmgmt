@@ -27,7 +27,6 @@ import java.util.List;
 public class DashboardView extends VerticalLayout {
 
     public DashboardView() {
-        add(new H1("Dashboard"));
         Dashboard dashboard = new Dashboard();
         dashboard.setMinimumColumnWidth("150px");
         dashboard.setMaximumColumnCount(3);
