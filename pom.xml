@@ -405,10 +405,9 @@
                 <configuration>
                     <!-- Java Code Formatting -->
                     <java>
-                        <googleJavaFormat>
-                            <version>1.19.2</version>
-                            <style>GOOGLE</style>
-                        </googleJavaFormat>
+                        <eclipse>
+                            <file>formatter-spec.xml</file>
+                        </eclipse>
                         <toggleOffOn/>
                     </java>
                     <!-- TypeScript Code Formatting -->
