@@ -44,7 +44,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "sala-espera", layout = MainLayout.class)
 @PageTitle("Sala de Espera")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER","ROLE_USER","ROLER_EMP_RECEPTIONIST"})
 public class WaitingRoomView extends VerticalLayout {
 
   private final WaitingRoomService waitingRoomService;
