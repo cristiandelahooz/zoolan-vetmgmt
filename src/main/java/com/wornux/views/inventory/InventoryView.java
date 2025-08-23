@@ -46,7 +46,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @PageTitle("Inventario")
 @Route(value = "inventario", layout = MainLayout.class)
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER" })
 public class InventoryView extends Div {
 
   private final ProductGrid productGrid;
@@ -152,14 +152,12 @@ public class InventoryView extends Div {
     searchField.addValueChangeListener(e -> updateList());
     searchField.setWidth("40%");
 
-    // Configurar filtro de categorías
     categoryFilter.setItems(ProductCategory.values());
     categoryFilter.setItemLabelGenerator(this::getCategoryDisplayName);
     categoryFilter.setClearButtonVisible(true);
     categoryFilter.addSelectionListener(e -> updateList());
     categoryFilter.setWidth("30%");
 
-    // Configurar filtro de almacenes
     try {
       var warehouses =
           warehouseService.getAllWarehouses().stream()
@@ -181,7 +179,6 @@ public class InventoryView extends Div {
     warehouseFilter.setWidth("30%");
     warehouseFilter.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM);
 
-    // Inicializar y configurar filtro de unidades
     unitFilter = new ComboBox<>("Filtrar por Unidad");
     unitFilter.setItems(ProductUnit.values());
     unitFilter.setItemLabelGenerator(ProductUnit::getDisplayName);
@@ -190,7 +187,6 @@ public class InventoryView extends Div {
     unitFilter.setWidth("30%");
     unitFilter.addClassNames(LumoUtility.Margin.Horizontal.XSMALL);
 
-    // Inicializar y configurar filtro de tipo de uso
     usageTypeFilter = new ComboBox<>("Filtrar por Tipo de Uso");
     usageTypeFilter.setItems(ProductUsageType.values());
     usageTypeFilter.setItemLabelGenerator(ProductUsageType::getDisplayName);
@@ -227,19 +223,16 @@ warehouseFilter.setClearButtonVisible(true);
 warehouseFilter.addValueChangeListener(e -> refreshGrid());
 warehouseFilter.setWidth("15%");
 
-// Botón para limpiar todos los filtros
 Button clearFilters = new Button("Limpiar Filtros", VaadinIcon.REFRESH.create());
 clearFilters.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 clearFilters.addClickListener(e -> clearAllFilters());
 
-// Primera fila de filtros
 HorizontalLayout firstRowFilters =
     new HorizontalLayout(searchField, categoryFilter, warehouseFilter);
 firstRowFilters.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
 firstRowFilters.setWidthFull();
 firstRowFilters.setSpacing(true);
 
-    // Segunda fila de filtros
     HorizontalLayout secondRowFilters =
         new HorizontalLayout(unitFilter, usageTypeFilter, clearFilters, quantity);
     secondRowFilters.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
@@ -268,10 +261,8 @@ firstRowFilters.setSpacing(true);
     return (root, query, criteriaBuilder) -> {
       var predicates = new java.util.ArrayList<Predicate>();
 
-      // Filtro por activo
       predicates.add(criteriaBuilder.isTrue(root.get("active")));
 
-      // Filtro por nombre
       if (searchField.getValue() != null && !searchField.getValue().trim().isEmpty()) {
         predicates.add(
             criteriaBuilder.like(
@@ -279,29 +270,24 @@ firstRowFilters.setSpacing(true);
         "%" + searchField.getValue().toLowerCase() + "%"));
       }
 
-      // Filtro por categorías
       if (categoryFilter.getValue() != null && !categoryFilter.getValue().isEmpty()) {
         predicates.add(root.get("category").in(categoryFilter.getValue()));
       }
 
-      // Filtro por almacén
       if (warehouseFilter.getValue() != null) {
         predicates.add(
             criteriaBuilder.equal(
                 root.get("warehouse").get("id"), warehouseFilter.getValue().getId()));
       }
 
-      // Filtro por unidad
       if (unitFilter.getValue() != null) {
         predicates.add(criteriaBuilder.equal(root.get("unit"), unitFilter.getValue()));
       }
 
-      // Filtro por tipo de uso
       if (usageTypeFilter.getValue() != null) {
         predicates.add(criteriaBuilder.equal(root.get("usageType"), usageTypeFilter.getValue()));
       }
 
-      // Ordenar por nombre
       query.orderBy(criteriaBuilder.asc(root.get("name")));
 
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -313,7 +299,6 @@ firstRowFilters.setSpacing(true);
       var specification = createProductFilterSpecification();
       productGrid.setSpecification(specification);
 
-      // Actualizar contador
       long count = productService.getCount(specification);
       quantity.setText(count + " producto" + (count != 1 ? "s" : ""));
 
@@ -423,13 +408,11 @@ firstRowFilters.setSpacing(true);
   private void applyFilters() {
     productGrid.setItems(
         query -> {
-          // Usar el repositorio con filtros si están disponibles
           ProductUnit selectedUnit = unitFilter.getValue();
           ProductUsageType selectedUsageType = usageTypeFilter.getValue();
           Long selectedWarehouseId =
               warehouseFilter.getValue() != null ? warehouseFilter.getValue().getId() : null;
 
-          // Si no hay filtros, usar consulta normal
           if (selectedUnit == null && selectedUsageType == null && selectedWarehouseId == null) {
             var products =
                 productService.getAllProducts(
@@ -440,7 +423,6 @@ firstRowFilters.setSpacing(true);
             return products.stream().filter(Product::isActive);
           }
 
-          // Aplicar filtros usando el repositorio
           try {
             var products =
                 productService
@@ -455,7 +437,6 @@ firstRowFilters.setSpacing(true);
                             VaadinSpringDataHelpers.toSpringDataSort(query)));
             return products.stream();
           } catch (Exception e) {
-            // Fallback to normal query
             var products =
                 productService.getAllProducts(
                     PageRequest.of(
