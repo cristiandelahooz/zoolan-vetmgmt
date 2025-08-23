@@ -54,6 +54,42 @@ VALUES
      '1995-02-28', 'Dominican', 'San Cristobal', 'San Cristobal',
      'Pueblo Nuevo',
      'Callejon de la Paz 202', 'Near the school', TRUE, NOW(), NOW(), 'USER'),
+    ('manager.gomez',
+     '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
+     'gomez@zoolan.com', 'Roberto', 'Gomez', '8091234567', '1982-05-12',
+     'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Mirador Sur',
+     'Avenida Mirador 101',
+     'Frente al parque Mirador', TRUE, NOW(), NOW(), 'MANAGER'),
+    ('manager.ramirez',
+     '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
+     'ramirez@zoolan.com', 'Sofia', 'Ramirez', '8097654321', '1987-09-23',
+     'Dominican', 'Santiago', 'Santiago de los Caballeros', 'Villa Olga',
+     'Calle 8 #45',
+     'Cerca del supermercado', TRUE, NOW(), NOW(), 'MANAGER'),
+    ('groomer.mendez',
+     '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
+     'mendez@zoolan.com', 'Luis', 'Mendez', '8095551234', '1992-11-30',
+     'Dominican', 'La Vega', 'Concepcion de La Vega', 'Centro',
+     'Calle Duarte 22',
+     'Al lado de la farmacia', TRUE, NOW(), NOW(), 'USER'),
+    ('groomer.fernandez',
+     '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
+     'fernandez@zoolan.com', 'Ana', 'Fernandez', '8094445678', '1995-04-18',
+     'Dominican', 'Puerto Plata', 'San Felipe de Puerto Plata', 'Costambar',
+     'Calle Principal 77',
+     'Frente a la playa', TRUE, NOW(), NOW(), 'USER'),
+    ('lab.santos',
+     '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
+     'santos@zoolan.com', 'Carlos', 'Santos', '8093332222', '1989-08-14',
+     'Dominican', 'San Cristobal', 'San Cristobal', 'Centro',
+     'Calle Independencia 10',
+     'Cerca del hospital', TRUE, NOW(), NOW(), 'USER'),
+    ('kennel.perez',
+     '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
+     'perez@zoolan.com', 'Juan', 'Perez', '8092221111', '1997-12-05',
+     'Dominican', 'Peravia', 'Bani', 'El Fundo',
+     'Callejón de la Paz 33',
+     'Detrás de la veterinaria', TRUE, NOW(), NOW(), 'USER'),
 
     -- Individual Clients (Personal) - 10 individual clients
     ('juan.perez',
@@ -182,7 +218,17 @@ SELECT u.user_id,
        CASE
            WHEN u.username IN ('vet.rodriguez', 'vet.martinez', 'vet.sanchez')
                THEN 'VETERINARIAN'
-           ELSE 'RECEPTIONIST'
+           WHEN u.username IN ('recep.gonzalez', 'recep.diaz')
+               THEN 'RECEPTIONIST'
+           WHEN u.username IN ('manager.gomez', 'manager.ramirez')
+               THEN 'CLINIC_MANAGER'
+           WHEN u.username IN ('groomer.mendez', 'groomer.fernandez')
+               THEN 'GROOMER'
+           WHEN u.username IN ('lab.santos')
+               THEN 'LAB_TECHNICIAN'
+           WHEN u.username IN ('kennel.perez')
+               THEN 'KENNEL_ASSISTANT'
+           ELSE 'KENNEL_ASSISTANT'
            END,
        CASE
            WHEN u.username = 'vet.rodriguez' THEN 80000.00
@@ -190,6 +236,13 @@ SELECT u.user_id,
            WHEN u.username = 'vet.sanchez' THEN 78000.00
            WHEN u.username = 'recep.gonzalez' THEN 40000.00
            WHEN u.username = 'recep.diaz' THEN 42000.00
+           WHEN u.username = 'manager.gomez' THEN 90000.00
+           WHEN u.username = 'manager.ramirez' THEN 88000.00
+           WHEN u.username = 'groomer.mendez' THEN 45000.00
+           WHEN u.username = 'groomer.fernandez' THEN 46000.00
+           WHEN u.username = 'lab.santos' THEN 50000.00
+           WHEN u.username = 'kennel.perez' THEN 35000.00
+           ELSE 35000.00
            END,
        CASE
            WHEN u.username = 'vet.rodriguez' THEN '2022-01-15'::date
@@ -197,6 +250,13 @@ SELECT u.user_id,
            WHEN u.username = 'vet.sanchez' THEN '2022-10-01'::date
            WHEN u.username = 'recep.gonzalez' THEN '2023-06-20'::date
            WHEN u.username = 'recep.diaz' THEN '2024-01-10'::date
+           WHEN u.username = 'manager.gomez' THEN '2020-05-01'::date
+           WHEN u.username = 'manager.ramirez' THEN '2021-07-15'::date
+           WHEN u.username = 'groomer.mendez' THEN '2023-02-10'::date
+           WHEN u.username = 'groomer.fernandez' THEN '2023-04-25'::date
+           WHEN u.username = 'lab.santos' THEN '2022-11-30'::date
+           WHEN u.username = 'kennel.perez' THEN '2024-03-05'::date
+           ELSE '2024-01-01'::date
            END,
        TRUE,
        CASE
@@ -205,6 +265,12 @@ SELECT u.user_id,
            WHEN u.username = 'vet.sanchez' THEN 'Ana Sanchez'
            WHEN u.username = 'recep.gonzalez' THEN 'Pedro Gonzalez'
            WHEN u.username = 'recep.diaz' THEN 'Roberto Diaz'
+           WHEN u.username = 'manager.gomez' THEN 'Laura Gomez'
+           WHEN u.username = 'manager.ramirez' THEN 'Carlos Ramirez'
+           WHEN u.username = 'groomer.mendez' THEN 'Sofia Mendez'
+           WHEN u.username = 'groomer.fernandez' THEN 'Luis Fernandez'
+           WHEN u.username = 'lab.santos' THEN 'Carmen Santos'
+           WHEN u.username = 'kennel.perez' THEN 'Ana Perez'
            END,
        CASE
            WHEN u.username = 'vet.rodriguez' THEN '8092223333'
@@ -212,11 +278,18 @@ SELECT u.user_id,
            WHEN u.username = 'vet.sanchez' THEN '8091112222'
            WHEN u.username = 'recep.gonzalez' THEN '8098889999'
            WHEN u.username = 'recep.diaz' THEN '8094445555'
+           WHEN u.username = 'manager.gomez' THEN '8091234567'
+           WHEN u.username = 'manager.ramirez' THEN '8097654321'
+           WHEN u.username = 'groomer.mendez' THEN '8095551234'
+           WHEN u.username = 'groomer.fernandez' THEN '8094445678'
+           WHEN u.username = 'lab.santos' THEN '8093332222'
+           WHEN u.username = 'kennel.perez' THEN '8092221111'
            END
 FROM users u
 WHERE u.username IN
       ('vet.rodriguez', 'vet.martinez', 'vet.sanchez', 'recep.gonzalez',
-       'recep.diaz');
+       'recep.diaz', 'manager.gomez', 'manager.ramirez', 'groomer.mendez',
+       'groomer.fernandez', 'lab.santos', 'kennel.perez');
 
 -- =================================================================================================
 --  EMPLOYEE_WORK_SCHEDULE TABLE - Assign work schedules to employees
@@ -718,12 +791,37 @@ FROM pet_owners po
 LIMIT 5;
 
 -- =================================================================================================
+--  SERVICES TABLE
+-- =================================================================================================
+INSERT INTO services (name, description, active, price, service_type, created_at, updated_at)
+SELECT s.name,
+       s.description,
+       s.active,
+       s.price,
+       s.service_type,
+       NOW(),
+       NOW()
+FROM (VALUES
+          ('Consulta Veterinaria', 'Consulta general y diagnóstico', TRUE, 800.00, 'MEDICAL'),
+          ('Baño y Corte', 'Servicio de grooming completo', TRUE, 1200.00, 'GROOMING'),
+          ('Vacunación', 'Aplicación de vacunas', TRUE, 600.00, 'MEDICAL'),
+          ('Desparasitación', 'Tratamiento antiparasitario', TRUE, 500.00, 'MEDICAL'),
+          ('Guardería', 'Cuidado diario de mascotas', TRUE, 1000.00, 'KENNEL'),
+          ('Laboratorio', 'Análisis clínicos veterinarios', TRUE, 1500.00, 'LAB'),
+          ('Pensión', 'Hospedaje temporal de mascotas', TRUE, 2000.00, 'KENNEL'),
+          ('Cirugía menor', 'Procedimientos quirúrgicos menores', TRUE, 3500.00, 'MEDICAL'),
+          ('Corte de uñas', 'Recorte profesional de uñas', TRUE, 300.00, 'GROOMING'),
+          ('Limpieza dental', 'Limpieza bucal veterinaria', TRUE, 900.00, 'MEDICAL')
+     ) AS s(name, description, active, price, service_type);
+
+
+-- =================================================================================================
 --  INVOICES TABLE
 -- =================================================================================================
 -- Create sample invoice for a company client
 INSERT INTO invoices (client, issued_date, payment_date, sales_order, status,
                       subtotal, discount_percentage, discount, tax, total,
-                      paid_to_date, notes, created_by, created_date,
+                      paid_to_date, notes, active, created_by, created_date,
                       last_modified_by, last_modified_date)
 SELECT c.client_id,
        CURRENT_DATE - INTERVAL '15 days',
@@ -753,13 +851,87 @@ SELECT c.client_id,
                THEN 'Factura con descuento especial ONG'
            ELSE 'Factura cliente corporativo'
            END,
-       'admin',
+       TRUE,
+        'admin',
        NOW(),
        'admin',
        NOW()
 FROM client c
 WHERE c.rnc IS NOT NULL
 LIMIT 3;
+
+-- =================================================================================================
+--   Insert sample invoices from consultations made by veterinarians
+-- =================================================================================================
+INSERT INTO invoices (created_by, created_date, last_modified_by,
+                      last_modified_date, client, consultation, consultation_notes,
+                      issued_date, payment_date, sales_order, status, subtotal,
+                      discount_percentage, discount, tax, total, paid_to_date, notes, active)
+SELECT i.created_by,
+       i.created_date,
+       i.last_modified_by,
+       i.last_modified_date,
+       i.client,
+       i.consultation,
+       i.consultation_notes,
+       i.issued_date,
+       i.payment_date,
+       i.sales_order,
+       i.status,
+       i.subtotal,
+       i.discount_percentage,
+       i.discount,
+       i.tax,
+       i.total,
+       i.paid_to_date,
+       i.notes,
+       i.active
+FROM (VALUES
+            ('vet.martinez', NOW(), 'vet.martinez',
+           NOW(),13, 1, 'aa',
+           CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
+           3000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 540, 3540, 0, NULL, TRUE),
+            ('vet.sanchez', NOW(), 'vet.sanchez',
+           NOW(),14, 2, 'bb',
+           CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
+           1500, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 270, 1770, 0, NULL, TRUE),
+            ('vet.martinez', NOW(), 'vet.martinez',
+           NOW(),15, 3, 'cc',
+           CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
+           4500, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 810, 5310, 0, NULL, TRUE),
+            ('vet.sanchez', NOW(), 'vet.sanchez',
+            NOW(),16, 4, 'dd',
+            CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
+            2000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 360, 2360, 0, NULL, TRUE),
+            ('vet.martinez', NOW(), 'vet.martinez',
+            NOW(),17, 5, 'ee',
+            CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
+            3500, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 630, 4130, 0, NULL, TRUE),
+            ('vet.sanchez', NOW(), 'vet.sanchez',
+            NOW(),18, 6, 'ff',
+            CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
+            'PAID', 4000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 720, 4720, 0, NULL, TRUE),
+            ('vet.martinez', NOW(), 'vet.martinez',
+            NOW(),19, 7, 'gg',
+            CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
+            'PAID', 2500, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 450, 2950, 0, NULL, TRUE),
+            ('vet.sanchez', NOW(), 'vet.sanchez',
+            NOW(),20, 8, 'hh',
+            CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
+            'PENDING', 1000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 180, 1180, 0, NULL, TRUE),
+            ('vet.martinez', NOW(), 'vet.martinez',
+            NOW(),21, 9, 'ii',
+            CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
+            'PENDING', 5000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 900, 5900, 0, NULL, TRUE),
+            ('vet.sanchez', NOW(), 'vet.sanchez',
+            NOW(),22, 10, 'jj',
+            CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
+            'PAID', 6000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 1080, 7080, 0, NULL, TRUE)
+      ) AS i(created_by, created_date, last_modified_by,
+          last_modified_date, client, consultation, consultation_notes,
+          issued_date, payment_date, sales_order, status, subtotal,
+          discount_percentage, discount, tax, total, paid_to_date, notes, active);
+
 
 -- =================================================================================================
 --  INVOICE_PRODUCT TABLE
