@@ -302,6 +302,7 @@ CREATE TABLE invoices
     total               DECIMAL                                 NOT NULL,
     paid_to_date        DECIMAL                                 NOT NULL,
     notes               VARCHAR(500),
+    active             BOOLEAN                                 NOT NULL,
     CONSTRAINT pk_invoices PRIMARY KEY (code)
 );
 
@@ -341,6 +342,8 @@ CREATE TABLE invoices_log
     paid_to_date_mod        BOOLEAN,
     notes                   VARCHAR(500),
     notes_mod               BOOLEAN,
+    active                  BOOLEAN,
+    active_mod              BOOLEAN,
     CONSTRAINT pk_invoices_log PRIMARY KEY (rev, code)
 );
 
