@@ -29,7 +29,6 @@ public class SelectOwnersMultiDialog extends Dialog {
     grid = new Grid<>(Client.class, false);
     grid.setItems(dataProvider);
 
-    // Filtros
     TextField firstNameFilter = new TextField();
     firstNameFilter.setPlaceholder("Filtrar por nombre");
     firstNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
@@ -63,7 +62,6 @@ public class SelectOwnersMultiDialog extends Dialog {
     HorizontalLayout filterBar =
         new HorizontalLayout(firstNameFilter, lastNameFilter, cedulaFilter);
 
-    // Columnas
     grid.addColumn(Client::getFirstName).setHeader("Nombre");
     grid.addColumn(Client::getLastName).setHeader("Apellido");
     grid.addColumn(Client::getCedula).setHeader("Cédula");
@@ -71,7 +69,6 @@ public class SelectOwnersMultiDialog extends Dialog {
 
     grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-    // Botones
     Button cancel = new Button("Cancelar", e -> close());
     Button selectButton =
         new Button(
@@ -91,11 +88,6 @@ public class SelectOwnersMultiDialog extends Dialog {
 
     add(content);
   }
-
-  /*
-   * public void open(Consumer<List<Client>> selectionCallback) { this.selectionCallback = selectionCallback;
-   * grid.deselectAll(); open(); }
-   */
 
   public void open(List<Client> preSelectedOwners, Consumer<List<Client>> selectionCallback) {
     this.selectionCallback = selectionCallback;
