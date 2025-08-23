@@ -24,6 +24,7 @@ import com.wornux.services.interfaces.PetService;
 import com.wornux.views.MainLayout;
 import elemental.json.Json;
 import elemental.json.JsonObject;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -40,7 +41,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 @Slf4j
 @Route(value = "appointments", layout = MainLayout.class)
 @PageTitle("Citas")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@PermitAll
 public class AppointmentsCalendarView extends VerticalLayout {
 
   private final FullCalendar calendar;
@@ -58,11 +59,9 @@ public class AppointmentsCalendarView extends VerticalLayout {
     setPadding(true);
     setSpacing(true);
 
-    // Header
     H2 title = new H2("Calendario de Citas");
     title.addClassName(LumoUtility.Margin.Bottom.MEDIUM);
 
-    // Calendar setup
     calendar =
         FullCalendarBuilder.create()
             .withAutoBrowserTimezone()
@@ -74,7 +73,6 @@ public class AppointmentsCalendarView extends VerticalLayout {
     configureCalendar();
     loadAppointments();
 
-    // Toolbar
     HorizontalLayout toolbar = createToolbar();
 
     add(title, toolbar, calendar);
@@ -96,10 +94,9 @@ public class AppointmentsCalendarView extends VerticalLayout {
             LocalTime.of(8, 0), LocalTime.of(20, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
         new BusinessHours(LocalTime.of(9, 0), LocalTime.of(14, 0), DayOfWeek.SATURDAY));
 
-    // Event handlers
     calendar.addTimeslotsSelectedListener(this::onTimeslotSelected);
     calendar.addEntryClickedListener(this::onEntryClicked);
-    // calendar.addEntryDroppedListener(this::onEntryDropped); // Commented out - needs scheduler
+
     calendar.addEntryResizedListener(this::onEntryResized);
     calendar.addDatesRenderedListener(event -> loadAppointments());
   }
@@ -163,9 +160,8 @@ public class AppointmentsCalendarView extends VerticalLayout {
         String.format(
             "Mascota: %s | Servicio: %s", appointment.getPetName(), appointment.getServiceType()));
 
-    // Set color based on service type
     if (appointment.getServiceType() != null) {
-      entry.setColor("#2196F3"); // Default blue color for all appointments
+      entry.setColor("#2196F3");
     }
 
     entry.setEditable(true);
@@ -183,11 +179,6 @@ public class AppointmentsCalendarView extends VerticalLayout {
     currentEntry = event.getEntry();
     openEditAppointmentDialog(currentEntry);
   }
-
-  /*private void onEntryDropped(EntryDroppedSchedulerEvent event) {
-    Entry entry = event.getEntry();
-    updateAppointmentTime(entry);
-  }*/
 
   private void onEntryResized(EntryResizedEvent event) {
     Entry entry = event.getEntry();
@@ -209,7 +200,7 @@ public class AppointmentsCalendarView extends VerticalLayout {
       log.error("Error updating appointment", e);
       Notification.show("Error al actualizar la cita", 3000, Notification.Position.MIDDLE)
           .addThemeVariants(NotificationVariant.LUMO_ERROR);
-      loadAppointments(); // Reload to revert changes
+      loadAppointments();
     }
   }
 
@@ -242,7 +233,6 @@ public class AppointmentsCalendarView extends VerticalLayout {
                         + " "
                         + pet.getOwners().get(0).getLastName()));
 
-    // Load pets
     List<Pet> pets =
         petService.getAllPets(PageRequest.of(0, 1000)).stream()
             .map(
@@ -250,7 +240,6 @@ public class AppointmentsCalendarView extends VerticalLayout {
                   Pet pet = new Pet();
                   pet.setId(dto.id());
                   pet.setName(dto.name());
-                  // Note: You'll need to adapt this based on your actual Pet entity
                   return pet;
                 })
             .collect(Collectors.toList());
@@ -320,9 +309,6 @@ public class AppointmentsCalendarView extends VerticalLayout {
     titleField.setRequired(true);
     titleField.setWidthFull();
 
-    // Add form fields similar to create dialog
-    // ... (implementation similar to openNewAppointmentDialog)
-
     Button saveButton =
         new Button(
             "Actualizar",
@@ -337,7 +323,6 @@ public class AppointmentsCalendarView extends VerticalLayout {
         new Button(
             "Eliminar",
             e -> {
-              // Confirm and delete
               try {
                 appointmentService.deleteAppointment(Long.parseLong(entry.getId()));
                 Notification.show("Cita eliminada", 3000, Notification.Position.BOTTOM_END)
