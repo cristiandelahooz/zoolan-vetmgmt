@@ -21,7 +21,7 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Service;
-import com.wornux.data.enums.ServiceCategory;
+import com.wornux.data.enums.ServiceType;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
 import com.wornux.services.interfaces.ServiceService;
@@ -37,34 +37,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ServiceForm extends Dialog {
 
-  // Form fields
   private final TextField name = new TextField("Nombre del Servicio");
   private final TextArea description = new TextArea("Descripción");
-  private final ComboBox<ServiceCategory> serviceCategory = new ComboBox<>("Tipo de Servicio");
+  private final ComboBox<ServiceType> serviceType = new ComboBox<>("Tipo de Servicio");
   private final NumberField price = new NumberField("Precio");
 
-  // Form buttons
   private final Button saveButton = new Button("Guardar");
   private final Button cancelButton = new Button("Cancelar");
 
-  // Header
   private final H3 headerTitle = new H3();
 
-  // Binders
   private final Binder<ValidationBean> binder = new BeanValidationBinder<>(ValidationBean.class);
   private final Binder<ServiceUpdateRequestDto> binderUpdate =
       new BeanValidationBinder<>(ServiceUpdateRequestDto.class);
 
-  // Services
   private final transient ServiceService serviceService;
 
-  // State
   private boolean isEditMode = false;
   private Service currentService;
   private ValidationBean validationBean;
   private Runnable onSaveCallback;
 
-  // Event listeners
   private final List<Consumer<ServiceCreateRequestDto>> serviceSavedListeners = new ArrayList<>();
   private final List<Runnable> serviceCancelledListeners = new ArrayList<>();
 
@@ -104,24 +97,20 @@ public class ServiceForm extends Dialog {
   }
 
   private void setupFormComponents() {
-    // Configure name field
     name.setPrefixComponent(VaadinIcon.TAG.create());
     name.setRequiredIndicatorVisible(true);
     name.setPlaceholder("Ej: Consulta General, Corte de Pelo");
 
-    // Configure description field
     description.setPrefixComponent(VaadinIcon.TEXT_LABEL.create());
     description.setPlaceholder("Descripción detallada del servicio...");
     description.setMaxLength(500);
     description.setHelperText("Máximo 500 caracteres");
 
-    // Configure service type
-    serviceCategory.setItems(ServiceCategory.values());
-    serviceCategory.setItemLabelGenerator(ServiceCategory::getDisplay);
-    serviceCategory.setRequiredIndicatorVisible(true);
-    serviceCategory.setPrefixComponent(VaadinIcon.CLIPBOARD_HEART.create());
+    serviceType.setItems(ServiceType.values());
+    serviceType.setItemLabelGenerator(ServiceType::getDisplay);
+    serviceType.setRequiredIndicatorVisible(true);
+    serviceType.setPrefixComponent(VaadinIcon.CLIPBOARD_HEART.create());
 
-    // Configure price field
     price.setPrefixComponent(VaadinIcon.DOLLAR.create());
     price.setRequiredIndicatorVisible(true);
     price.setMin(0);
@@ -129,7 +118,6 @@ public class ServiceForm extends Dialog {
     price.setPlaceholder("0.00");
     price.setHelperText("Precio en pesos dominicanos (DOP)");
 
-    // Configure buttons
     saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
     cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
   }
@@ -138,12 +126,11 @@ public class ServiceForm extends Dialog {
     FormLayout formLayout = new FormLayout();
     formLayout.addClassNames(LumoUtility.Padding.MEDIUM);
 
-    formLayout.add(name, serviceCategory, price, description);
+    formLayout.add(name, serviceType, price, description);
 
     formLayout.setResponsiveSteps(
         new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
-    // Make description span full width
     formLayout.setColspan(description, 2);
 
     return formLayout;
@@ -178,9 +165,9 @@ public class ServiceForm extends Dialog {
         .bind(ValidationBean::getDescription, ValidationBean::setDescription);
 
     binder
-        .forField(serviceCategory)
+        .forField(serviceType)
         .asRequired("El tipo de servicio es requerido")
-        .bind(ValidationBean::getServiceCategory, ValidationBean::setServiceCategory);
+        .bind(ValidationBean::getServiceType, ValidationBean::setServiceType);
 
     binder
         .forField(price)
@@ -203,11 +190,11 @@ public class ServiceForm extends Dialog {
         .bind(ServiceUpdateRequestDto::getDescription, ServiceUpdateRequestDto::setDescription);
 
     binderUpdate
-        .forField(serviceCategory)
+        .forField(serviceType)
         .asRequired("El tipo de servicio es requerido")
         .bind(
-            ServiceUpdateRequestDto::getServiceCategory,
-            ServiceUpdateRequestDto::setServiceCategory);
+            ServiceUpdateRequestDto::getServiceType,
+            ServiceUpdateRequestDto::setServiceType);
 
     binderUpdate
         .forField(price)
@@ -259,7 +246,7 @@ public class ServiceForm extends Dialog {
                   validationBean.getDescription() != null
                       ? validationBean.getDescription().trim()
                       : null)
-              .serviceCategory(validationBean.getServiceCategory())
+              .serviceType(validationBean.getServiceType())
               .price(BigDecimal.valueOf(validationBean.getPrice()))
               .build();
 
@@ -327,14 +314,14 @@ public class ServiceForm extends Dialog {
   private void clearForm() {
     name.clear();
     description.clear();
-    serviceCategory.clear();
+    serviceType.clear();
     price.clear();
   }
 
   private void populateForm(Service service) {
     name.setValue(service.getName());
     description.setValue(service.getDescription() != null ? service.getDescription() : "");
-    serviceCategory.setValue(service.getServiceCategory());
+    serviceType.setValue(service.getServiceType());
     price.setValue(service.getPrice().doubleValue());
   }
 
@@ -342,7 +329,7 @@ public class ServiceForm extends Dialog {
     return new ServiceUpdateRequestDto(
         service.getName(),
         service.getDescription(),
-        service.getServiceCategory(),
+        service.getServiceType(),
         service.getPrice().doubleValue());
   }
 
@@ -367,7 +354,7 @@ public class ServiceForm extends Dialog {
   public static class ValidationBean {
     private String name;
     private String description;
-    private ServiceCategory serviceCategory;
+    private ServiceType serviceType;
     private Double price;
   }
 }
