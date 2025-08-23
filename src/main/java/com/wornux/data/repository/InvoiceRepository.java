@@ -17,5 +17,6 @@ public interface InvoiceRepository
   Optional<Invoice> findByCodeWithServicesAndProducts(@Param("code") Long code);
 
   @EntityGraph(attributePaths = {"client", "products.product", "services.service"})
-  Optional<Invoice> findByConsultation(Consultation consultation);
+  @Query("SELECT i FROM Invoice i WHERE i.consultation = :consultation AND i.active = true")
+  Optional<Invoice> findByConsultation(@Param("consultation") Consultation consultation);
 }
