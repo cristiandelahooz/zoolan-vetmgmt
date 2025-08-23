@@ -40,26 +40,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CompanyClientForm extends Dialog {
 
-  // Company Information
   private final TextField companyName = new TextField("Nombre de la Empresa");
   private final TextField rnc = new TextField("RNC");
   private final EmailField email = new EmailField("Correo Electrónico");
   private final TextField phoneNumber = new TextField("Teléfono");
 
-  // Contact Information
   private final ComboBox<PreferredContactMethod> preferredContactMethod =
       new ComboBox<>("Método de Contacto Preferido");
   private final TextField emergencyContactName = new TextField("Nombre del Contacto de Emergencia");
   private final TextField emergencyContactNumber = new TextField("Teléfono de Emergencia");
 
-  // Address Information
   private final TextField province = new TextField("Provincia");
   private final TextField municipality = new TextField("Municipio");
   private final TextField sector = new TextField("Sector");
   private final TextField streetAddress = new TextField("Dirección");
   private final TextArea referencePoints = new TextArea("Puntos de Referencia");
 
-  // Business Information
   private final NumberField creditLimit = new NumberField("Límite de Crédito");
   private final NumberField paymentTermsDays = new NumberField("Días de Términos de Pago");
   private final ComboBox<ClientRating> rating = new ComboBox<>("Calificación");
@@ -78,7 +74,6 @@ public class CompanyClientForm extends Dialog {
   private final List<Runnable> clientCancelledListeners = new ArrayList<>();
   @Setter private Runnable onSaveCallback;
 
-  // Track current mode
   private boolean isEditMode = false;
   private Client currentClient = null;
 
@@ -124,7 +119,6 @@ public class CompanyClientForm extends Dialog {
     businessInfo.setResponsiveSteps(
         new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
 
-    // Setup combo boxes
     preferredContactMethod.setItems(PreferredContactMethod.values());
     preferredContactMethod.setItemLabelGenerator(PreferredContactMethod::name);
 
@@ -135,24 +129,20 @@ public class CompanyClientForm extends Dialog {
     referenceSource.setItems(ReferenceSource.values());
     referenceSource.setItemLabelGenerator(ReferenceSource::name);
 
-    // Configure number fields
     creditLimit.setMin(0);
     creditLimit.setValue(0.0);
     paymentTermsDays.setMin(0);
     paymentTermsDays.setValue(0.0);
     paymentTermsDays.setStep(1);
 
-    // Configure text areas
     referencePoints.setMaxLength(500);
     notes.setMaxLength(1000);
 
-    // Configure RNC field
     rnc.setPlaceholder("Ej: 123456789");
     rnc.setHelperText("9 dígitos (empresa) u 11 dígitos (persona física)");
-    // Configure fields for real-time validation
+
     configureFieldsForRealTimeValidation();
 
-    // Add icons to fields
     addIconsToFields();
 
     VerticalLayout content = new VerticalLayout();
@@ -177,7 +167,6 @@ public class CompanyClientForm extends Dialog {
   }
 
   private void configureFieldsForRealTimeValidation() {
-    // Configure ValueChangeMode for immediate validation feedback
     companyName.setValueChangeMode(ValueChangeMode.EAGER);
     rnc.setValueChangeMode(ValueChangeMode.EAGER);
     email.setValueChangeMode(ValueChangeMode.EAGER);
@@ -191,7 +180,6 @@ public class CompanyClientForm extends Dialog {
     referencePoints.setValueChangeMode(ValueChangeMode.EAGER);
     notes.setValueChangeMode(ValueChangeMode.EAGER);
 
-    // Set required indicators
     companyName.setRequiredIndicatorVisible(true);
     rnc.setRequiredIndicatorVisible(true);
     email.setRequiredIndicatorVisible(true);
@@ -201,7 +189,6 @@ public class CompanyClientForm extends Dialog {
     sector.setRequiredIndicatorVisible(true);
     streetAddress.setRequiredIndicatorVisible(true);
 
-    // Enable error message display
     email.setErrorMessage("Proporcione un correo electrónico válido");
     province.setErrorMessage("La provincia es requerida");
     municipality.setErrorMessage("El municipio es requerido");
@@ -235,7 +222,6 @@ public class CompanyClientForm extends Dialog {
   }
 
   private void setupCreateBinder() {
-    // Company name validation
     binder
         .forField(companyName)
         .asRequired("El nombre de la empresa es requerido")
@@ -243,7 +229,6 @@ public class CompanyClientForm extends Dialog {
             new StringLengthValidator("El nombre debe tener al menos 2 caracteres", 2, null))
         .bind(ValidationBean::getCompanyName, ValidationBean::setCompanyName);
 
-    // RNC validation
     binder
         .forField(rnc)
         .asRequired("El RNC es requerido")
@@ -251,14 +236,12 @@ public class CompanyClientForm extends Dialog {
             new RegexpValidator("El RNC debe contener 9 u 11 dígitos", RNC_PATTERN))
         .bind(ValidationBean::getRnc, ValidationBean::setRnc);
 
-    // Email validation
     binder
         .forField(email)
         .asRequired("El correo electrónico es requerido")
         .withValidator(new EmailValidator("Proporcione un correo electrónico válido"))
         .bind(ValidationBean::getEmail, ValidationBean::setEmail);
 
-    // Phone number validation
     binder
         .forField(phoneNumber)
         .asRequired("El teléfono es requerido")
@@ -268,13 +251,11 @@ public class CompanyClientForm extends Dialog {
                 DOMINICAN_PHONE_PATTERN))
         .bind(ValidationBean::getPhoneNumber, ValidationBean::setPhoneNumber);
 
-    // Emergency contact number validation (optional)
     binder
         .forField(emergencyContactNumber)
         .withValidator(this::validateEmergencyPhone)
         .bind(ValidationBean::getEmergencyContactNumber, ValidationBean::setEmergencyContactNumber);
 
-    // Address validations
     binder
         .forField(province)
         .asRequired("La provincia es requerida")
@@ -299,7 +280,6 @@ public class CompanyClientForm extends Dialog {
         .withValidator(new StringLengthValidator("La dirección no puede estar vacía", 1, null))
         .bind(ValidationBean::getStreetAddress, ValidationBean::setStreetAddress);
 
-    // Optional fields
     binder
         .forField(preferredContactMethod)
         .bind(ValidationBean::getPreferredContactMethod, ValidationBean::setPreferredContactMethod);
@@ -376,7 +356,6 @@ public class CompanyClientForm extends Dialog {
   }
 
   private void setupUpdateBinder() {
-    // Similar setup for update binder with same validation rules
     binderUpdate
         .forField(companyName)
         .asRequired("El nombre de la empresa es requerido")
@@ -406,7 +385,6 @@ public class CompanyClientForm extends Dialog {
                 DOMINICAN_PHONE_PATTERN))
         .bind(ClientUpdateRequestDto::getPhoneNumber, ClientUpdateRequestDto::setPhoneNumber);
 
-    // Continue with other fields...
     binderUpdate
         .forField(preferredContactMethod)
         .bind(
@@ -527,13 +505,13 @@ public class CompanyClientForm extends Dialog {
     ClientCreateRequestDto dto =
         new ClientCreateRequestDto(
             email.getValue(),
-            null, // firstName is null for companies
-            null, // lastName is null for companies
+            null,
+            null,
             phoneNumber.getValue(),
-            null, // birthDate is null for companies
-            null, // nationality is null for companies
-            null, // cedula is null for companies
-            null, // passport is null for companies
+            null,
+            null,
+            null,
+            null,
             rnc.getValue(),
             companyName.getValue(),
             preferredContactMethod.getValue(),
@@ -572,13 +550,13 @@ public class CompanyClientForm extends Dialog {
     ClientUpdateRequestDto dto =
         new ClientUpdateRequestDto(
             email.getValue(),
-            null, // firstName
-            null, // lastName
+            null,
+            null,
             phoneNumber.getValue(),
-            null, // birthDate
-            null, // nationality
-            null, // cedula
-            null, // passport
+            null,
+            null,
+            null,
+            null,
             rnc.getValue(),
             companyName.getValue(),
             preferredContactMethod.getValue(),
@@ -609,7 +587,6 @@ public class CompanyClientForm extends Dialog {
     currentClient = null;
     setHeaderTitle("Nueva Empresa");
 
-    // Reset validation bean
     validationBean = new ValidationBean();
     validationBean.setRating(ClientRating.BUENO);
     validationBean.setCreditLimit(0.0);
@@ -617,7 +594,6 @@ public class CompanyClientForm extends Dialog {
 
     binder.readBean(validationBean);
 
-    // Reset UI values
     rating.setValue(ClientRating.BUENO);
     creditLimit.setValue(0.0);
     paymentTermsDays.setValue(0.0);
