@@ -13,7 +13,8 @@ public enum InvoiceStatus {
   OVERDUE("Vencido"),
   DRAFT("Borrador"),
   UNSENT("No enviado"),
-  SENT("Enviado");
+  SENT("Enviado"),
+  CANCELLED("Anulada");
 
   private final String display;
 }
