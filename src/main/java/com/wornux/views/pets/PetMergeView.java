@@ -4,16 +4,17 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -27,19 +28,20 @@ import com.wornux.data.enums.PetType;
 import com.wornux.services.implementations.PetServiceImpl;
 import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.vaadin.lineawesome.LineAwesomeIcon;
+
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 @Slf4j
 @Route(value = "mascotas-fusionar", layout = MainLayout.class)
 @PageTitle("Fusionar Mascotas Duplicadas")
 @RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
-public class PetMergeView extends Div {
+public class PetMergeView extends VerticalLayout {
 
   private final PetServiceImpl petService;
 
@@ -51,8 +53,8 @@ public class PetMergeView extends Div {
   private final Button openMergeDialogBtn = new Button("Fusionar seleccionadas");
   private final Dialog confirmDialog = new Dialog();
 
-  private final Div keepCard = new Div();
-  private final Div removeCard = new Div();
+  private final Details keepCard = new Details();
+  private final Details removeCard = new Details();
 
   private final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
   private Pet keepPet;
@@ -60,10 +62,8 @@ public class PetMergeView extends Div {
 
   public PetMergeView(@Qualifier("petServiceImpl") PetServiceImpl petService) {
     this.petService = petService;
-    setSizeFull();
 
-    addClassNames(
-        LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.SMALL);
+    configureBoxSize();
 
     add(buildHeader());
     add(buildToolbar());
@@ -75,6 +75,11 @@ public class PetMergeView extends Div {
 
   private static String nvl(String s) {
     return s == null ? "" : s;
+  }
+
+  private void configureBoxSize() {
+    setHeightFull();
+    setPadding(true);
   }
 
   private ComponentRenderer<Div, Pet> ownersRenderer() {
@@ -97,21 +102,22 @@ public class PetMergeView extends Div {
         });
   }
 
-  private VerticalLayout buildHeader() {
-    VerticalLayout head = new VerticalLayout();
-    head.setPadding(true);
-    head.setSpacing(false);
-    head.add(new H2("Fusionar Mascotas Duplicadas"));
+  private Section buildHeader() {
+    Section header = new Section();
+    header.add(new H2("Fusionar Mascotas Duplicadas"));
     Paragraph p =
         new Paragraph(
-            "Busca mascotas por nombre para encontrar posibles duplicados. "
-                + "Selecciona cuál mantener y cuál eliminar; los dueños se trasladarán a la mascota a mantener.");
+            """
+                    Busca mascotas por nombre para encontrar posibles duplicados.
+                    Selecciona cuál mantener y cuál eliminar; los dueños se trasladarán a la mascota a mantener.
+                   """);
     p.addClassNames(LumoUtility.TextColor.SECONDARY);
-    head.add(p);
-    return head;
+    header.add(p);
+    header.addClassNames(LumoUtility.Margin.Bottom.SMALL);
+    return header;
   }
 
-  private HorizontalLayout buildToolbar() {
+  private FlexLayout buildToolbar() {
     searchField.setPlaceholder("Buscar por nombre de mascota…");
     searchField.setClearButtonVisible(true);
     searchField.setWidth(350, Unit.PIXELS);
@@ -133,20 +139,30 @@ public class PetMergeView extends Div {
     openMergeDialogBtn.setWidth("220px");
     openMergeDialogBtn.addClickListener(e -> confirmDialog.open());
 
-    HorizontalLayout bar =
-        new HorizontalLayout(searchField, searchBtn, clearBtn, openMergeDialogBtn);
-    bar.setAlignItems(FlexComponent.Alignment.END);
-    bar.addClassNames(
-        LumoUtility.Margin.Horizontal.MEDIUM,
-        LumoUtility.Margin.Top.SMALL,
-        LumoUtility.Padding.MEDIUM,
-        LumoUtility.Gap.MEDIUM);
-    return bar;
+    FlexLayout container = new FlexLayout();
+    container.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
+    container.addClassNames(LumoUtility.Margin.Bottom.SMALL, LumoUtility.Gap.MEDIUM);
+    container.setWidthFull();
+
+    FlexLayout cardsContainer = new FlexLayout(keepCard, removeCard);
+    cardsContainer.setFlexDirection(FlexLayout.FlexDirection.ROW);
+    cardsContainer.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+    cardsContainer.addClassNames(LumoUtility.Gap.MEDIUM);
+    cardsContainer.setWidthFull();
+    cardsContainer.setFlexGrow(1, keepCard, removeCard);
+
+    FlexLayout controlsBar = new FlexLayout(searchField, searchBtn, clearBtn, openMergeDialogBtn);
+    controlsBar.addClassNames(LumoUtility.Gap.MEDIUM);
+    controlsBar.setFlexGrow(1, searchField, searchBtn, clearBtn, openMergeDialogBtn);
+    controlsBar.setWidthFull();
+
+    container.add(cardsContainer, controlsBar);
+    return container;
   }
 
-  private VerticalLayout buildResults() {
+  private Grid<Pet> buildResults() {
     grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-    grid.setHeight("320px");
+    grid.addClassNames(LumoUtility.Height.AUTO);
     grid.setWidthFull();
 
     grid.addColumn(Pet::getName).setHeader("Nombre").setAutoWidth(true);
@@ -224,17 +240,7 @@ public class PetMergeView extends Div {
         .setWidth("200px")
         .setFlexGrow(0);
 
-    VerticalLayout gridWrapper = new VerticalLayout(grid);
-
-    HorizontalLayout wrapper = new HorizontalLayout();
-    wrapper.addClassNames(LumoUtility.Padding.SMALL, LumoUtility.Height.AUTO);
-    wrapper.setWidthFull();
-    wrapper.add(keepCard, removeCard);
-    wrapper.setFlexGrow(1, keepCard, removeCard);
-
-    gridWrapper.add(wrapper);
-
-    return gridWrapper;
+    return grid;
   }
 
   private void buildSelectionsArea() {
@@ -369,6 +375,7 @@ public class PetMergeView extends Div {
   }
 
   private void styleKeepCard() {
+    keepCard.setOpened(true);
     keepCard.addClassNames(
         LumoUtility.Border.ALL,
         LumoUtility.BorderColor.SUCCESS,
@@ -380,6 +387,7 @@ public class PetMergeView extends Div {
   }
 
   private void styleRemoveCard() {
+    removeCard.setOpened(true);
     removeCard.addClassNames(
         LumoUtility.Border.ALL,
         LumoUtility.BorderColor.ERROR,
@@ -391,9 +399,6 @@ public class PetMergeView extends Div {
   }
 
   private void refreshCards() {
-    keepCard.removeAll();
-    removeCard.removeAll();
-
     SvgIcon keepIcon = LineAwesomeIcon.SHIELD_ALT_SOLID.create();
     keepIcon.addClassNames(
         LumoUtility.IconSize.LARGE,
@@ -403,18 +408,20 @@ public class PetMergeView extends Div {
         LumoUtility.Padding.SMALL);
     keepIcon.addClassNames(LumoUtility.Width.MEDIUM, LumoUtility.Height.MEDIUM);
 
-    Paragraph keepText = new Paragraph("A mantener");
+    Span keepText = new Span("A mantener");
     keepText.addClassNames(
         LumoUtility.FontWeight.SEMIBOLD,
         LumoUtility.TextColor.SUCCESS,
         LumoUtility.Margin.NONE,
         LumoUtility.FontSize.SMALL);
 
-    HorizontalLayout keepHeader = new HorizontalLayout(keepIcon, keepText);
-    keepHeader.setAlignItems(FlexComponent.Alignment.CENTER);
-    keepHeader.addClassNames(LumoUtility.Gap.SMALL, LumoUtility.Margin.Bottom.SMALL);
+    FlexLayout keepSummary = new FlexLayout(keepIcon, keepText);
+    keepSummary.setAlignItems(FlexComponent.Alignment.CENTER);
+    keepSummary.addClassNames(LumoUtility.Gap.SMALL);
 
-    keepCard.add(keepHeader);
+    keepCard.setSummaryText("");
+    keepCard.setSummary(keepSummary);
+    keepCard.removeAll();
     keepCard.add(
         keepPet != null ? summaryBlock(keepPet) : createEmptyStateMessage("Sin seleccionar"));
 
@@ -427,28 +434,32 @@ public class PetMergeView extends Div {
         LumoUtility.Padding.SMALL);
     removeIcon.addClassNames(LumoUtility.Width.MEDIUM, LumoUtility.Height.MEDIUM);
 
-    Paragraph removeText = new Paragraph("A eliminar");
+    Span removeText = new Span("A eliminar");
     removeText.addClassNames(
         LumoUtility.FontWeight.SEMIBOLD,
         LumoUtility.TextColor.ERROR,
         LumoUtility.Margin.NONE,
         LumoUtility.FontSize.SMALL);
 
-    HorizontalLayout removeHeader = new HorizontalLayout(removeIcon, removeText);
-    removeHeader.setAlignItems(FlexComponent.Alignment.CENTER);
-    removeHeader.addClassNames(LumoUtility.Gap.SMALL, LumoUtility.Margin.Bottom.SMALL);
+    FlexLayout removeSummary = new FlexLayout(removeIcon, removeText);
+    removeSummary.setAlignItems(FlexComponent.Alignment.CENTER);
+    removeSummary.addClassNames(LumoUtility.Gap.SMALL);
 
-    removeCard.add(removeHeader);
+    removeCard.setSummaryText("");
+    removeCard.setSummary(removeSummary);
+    removeCard.removeAll();
     removeCard.add(
         removePet != null ? summaryBlock(removePet) : createEmptyStateMessage("Sin seleccionar"));
   }
 
-  private Div summaryBlock(Pet p) {
-    Div d = new Div();
+  private FormLayout summaryBlock(Pet p) {
+    FormLayout form = new FormLayout();
+    form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
     String ownersCount = p.getOwners() != null ? String.valueOf(p.getOwners().size()) : "0";
 
-    Paragraph petInfo =
-        new Paragraph(
+    Span petInfo =
+        new Span(
             nvl(p.getName())
                 + " - "
                 + getTypeLabel(p.getType())
@@ -464,13 +475,16 @@ public class PetMergeView extends Div {
         LumoUtility.FontSize.SMALL);
     petInfo.getStyle().set("background", "rgba(255, 255, 255, 0.5)");
 
-    d.add(petInfo);
-    return d;
+    form.add(petInfo);
+    form.addClassNames(LumoUtility.Margin.Horizontal.MEDIUM);
+    return form;
   }
 
-  private Div createEmptyStateMessage(String message) {
-    Div d = new Div();
-    Paragraph emptyText = new Paragraph(message);
+  private FormLayout createEmptyStateMessage(String message) {
+    FormLayout form = new FormLayout();
+    form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
+    Span emptyText = new Span(message);
     emptyText.addClassNames(
         LumoUtility.TextColor.SECONDARY,
         LumoUtility.Margin.NONE,
@@ -478,22 +492,25 @@ public class PetMergeView extends Div {
         LumoUtility.TextAlignment.CENTER,
         LumoUtility.FontSize.SMALL);
 
-    d.add(emptyText);
-    return d;
+    form.add(emptyText);
+    return form;
   }
 
-  private Div detailsBlock(Pet p) {
-    Div d = new Div();
+  private FormLayout detailsBlock(Pet p) {
+    FormLayout form = new FormLayout();
+    form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
     if (p == null) {
-      d.add(new Paragraph("Sin seleccionar"));
-      return d;
+      form.add(new Span("Sin seleccionar"));
+      return form;
     }
-    d.add(
-        new Paragraph("Nombre: " + nvl(p.getName())),
-        new Paragraph("Tipo: " + getTypeLabel(p.getType())),
-        new Paragraph("Raza: " + nvl(p.getBreed())),
-        new Paragraph("Dueños: " + (p.getOwners() != null ? p.getOwners().size() : 0)));
-    return d;
+
+    form.add(
+        new Span("Nombre: " + nvl(p.getName())),
+        new Span("Tipo: " + getTypeLabel(p.getType())),
+        new Span("Raza: " + nvl(p.getBreed())),
+        new Span("Dueños: " + (p.getOwners() != null ? p.getOwners().size() : 0)));
+    return form;
   }
 
   private boolean isKeep(Pet p) {
