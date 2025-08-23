@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-/** Service Interface for managing {@link Client} entities. */
+/** Offering Interface for managing {@link Client} entities. */
 @BrowserCallable
 @Validated
 @Transactional(propagation = Propagation.REQUIRES_NEW)

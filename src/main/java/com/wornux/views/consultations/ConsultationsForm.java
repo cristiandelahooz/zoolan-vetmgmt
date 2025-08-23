@@ -32,71 +32,63 @@ import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.pets.SelectPetDialog;
-import com.wornux.views.services.ServiceForm;
+import com.wornux.views.services.OfferingForm;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
-/** Enhanced form for creating and editing consultations with service and product integration */
+/** Enhanced form for creating and editing consultations with offering and product integration */
 @Slf4j
 public class ConsultationsForm extends Dialog {
 
   private final TextField petName = new TextField("Mascota");
   private final Button selectPetButton = new Button("Seleccionar");
-  private Pet selectedPet;
   private final SelectPetDialog selectPetDialog;
-
   private final ComboBox<Employee> veterinarianComboBox = new ComboBox<>("Veterinario");
   private final TextArea notesTextArea = new TextArea("Notas de Consulta");
   private final TextArea diagnosisTextArea = new TextArea("Diagnóstico");
   private final TextArea treatmentTextArea = new TextArea("Tratamiento");
   private final TextArea prescriptionTextArea = new TextArea("Prescripción");
-
-  private final ComboBox<Service> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
+  private final ComboBox<Offering> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
   private final Button addServiceButton = new Button("Agregar Servicio", new Icon(VaadinIcon.PLUS));
   private final Grid<ServiceItem> servicesGrid = new Grid<>(ServiceItem.class, false);
-
   private final ComboBox<Product> productComboBox = new ComboBox<>("Seleccionar Producto");
   private final NumberField productQuantityField = new NumberField("Cantidad");
   private final Button addProductButton = new Button("Agregar Producto", new Icon(VaadinIcon.PLUS));
   private final Grid<ProductItem> productsGrid = new Grid<>(ProductItem.class, false);
-
   private final Span totalServicesSpan = new Span("$0.00");
   private final Span totalProductsSpan = new Span("$0.00");
   private final Span grandTotalSpan = new Span("$0.00");
-
   private final Button saveButton = new Button("Registrar Consulta");
   private final Button cancelButton = new Button("Cancelar");
   private final Button createServiceButton = new Button("Crear Nuevo Servicio");
-
   private final Binder<Consultation> binder = new Binder<>(Consultation.class);
-
   private final transient ConsultationService consultationService;
   private final transient EmployeeService employeeService;
   private final transient PetService petService;
-  private final transient ServiceService serviceService;
+  private final transient OfferingService serviceService;
   private final transient InvoiceService invoiceService;
   private final transient ProductService productService;
-
-  private transient Consultation editingConsultation;
-  private transient Invoice editingInvoice;
   private final List<ServiceItem> selectedServices = new ArrayList<>();
   private final List<ProductItem> selectedProducts = new ArrayList<>();
-  private final ServiceForm serviceForm;
-
+  private final OfferingForm offeringForm;
+  private Pet selectedPet;
+  private transient Consultation editingConsultation;
+  private transient Invoice editingInvoice;
   @Setter private transient Consumer<Consultation> onSaveCallback;
 
   public ConsultationsForm(
       ConsultationService consultationService,
       EmployeeService employeeService,
       PetService petService,
-      ServiceService serviceService,
+      OfferingService serviceService,
       InvoiceService invoiceService,
       ProductService productService) {
     this.consultationService = consultationService;
@@ -105,7 +97,7 @@ public class ConsultationsForm extends Dialog {
     this.serviceService = serviceService;
     this.productService = productService;
     this.invoiceService = invoiceService;
-    this.serviceForm = new ServiceForm(serviceService);
+    this.offeringForm = new OfferingForm(serviceService);
 
     this.selectPetDialog = new SelectPetDialog(petService);
 
@@ -370,20 +362,20 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void addSelectedService() {
-    Service selectedService = serviceComboBox.getValue();
-    if (selectedService == null) return;
+    Offering selectedOffering = serviceComboBox.getValue();
+    if (selectedOffering == null) return;
 
-    // Check if service already added
+    // Check if offering already added
     boolean alreadyAdded =
         selectedServices.stream()
-            .anyMatch(item -> item.getService().getId().equals(selectedService.getId()));
+            .anyMatch(item -> item.getService().getId().equals(selectedOffering.getId()));
 
     if (alreadyAdded) {
       NotificationUtils.error("Este servicio ya ha sido agregado");
       return;
     }
 
-    ServiceItem serviceItem = new ServiceItem(selectedService, 1.0);
+    ServiceItem serviceItem = new ServiceItem(selectedOffering, 1.0);
     selectedServices.add(serviceItem);
     servicesGrid.setItems(selectedServices);
     serviceComboBox.clear();
@@ -391,7 +383,7 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void openServiceCreationDialog() {
-    serviceForm.openForNew();
+    offeringForm.openForNew();
   }
 
   private void addSelectedProduct() {
@@ -526,7 +518,7 @@ public class ConsultationsForm extends Dialog {
                       serviceInvoice ->
                           selectedServices.add(
                               new ServiceItem(
-                                  serviceInvoice.getService(), serviceInvoice.getQuantity())));
+                                  serviceInvoice.getOffering(), serviceInvoice.getQuantity())));
 
               invoice
                   .getProducts()
@@ -562,7 +554,7 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void setupServiceForm() {
-    serviceForm.addServiceSavedListener(
+    offeringForm.addServiceSavedListener(
         dto -> {
           var medicalServices = serviceService.findMedicalServices();
           serviceComboBox.setItems(medicalServices);
@@ -636,7 +628,7 @@ public class ConsultationsForm extends Dialog {
     for (ServiceItem serviceItem : selectedServices) {
       ServiceInvoice serviceInvoice =
           ServiceInvoice.builder()
-              .service(serviceItem.getService())
+              .offering(serviceItem.getService())
               .quantity(serviceItem.getQuantity())
               .amount(serviceItem.getSubtotal())
               .build();
@@ -668,18 +660,18 @@ public class ConsultationsForm extends Dialog {
   }
 
   public static class ServiceItem {
-    private final Service service;
+    private final Offering offering;
     private final Double quantity;
     private final BigDecimal subtotal;
 
-    public ServiceItem(Service service, Double quantity) {
-      this.service = service;
+    public ServiceItem(Offering offering, Double quantity) {
+      this.offering = offering;
       this.quantity = quantity;
-      this.subtotal = service.getPrice().multiply(BigDecimal.valueOf(quantity));
+      this.subtotal = offering.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 
-    public Service getService() {
-      return service;
+    public Offering getService() {
+      return offering;
     }
 
     public Double getQuantity() {

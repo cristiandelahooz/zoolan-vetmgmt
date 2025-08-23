@@ -1,9 +1,5 @@
 package com.wornux.views.transactions;
 
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
-import static com.wornux.utils.PredicateUtils.predicateForNumericField;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
@@ -49,8 +45,8 @@ import com.wornux.security.UserUtils;
 import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
+import com.wornux.services.interfaces.OfferingService;
 import com.wornux.services.interfaces.ProductService;
-import com.wornux.services.interfaces.ServiceService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.GridUtils;
 import com.wornux.views.MainLayout;
@@ -59,16 +55,21 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.core5.http.ContentType;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.io.ByteArrayInputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.core5.http.ContentType;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.domain.Specification;
+
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+import static com.wornux.utils.PredicateUtils.predicateForNumericField;
 
 @Slf4j
 @Uses(Icon.class)
@@ -95,7 +96,7 @@ public class InvoiceView extends Div {
   private final transient InvoiceService service;
   private final InvoiceForm invoiceForm;
   private final transient InvoiceReportService invoiceReportService;
-  private final transient ServiceService serviceService;
+  private final transient OfferingService serviceService;
 
   public InvoiceView(
       InvoiceService service,
@@ -103,7 +104,7 @@ public class InvoiceView extends Div {
       ProductService productService,
       AuditService auditService,
       ClientMapper clientMapper,
-      ServiceService serviceService,
+      OfferingService serviceService,
       InvoiceReportService invoiceReportService) {
     this.service = service;
     this.serviceService = serviceService;

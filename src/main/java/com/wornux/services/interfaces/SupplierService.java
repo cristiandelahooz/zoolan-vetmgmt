@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-/** Service Interface for managing Supplier entities. */
+/** Offering Interface for managing Supplier entities. */
 @BrowserCallable
 @Validated
 @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 
-/** Service interface for managing users. */
+/** Offering interface for managing users. */
 public interface UserService {
 
   /**

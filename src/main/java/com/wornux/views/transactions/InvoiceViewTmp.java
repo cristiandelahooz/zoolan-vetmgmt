@@ -84,7 +84,7 @@ public class InvoiceViewTmp extends VerticalLayout {
     HorizontalLayout layout = new HorizontalLayout();
     layout.setWidthFull();
     Span label =
-        new Span("Require customer to agree to terms of service before paying by credit card");
+        new Span("Require customer to agree to terms of offering before paying by credit card");
     label.getStyle().set("color", "#888");
 
     Span toggle = new Span("OFF");

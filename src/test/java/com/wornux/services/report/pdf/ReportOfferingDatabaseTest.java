@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-class ReportServiceDatabaseTest {
+class ReportOfferingDatabaseTest {
 
   private ResourceLoader resourceLoader;
   private ReportServiceDatabase reportService;

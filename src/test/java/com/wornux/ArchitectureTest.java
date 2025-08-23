@@ -25,7 +25,7 @@ class ArchitectureTest {
         .resideInAPackage(BASE_PACKAGE + "..data..")
         .should()
         .dependOnClassesThat()
-        .resideInAPackage(BASE_PACKAGE + "..service..")
+        .resideInAPackage(BASE_PACKAGE + "..offering..")
         .check(importedClasses);
   }
 
@@ -47,7 +47,7 @@ class ArchitectureTest {
         .areAssignableTo(Repository.class)
         .should()
         .onlyHaveDependentClassesThat()
-        .resideInAnyPackage(BASE_PACKAGE + "..data..", BASE_PACKAGE + "..service..")
+        .resideInAnyPackage(BASE_PACKAGE + "..data..", BASE_PACKAGE + "..offering..")
         .check(importedClasses);
   }
 
@@ -67,7 +67,7 @@ class ArchitectureTest {
   void application_services_should_not_depend_on_the_user_interface() {
     noClasses()
         .that()
-        .resideInAPackage(BASE_PACKAGE + "..service..")
+        .resideInAPackage(BASE_PACKAGE + "..offering..")
         .should()
         .dependOnClassesThat()
         .resideInAnyPackage(BASE_PACKAGE + "..ui..")

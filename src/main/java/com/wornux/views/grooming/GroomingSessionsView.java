@@ -43,7 +43,7 @@ public class GroomingSessionsView extends Div {
 
   private final transient GroomingSessionService groomingSessionService;
   private final transient InvoiceService invoiceService;
-  private final transient ServiceService serviceService;
+  private final transient OfferingService serviceService;
   private final transient ProductService productService;
   private final transient GroomingForm groomingForm;
 
@@ -51,7 +51,7 @@ public class GroomingSessionsView extends Div {
       @Qualifier("groomingSessionServiceImpl") GroomingSessionService groomingSessionService,
       @Qualifier("employeeServiceImpl") EmployeeService employeeService,
       @Qualifier("petServiceImpl") PetService petService,
-      @Qualifier("serviceServiceImpl") ServiceService serviceService,
+      @Qualifier("serviceServiceImpl") OfferingService serviceService,
       @Qualifier("productServiceImpl") ProductService productService,
       InvoiceService invoiceService) {
 

@@ -2,7 +2,7 @@ package com.wornux.dto.response;
 
 import com.wornux.data.entity.AppointmentClientInfo;
 import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.enums.OfferingType;
 import java.time.LocalDateTime;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
@@ -18,7 +18,7 @@ public class AppointmentResponseDto {
 
   private LocalDateTime endAppointmentDate;
 
-  private ServiceType serviceType;
+  private OfferingType serviceType;
 
   private AppointmentStatus status;
 

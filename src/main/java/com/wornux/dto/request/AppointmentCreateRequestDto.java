@@ -4,7 +4,7 @@ import static com.wornux.constants.AppointmentConstants.*;
 
 import com.wornux.data.entity.AppointmentClientInfo;
 import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.enums.OfferingType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class AppointmentCreateRequestDto {
   private LocalDateTime endAppointmentDate;
 
   @NotNull(message = "El tipo de servicio es obligatorio")
-  private ServiceType serviceType;
+  private OfferingType serviceType;
 
   private AppointmentStatus status;
 

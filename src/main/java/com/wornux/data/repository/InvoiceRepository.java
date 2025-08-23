@@ -15,11 +15,11 @@ import org.springframework.data.repository.query.Param;
 public interface InvoiceRepository
     extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
 
-  @EntityGraph(attributePaths = {"client", "products.product", "services.service"})
+  @EntityGraph(attributePaths = {"client", "products.product", "services.offering"})
   @Query("SELECT i FROM Invoice i WHERE i.code = :code")
   Optional<Invoice> findByCodeWithServicesAndProducts(@Param("code") Long code);
 
-  @EntityGraph(attributePaths = {"client", "products.product", "services.service"})
+  @EntityGraph(attributePaths = {"client", "products.product", "services.offering"})
   @Query("SELECT i FROM Invoice i WHERE i.consultation = :consultation AND i.active = true")
   Optional<Invoice> findByConsultation(@Param("consultation") Consultation consultation);
 

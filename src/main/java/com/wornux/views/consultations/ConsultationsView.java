@@ -50,7 +50,7 @@ public class ConsultationsView extends Div {
   private final Span quantity = new Span();
   private final transient ConsultationService consultationService;
   private final transient InvoiceService invoiceService;
-  private final transient ServiceService serviceService;
+  private final transient OfferingService serviceService;
   private final transient ProductService productService;
   private final transient ConsultationsForm consultationsForm;
 
@@ -58,7 +58,7 @@ public class ConsultationsView extends Div {
       @Qualifier("consultationServiceImpl") ConsultationService consultationService,
       @Qualifier("employeeServiceImpl") EmployeeService employeeService,
       @Qualifier("petServiceImpl") PetService petService,
-      @Qualifier("serviceServiceImpl") ServiceService serviceService,
+      @Qualifier("serviceServiceImpl") OfferingService serviceService,
       @Qualifier("productServiceImpl") ProductService productService,
       InvoiceService invoiceService) {
     this.consultationService = consultationService;
@@ -341,10 +341,7 @@ public class ConsultationsView extends Div {
   }
 
   public Boolean evaluateInvoiceForDelete(Invoice invoice) {
-    if (invoice != null) {
-      return true;
-    }
-    return false;
+    return invoice != null;
   }
 
   private Component renderStatus(Consultation consultation) {

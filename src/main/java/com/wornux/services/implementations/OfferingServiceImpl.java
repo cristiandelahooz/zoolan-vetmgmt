@@ -1,19 +1,17 @@
 package com.wornux.services.implementations;
 
-import com.wornux.data.entity.Service;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.entity.Offering;
+import com.wornux.data.enums.OfferingType;
 import com.wornux.data.repository.InvoiceRepository;
 import com.wornux.data.repository.InvoiceServiceRepository;
-import com.wornux.data.repository.ServiceRepository;
+import com.wornux.data.repository.OfferingRepository;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
 import com.wornux.mapper.ServiceMapper;
-import com.wornux.services.interfaces.ServiceService;
+import com.wornux.services.interfaces.OfferingService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
-import java.util.List;
-import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +20,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Implementation of ServiceService for managing veterinary services */
+import java.util.List;
+import java.util.Optional;
+
+/** Implementation of OfferingService for managing veterinary services */
 @Slf4j
 @Component("serviceServiceImpl")
 @RequiredArgsConstructor
-public class ServiceServiceImpl implements ServiceService {
+public class OfferingServiceImpl implements OfferingService {
 
-  private final ServiceRepository serviceRepository;
+  private final OfferingRepository serviceRepository;
   private final ServiceMapper serviceMapper;
   private final InvoiceService invoiceService;
   private final InvoiceServiceRepository invoiceServiceRepository;
@@ -36,51 +37,51 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional
-  public Service save(Service service) {
-    log.debug("Saving service: {}", service.getName());
-    return serviceRepository.save(service);
+  public Offering save(Offering offering) {
+    log.debug("Saving offering: {}", offering.getName());
+    return serviceRepository.save(offering);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<Service> findById(Long id) {
+  public Optional<Offering> findById(Long id) {
     return serviceRepository.findById(id);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> findAll() {
+  public List<Offering> findAll() {
     return serviceRepository.findAll();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Page<Service> findAll(Pageable pageable) {
+  public Page<Offering> findAll(Pageable pageable) {
     return serviceRepository.findAll(pageable);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> findByServiceType(ServiceType serviceType) {
+  public List<Offering> findByServiceType(OfferingType serviceType) {
     return serviceRepository.findByServiceTypeAndActiveTrue(serviceType);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> findActiveServices() {
+  public List<Offering> findActiveServices() {
     return serviceRepository.findByActiveTrue();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> searchByName(String name) {
+  public List<Offering> searchByName(String name) {
     return serviceRepository.findByNameContainingIgnoreCaseAndActiveTrue(name);
   }
 
   @Override
   @Transactional
   public void delete(Long id) {
-    log.debug("Deleting service with id: {}", id);
+    log.debug("Deleting offering with id: {}", id);
     serviceRepository.deleteById(id);
   }
 
@@ -92,51 +93,51 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> findMedicalServices() {
-    return serviceRepository.findByServiceTypeAndActiveTrue(ServiceType.MEDICAL);
+  public List<Offering> findMedicalServices() {
+    return serviceRepository.findByServiceTypeAndActiveTrue(OfferingType.MEDICAL);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> findGroomingServices() {
-    return serviceRepository.findByServiceTypeAndActiveTrue(ServiceType.GROOMING);
+  public List<Offering> findGroomingServices() {
+    return serviceRepository.findByServiceTypeAndActiveTrue(OfferingType.GROOMING);
   }
 
   @Override
   @Transactional
-  public Service save(@Valid ServiceCreateRequestDto dto) {
+  public Offering save(@Valid ServiceCreateRequestDto dto) {
     try {
-      log.debug("Request to save Service: {}", dto);
+      log.debug("Request to save Offering: {}", dto);
 
-      // Check for duplicate service name
+      // Check for duplicate offering name
       if (serviceRepository.existsByNameAndActiveTrue(dto.getName())) {
         throw new ValidationException("Ya existe un servicio activo con ese nombre");
       }
 
-      Service service = serviceMapper.toEntity(dto);
-      service.setActive(true);
-      service = serviceRepository.save(service);
+      Offering offering = serviceMapper.toEntity(dto);
+      offering.setActive(true);
+      offering = serviceRepository.save(offering);
 
-      log.info("Service saved successfully with ID: {}", service.getId());
-      return service;
+      log.info("Offering saved successfully with ID: {}", offering.getId());
+      return offering;
     } catch (Exception e) {
-      log.error("Error saving Service: {}", e.getMessage());
+      log.error("Error saving Offering: {}", e.getMessage());
       throw e;
     }
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Service updateService(@NonNull Long id, @Valid ServiceUpdateRequestDto dto) {
-    log.debug("Request to update Service with ID: {}", id);
+  public Offering updateService(@NonNull Long id, @Valid ServiceUpdateRequestDto dto) {
+    log.debug("Request to update Offering with ID: {}", id);
 
-    Service service =
+    Offering offering =
         serviceRepository
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + id));
 
-    // Validate unique name (excluding current service)
-    if (dto.getName() != null && !dto.getName().equals(service.getName())) {
+    // Validate unique name (excluding current offering)
+    if (dto.getName() != null && !dto.getName().equals(offering.getName())) {
       serviceRepository
           .findByNameAndActiveTrueAndIdNot(dto.getName(), id)
           .ifPresent(
@@ -145,54 +146,54 @@ public class ServiceServiceImpl implements ServiceService {
               });
     }
 
-    serviceMapper.updateServiceFromDto(dto, service);
-    service = serviceRepository.save(service);
+    serviceMapper.updateServiceFromDto(dto, offering);
+    offering = serviceRepository.save(offering);
 
-    log.info("Service updated successfully with ID: {}", id);
-    return service;
+    log.info("Offering updated successfully with ID: {}", id);
+    return offering;
   }
 
   @Override
   @Transactional
   public void deactivateService(@NonNull Long id) {
-    log.debug("Request to deactivate Service with ID: {}", id);
+    log.debug("Request to deactivate Offering with ID: {}", id);
 
-    Service service =
+    Offering offering =
         serviceRepository
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + id));
 
-    service.setActive(false);
-    serviceRepository.save(service);
+    offering.setActive(false);
+    serviceRepository.save(offering);
 
-    log.info("Service deactivated successfully with ID: {}", id);
+    log.info("Offering deactivated successfully with ID: {}", id);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> getAllActiveServices() {
+  public List<Offering> getAllActiveServices() {
     log.debug("Request to get all active services");
     return serviceRepository.findByActiveTrueOrderByNameAsc();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> getServicesByType(ServiceType serviceType) {
+  public List<Offering> getServicesByType(OfferingType serviceType) {
     log.debug("Request to get services by type: {}", serviceType);
     return serviceRepository.findByServiceTypeAndActiveTrue(serviceType);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Service getServiceById(@NonNull Long id) {
-    log.debug("Request to get Service with ID: {}", id);
+  public Offering getServiceById(@NonNull Long id) {
+    log.debug("Request to get Offering with ID: {}", id);
     return serviceRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + id));
   }
 
   @Override
-  public ServiceRepository getRepository() {
+  public OfferingRepository getRepository() {
     return this.serviceRepository;
   }
 }

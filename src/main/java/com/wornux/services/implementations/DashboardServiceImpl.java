@@ -4,7 +4,7 @@ import com.wornux.data.repository.ClientRepository;
 import com.wornux.data.repository.ConsultationRepository;
 import com.wornux.data.repository.InvoiceRepository;
 import com.wornux.data.repository.ProductRepository;
-import com.wornux.data.repository.ServiceRepository;
+import com.wornux.data.repository.OfferingRepository;
 import com.wornux.dto.dashboard.ChartDataDto;
 import com.wornux.dto.dashboard.RevenueDataDto;
 import com.wornux.dto.dashboard.StockAlertDto;
@@ -33,7 +33,7 @@ public class DashboardServiceImpl implements DashboardService {
 
   private final InvoiceRepository invoiceRepository;
   private final ProductRepository productRepository;
-  private final ServiceRepository serviceRepository;
+  private final OfferingRepository serviceRepository;
   private final ConsultationRepository consultationRepository;
   private final ClientRepository clientRepository;
 

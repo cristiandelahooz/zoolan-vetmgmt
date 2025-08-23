@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Zoolan Vetmgmt is a comprehensive veterinary management system built with Spring Boot 3.5.0, Vaadin 24.8.3, and React. It manages veterinary appointments, clients, pets, medical histories, invoices, and more.
+Zoolan Vetmgmt is a comprehensive veterinary management system built with Spring Boot 3.5.0, Vaadin 24.8.3, and React.
+It manages veterinary appointments, clients, pets, medical histories, invoices, and more.
 
 ## Architecture
 
@@ -20,12 +21,12 @@ Zoolan Vetmgmt is a comprehensive veterinary management system built with Spring
 ### Key Application Structure
 
 - `src/main/java/com/wornux/` - Java backend code
-  - `data/entity/` - JPA entities (Client, Pet, Appointment, etc.)
-  - `data/repository/` - Spring Data repositories
-  - `services/` - Business logic layer with interfaces and implementations
-  - `views/` - Vaadin UI views and forms
-  - `security/` - Spring Security and Vaadin Navigation Access Control
-  - `mapper/` - MapStruct entity-DTO mappers
+    - `data/entity/` - JPA entities (Client, Pet, Appointment, etc.)
+    - `data/repository/` - Spring Data repositories
+    - `services/` - Business logic layer with interfaces and implementations
+    - `views/` - Vaadin UI views and forms
+    - `security/` - Spring Security and Vaadin Navigation Access Control
+    - `mapper/` - MapStruct entity-DTO mappers
 - `src/main/frontend/` - TypeScript/React frontend code
 - `src/main/resources/` - Configuration, database migrations, reports
 
@@ -94,7 +95,8 @@ Uses Vaadin's Navigation Access Control with Spring Security:
 
 ### Schema
 
-- The database schema is defined in the @src/main/resources/db/migration/prod/V0.0.1\_\_init.sql file. Reference it anytime you need to understand the structure of data stored in the database.
+- The database schema is defined in the @src/main/resources/db/migration/prod/V0.0.1\_\_init.sql file. Reference it
+  anytime you need to understand the structure of data stored in the database.
 
 ### Migrations
 
@@ -141,7 +143,7 @@ component.addClassNames(
 
 - Interface/implementation pattern in `services/interfaces/` and `services/implementations/`
 - Uses MapStruct for DTO mapping
-- Transactional service methods
+- Transactional offering methods
 
 ### Repository Layer
 
@@ -211,7 +213,7 @@ vaadin.allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux
 
 1. Create entity in `data/entity/` extending `AbstractEntity`
 2. Add repository in `data/repository/`
-3. Create service interface and implementation
+3. Create offering interface and implementation
 4. Add MapStruct mapper with DTOs
 5. Create Vaadin view and form components
 
@@ -229,4 +231,5 @@ vaadin.allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux
 4. Ensure responsive design with Vaadin components
 
 - guarda las reglas nagivation acces control, y una tabla de acceso por role, a cuales rutas tiene acceso
-- after any edits in the code, use jetbrains mcp to get the diagnostics of the file edited to see if there is any problem
+- after any edits in the code, use jetbrains mcp to get the diagnostics of the file edited to see if there is any
+  problem

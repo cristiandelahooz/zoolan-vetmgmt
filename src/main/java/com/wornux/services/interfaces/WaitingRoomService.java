@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-/** Service Interface for managing {@link WaitingRoom} entities. */
+/** Offering Interface for managing {@link WaitingRoom} entities. */
 @BrowserCallable
 @Validated
 @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -5,7 +5,7 @@ import static com.wornux.constants.AppointmentConstants.*;
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.AppointmentClientInfo;
 import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.enums.OfferingType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class AppointmentUpdateRequestDto {
   @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
   private LocalDateTime endAppointmentDate;
 
-  @Nullable private ServiceType serviceType;
+  @Nullable private OfferingType serviceType;
 
   @Nullable private AppointmentStatus status;
 

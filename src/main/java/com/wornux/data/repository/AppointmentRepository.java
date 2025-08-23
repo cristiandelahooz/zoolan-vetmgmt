@@ -2,7 +2,7 @@ package com.wornux.data.repository;
 
 import com.wornux.data.entity.Appointment;
 import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.enums.OfferingType;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -31,7 +31,7 @@ public interface AppointmentRepository
 
   Page<Appointment> findByStatus(AppointmentStatus status, Pageable pageable);
 
-  List<Appointment> findByServiceType(ServiceType serviceType);
+  List<Appointment> findByServiceType(OfferingType serviceType);
 
   @Query(
       "SELECT a FROM Appointment a WHERE a.startAppointmentDate >= :startOfDay AND a.startAppointmentDate < :endOfDay")

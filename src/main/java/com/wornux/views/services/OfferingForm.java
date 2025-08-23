@@ -20,11 +20,11 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.data.entity.Service;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.entity.Offering;
+import com.wornux.data.enums.OfferingType;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
-import com.wornux.services.interfaces.ServiceService;
+import com.wornux.services.interfaces.OfferingService;
 import com.wornux.utils.NotificationUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -35,11 +35,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ServiceForm extends Dialog {
+public class OfferingForm extends Dialog {
 
   private final TextField name = new TextField("Nombre del Servicio");
   private final TextArea description = new TextArea("Descripción");
-  private final ComboBox<ServiceType> serviceType = new ComboBox<>("Tipo de Servicio");
+  private final ComboBox<OfferingType> serviceType = new ComboBox<>("Tipo de Servicio");
   private final NumberField price = new NumberField("Precio");
 
   private final Button saveButton = new Button("Guardar");
@@ -51,17 +51,15 @@ public class ServiceForm extends Dialog {
   private final Binder<ServiceUpdateRequestDto> binderUpdate =
       new BeanValidationBinder<>(ServiceUpdateRequestDto.class);
 
-  private final transient ServiceService serviceService;
-
+  private final transient OfferingService serviceService;
+  private final List<Consumer<ServiceCreateRequestDto>> serviceSavedListeners = new ArrayList<>();
+  private final List<Runnable> serviceCancelledListeners = new ArrayList<>();
   private boolean isEditMode = false;
-  private Service currentService;
+  private Offering currentOffering;
   private ValidationBean validationBean;
   private Runnable onSaveCallback;
 
-  private final List<Consumer<ServiceCreateRequestDto>> serviceSavedListeners = new ArrayList<>();
-  private final List<Runnable> serviceCancelledListeners = new ArrayList<>();
-
-  public ServiceForm(ServiceService serviceService) {
+  public OfferingForm(OfferingService serviceService) {
     this.serviceService = serviceService;
     this.validationBean = new ValidationBean();
 
@@ -106,8 +104,8 @@ public class ServiceForm extends Dialog {
     description.setMaxLength(500);
     description.setHelperText("Máximo 500 caracteres");
 
-    serviceType.setItems(ServiceType.values());
-    serviceType.setItemLabelGenerator(ServiceType::getDisplay);
+    serviceType.setItems(OfferingType.values());
+    serviceType.setItemLabelGenerator(OfferingType::getDisplay);
     serviceType.setRequiredIndicatorVisible(true);
     serviceType.setPrefixComponent(VaadinIcon.CLIPBOARD_HEART.create());
 
@@ -256,7 +254,7 @@ public class ServiceForm extends Dialog {
         onSaveCallback.run();
       }
     } catch (Exception e) {
-      log.error("Error saving service", e);
+      log.error("Error saving offering", e);
       NotificationUtils.error("Error al guardar el servicio: " + e.getMessage());
     }
   }
@@ -269,21 +267,21 @@ public class ServiceForm extends Dialog {
 
     try {
       ServiceUpdateRequestDto updateDto = binderUpdate.getBean();
-      serviceService.updateService(currentService.getId(), updateDto);
+      serviceService.updateService(currentOffering.getId(), updateDto);
       NotificationUtils.success("Servicio actualizado exitosamente");
       close();
       if (onSaveCallback != null) {
         onSaveCallback.run();
       }
     } catch (Exception e) {
-      log.error("Error updating service", e);
+      log.error("Error updating offering", e);
       NotificationUtils.error("Error al actualizar el servicio: " + e.getMessage());
     }
   }
 
   public void openForNew() {
     isEditMode = false;
-    currentService = null;
+    currentOffering = null;
     validationBean = new ValidationBean();
 
     updateHeaderTitle("Nuevo Servicio");
@@ -295,14 +293,14 @@ public class ServiceForm extends Dialog {
     open();
   }
 
-  public void openForEdit(Service service) {
+  public void openForEdit(Offering offering) {
     isEditMode = true;
-    currentService = service;
+    currentOffering = offering;
 
-    updateHeaderTitle("Editar Servicio: " + service.getName());
+    updateHeaderTitle("Editar Servicio: " + offering.getName());
 
-    populateForm(service);
-    ServiceUpdateRequestDto updateDto = createUpdateDtoFromService(service);
+    populateForm(offering);
+    ServiceUpdateRequestDto updateDto = createUpdateDtoFromService(offering);
     binderUpdate.setBean(updateDto);
 
     name.focus();
@@ -316,19 +314,19 @@ public class ServiceForm extends Dialog {
     price.clear();
   }
 
-  private void populateForm(Service service) {
-    name.setValue(service.getName());
-    description.setValue(service.getDescription() != null ? service.getDescription() : "");
-    serviceType.setValue(service.getServiceType());
-    price.setValue(service.getPrice().doubleValue());
+  private void populateForm(Offering offering) {
+    name.setValue(offering.getName());
+    description.setValue(offering.getDescription() != null ? offering.getDescription() : "");
+    serviceType.setValue(offering.getServiceType());
+    price.setValue(offering.getPrice().doubleValue());
   }
 
-  private ServiceUpdateRequestDto createUpdateDtoFromService(Service service) {
+  private ServiceUpdateRequestDto createUpdateDtoFromService(Offering offering) {
     return new ServiceUpdateRequestDto(
-        service.getName(),
-        service.getDescription(),
-        service.getServiceType(),
-        service.getPrice().doubleValue());
+        offering.getName(),
+        offering.getDescription(),
+        offering.getServiceType(),
+        offering.getPrice().doubleValue());
   }
 
   public void addServiceSavedListener(Consumer<ServiceCreateRequestDto> listener) {
@@ -352,7 +350,7 @@ public class ServiceForm extends Dialog {
   public static class ValidationBean {
     private String name;
     private String description;
-    private ServiceType serviceType;
+    private OfferingType serviceType;
     private Double price;
   }
 }

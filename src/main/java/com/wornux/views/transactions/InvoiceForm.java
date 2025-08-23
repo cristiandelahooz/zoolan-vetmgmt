@@ -41,7 +41,7 @@ import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.ProductService;
-import com.wornux.services.interfaces.ServiceService;
+import com.wornux.services.interfaces.OfferingService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
@@ -68,23 +68,20 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 @Slf4j
 public class InvoiceForm extends Div {
 
+  private static final BigDecimal TAX_RATE = new BigDecimal("0.18"); // Assuming 18% tax rate
   private final ComboBox<Client> customer = new ComboBox<>("Selecciona un cliente");
   private final TextField docNum = new TextField("Número de factura");
   private final TextField salesOrder = new TextField("Número de orden/servicio");
   private final DatePicker issuedDate = new DatePicker("Fecha de emisión");
   private final DatePicker paymentDate = new DatePicker("Fecha de pago");
-
   private final DecimalField subtotalField = new DecimalField("Subtotal");
   private final DecimalField taxField = new DecimalField("Impuesto");
   private final DecimalField total = new DecimalField("Total");
   private final TextArea notes = new TextArea("Notas");
-
   private final Grid<Object> gridItems = new Grid<>();
   private final List<InvoiceProduct> invoiceProducts = new ArrayList<>();
   private final List<Object> displayedItems = new ArrayList<>();
-
   private final Binder<Invoice> binder = new BeanValidationBinder<>(Invoice.class);
-
   private final Sidebar sidebar = new Sidebar();
   private final Button add = new Button(VaadinIcon.PLUS_CIRCLE.create());
   private final Button exportPdfButton =
@@ -106,7 +103,7 @@ public class InvoiceForm extends Div {
       InvoiceService invoiceService,
       ClientService customerService,
       ProductService productService,
-      ServiceService serviceService,
+      OfferingService serviceService,
       AuditService auditService,
       ClientMapper clientMapper,
       InvoiceReportService invoiceReportService) {
@@ -240,8 +237,8 @@ public class InvoiceForm extends Div {
                     .map(Product::getName)
                     .orElse("");
               } else if (item instanceof ServiceInvoice) {
-                return Optional.ofNullable(((ServiceInvoice) item).getService())
-                    .map(com.wornux.data.entity.Service::getName)
+                return Optional.ofNullable(((ServiceInvoice) item).getOffering())
+                    .map(Offering::getName)
                     .orElse("");
               }
               return "";
@@ -257,8 +254,8 @@ public class InvoiceForm extends Div {
                     .map(Product::getDescription)
                     .orElse("");
               } else if (item instanceof ServiceInvoice) {
-                return Optional.ofNullable(((ServiceInvoice) item).getService())
-                    .map(com.wornux.data.entity.Service::getDescription)
+                return Optional.ofNullable(((ServiceInvoice) item).getOffering())
+                    .map(Offering::getDescription)
                     .orElse("");
               }
               return "";
@@ -324,8 +321,6 @@ public class InvoiceForm extends Div {
         });
   }
 
-  private static final BigDecimal TAX_RATE = new BigDecimal("0.18"); // Assuming 18% tax rate
-
   private void calculateTotals() {
     BigDecimal productsTotal =
         invoiceProducts.stream()
@@ -338,7 +333,7 @@ public class InvoiceForm extends Div {
             .map(Invoice::getServices)
             .map(List::stream)
             .orElse(Stream.empty())
-            .filter(s -> s.getService() != null && s.getAmount() != null)
+            .filter(s -> s.getOffering() != null && s.getAmount() != null)
             .map(ServiceInvoice::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 

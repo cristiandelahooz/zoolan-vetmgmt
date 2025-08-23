@@ -27,16 +27,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ProductGrid extends Grid<Product> {
-  private Specification<Product> specification;
+  private static final String COLUMN_WIDTH = "120px";
   private final transient ProductService productService;
   private final transient WarehouseService warehouseService;
-
+  private Specification<Product> specification;
   // Filtros
   private ComboBox<ProductUnit> unitFilter;
   private ComboBox<ProductUsageType> usageTypeFilter;
   private ComboBox<Warehouse> warehouseFilter;
-
-  private static final String COLUMN_WIDTH = "120px";
 
   public ProductGrid(
       ProductService productService,
@@ -219,7 +217,7 @@ public class ProductGrid extends Grid<Product> {
       warehouseFilter.setItems(warehouses);
       warehouseFilter.setItemLabelGenerator(Warehouse::getName);
     } catch (Exception e) {
-      // Handle if warehouse service is not available
+      // Handle if warehouse offering is not available
     }
     warehouseFilter.setClearButtonVisible(true);
     warehouseFilter.addValueChangeListener(e -> applyFilters());

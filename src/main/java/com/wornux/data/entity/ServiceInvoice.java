@@ -27,8 +27,8 @@ public class ServiceInvoice {
   private Invoice invoice;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "service", nullable = false)
-  private Service service;
+  @JoinColumn(name = "offering", nullable = false)
+  private Offering offering;
 
   @Builder.Default
   @Column(nullable = false)
@@ -37,15 +37,15 @@ public class ServiceInvoice {
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal amount;
 
-  /** Calculate amount based on service price and quantity */
+  /** Calculate amount based on offering price and quantity */
   public void calculateAmount() {
-    if (service != null && service.getPrice() != null && quantity != null) {
-      this.amount = service.getPrice().multiply(BigDecimal.valueOf(quantity));
+    if (offering != null && offering.getPrice() != null && quantity != null) {
+      this.amount = offering.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
   }
 
-  /** Get service price for convenience */
+  /** Get offering price for convenience */
   public BigDecimal getPrice() {
-    return service != null ? service.getPrice() : BigDecimal.ZERO;
+    return offering != null ? offering.getPrice() : BigDecimal.ZERO;
   }
 }

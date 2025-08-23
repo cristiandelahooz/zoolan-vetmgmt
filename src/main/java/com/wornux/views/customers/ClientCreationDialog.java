@@ -167,7 +167,7 @@ public class ClientCreationDialog extends Dialog {
 
   private void handleClientCreated(ClientCreateRequestDto dto) {
     if (onClientCreated != null) {
-      // Persist the client using the service
+      // Persist the client using the offering
       Client createdClient = clientService.createClient(dto);
       // Pass the persisted client (which now has an ID) to the callback
       onClientCreated.accept(createdClient);

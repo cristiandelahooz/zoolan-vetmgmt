@@ -1,7 +1,5 @@
 package com.wornux.views.services;
 
-import static com.wornux.utils.PredicateUtils.predicateForTextField;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -22,55 +20,61 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wornux.components.*;
-import com.wornux.data.entity.Service;
+import com.wornux.components.Breadcrumb;
+import com.wornux.components.BreadcrumbItem;
+import com.wornux.components.InfoIcon;
+import com.wornux.data.entity.Offering;
 import com.wornux.data.enums.EmployeeRole;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.enums.OfferingType;
 import com.wornux.security.UserUtils;
-import com.wornux.services.interfaces.ServiceService;
+import com.wornux.services.interfaces.OfferingService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
+
+import static com.wornux.utils.PredicateUtils.predicateForTextField;
 
 @Slf4j
-@Route(value = "services")
+@Route(value = "offerings", layout = MainLayout.class)
 @PageTitle("Servicios")
 @RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
-public class ServiceView extends Div {
+public class OfferingView extends Div {
 
-  private final Grid<Service> grid = GridUtils.createBasicGrid(Service.class);
+  private final Grid<Offering> grid = GridUtils.createBasicGrid(Offering.class);
 
   private final TextField searchField = new TextField("Buscar servicios");
-  private final ComboBox<ServiceType> serviceCategoryFilter = new ComboBox<>("Filtrar por tipo");
+  private final ComboBox<OfferingType> serviceCategoryFilter = new ComboBox<>("Filtrar por tipo");
   private final Span quantity = new Span();
 
   private final Button create = new Button();
-  private final transient ServiceService serviceService;
-  private final ServiceForm serviceForm;
+  private final transient OfferingService serviceService;
+  private final OfferingForm offeringForm;
 
-  public ServiceView(ServiceService serviceService) {
+  public OfferingView(OfferingService serviceService) {
     this.serviceService = serviceService;
-    this.serviceForm = new ServiceForm(serviceService);
+    this.offeringForm = new OfferingForm(serviceService);
 
     setId("services-view");
 
-    serviceForm.setOnSaveCallback(this::refreshAll);
-    serviceForm.addServiceSavedListener(
+    offeringForm.setOnSaveCallback(this::refreshAll);
+    offeringForm.addServiceSavedListener(
         event -> {
           refreshAll();
-          serviceForm.close();
+          offeringForm.close();
         });
-    serviceForm.addServiceCancelledListener(serviceForm::close);
+    offeringForm.addServiceCancelledListener(offeringForm::close);
 
     createGrid(serviceService, createFilterSpecification());
 
@@ -82,14 +86,14 @@ public class ServiceView extends Div {
     addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
     setSizeFull();
 
-    create.addClickListener(event -> serviceForm.openForNew());
+    create.addClickListener(event -> offeringForm.openForNew());
   }
 
-  private void createGrid(ServiceService service, Specification<Service> specification) {
+  private void createGrid(OfferingService service, Specification<Offering> specification) {
     GridUtils.configureGrid(grid, specification, service.getRepository());
 
-    GridUtils.addColumn(grid, Service::getName, "Nombre", "name");
-    GridUtils.addColumn(grid, Service::getDescription, "Descripción", "description");
+    GridUtils.addColumn(grid, Offering::getName, "Nombre", "name");
+    GridUtils.addColumn(grid, Offering::getDescription, "Descripción", "description");
 
     grid.addColumn(serviceEntity -> serviceEntity.getServiceType().getDisplay())
         .setHeader("Tipo")
@@ -122,7 +126,7 @@ public class ServiceView extends Div {
     grid.asSingleSelect().addValueChangeListener(event -> {});
   }
 
-  public Specification<Service> createFilterSpecification() {
+  public Specification<Offering> createFilterSpecification() {
     return (root, query, builder) -> {
       Order order = builder.desc(root.get("createdAt"));
       if (query != null) {
@@ -147,7 +151,7 @@ public class ServiceView extends Div {
     };
   }
 
-  private Predicate createSearchPredicate(Root<Service> root, CriteriaBuilder builder) {
+  private Predicate createSearchPredicate(Root<Offering> root, CriteriaBuilder builder) {
     return predicateForTextField(
         root, builder, new String[] {"name", "description"}, searchField.getValue());
   }
@@ -171,8 +175,8 @@ public class ServiceView extends Div {
     searchField.addValueChangeListener(e -> refreshAll());
     searchField.setWidth("40%");
 
-    serviceCategoryFilter.setItems(ServiceType.values());
-    serviceCategoryFilter.setItemLabelGenerator(ServiceType::getDisplay);
+    serviceCategoryFilter.setItems(OfferingType.values());
+    serviceCategoryFilter.setItemLabelGenerator(OfferingType::getDisplay);
     serviceCategoryFilter.setClearButtonVisible(true);
     serviceCategoryFilter.setPlaceholder("Todos los tipos");
     serviceCategoryFilter.addValueChangeListener(e -> refreshAll());
@@ -207,7 +211,7 @@ public class ServiceView extends Div {
   private Div createTitle() {
     final Breadcrumb breadcrumb = new Breadcrumb();
     breadcrumb.addClassNames(LumoUtility.Margin.Bottom.MEDIUM);
-    breadcrumb.add(new BreadcrumbItem("Servicios", ServiceView.class));
+    breadcrumb.add(new BreadcrumbItem("Servicios", OfferingView.class));
 
     Icon icon = InfoIcon.INFO_CIRCLE.create("Gestionar servicios médicos y de peluquería.");
 
@@ -235,7 +239,7 @@ public class ServiceView extends Div {
     return layout;
   }
 
-  private Component createActionsColumn(Service service) {
+  private Component createActionsColumn(Offering offering) {
     Button edit = new Button(new Icon(VaadinIcon.EDIT));
     edit.addThemeVariants(
         ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
@@ -251,8 +255,8 @@ public class ServiceView extends Div {
     delete.getElement().setProperty("title", "Eliminar");
     delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
 
-    edit.addClickListener(e -> serviceForm.openForEdit(service));
-    delete.addClickListener(e -> showDeleteConfirmationDialog(service));
+    edit.addClickListener(e -> offeringForm.openForEdit(offering));
+    delete.addClickListener(e -> showDeleteConfirmationDialog(offering));
 
     HorizontalLayout actions = new HorizontalLayout(edit, delete);
     actions.setSpacing(true);
@@ -262,7 +266,7 @@ public class ServiceView extends Div {
     return actions;
   }
 
-  private void showDeleteConfirmationDialog(Service service) {
+  private void showDeleteConfirmationDialog(Offering offering) {
     Dialog confirmDialog = new Dialog();
     confirmDialog.setHeaderTitle("Confirmar eliminación");
     confirmDialog.setModal(true);
@@ -271,7 +275,7 @@ public class ServiceView extends Div {
     Span message =
         new Span(
             "¿Está seguro de que desea eliminar el servicio \""
-                + service.getName()
+                + offering.getName()
                 + "\"? Esta acción no se puede deshacer.");
     message.getStyle().set("margin-bottom", "20px");
 
@@ -280,7 +284,7 @@ public class ServiceView extends Div {
     confirmButton.addClickListener(
         e -> {
           try {
-            deleteService(service);
+            deleteService(offering);
             confirmDialog.close();
           } catch (Exception ex) {
             NotificationUtils.error("Error al eliminar el servicio: " + ex.getMessage());
@@ -303,19 +307,19 @@ public class ServiceView extends Div {
     confirmDialog.open();
   }
 
-  private void deleteService(Service service) {
+  private void deleteService(Offering offering) {
     try {
-      serviceService.deactivateService(service.getId());
+      serviceService.deactivateService(offering.getId());
       NotificationUtils.success("Servicio eliminado exitosamente");
       refreshAll();
     } catch (Exception e) {
-      log.error("Error deleting service", e);
+      log.error("Error deleting offering", e);
       NotificationUtils.error("Error al eliminar servicio: " + e.getMessage());
     }
   }
 
-  private Component renderStatus(Service service) {
-    boolean isActive = service.getActive();
+  private Component renderStatus(Offering offering) {
+    boolean isActive = offering.getActive();
     Span badge = new Span(isActive ? "Activo" : "Inactivo");
     badge.getElement().getThemeList().add("badge pill");
     badge.getElement().getThemeList().add(isActive ? "success" : "error");

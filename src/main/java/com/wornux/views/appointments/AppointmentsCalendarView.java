@@ -15,7 +15,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Pet;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.enums.OfferingType;
 import com.wornux.dto.request.AppointmentCreateRequestDto;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.dto.response.AppointmentResponseDto;
@@ -244,10 +244,10 @@ public class AppointmentsCalendarView extends VerticalLayout {
             .collect(Collectors.toList());
     petSelect.setItems(pets);
 
-    Select<ServiceType> serviceTypeSelect = new Select<>();
+    Select<OfferingType> serviceTypeSelect = new Select<>();
     serviceTypeSelect.setLabel("Tipo de Servicio");
-    serviceTypeSelect.setItems(ServiceType.values());
-    serviceTypeSelect.setItemLabelGenerator(ServiceType::name);
+    serviceTypeSelect.setItems(OfferingType.values());
+    serviceTypeSelect.setItemLabelGenerator(OfferingType::name);
     serviceTypeSelect.setRequiredIndicatorVisible(true);
     serviceTypeSelect.setWidthFull();
 

@@ -29,7 +29,7 @@ import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.pets.SelectPetDialog;
-import com.wornux.views.services.ServiceForm;
+import com.wornux.views.services.OfferingForm;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,57 +52,48 @@ public class GroomingForm extends Dialog {
   // Mascota (selector por diálogo)
   private final TextField petName = new TextField("Mascota");
   private final Button selectPetButton = new Button("Seleccionar");
-  private Pet selectedPet;
   private final SelectPetDialog selectPetDialog;
-
   private final ComboBox<Employee> groomerComboBox = new ComboBox<>("Groomer");
   private final TextArea notesTextArea = new TextArea("Notas de Grooming");
-
   // Servicios (estética)
-  private final ComboBox<Service> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
+  private final ComboBox<Offering> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
   private final Button addServiceButton = new Button("Agregar Servicio", new Icon(VaadinIcon.PLUS));
   private final Grid<ServiceItem> servicesGrid = new Grid<>(ServiceItem.class, false);
-
   // Productos
   private final ComboBox<Product> productComboBox = new ComboBox<>("Seleccionar Producto");
   private final NumberField productQuantityField = new NumberField("Cantidad");
   private final Button addProductButton = new Button("Agregar Producto", new Icon(VaadinIcon.PLUS));
   private final Grid<ProductItem> productsGrid = new Grid<>(ProductItem.class, false);
-
   // Totales (UI)
   private final Span totalServicesSpan = new Span("$0.00");
   private final Span totalProductsSpan = new Span("$0.00");
   private final Span grandTotalSpan = new Span("$0.00");
-
   // Acciones
   private final Button saveButton = new Button("Registrar");
   private final Button cancelButton = new Button("Cancelar");
   private final Button createServiceButton = new Button("Crear Nuevo Servicio");
-  private final ServiceForm serviceForm;
-
+  private final OfferingForm serviceForm;
   // Binder
   private final Binder<GroomingSession> binder = new Binder<>(GroomingSession.class);
-
   // Services
   private final transient GroomingSessionService groomingSessionService;
   private final transient EmployeeService employeeService;
   private final transient PetService petService;
-  private final transient ServiceService serviceService;
+  private final transient OfferingService serviceService;
   private final transient ProductService productService;
   private final transient InvoiceService invoiceService;
-
-  // Estado
-  private transient GroomingSession editingSession;
   private final List<ServiceItem> selectedServices = new ArrayList<>();
   private final List<ProductItem> selectedProducts = new ArrayList<>();
-
+  private Pet selectedPet;
+  // Estado
+  private transient GroomingSession editingSession;
   @Setter private transient Consumer<GroomingSession> onSaveCallback;
 
   public GroomingForm(
       GroomingSessionService groomingSessionService,
       EmployeeService employeeService,
       PetService petService,
-      ServiceService serviceService,
+      OfferingService serviceService,
       InvoiceService invoiceService,
       ProductService productService) {
     this.groomingSessionService = groomingSessionService;
@@ -111,7 +102,7 @@ public class GroomingForm extends Dialog {
     this.serviceService = serviceService;
     this.invoiceService = invoiceService;
     this.productService = productService;
-    this.serviceForm = new ServiceForm(serviceService);
+    this.serviceForm = new OfferingForm(serviceService);
     // NUEVO
     this.selectPetDialog = new SelectPetDialog(petService);
 
@@ -364,19 +355,19 @@ public class GroomingForm extends Dialog {
   }
 
   private void addSelectedService() {
-    Service selectedService = serviceComboBox.getValue();
-    if (selectedService == null) return;
+    Offering selectedOffering = serviceComboBox.getValue();
+    if (selectedOffering == null) return;
 
     boolean alreadyAdded =
         selectedServices.stream()
-            .anyMatch(item -> item.getService().getId().equals(selectedService.getId()));
+            .anyMatch(item -> item.getService().getId().equals(selectedOffering.getId()));
 
     if (alreadyAdded) {
       NotificationUtils.error("Este servicio ya ha sido agregado");
       return;
     }
 
-    ServiceItem serviceItem = new ServiceItem(selectedService, 1.0);
+    ServiceItem serviceItem = new ServiceItem(selectedOffering, 1.0);
     selectedServices.add(serviceItem);
     servicesGrid.setItems(selectedServices);
     serviceComboBox.clear();
@@ -438,7 +429,7 @@ public class GroomingForm extends Dialog {
 
       // Servicios de estética
       serviceService.findGroomingServices()
-              .forEach(service -> serviceComboBox.getListDataView().addItem(service));
+              .forEach(offering -> serviceComboBox.getListDataView().addItem(offering));
 
       // Productos internos
       productService.findInternalUseProducts()
@@ -517,7 +508,7 @@ public class GroomingForm extends Dialog {
       for (ServiceItem serviceItem : selectedServices) {
         ServiceInvoice serviceInvoice =
             ServiceInvoice.builder()
-                .service(serviceItem.getService())
+                .offering(serviceItem.getService())
                 .quantity(serviceItem.getQuantity())
                 .amount(serviceItem.getSubtotal())
                 .build();
@@ -588,7 +579,7 @@ public class GroomingForm extends Dialog {
           // Refrescar selector y auto-seleccionar el nuevo servicio (filtrado a grooming)
           serviceComboBox.getListDataView().removeItems(serviceComboBox.getListDataView().getItems().toList());
           serviceService.findGroomingServices()
-                  .forEach(service -> serviceComboBox.getListDataView().addItem(service));
+                  .forEach(offering -> serviceComboBox.getListDataView().addItem(offering));
 
           serviceService.getAllActiveServices().stream()
                   .filter(s -> s.getName().equals(dto.getName()))
@@ -615,18 +606,18 @@ public class GroomingForm extends Dialog {
 
   // Clases de grid
   public static class ServiceItem {
-    private final Service service;
+    private final Offering offering;
     private final Double quantity;
     private final BigDecimal subtotal;
 
-    public ServiceItem(Service service, Double quantity) {
-      this.service = service;
+    public ServiceItem(Offering offering, Double quantity) {
+      this.offering = offering;
       this.quantity = quantity;
-      this.subtotal = service.getPrice().multiply(BigDecimal.valueOf(quantity));
+      this.subtotal = offering.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 
-    public Service getService() {
-      return service;
+    public Offering getService() {
+      return offering;
     }
 
     public Double getQuantity() {

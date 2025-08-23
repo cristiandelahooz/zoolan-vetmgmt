@@ -1,6 +1,6 @@
 package com.wornux.dto.request;
 
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.enums.OfferingType;
 import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +10,6 @@ import lombok.Data;
 public class ServiceCreateRequestDto {
   private String name;
   private String description;
-  private ServiceType serviceType;
+  private OfferingType serviceType;
   private BigDecimal price;
 }

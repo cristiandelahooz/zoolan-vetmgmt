@@ -3,7 +3,7 @@ package com.wornux.data.entity;
 import static com.wornux.constants.AppointmentConstants.*;
 
 import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.data.enums.ServiceType;
+import com.wornux.data.enums.OfferingType;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -43,7 +43,7 @@ public class Appointment {
   @Column(name = "service_type", nullable = false)
   @Enumerated(EnumType.STRING)
   @NotNull(message = "El tipo de servicio es obligatorio")
-  private ServiceType serviceType;
+  private OfferingType serviceType;
 
   @Column(name = "status", nullable = false)
   @Enumerated(EnumType.STRING)
