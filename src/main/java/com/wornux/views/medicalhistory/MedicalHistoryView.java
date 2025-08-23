@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Route(value = "historial-medico", layout = MainLayout.class)
-@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER","ROLE_EMP_VETERINARIAN","ROLE_EMP_LAB_TECHNICIAN" })
 @PageTitle("Historial Médico")
 public class MedicalHistoryView extends VerticalLayout implements HasUrlParameter<Long> {
 
