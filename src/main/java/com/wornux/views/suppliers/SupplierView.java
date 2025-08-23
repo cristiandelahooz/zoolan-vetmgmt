@@ -35,7 +35,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "proveedores", layout = MainLayout.class)
 @PageTitle("Proveedores")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
 public class SupplierView extends Div {
 
   private final Grid<Supplier> grid = GridUtils.createBasicGrid(Supplier.class);
