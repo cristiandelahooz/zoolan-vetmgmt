@@ -1,4 +1,4 @@
-.PHONY: help run build package clean restart test format db-up db-down db-clean db-shell db-logs
+.PHONY: help run build package clean restart fully-restart test format db-up db-down db-clean db-shell db-logs
 
 # ANSI Color Codes
 GREEN := \033[0;32m
@@ -26,6 +26,7 @@ help:
 	@echo "  ${BLUE}make package${NC}    : Builds the project and packages it into a JAR file."
 	@echo "  ${BLUE}make clean${NC}      : Cleans the project build artifacts."
 	@echo "  ${BLUE}make restart${NC}    : Cleans project and database, then restarts the application."
+	@echo "  ${BLUE}make fully-restart${NC} : Full cleanup (Maven cache, Vaadin bundler, database) and restart."
 	@echo "  ${BLUE}make test${NC}       : Runs all unit and integration tests."
 	@echo "  ${BLUE}make format${NC}     : Applies code formatting using Spotless (Java) and Biome (TypeScript)."
 	@echo ""
@@ -58,6 +59,18 @@ restart: clean db-clean db-up
 	@echo "${BLUE}Restarting the application...${NC}"
 	$(MAVEN_CMD) spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true"
 	@echo "${BLUE}Application restarted successfully!${NC}"
+
+fully-restart: db-clean
+	@echo "${BLUE}Performing full cleanup (Maven build, Vaadin bundler, database)...${NC}"
+	$(MAVEN_CMD) clean
+	@echo "${YELLOW}Removing Vaadin bundler files...${NC}"
+	rm -rf src/main/bundles/
+	rm -rf target/
+	rm -rf frontend/generated
+	@echo "${BLUE}Starting database and application...${NC}"
+	$(MAKE) db-up
+	$(MAVEN_CMD) spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true"
+	@echo "${GREEN}Full restart completed successfully!${NC}"
 
 test:
 	@echo "${BLUE}Running tests...${NC}"
