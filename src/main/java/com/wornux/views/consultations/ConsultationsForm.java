@@ -24,7 +24,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.*;
+import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.security.UserUtils;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
@@ -442,9 +445,16 @@ public class ConsultationsForm extends Dialog {
 
   private void save(ClickEvent<Button> event) {
     try {
-      if (editingConsultation == null) {
+      boolean isNew = editingConsultation == null;
+      if (isNew) {
         editingConsultation = new Consultation();
         editingConsultation.setConsultationDate(LocalDateTime.now());
+      }
+
+      if (!isNew && !editingConsultation.isActive()) {
+        if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
+          editingConsultation.setActive(true);
+        }
       }
 
       if (selectedPet == null) {
@@ -567,11 +577,12 @@ public class ConsultationsForm extends Dialog {
       if (editingInvoice != null) {
         if (editingInvoice.getStatus() == InvoiceStatus.PENDING) {
           try {
+            editingInvoice.setStatus(InvoiceStatus.CANCELLED);
             invoiceService.delete(editingInvoice.getCode());
-            NotificationUtils.info("Factura asociada pendiente eliminada.");
+            NotificationUtils.info("Factura asociada pendiente anulada.");
           } catch (Exception e) {
-            log.error("Error eliminando factura pendiente: {}", editingInvoice.getCode(), e);
-            NotificationUtils.error("Error al eliminar la factura asociada pendiente.");
+            log.error("Error anulando factura pendiente: {}", editingInvoice.getCode(), e);
+            NotificationUtils.error("Error al anular la factura asociada pendiente.");
           }
         } else {
           NotificationUtils.info(
@@ -588,11 +599,12 @@ public class ConsultationsForm extends Dialog {
         return;
       } else {
         try {
+          editingInvoice.setStatus(InvoiceStatus.CANCELLED);
           invoiceService.delete(editingInvoice.getCode());
-          NotificationUtils.info("Factura anterior eliminada para crear una nueva.");
+          NotificationUtils.info(" Factura previa anulada, se ha creado una nueva.");
         } catch (Exception e) {
-          log.error("Error eliminando factura pendiente anterior: {}", editingInvoice.getCode(), e);
-          NotificationUtils.error("Error al eliminar la factura asociada pendiente anterior.");
+          log.error("Error anulando factura pendiente anterior: {}", editingInvoice.getCode(), e);
+          NotificationUtils.error("Error al anular la factura asociada pendiente anterior.");
           return;
         }
         invoiceToSave =
@@ -603,6 +615,7 @@ public class ConsultationsForm extends Dialog {
                 .paymentDate(LocalDate.now().plusDays(30))
                 .status(InvoiceStatus.PENDING)
                 .paidToDate(BigDecimal.ZERO)
+                .active(true)
                 .build();
       }
     } else {
@@ -614,6 +627,7 @@ public class ConsultationsForm extends Dialog {
               .paymentDate(LocalDate.now().plusDays(30))
               .status(InvoiceStatus.PENDING)
               .paidToDate(BigDecimal.ZERO)
+              .active(true)
               .build();
     }
 
