@@ -24,10 +24,13 @@ import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
 import com.wornux.data.entity.Service;
-import com.wornux.data.enums.ServiceCategory;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.ServiceType;
+import com.wornux.security.UserUtils;
 import com.wornux.services.interfaces.ServiceService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
@@ -42,12 +45,13 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "services")
 @PageTitle("Servicios")
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
 public class ServiceView extends Div {
 
   private final Grid<Service> grid = GridUtils.createBasicGrid(Service.class);
 
   private final TextField searchField = new TextField("Buscar servicios");
-  private final ComboBox<ServiceCategory> serviceCategoryFilter =
+  private final ComboBox<ServiceType> serviceCategoryFilter =
       new ComboBox<>("Filtrar por tipo");
   private final Span quantity = new Span();
 
@@ -61,7 +65,6 @@ public class ServiceView extends Div {
 
     setId("services-view");
 
-    // Configure form event listeners
     serviceForm.setOnSaveCallback(this::refreshAll);
     serviceForm.addServiceSavedListener(
         event -> {
@@ -86,16 +89,14 @@ public class ServiceView extends Div {
   private void createGrid(ServiceService service, Specification<Service> specification) {
     GridUtils.configureGrid(grid, specification, service.getRepository());
 
-    // Add columns following existing pattern
     GridUtils.addColumn(grid, Service::getName, "Nombre", "name");
     GridUtils.addColumn(grid, Service::getDescription, "Descripción", "description");
 
-    grid.addColumn(serviceEntity -> serviceEntity.getServiceCategory().getDisplay())
+    grid.addColumn(serviceEntity -> serviceEntity.getServiceType().getDisplay())
         .setHeader("Tipo")
         .setSortable(true)
         .setAutoWidth(true);
 
-    // Format price column
     grid.addColumn(
             serviceEntity -> {
               NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("es", "DO"));
@@ -110,14 +111,15 @@ public class ServiceView extends Div {
         .setHeader("Estado")
         .setTextAlign(ColumnTextAlign.CENTER);
 
-    var actionsColumn =
-        grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
-    actionsColumn.setFrozenToEnd(true);
+    if(UserUtils.hasEmployeeRole(EmployeeRole.ADMINISTRATIVE) || UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)) {
+      var actionsColumn =
+          grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+      actionsColumn.setFrozenToEnd(true);
+    }
 
     grid.asSingleSelect()
         .addValueChangeListener(
             event -> {
-              // Optional: implement inline editing
             });
   }
 
@@ -130,16 +132,13 @@ public class ServiceView extends Div {
 
       List<Predicate> predicates = new ArrayList<>();
 
-      // Filter by active services only
       predicates.add(builder.isTrue(root.get("active")));
 
-      // Search predicate
       Predicate searchPredicate = createSearchPredicate(root, builder);
       if (searchPredicate != null) {
         predicates.add(searchPredicate);
       }
 
-      // Service type filter
       if (serviceCategoryFilter.getValue() != null) {
         predicates.add(
             builder.equal(root.get("serviceCategory"), serviceCategoryFilter.getValue()));
@@ -173,9 +172,8 @@ public class ServiceView extends Div {
     searchField.addValueChangeListener(e -> refreshAll());
     searchField.setWidth("40%");
 
-    // Service type filter
-    serviceCategoryFilter.setItems(ServiceCategory.values());
-    serviceCategoryFilter.setItemLabelGenerator(ServiceCategory::getDisplay);
+    serviceCategoryFilter.setItems(ServiceType.values());
+    serviceCategoryFilter.setItemLabelGenerator(ServiceType::getDisplay);
     serviceCategoryFilter.setClearButtonVisible(true);
     serviceCategoryFilter.setPlaceholder("Todos los tipos");
     serviceCategoryFilter.addValueChangeListener(e -> refreshAll());
