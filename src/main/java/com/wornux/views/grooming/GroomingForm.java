@@ -474,6 +474,110 @@ public class GroomingForm extends Dialog {
       }
 
       binder.writeBean(editingSession);
+      editingSession.setPet(selectedPet);
+
+      // Guarda o actualiza la sesión de grooming
+      GroomingSession saved = groomingSessionService.save(editingSession);
+
+      // Si hay ítems, recrea la factura (borra la pendiente y crea nueva)
+      if (!selectedServices.isEmpty() || !selectedProducts.isEmpty()) {
+        recreateInvoiceFor(saved);
+      }
+
+      NotificationUtils.success("Grooming registrado exitosamente");
+
+      if (onSaveCallback != null) {
+        onSaveCallback.accept(saved);
+      }
+      close();
+
+    } catch (ValidationException e) {
+      NotificationUtils.error("Por favor, complete todos los campos requeridos");
+    } catch (Exception e) {
+      NotificationUtils.error("Error al guardar: " + e.getMessage());
+    }
+  }
+
+  private void recreateInvoiceFor(GroomingSession session) {
+    try {
+      // 1) Buscar factura del mismo grooming
+      Invoice existing = invoiceService.findByGroomingId(session.getId()).orElse(null);
+
+      // 2) Si existe y está pagada, no tocar
+      if (existing != null && existing.getStatus() == InvoiceStatus.PAID) {
+        NotificationUtils.info("Factura asociada pagada. No se realizaron cambios en la factura.");
+        return;
+      }
+
+      // 3) Si existe y NO está pagada, eliminarla
+      if (existing != null) {
+        try {
+          invoiceService.delete(existing.getCode());
+          NotificationUtils.info("Factura anterior eliminada para crear una nueva.");
+        } catch (Exception e) {
+          NotificationUtils.error("Error al eliminar la factura asociada pendiente anterior.");
+          return;
+        }
+      }
+
+      // 4) Construir nueva factura (ahora con vínculo grooming)
+      Invoice invoice = Invoice.builder()
+              .client(session.getPet().getOwners().iterator().next())
+              .grooming(session)
+              .issuedDate(LocalDate.now())
+              .paymentDate(LocalDate.now().plusDays(30))
+              .status(InvoiceStatus.PENDING)
+              .paidToDate(BigDecimal.ZERO)
+              .groomingNotes("Grooming para " + session.getPet().getName())
+              .subtotal(BigDecimal.ZERO)
+              .tax(BigDecimal.ZERO)
+              .total(BigDecimal.ZERO)
+              .build();
+
+      // 5) Agregar líneas
+      for (ServiceItem si : selectedServices) {
+        ServiceInvoice line = ServiceInvoice.builder()
+                .service(si.getService())
+                .quantity(si.getQuantity())
+                .amount(si.getSubtotal())
+                .build();
+        invoice.addService(line);
+      }
+
+      for (ProductItem pi : selectedProducts) {
+        InvoiceProduct line = InvoiceProduct.builder()
+                .product(pi.getProduct())
+                .quantity(pi.getQuantity())
+                .price(pi.getProduct().getSalesPrice())
+                .amount(pi.getSubtotal())
+                .build();
+        invoice.addProduct(line);
+      }
+
+      // 6) Totales y persistir
+      invoice.calculateTotals();
+      invoiceService.create(invoice);
+      NotificationUtils.success("Factura generada automáticamente");
+    } catch (Exception e) {
+      NotificationUtils.error("Error al recrear la factura: " + e.getMessage());
+    }
+  }
+
+  /*private void save(ClickEvent<Button> event) {
+    try {
+      if (editingSession == null) {
+        editingSession = new GroomingSession();
+        editingSession.setGroomingDate(LocalDateTime.now());
+      }
+
+      if (selectedPet == null) {
+        petName.setInvalid(true);
+        petName.setErrorMessage("Debe seleccionar una mascota");
+        NotificationUtils.error("Debe seleccionar una mascota");
+        return;
+      }
+
+      binder.writeBean(editingSession);
 
       editingSession.setPet(selectedPet);
 
@@ -497,7 +601,7 @@ public class GroomingForm extends Dialog {
     } catch (Exception e) {
       NotificationUtils.error("Error al guardar: " + e.getMessage());
     }
-  }
+  }*/
 
   private void createAutomaticInvoice(GroomingSession session) {
     try {
@@ -558,7 +662,7 @@ public class GroomingForm extends Dialog {
     open();
   }
 
-  public void openForEdit(GroomingSession session) {
+  /*public void openForEdit(GroomingSession session) {
     this.editingSession = session;
     binder.readBean(session);
     selectedPet = session.getPet();
@@ -567,7 +671,37 @@ public class GroomingForm extends Dialog {
     saveButton.setText("Actualizar");
     setHeaderTitle("Editar Grooming");
     open();
+  }*/
+
+  public void openForEdit(GroomingSession session) {
+    this.editingSession = session;
+    binder.readBean(session);
+    selectedPet = session.getPet();
+    petName.setValue(selectedPet != null ? selectedPet.getName() : "");
+    petName.setInvalid(false);
+    saveButton.setText("Actualizar");
+    setHeaderTitle("Editar Grooming");
+
+    // Cargar líneas desde factura existente (con fetch de detalle)
+    invoiceService.findByGroomingIdWithDetails(session.getId()).ifPresent(inv -> {
+      selectedServices.clear();
+      inv.getServices().forEach(si ->
+              selectedServices.add(new ServiceItem(si.getService(), si.getQuantity()))
+      );
+      servicesGrid.setItems(selectedServices);
+
+      selectedProducts.clear();
+      inv.getProducts().forEach(ip ->
+              selectedProducts.add(new ProductItem(ip.getProduct(), ip.getQuantity()))
+      );
+      productsGrid.setItems(selectedProducts);
+
+      updateTotals();
+    });
+
+    open();
   }
+
 
   private void clearForm() {
     binder.readBean(null);
@@ -660,5 +794,7 @@ public class GroomingForm extends Dialog {
     public BigDecimal getSubtotal() {
       return subtotal;
     }
+
+
   }
 }
