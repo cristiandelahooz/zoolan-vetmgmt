@@ -44,11 +44,6 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 @Slf4j
 public class ConsultationsForm extends Dialog {
 
-  // Form fields
-  // private final ComboBox<Pet> petComboBox = new ComboBox<>("Mascota");
-  // NUEVO
-
-  // Mascota (selector por diálogo)
   private final TextField petName = new TextField("Mascota");
   private final Button selectPetButton = new Button("Seleccionar");
   private Pet selectedPet;
@@ -60,30 +55,25 @@ public class ConsultationsForm extends Dialog {
   private final TextArea treatmentTextArea = new TextArea("Tratamiento");
   private final TextArea prescriptionTextArea = new TextArea("Prescripción");
 
-  // Service selection components
   private final ComboBox<Service> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
   private final Button addServiceButton = new Button("Agregar Servicio", new Icon(VaadinIcon.PLUS));
   private final Grid<ServiceItem> servicesGrid = new Grid<>(ServiceItem.class, false);
 
-  // Product selection components
   private final ComboBox<Product> productComboBox = new ComboBox<>("Seleccionar Producto");
   private final NumberField productQuantityField = new NumberField("Cantidad");
   private final Button addProductButton = new Button("Agregar Producto", new Icon(VaadinIcon.PLUS));
   private final Grid<ProductItem> productsGrid = new Grid<>(ProductItem.class, false);
 
-  // Totals
   private final Span totalServicesSpan = new Span("$0.00");
   private final Span totalProductsSpan = new Span("$0.00");
   private final Span grandTotalSpan = new Span("$0.00");
 
-  // Form controls
   private final Button saveButton = new Button("Registrar Consulta");
   private final Button cancelButton = new Button("Cancelar");
   private final Button createServiceButton = new Button("Crear Nuevo Servicio");
 
   private final Binder<Consultation> binder = new Binder<>(Consultation.class);
 
-  // Services
   private final transient ConsultationService consultationService;
   private final transient EmployeeService employeeService;
   private final transient PetService petService;
@@ -91,7 +81,6 @@ public class ConsultationsForm extends Dialog {
   private final transient InvoiceService invoiceService;
   private final transient ProductService productService;
 
-  // Data
   private transient Consultation editingConsultation;
   private transient Invoice editingInvoice;
   private final List<ServiceItem> selectedServices = new ArrayList<>();
@@ -114,7 +103,7 @@ public class ConsultationsForm extends Dialog {
     this.productService = productService;
     this.invoiceService = invoiceService;
     this.serviceForm = new ServiceForm(serviceService);
-    // NUEVO
+
     this.selectPetDialog = new SelectPetDialog(petService);
 
     petName.setReadOnly(true);
@@ -139,10 +128,6 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void createForm() {
-    // Configure basic fields
-    // petComboBox.setItemLabelGenerator(pet -> pet.getName() + " (" + pet.getType() + ")");
-    // petComboBox.setRequired(true);
-    // petComboBox.setWidthFull();
 
     HorizontalLayout petPickerLayout = new HorizontalLayout(petName, selectPetButton);
     petPickerLayout.setAlignItems(FlexComponent.Alignment.END);
@@ -165,7 +150,6 @@ public class ConsultationsForm extends Dialog {
     prescriptionTextArea.setHeight("80px");
     prescriptionTextArea.setWidthFull();
 
-    // Configure service selection
     serviceComboBox.setItemLabelGenerator(
         service -> service.getName() + " - $" + service.getPrice());
     serviceComboBox.setWidthFull();
@@ -173,7 +157,6 @@ public class ConsultationsForm extends Dialog {
 
     addServiceButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
 
-    // Configure product selection
     productComboBox.setItemLabelGenerator(
         product -> product.getName() + " - $" + product.getSalesPrice());
     productComboBox.setWidthFull();
@@ -186,9 +169,8 @@ public class ConsultationsForm extends Dialog {
 
     addProductButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
 
-    // Create layout
     FormLayout basicInfoLayout = new FormLayout();
-    // basicInfoLayout.add(petComboBox, veterinarianComboBox);
+
     basicInfoLayout.add(petPickerLayout, veterinarianComboBox);
     basicInfoLayout.add(notesTextArea, 2);
     basicInfoLayout.add(diagnosisTextArea, treatmentTextArea);
@@ -343,9 +325,6 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void setupValidation() {
-    /*binder.forField(petComboBox)
-    .withValidator(pet -> pet != null, "Debe seleccionar una mascota")
-    .bind(Consultation::getPet, Consultation::setPet);*/
 
     binder
         .forField(veterinarianComboBox)
@@ -418,7 +397,6 @@ public class ConsultationsForm extends Dialog {
 
     if (selectedProduct == null || quantity == null || quantity <= 0) return;
 
-    // Check if product already added
     boolean alreadyAdded =
         selectedProducts.stream()
             .anyMatch(item -> item.getProduct().getId().equals(selectedProduct.getId()));
@@ -455,13 +433,10 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void loadComboBoxData() {
-    // Veterinarios
     veterinarianComboBox.setItems(employeeService.getVeterinarians());
 
-    // Servicios médicos
     serviceComboBox.setItems(serviceService.findMedicalServices());
 
-    // Productos de uso interno
     productComboBox.setItems(productService.findInternalUseProducts());
   }
 
@@ -483,10 +458,8 @@ public class ConsultationsForm extends Dialog {
 
       editingConsultation.setPet(selectedPet);
 
-      // Save consultation
       Consultation savedConsultation = consultationService.save(editingConsultation);
 
-      // Create, update or delete invoice
       saveOrUpdateInvoice(savedConsultation);
 
       NotificationUtils.success("Consulta registrada exitosamente");
@@ -529,7 +502,6 @@ public class ConsultationsForm extends Dialog {
     petName.setValue(selectedPet != null ? selectedPet.getName() : "");
     petName.setInvalid(false);
 
-    // Load services and products from existing invoice
     invoiceService
         .getRepository()
         .findByConsultation(consultation)
@@ -591,7 +563,6 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void saveOrUpdateInvoice(Consultation consultation) {
-    // Scenario 1: No services or products selected for the consultation
     if (selectedServices.isEmpty() && selectedProducts.isEmpty()) {
       if (editingInvoice != null) {
         if (editingInvoice.getStatus() == InvoiceStatus.PENDING) {
@@ -610,7 +581,6 @@ public class ConsultationsForm extends Dialog {
       return;
     }
 
-    // Scenario 2: Services or products are selected for the consultation
     Invoice invoiceToSave;
     if (editingInvoice != null) {
       if (editingInvoice.getStatus() == InvoiceStatus.PAID) {
