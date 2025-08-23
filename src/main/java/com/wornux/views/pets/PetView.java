@@ -44,7 +44,8 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "mascotas", layout = MainLayout.class)
 @PageTitle("Mascotas")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER","ROLE_EMP_VETERINARIAN","ROLE_EMP_RECEPTIONIST","ROLE_EMP_LAB_TECHNICIAN","ROLE_EMP_GROOMER" })
+
 public class PetView extends Div {
 
   private final Grid<Pet> grid = GridUtils.createBasicGrid(Pet.class);
