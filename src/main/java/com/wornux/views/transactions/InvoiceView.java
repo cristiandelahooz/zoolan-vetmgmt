@@ -41,8 +41,11 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
 import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Invoice;
+import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.data.enums.SystemRole;
 import com.wornux.mapper.ClientMapper;
+import com.wornux.security.UserUtils;
 import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
@@ -72,7 +75,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Route(value = "invoices", layout = MainLayout.class)
 @PageTitle("Invoices Management")
 @CssImport("./themes/zoolan-vetmgmt/view/invoice.css")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_RECEPTIONIST"})
 public class InvoiceView extends Div {
 
   private final Grid<Invoice> grid = GridUtils.createBasicGrid(Invoice.class);
@@ -129,6 +132,7 @@ public class InvoiceView extends Div {
     setSizeFull();
 
     create.addClickListener(event -> invoiceForm.open());
+
 
     invoiceForm.setCallable(this::refreshAll);
 
@@ -203,20 +207,22 @@ public class InvoiceView extends Div {
             "Deuda total")
         .setTextAlign(ColumnTextAlign.END);
 
-    GridUtils.addComponentColumn(grid, this::renderActions, "Acciones")
-        .setFlexGrow(0)
-        .setTextAlign(ColumnTextAlign.CENTER);
+    if(UserUtils.hasEmployeeRole(EmployeeRole.ADMINISTRATIVE) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
+      GridUtils.addComponentColumn(grid, this::renderActions, "Acciones")
+          .setFlexGrow(0)
+          .setTextAlign(ColumnTextAlign.CENTER);
 
-    grid.asSingleSelect()
-        .addValueChangeListener(
-            event -> {
-              if (event.getValue() != null) {
-                Invoice completeInvoice = service.findByIdWithDetails(event.getValue().getCode());
-                invoiceForm.edit(completeInvoice);
-              } else {
-                invoiceForm.close();
-              }
-            });
+      grid.asSingleSelect()
+          .addValueChangeListener(
+              event -> {
+                if (event.getValue() != null) {
+                  Invoice completeInvoice = service.findByIdWithDetails(event.getValue().getCode());
+                  invoiceForm.edit(completeInvoice);
+                } else {
+                  invoiceForm.close();
+                }
+              });
+    }
   }
 
   public Specification<Invoice> createFilterSpecification() {
@@ -357,7 +363,6 @@ public class InvoiceView extends Div {
     try {
       var fileName = "Invoice_" + invoice.getCode();
 
-      // Usar el nuevo servicio con MapStruct para preparar el reporte con datos reales
       var data = invoiceReportService.generateInvoicePdf(invoice);
 
       exportInvoiceInPdfFormat(fileName, data);
