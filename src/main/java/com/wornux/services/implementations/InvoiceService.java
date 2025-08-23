@@ -51,7 +51,8 @@ public class InvoiceService {
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Invoice not found."));
 
-    repository.delete(entity);
+    entity.setActive(false);
+    repository.save(entity);
   }
 
   public long getCount(Specification<Invoice> specification) {
