@@ -74,6 +74,10 @@ public class Invoice extends Auditable implements Serializable {
     @Size(max = 500)
     private String notes;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = true;
+
     public void markAsPaid(BigDecimal paymentAmount, LocalDate paymentDate) {
         if (this.status != InvoiceStatus.PENDING) {
             throw new IllegalStateException("Solo las facturas pendientes pueden ser marcadas como pagadas.");
