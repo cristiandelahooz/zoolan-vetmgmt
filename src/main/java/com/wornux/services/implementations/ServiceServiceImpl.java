@@ -1,7 +1,7 @@
 package com.wornux.services.implementations;
 
 import com.wornux.data.entity.Service;
-import com.wornux.data.enums.ServiceCategory;
+import com.wornux.data.enums.ServiceType;
 import com.wornux.data.repository.InvoiceRepository;
 import com.wornux.data.repository.InvoiceServiceRepository;
 import com.wornux.data.repository.ServiceRepository;
@@ -61,8 +61,8 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> findByCategory(ServiceCategory category) {
-    return serviceRepository.findByServiceCategoryAndActiveTrue(category);
+  public List<Service> findByServiceType(ServiceType serviceType) {
+    return serviceRepository.findByServiceTypeAndActiveTrue(serviceType);
   }
 
   @Override
@@ -93,13 +93,13 @@ public class ServiceServiceImpl implements ServiceService {
   @Override
   @Transactional(readOnly = true)
   public List<Service> findMedicalServices() {
-    return serviceRepository.findByServiceCategoryAndActiveTrue(ServiceCategory.MEDICAL);
+    return serviceRepository.findByServiceTypeAndActiveTrue(ServiceType.MEDICAL);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Service> findGroomingServices() {
-    return serviceRepository.findByServiceCategoryAndActiveTrue(ServiceCategory.GROOMING);
+    return serviceRepository.findByServiceTypeAndActiveTrue(ServiceType.GROOMING);
   }
 
   @Override
@@ -177,9 +177,9 @@ public class ServiceServiceImpl implements ServiceService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Service> getServicesByCategory(ServiceCategory serviceCategory) {
-    log.debug("Request to get services by type: {}", serviceCategory);
-    return serviceRepository.findByServiceCategoryAndActiveTrue(serviceCategory);
+  public List<Service> getServicesByType(ServiceType serviceType) {
+    log.debug("Request to get services by type: {}", serviceType);
+    return serviceRepository.findByServiceTypeAndActiveTrue(serviceType);
   }
 
   @Override
