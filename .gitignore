@@ -15,3 +15,4 @@ src/main/frontend/generated/
 vite.generated.ts
 .env
 /.qodo/
+src/main/bundles/
