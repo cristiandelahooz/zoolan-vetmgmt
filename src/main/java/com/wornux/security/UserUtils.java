@@ -59,4 +59,12 @@ public class UserUtils {
     public static boolean hasSystemRole(SystemRole role) {
         return getCurrentSystemRole().map(r -> r == role).orElse(false);
     }
+
+   public static Optional<Employee> getCurrentEmployee() {
+       User user = getUser().orElse(null);
+       if (user instanceof Employee employee) {
+           return Optional.of(employee);
+       }
+       return Optional.empty();
+   }
 }
