@@ -1,9 +1,10 @@
 package com.wornux.data.repository;
 
 import com.wornux.data.entity.Service;
-import com.wornux.data.enums.ServiceCategory;
+import com.wornux.data.enums.ServiceType;
 import java.util.List;
 import java.util.Optional;
+
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -20,7 +21,7 @@ public interface ServiceRepository
   List<Service> findByActiveTrue();
 
   /** Find services by category */
-  List<Service> findByServiceCategoryAndActiveTrue(ServiceCategory category);
+  List<Service> findByServiceTypeAndActiveTrue(ServiceType serviceType);
 
   /** Find services by name containing (case insensitive) */
   @Query(
@@ -34,9 +35,9 @@ public interface ServiceRepository
   List<Service> findAllActiveServices();
 
   @Query(
-      "SELECT s FROM Service s WHERE s.active = true AND s.serviceCategory = :serviceType ORDER BY s.name ASC")
-  List<Service> findActiveServicesByServiceCategory(
-      @Param("serviceCategory") ServiceCategory serviceCategory);
+      "SELECT s FROM Service s WHERE s.active = true AND s.serviceType = :serviceType ORDER BY s.name ASC")
+  List<Service> findActiveServicesByServiceType(
+      @Param("serviceType") ServiceType serviceType);
 
   @Query(
       "SELECT s FROM Service s WHERE s.active = true AND (s.name LIKE %:searchTerm% OR s.description LIKE %:searchTerm%) ORDER BY s.name ASC")
@@ -48,5 +49,5 @@ public interface ServiceRepository
 
   List<Service> findByActiveTrueOrderByNameAsc();
 
-  List<Service> findByServiceCategoryAndActiveTrueOrderByNameAsc(ServiceCategory serviceCategory);
+  List<Service> findByServiceTypeAndActiveTrueOrderByNameAsc(ServiceType serviceType);
 }
