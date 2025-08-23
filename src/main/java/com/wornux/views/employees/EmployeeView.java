@@ -27,6 +27,8 @@ import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.WorkScheduleDay;
 import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.security.UserUtils;
 import com.wornux.services.interfaces.EmployeeService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
@@ -69,12 +71,10 @@ public class EmployeeView extends Div {
 
         setId("employees-view");
 
-        // Configure form event listeners
         employeeForm.addEmployeeSavedListener(event -> refreshAll());
 
         employeeForm.setOnSaveCallback(this::refreshAll);
         employeeForm.addEmployeeCancelledListener(() -> {
-            // Form handles closing automatically
         });
 
         createGrid(employeeService, createFilterSpecification());
@@ -122,11 +122,11 @@ public class EmployeeView extends Div {
             return detailButton;
         }).setHeader("Horarios").setWidth("120px").setTextAlign(ColumnTextAlign.CENTER);
 
-        // Add actions column
-        grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+        if(UserUtils.hasEmployeeRole(EmployeeRole.ADMINISTRATIVE) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
+            grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+        }
 
         grid.asSingleSelect().addValueChangeListener(event -> {
-            // Grid selection handling can be removed or used for other purposes
         });
     }
 
