@@ -57,7 +57,6 @@ import static com.wornux.constants.ValidationConstants.*;
 @Slf4j
 public class EmployeeForm extends Dialog {
 
-    // Form Components
     private final TextField username = new TextField("Usuario");
     private final PasswordField password = new PasswordField("Contraseña");
     private final TextField firstName = new TextField("Nombre");
@@ -80,24 +79,21 @@ public class EmployeeForm extends Dialog {
     private final Grid<WorkScheduleDayDto> scheduleGrid = new Grid<>(WorkScheduleDayDto.class, false);
     private final List<WorkScheduleDayDto> workScheduleDays = new ArrayList<>();
 
-    // Form buttons
     private final Button saveButton = new Button("Guardar");
     private final Button cancelButton = new Button("Cancelar");
 
-    // Header
     private final H3 headerTitle = new H3();
 
-    // Binders
     private final Binder<ValidationBean> binder = new Binder<>(ValidationBean.class);
     private final Binder<EmployeeUpdateRequestDto> binderUpdate = new Binder<>(EmployeeUpdateRequestDto.class);
 
-    // Services
     private final transient EmployeeService employeeService;
-    // Event listeners
+
     private final List<Consumer<EmployeeCreateRequestDto>> employeeSavedListeners = new ArrayList<>();
     private final List<Runnable> employeeCancelledListeners = new ArrayList<>();
-    // State
+
     private boolean isEditMode = false;
+
     private transient Employee currentEmployee;
     private transient ValidationBean validationBean;
     private transient Runnable onSaveCallback;
@@ -691,7 +687,6 @@ public class EmployeeForm extends Dialog {
         dto.setEmergencyContactName(employee.getEmergencyContactName());
         dto.setEmergencyContactPhone(employee.getEmergencyContactPhone());
 
-        // Convertir WorkScheduleDay a WorkScheduleDayDto
         List<WorkScheduleDayDto> scheduleDtos = new ArrayList<>();
         if (employee.getWorkScheduleDays() != null) {
             scheduleDtos = employee.getWorkScheduleDays().stream()
@@ -757,10 +752,8 @@ public class EmployeeForm extends Dialog {
     private void setupScheduleGrid() {
         scheduleGrid.removeAllColumns();
 
-        // Columna para el día de la semana
         scheduleGrid.addColumn(WorkScheduleDayDto::getDayOfWeek).setHeader("Día").setAutoWidth(true);
 
-        // Columna para checkbox de día libre
         scheduleGrid.addComponentColumn(day -> {
             Checkbox offDayCheckbox = new Checkbox();
             offDayCheckbox.setValue(day.isOffDay());
@@ -775,7 +768,6 @@ public class EmployeeForm extends Dialog {
             return offDayCheckbox;
         }).setHeader("Día Libre").setAutoWidth(true);
 
-        // Columna para hora de inicio
         scheduleGrid.addComponentColumn(day -> {
             TimePicker startTimePicker = createStartTimeField(day);
             startTimePicker.setValue(day.getStartTime());
@@ -783,7 +775,6 @@ public class EmployeeForm extends Dialog {
             return startTimePicker;
         }).setHeader("Hora Inicio").setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
 
-        // Columna para hora de fin
         scheduleGrid.addComponentColumn(day -> {
             TimePicker endTimePicker = new TimePicker();
             endTimePicker.setValue(day.getEndTime());
