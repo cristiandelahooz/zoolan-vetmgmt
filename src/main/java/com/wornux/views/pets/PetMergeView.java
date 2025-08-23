@@ -163,6 +163,82 @@ public class PetMergeView extends Div {
     grid.addColumn(ownersRenderer()).setHeader("Dueños").setAutoWidth(true);
 
     grid.addColumn(
+                    new ComponentRenderer<>(pet -> {
+                      Button keepBtn = new Button(isKeep(pet) ? "✓ Mantener" : "Mantener");
+                      keepBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
+                      keepBtn.getStyle()
+                              .set("width", "100px")
+                              .set("minWidth", "100px")
+                              .set("height", "32px")
+                              .set("padding", "0");
+
+                      Button removeBtn = new Button(VaadinIcon.TRASH.create());
+                      removeBtn.addThemeVariants(
+                              ButtonVariant.LUMO_ERROR,
+                              ButtonVariant.LUMO_TERTIARY_INLINE,
+                              ButtonVariant.LUMO_SMALL);
+                      removeBtn.getStyle()
+                              .set("width", "36px")
+                              .set("minWidth", "36px")
+                              .set("height", "32px")
+                              .set("padding", "0");
+
+                      boolean thisIsKeep = isKeep(pet);
+                      boolean thisIsRemove = isRemove(pet);
+
+                      if (thisIsKeep) {
+                        keepBtn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+                      }
+
+                      if (thisIsRemove) {
+                        removeBtn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+                        removeBtn.getElement().setProperty("title", "Seleccionado para eliminar");
+                      } else {
+                        removeBtn.getElement().setProperty("title", "Eliminar");
+                      }
+
+
+                      keepBtn.setEnabled(!thisIsKeep && !thisIsRemove);
+                      removeBtn.setEnabled(!thisIsRemove && !thisIsKeep);
+
+
+                      keepBtn.addClickListener(e -> {
+
+                        if (removePet != null && Objects.equals(idOf(removePet), idOf(pet))) {
+                          removePet = null;
+                        }
+                        keepPet = pet;
+                        updateMergeButtonState();
+                        grid.getDataProvider().refreshAll();
+                        refreshCards();
+                      });
+
+
+                      removeBtn.addClickListener(e -> {
+                        if (keepPet != null && Objects.equals(idOf(keepPet), idOf(pet))) {
+                          keepPet = null;
+                        }
+                        removePet = pet;
+                        updateMergeButtonState();
+                        grid.getDataProvider().refreshAll();
+                        refreshCards();
+                      });
+
+                      HorizontalLayout hl = new HorizontalLayout(keepBtn, removeBtn);
+                      hl.setSpacing(true);
+                      hl.setPadding(false);
+                      hl.setAlignItems(FlexComponent.Alignment.CENTER);
+                      hl.getStyle().set("gap", "0.25rem");
+                      return hl;
+                    }))
+            .setHeader("Acciones")
+            .setTextAlign(ColumnTextAlign.CENTER)
+            .setAutoWidth(false)
+            .setWidth("200px")
+            .setFlexGrow(0);
+
+
+    /*grid.addColumn(
             new ComponentRenderer<>(
                 pet -> {
                   Button keepBtn = new Button(isKeep(pet) ? "✓ Mantener" : "Mantener");
@@ -227,7 +303,7 @@ public class PetMergeView extends Div {
         .setTextAlign(ColumnTextAlign.CENTER)
         .setAutoWidth(false)
         .setWidth("200px")
-        .setFlexGrow(0);
+        .setFlexGrow(0);*/
 
     Div wrapper = new Div(grid);
     wrapper.addClassNames(
