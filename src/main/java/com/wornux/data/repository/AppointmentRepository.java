@@ -2,9 +2,11 @@ package com.wornux.data.repository;
 
 import com.wornux.data.entity.Appointment;
 import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.data.enums.ServiceType;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.wornux.data.enums.ServiceType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
