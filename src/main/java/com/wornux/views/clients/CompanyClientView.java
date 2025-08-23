@@ -23,6 +23,9 @@ import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.*;
 import com.wornux.data.entity.Client;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.security.UserUtils;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
@@ -37,7 +40,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_RECEPTIONIST"})
 @Route(value = "business-clients", layout = MainLayout.class)
 @PageTitle("Clientes Empresariales")
 public class CompanyClientView extends Div {
@@ -59,7 +62,6 @@ public class CompanyClientView extends Div {
 
     companyClientForm.setOnSaveCallback(this::refreshAll);
 
-    // Configure form event listeners
     companyClientForm.addClientSavedListener(
         event -> {
           refreshAll();
@@ -98,7 +100,9 @@ public class CompanyClientView extends Div {
         .setHeader("Estado")
         .setTextAlign(ColumnTextAlign.CENTER);
 
-    grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+    if(UserUtils.hasEmployeeRole(EmployeeRole.ADMINISTRATIVE) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)){
+      grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+    }
 
     grid.asSingleSelect()
         .addValueChangeListener(
