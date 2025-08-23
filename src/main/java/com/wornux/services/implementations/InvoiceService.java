@@ -114,4 +114,14 @@ public class InvoiceService {
         .map(ServiceInvoice::getAmount)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
+
+  @Transactional
+  public Optional<Invoice> findByGroomingId(Long groomingId) {
+    return repository.findByGrooming_Id(groomingId);
+  }
+
+  @Transactional
+  public Optional<Invoice> findByGroomingIdWithDetails(Long groomingId) {
+    return repository.findByGroomingIdWithDetails(groomingId);
+  }
 }
