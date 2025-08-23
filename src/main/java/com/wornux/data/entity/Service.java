@@ -1,6 +1,7 @@
 package com.wornux.data.entity;
 
-import com.wornux.data.enums.ServiceCategory;
+import com.wornux.data.enums.ServiceType;
+
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,7 +36,7 @@ public class Service {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private ServiceCategory serviceCategory;
+  private ServiceType serviceType;
 
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal price;
