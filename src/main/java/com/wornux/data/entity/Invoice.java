@@ -46,6 +46,11 @@ public class Invoice extends Auditable implements Serializable {
     private Consultation consultation;
     @Column(name = "consultation_notes", length = 1000)
     private String consultationNotes;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grooming", referencedColumnName = "id")
+    private GroomingSession grooming;
+    @Column(name = "grooming_notes", length = 1000)
+    private String groomingNotes;
     @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "invoice")
     @Builder.Default
