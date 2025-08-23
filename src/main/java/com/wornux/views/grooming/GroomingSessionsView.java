@@ -26,6 +26,7 @@ import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Order;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +35,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 @Route(value = "grooming")
 @PageTitle("Grooming")
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_GROOMER", "ROLE_EMP_KENNEL_ASSISTANT"})
 public class GroomingSessionsView extends Div {
 
   private final Grid<GroomingSession> grid = GridUtils.createBasicGrid(GroomingSession.class);
