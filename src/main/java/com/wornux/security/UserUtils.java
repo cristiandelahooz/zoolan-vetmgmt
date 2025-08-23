@@ -55,4 +55,8 @@ public class UserUtils {
     public static boolean hasEmployeeRole(EmployeeRole role) {
         return getCurrentEmployeeRole().map(r -> r == role).orElse(false);
     }
+
+    public static boolean hasSystemRole(SystemRole role) {
+        return getCurrentSystemRole().map(r -> r == role).orElse(false);
+    }
 }
