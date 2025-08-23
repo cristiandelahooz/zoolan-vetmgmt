@@ -18,4 +18,14 @@ public interface InvoiceRepository
 
   @EntityGraph(attributePaths = {"client", "products.product", "services.service"})
   Optional<Invoice> findByConsultation(Consultation consultation);
+
+  Optional<Invoice> findByGrooming_Id(Long groomingId);
+
+  @Query("""
+           select i from Invoice i
+           left join fetch i.services
+           left join fetch i.products
+           where i.grooming.id = :groomingId
+           """)
+  Optional<Invoice> findByGroomingIdWithDetails(@Param("groomingId") Long groomingId);
 }
