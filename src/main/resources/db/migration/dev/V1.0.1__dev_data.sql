@@ -27,6 +27,13 @@ VALUES
      'Calle Principal 123',
      'Near the park',
      TRUE, NOW(), NOW(), 'USER'),
+    ('groomer.pou',
+     '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
+     'pou@zoolan.com', 'Dayana', 'Pou', '8090009999', '1995-01-15',
+     'Dominican', 'Santo Domingo', 'Distrito Nacional', 'Naco',
+     'Calle Secundaria 456',
+     'Cerca de agora',
+     TRUE, NOW(), NOW(), 'USER'),
     ('vet.martinez',
      '$2a$10$rb2YK7DlCgaGOukZSq2LrOTZifJW7AN0ARthRrQLitPaofkTDozbS',
      'martinez@zoolan.com', 'Ana', 'Martinez', '8095556666', '1990-03-20',
@@ -174,6 +181,7 @@ INSERT INTO employee (employee_id, gender, employee_role, salary, hire_date, ava
 SELECT u.user_id,
        CASE
            WHEN u.username = 'vet.rodriguez' THEN 'MASCULINO'
+           WHEN u.username = 'groomer.pou' THEN 'FEMENINO'
            WHEN u.username = 'vet.martinez' THEN 'FEMENINO'
            WHEN u.username = 'vet.sanchez' THEN 'MASCULINO'
            WHEN u.username = 'recep.gonzalez' THEN 'FEMENINO'
@@ -182,6 +190,8 @@ SELECT u.user_id,
        CASE
            WHEN u.username IN ('vet.rodriguez', 'vet.martinez', 'vet.sanchez')
                THEN 'VETERINARIAN'
+           WHEN u.username IN ('groomer.pou')
+           THEN 'GROOMER'
            ELSE 'RECEPTIONIST'
            END,
        CASE
@@ -189,12 +199,14 @@ SELECT u.user_id,
            WHEN u.username = 'vet.martinez' THEN 75000.00
            WHEN u.username = 'vet.sanchez' THEN 78000.00
            WHEN u.username = 'recep.gonzalez' THEN 40000.00
+           WHEN u.username = 'groomer.pou' THEN 40000.00
            WHEN u.username = 'recep.diaz' THEN 42000.00
            END,
        CASE
            WHEN u.username = 'vet.rodriguez' THEN '2022-01-15'::date
            WHEN u.username = 'vet.martinez' THEN '2023-03-01'::date
            WHEN u.username = 'vet.sanchez' THEN '2022-10-01'::date
+           WHEN u.username = 'groomer.pou' THEN '2022-11-01'::date
            WHEN u.username = 'recep.gonzalez' THEN '2023-06-20'::date
            WHEN u.username = 'recep.diaz' THEN '2024-01-10'::date
            END,
@@ -203,19 +215,21 @@ SELECT u.user_id,
            WHEN u.username = 'vet.rodriguez' THEN 'Maria Rodriguez'
            WHEN u.username = 'vet.martinez' THEN 'Juan Martinez'
            WHEN u.username = 'vet.sanchez' THEN 'Ana Sanchez'
+           WHEN u.username = 'groomer.pou' THEN 'Dayana Pou'
            WHEN u.username = 'recep.gonzalez' THEN 'Pedro Gonzalez'
            WHEN u.username = 'recep.diaz' THEN 'Roberto Diaz'
            END,
        CASE
            WHEN u.username = 'vet.rodriguez' THEN '8092223333'
            WHEN u.username = 'vet.martinez' THEN '8095556666'
+           WHEN u.username = 'groomer.pou' THEN '8090009999'
            WHEN u.username = 'vet.sanchez' THEN '8091112222'
            WHEN u.username = 'recep.gonzalez' THEN '8098889999'
            WHEN u.username = 'recep.diaz' THEN '8094445555'
            END
 FROM users u
 WHERE u.username IN
-      ('vet.rodriguez', 'vet.martinez', 'vet.sanchez', 'recep.gonzalez',
+      ('vet.rodriguez', 'groomer.pou', 'vet.martinez', 'vet.sanchez', 'recep.gonzalez',
        'recep.diaz');
 
 -- =================================================================================================
@@ -231,6 +245,15 @@ VALUES
     ((SELECT user_id FROM users WHERE username = 'vet.rodriguez'), 'FRIDAY', '09:00:00', '17:00:00', FALSE),
     ((SELECT user_id FROM users WHERE username = 'vet.rodriguez'), 'SATURDAY', NULL, NULL, TRUE),
     ((SELECT user_id FROM users WHERE username = 'vet.rodriguez'), 'SUNDAY', NULL, NULL, TRUE),
+
+    -- vet.rodriguez
+    ((SELECT user_id FROM users WHERE username = 'groomer.pou'), 'MONDAY', '09:00:00', '17:00:00', FALSE),
+    ((SELECT user_id FROM users WHERE username = 'groomer.pou'), 'TUESDAY', '09:00:00', '17:00:00', FALSE),
+    ((SELECT user_id FROM users WHERE username = 'groomer.pou'), 'WEDNESDAY', '09:00:00', '17:00:00', FALSE),
+    ((SELECT user_id FROM users WHERE username = 'groomer.pou'), 'THURSDAY', '09:00:00', '17:00:00', FALSE),
+    ((SELECT user_id FROM users WHERE username = 'groomer.pou'), 'FRIDAY', '09:00:00', '17:00:00', FALSE),
+    ((SELECT user_id FROM users WHERE username = 'groomer.pou'), 'SATURDAY', NULL, NULL, TRUE),
+    ((SELECT user_id FROM users WHERE username = 'groomer.pou'), 'SUNDAY', NULL, NULL, TRUE),
     -- vet.martinez
     ((SELECT user_id FROM users WHERE username = 'vet.martinez'), 'MONDAY', '08:00:00', '16:00:00', FALSE),
     ((SELECT user_id FROM users WHERE username = 'vet.martinez'), 'TUESDAY', '08:00:00', '16:00:00', FALSE),
