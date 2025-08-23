@@ -25,6 +25,9 @@ import com.wornux.components.Breadcrumb;
 import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Client;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.security.UserUtils;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
@@ -41,7 +44,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "individual-clients", layout = MainLayout.class)
 @PageTitle("Clientes Individuales")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_RECEPTIONIST"})
 public class IndividualClientView extends Div {
 
   private final Grid<Client> grid = GridUtils.createBasicGrid(Client.class);
@@ -61,7 +64,6 @@ public class IndividualClientView extends Div {
 
     individualClientForm.setOnSaveCallback(this::refreshAll);
 
-    // Configure form event listeners
     individualClientForm.addClientSavedListener(
         event -> {
           refreshAll();
@@ -109,9 +111,11 @@ public class IndividualClientView extends Div {
         .setHeader("Estado")
         .setTextAlign(ColumnTextAlign.CENTER);
 
-    var actionsColumn =
-        grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
-    actionsColumn.setFrozenToEnd(true);
+    if(UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)){
+      var actionsColumn =
+          grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+      actionsColumn.setFrozenToEnd(true);
+    }
 
     grid.asSingleSelect()
         .addValueChangeListener(
