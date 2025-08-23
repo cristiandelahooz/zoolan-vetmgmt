@@ -23,7 +23,10 @@ import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Invoice;
+import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.security.UserUtils;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.GridUtils;
@@ -40,7 +43,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "consultations", layout = MainLayout.class)
 @PageTitle("Consultas")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_VETERINARIAN"})
 public class ConsultationsView extends Div {
 
   private final Grid<Consultation> grid = GridUtils.createBasicGrid(Consultation.class);
@@ -114,7 +117,6 @@ public class ConsultationsView extends Div {
     GridUtils.addColumn(grid, Consultation::getTreatment, "Tratamiento", "treatment");
     GridUtils.addColumn(grid, Consultation::getPrescription, "Prescripción", "prescription");
     GridUtils.addComponentColumn(grid, this::renderStatus, "Estado", "active");
-
     grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
   }
 
@@ -268,6 +270,11 @@ public class ConsultationsView extends Div {
     actions.setPadding(false);
     actions.setMargin(false);
     actions.setWidth(null);
+
+    if (!(UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN))) {
+      delete.setVisible(false);
+    }
+
     return actions;
   }
 
