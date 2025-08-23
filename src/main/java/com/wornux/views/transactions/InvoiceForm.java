@@ -516,25 +516,20 @@ public class InvoiceForm extends Div {
 
   private void saveOrUpdate(ClickEvent<Button> buttonClickEvent) {
     try {
-      // 1. Initialize Invoice element
       if (element == null) {
         element = new Invoice();
       }
 
-      // 2. Populate basic fields from binder
       binder.writeBean(this.element);
 
-      // Set calculated subtotal, tax, and total on the Invoice entity
       this.element.setSubtotal(BigDecimal.valueOf(subtotalField.getValue()));
       this.element.setTax(BigDecimal.valueOf(taxField.getValue()));
       this.element.setTotal(BigDecimal.valueOf(total.getValue()));
 
-      // 3. Validate and manage Client
       if (element.getClient() == null) {
         NotificationUtils.error("Debes seleccionar un cliente");
         return;
       }
-      // Fetch a managed client instance if not already managed
       if (element.getClient().getId() != null) {
         Client managedClient =
             customerService.getClientById(element.getClient().getId()).orElse(null);
@@ -554,7 +549,7 @@ public class InvoiceForm extends Div {
       if (isNewInvoice) {
         element =
             invoiceService.create(
-                element); // This saves the Invoice and returns the managed instance
+                element);
       }
 
       element.getProducts().clear();
@@ -563,7 +558,7 @@ public class InvoiceForm extends Div {
       Set<InvoiceProduct> finalProducts =
           invoiceProducts.stream().filter(p -> p.getProduct() != null).collect(Collectors.toSet());
       finalProducts.forEach(
-          element::addProduct); // addProduct sets the back-reference to the managed 'element'
+          element::addProduct);
 
       List<ServiceInvoice> servicesFromDisplayedItems =
           displayedItems.stream()
@@ -571,7 +566,7 @@ public class InvoiceForm extends Div {
               .map(item -> (ServiceInvoice) item)
               .collect(Collectors.toList());
       servicesFromDisplayedItems.forEach(
-          element::addService); // addService sets the back-reference to the managed 'element'
+          element::addService);
 
       if (element.getProducts().isEmpty() && element.getServices().isEmpty()) {
         NotificationUtils.error("Debes seleccionar al menos un producto o servicio");
@@ -581,6 +576,7 @@ public class InvoiceForm extends Div {
       invoiceService.create(element);
 
       populateForm(element);
+      NotificationUtils.success("Factura guardada exitosamente.");
       Optional.ofNullable(callable).ifPresent(Runnable::run);
 
     } catch (ObjectOptimisticLockingFailureException ex) {
