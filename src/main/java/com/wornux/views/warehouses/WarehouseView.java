@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Slf4j
 @PageTitle("Warehouses")
 @Route(value = "warehouses", layout = MainLayout.class)
-@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER" })
 public class WarehouseView extends VerticalLayout {
 
     private final WarehouseGrid warehouseGrid;
@@ -43,7 +43,6 @@ public class WarehouseView extends VerticalLayout {
     private final ComboBox<String> statusFilter = new ComboBox<>("Estado");
     private final Span quantity = new Span();
 
-    // Form fields
     private final TextField name = new TextField("Nombre del Almacén");
     private final ComboBox<WarehouseType> warehouseType = new ComboBox<>("Tipo de Almacén");
     private final ComboBox<Boolean> availableForSale = new ComboBox<>("Disponible para Venta");
