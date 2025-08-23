@@ -41,7 +41,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Slf4j
 @Route(value = "mascotas-fusionar", layout = MainLayout.class)
 @PageTitle("Fusionar Mascotas Duplicadas")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER","ROLE_USER","ROLER_EMP_RECEPTIONIST"})
+@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER","ROLE_EMP_RECEPTIONIST"})
+
 public class PetMergeView extends Div {
 
   private final PetServiceImpl petService;
