@@ -25,7 +25,6 @@ import com.wornux.views.MainLayout;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

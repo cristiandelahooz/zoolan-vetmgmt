@@ -34,14 +34,8 @@ import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.persistence.criteria.Order;
-
-import java.util.List;
-import java.util.Objects;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
@@ -122,47 +116,46 @@ public class ConsultationsView extends Div {
     GridUtils.addColumn(grid, Consultation::getPrescription, "Prescripción", "prescription");
     GridUtils.addComponentColumn(grid, this::renderStatus, "Estado", "active");
 
-    if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN) || UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
+    if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
+        || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
+        || UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
       grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
     }
   }
 
   public Specification<Consultation> createFilterSpecification() {
     return (root, query, builder) -> {
-        jakarta.persistence.criteria.Predicate finalPredicate = builder.conjunction();
+      jakarta.persistence.criteria.Predicate finalPredicate = builder.conjunction();
 
-        if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
-            Long employeeId = UserUtils.getCurrentEmployee().map(Employee::getId).orElse(null);
-            if (employeeId != null) {
-                finalPredicate = builder.and(finalPredicate, builder.equal(root.get("veterinarian").get("id"), employeeId));
-            }
-            finalPredicate = builder.and(finalPredicate, builder.isTrue(root.get("active")));
+      if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
+        Long employeeId = UserUtils.getCurrentEmployee().map(Employee::getId).orElse(null);
+        if (employeeId != null) {
+          finalPredicate =
+              builder.and(
+                  finalPredicate, builder.equal(root.get("veterinarian").get("id"), employeeId));
         }
+        finalPredicate = builder.and(finalPredicate, builder.isTrue(root.get("active")));
+      }
 
-        String filter = searchField.getValue().trim().toLowerCase();
-        if (!filter.isEmpty()) {
-            jakarta.persistence.criteria.Predicate searchPredicate = builder.or(
-                builder.like(
-                    builder.lower(root.get("notes")), "%" + filter + "%"),
-                builder.like(
-                    builder.lower(root.get("diagnosis")), "%" + filter + "%"),
-                builder.like(
-                    builder.lower(root.get("treatment")), "%" + filter + "%"),
-                builder.like(
-                    builder.lower(root.get("prescription")), "%" + filter + "%"),
-                builder.like(
-                    builder.lower(root.get("pet").get("name")), "%" + filter + "%"),
+      String filter = searchField.getValue().trim().toLowerCase();
+      if (!filter.isEmpty()) {
+        jakarta.persistence.criteria.Predicate searchPredicate =
+            builder.or(
+                builder.like(builder.lower(root.get("notes")), "%" + filter + "%"),
+                builder.like(builder.lower(root.get("diagnosis")), "%" + filter + "%"),
+                builder.like(builder.lower(root.get("treatment")), "%" + filter + "%"),
+                builder.like(builder.lower(root.get("prescription")), "%" + filter + "%"),
+                builder.like(builder.lower(root.get("pet").get("name")), "%" + filter + "%"),
                 builder.like(
                     builder.lower(root.get("veterinarian").get("firstName")), "%" + filter + "%"),
                 builder.like(
-                    builder.lower(root.get("veterinarian").get("lastName")), "%" + filter + "%")
-            );
-            finalPredicate = builder.and(finalPredicate, searchPredicate);
-        }
+                    builder.lower(root.get("veterinarian").get("lastName")), "%" + filter + "%"));
+        finalPredicate = builder.and(finalPredicate, searchPredicate);
+      }
 
-        query.orderBy(builder.desc(root.get("consultationDate")));
+      query.orderBy(builder.desc(root.get("consultationDate")));
 
-        return finalPredicate;
+      return finalPredicate;
     };
   }
 
@@ -266,7 +259,8 @@ public class ConsultationsView extends Div {
     actions.setMargin(false);
     actions.setWidth(null);
 
-    if (!(UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN))) {
+    if (!(UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
+        || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN))) {
       delete.setVisible(false);
     }
 
@@ -274,26 +268,28 @@ public class ConsultationsView extends Div {
   }
 
   public void evaluateForEdit(Consultation consultation) {
-    if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
-        consultationsForm.openForEdit(consultation);
-        return;
+    if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
+        || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
+      consultationsForm.openForEdit(consultation);
+      return;
     }
 
     if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
-        if (!consultation.isActive()) {
-            NotificationUtils.error("No puede editar una consulta inactiva.");
-            return;
+      if (!consultation.isActive()) {
+        NotificationUtils.error("No puede editar una consulta inactiva.");
+        return;
+      }
+      try {
+        Invoice invoice = invoiceService.findByConsultation(consultation);
+        if (invoice.getStatus() == InvoiceStatus.PENDING) {
+          consultationsForm.openForEdit(consultation);
+        } else {
+          NotificationUtils.error(
+              "No puede editar esta consulta porque la factura asociada no está pendiente.");
         }
-        try {
-            Invoice invoice = invoiceService.findByConsultation(consultation);
-            if (invoice.getStatus() == InvoiceStatus.PENDING) {
-                consultationsForm.openForEdit(consultation);
-            } else {
-                NotificationUtils.error("No puede editar esta consulta porque la factura asociada no está pendiente.");
-            }
-        } catch (Exception e) {
-            NotificationUtils.error("No se encontró una factura asociada a esta consulta.");
-        }
+      } catch (Exception e) {
+        NotificationUtils.error("No se encontró una factura asociada a esta consulta.");
+      }
     }
   }
 
@@ -315,7 +311,10 @@ public class ConsultationsView extends Div {
     confirmButton.addClickListener(
         e -> {
           try {
-            invoiceService.getRepository().findByConsultation(consultation).ifPresent(invoice -> invoiceService.delete(invoice.getCode()));
+            invoiceService
+                .getRepository()
+                .findByConsultation(consultation)
+                .ifPresent(invoice -> invoiceService.delete(invoice.getCode()));
             consultationService.delete(consultation.getId());
             NotificationUtils.success("Consulta eliminada exitosamente.");
             refreshAll();

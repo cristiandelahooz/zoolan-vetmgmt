@@ -22,7 +22,6 @@ import com.wornux.dto.dashboard.RevenueDataDto;
 import com.wornux.dto.dashboard.StockAlertDto;
 import com.wornux.services.interfaces.DashboardService;
 import jakarta.annotation.security.RolesAllowed;
-
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -68,8 +67,7 @@ public class DashboardView extends VerticalLayout {
   }
 
   /**
-   * Revenue Analysis with 3-month forecast
-   * Helps manager plan cash flow and identify growth trends
+   * Revenue Analysis with 3-month forecast Helps manager plan cash flow and identify growth trends
    */
   private DashboardWidget createRevenueAnalysisWidget() {
     try {
@@ -104,8 +102,10 @@ public class DashboardView extends VerticalLayout {
 
       return widget;
     } catch (Exception e) {
-      Notification.show("Error al cargar análisis de ingresos: " + e.getMessage(),
-              3000, Notification.Position.TOP_CENTER)
+      Notification.show(
+              "Error al cargar análisis de ingresos: " + e.getMessage(),
+              3000,
+              Notification.Position.TOP_CENTER)
           .addThemeVariants(NotificationVariant.LUMO_ERROR);
 
       DashboardWidget errorWidget = new DashboardWidget();
@@ -116,8 +116,8 @@ public class DashboardView extends VerticalLayout {
   }
 
   /**
-   * Top performing services analysis
-   * Helps identify most profitable services for resource allocation
+   * Top performing services analysis Helps identify most profitable services for resource
+   * allocation
    */
   private DashboardWidget createTopServicesWidget() {
     DashboardWidget widget = new DashboardWidget("Servicios Más Rentables");
@@ -135,13 +135,9 @@ public class DashboardView extends VerticalLayout {
 
     List<ChartDataDto> servicesData = dashboardService.getTopServicesAnalysis();
 
-    String[] categories = servicesData.stream()
-        .map(ChartDataDto::getLabel)
-        .toArray(String[]::new);
+    String[] categories = servicesData.stream().map(ChartDataDto::getLabel).toArray(String[]::new);
 
-    Number[] values = servicesData.stream()
-        .map(ChartDataDto::getValue)
-        .toArray(Number[]::new);
+    Number[] values = servicesData.stream().map(ChartDataDto::getValue).toArray(Number[]::new);
 
     config.getxAxis().setCategories(categories);
 
@@ -155,8 +151,8 @@ public class DashboardView extends VerticalLayout {
   }
 
   /**
-   * Stock health monitoring with predictive alerts
-   * Critical for inventory management and preventing stockouts
+   * Stock health monitoring with predictive alerts Critical for inventory management and preventing
+   * stockouts
    */
   private DashboardWidget createStockHealthWidget() {
     DashboardWidget widget = new DashboardWidget("Monitor de Inventario");
@@ -166,17 +162,18 @@ public class DashboardView extends VerticalLayout {
 
     List<StockAlertDto> stockAlerts = dashboardService.getStockHealthAnalysis();
 
-    long criticalCount = stockAlerts.stream()
-        .mapToLong(alert -> "CRITICAL".equals(alert.getAlertLevel()) ? 1 : 0)
-        .sum();
+    long criticalCount =
+        stockAlerts.stream()
+            .mapToLong(alert -> "CRITICAL".equals(alert.getAlertLevel()) ? 1 : 0)
+            .sum();
 
-    long lowCount = stockAlerts.stream()
-        .mapToLong(alert -> "LOW".equals(alert.getAlertLevel()) ? 1 : 0)
-        .sum();
+    long lowCount =
+        stockAlerts.stream().mapToLong(alert -> "LOW".equals(alert.getAlertLevel()) ? 1 : 0).sum();
 
-    long outOfStockCount = stockAlerts.stream()
-        .mapToLong(alert -> "OUT_OF_STOCK".equals(alert.getAlertLevel()) ? 1 : 0)
-        .sum();
+    long outOfStockCount =
+        stockAlerts.stream()
+            .mapToLong(alert -> "OUT_OF_STOCK".equals(alert.getAlertLevel()) ? 1 : 0)
+            .sum();
 
     HorizontalLayout alertsLayout = new HorizontalLayout();
     alertsLayout.add(createAlertCard("Crítico", criticalCount, "error"));
@@ -191,22 +188,22 @@ public class DashboardView extends VerticalLayout {
 
       stockAlerts.stream()
           .limit(5) // Show top 5 alerts
-          .forEach(alert -> {
-            Div alertDiv = new Div();
-            alertDiv.addClassNames(
-                LumoUtility.Padding.SMALL,
-                LumoUtility.BorderRadius.MEDIUM,
-                getAlertColorClass(alert.getAlertLevel())
-            );
+          .forEach(
+              alert -> {
+                Div alertDiv = new Div();
+                alertDiv.addClassNames(
+                    LumoUtility.Padding.SMALL,
+                    LumoUtility.BorderRadius.MEDIUM,
+                    getAlertColorClass(alert.getAlertLevel()));
 
-            String alertText = String.format("%s: %d unidades (mín: %d)",
-                alert.getProductName(),
-                alert.getCurrentStock(),
-                alert.getMinimumStock());
+                String alertText =
+                    String.format(
+                        "%s: %d unidades (mín: %d)",
+                        alert.getProductName(), alert.getCurrentStock(), alert.getMinimumStock());
 
-            alertDiv.add(new Span(alertText));
-            alertsList.add(alertDiv);
-          });
+                alertDiv.add(new Span(alertText));
+                alertsList.add(alertDiv);
+              });
 
       content.add(alertsList);
     }
@@ -216,8 +213,8 @@ public class DashboardView extends VerticalLayout {
   }
 
   /**
-   * Consultation trends for staffing optimization
-   * Helps predict busy periods and optimize staff scheduling
+   * Consultation trends for staffing optimization Helps predict busy periods and optimize staff
+   * scheduling
    */
   private DashboardWidget createConsultationTrendsWidget() {
     DashboardWidget widget = new DashboardWidget("Tendencias de Consultas");
@@ -235,13 +232,12 @@ public class DashboardView extends VerticalLayout {
 
     List<ChartDataDto> consultationData = dashboardService.getConsultationTrends();
 
-    String[] categories = consultationData.stream()
-        .map(data -> data.getDate().format(DateTimeFormatter.ofPattern("dd/MM")))
-        .toArray(String[]::new);
+    String[] categories =
+        consultationData.stream()
+            .map(data -> data.getDate().format(DateTimeFormatter.ofPattern("dd/MM")))
+            .toArray(String[]::new);
 
-    Number[] values = consultationData.stream()
-        .map(ChartDataDto::getValue)
-        .toArray(Number[]::new);
+    Number[] values = consultationData.stream().map(ChartDataDto::getValue).toArray(Number[]::new);
 
     config.getxAxis().setCategories(categories);
 
@@ -254,10 +250,7 @@ public class DashboardView extends VerticalLayout {
     return widget;
   }
 
-  /**
-   * Client retention metrics
-   * Critical for business growth and customer relationship management
-   */
+  /** Client retention metrics Critical for business growth and customer relationship management */
   private DashboardWidget createClientRetentionWidget() {
     DashboardWidget widget = new DashboardWidget("Retención de Clientes");
 
@@ -280,18 +273,21 @@ public class DashboardView extends VerticalLayout {
 
     double retentionRate = (Double) retentionData.get("retentionRate");
     HorizontalLayout kpiLayout = new HorizontalLayout();
-    kpiLayout.add(createKpiCard("Tasa de Retención", String.format("%.1f%%", retentionRate), VaadinIcon.USERS));
-    kpiLayout.add(createKpiCard("Clientes Activos", retentionData.get("totalActiveClients").toString(), VaadinIcon.USER_CHECK));
+    kpiLayout.add(
+        createKpiCard(
+            "Tasa de Retención", String.format("%.1f%%", retentionRate), VaadinIcon.USERS));
+    kpiLayout.add(
+        createKpiCard(
+            "Clientes Activos",
+            retentionData.get("totalActiveClients").toString(),
+            VaadinIcon.USER_CHECK));
 
     content.add(kpiLayout, chart);
     widget.setContent(content);
     return widget;
   }
 
-  /**
-   * Employee utilization heatmap
-   * Helps optimize staff scheduling based on consultation patterns
-   */
+  /** Employee utilization heatmap Helps optimize staff scheduling based on consultation patterns */
   private DashboardWidget createEmployeeUtilizationWidget() {
     DashboardWidget widget = new DashboardWidget("Utilización de Personal");
 
@@ -308,13 +304,10 @@ public class DashboardView extends VerticalLayout {
 
     List<ChartDataDto> utilizationData = dashboardService.getEmployeeUtilizationData();
 
-    String[] categories = utilizationData.stream()
-        .map(ChartDataDto::getLabel)
-        .toArray(String[]::new);
+    String[] categories =
+        utilizationData.stream().map(ChartDataDto::getLabel).toArray(String[]::new);
 
-    Number[] values = utilizationData.stream()
-        .map(ChartDataDto::getValue)
-        .toArray(Number[]::new);
+    Number[] values = utilizationData.stream().map(ChartDataDto::getValue).toArray(Number[]::new);
 
     config.getxAxis().setCategories(categories);
 
@@ -332,8 +325,7 @@ public class DashboardView extends VerticalLayout {
     card.addClassNames(
         LumoUtility.Padding.MEDIUM,
         LumoUtility.BorderRadius.MEDIUM,
-        LumoUtility.Background.CONTRAST_5
-    );
+        LumoUtility.Background.CONTRAST_5);
 
     HorizontalLayout layout = new HorizontalLayout();
     layout.setAlignItems(Alignment.CENTER);
@@ -363,8 +355,9 @@ public class DashboardView extends VerticalLayout {
     card.addClassNames(
         LumoUtility.Padding.MEDIUM,
         LumoUtility.BorderRadius.MEDIUM,
-        "error".equals(severity) ? LumoUtility.Background.ERROR_10 : LumoUtility.Background.WARNING_10
-    );
+        "error".equals(severity)
+            ? LumoUtility.Background.ERROR_10
+            : LumoUtility.Background.WARNING_10);
 
     VerticalLayout layout = new VerticalLayout();
     layout.setSpacing(false);
@@ -391,26 +384,30 @@ public class DashboardView extends VerticalLayout {
   }
 
   /**
-   * Show critical stock alerts as notifications when dashboard loads
-   * Provides immediate attention to urgent inventory issues
+   * Show critical stock alerts as notifications when dashboard loads Provides immediate attention
+   * to urgent inventory issues
    */
   private void showStockAlerts() {
-    List<StockAlertDto> criticalAlerts = dashboardService.getStockHealthAnalysis().stream()
-        .filter(alert -> "CRITICAL".equals(alert.getAlertLevel()) || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
-        .limit(3)
-        .toList();
+    List<StockAlertDto> criticalAlerts =
+        dashboardService.getStockHealthAnalysis().stream()
+            .filter(
+                alert ->
+                    "CRITICAL".equals(alert.getAlertLevel())
+                        || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
+            .limit(3)
+            .toList();
 
     if (!criticalAlerts.isEmpty()) {
       StringBuilder message = new StringBuilder("Alertas críticas de inventario:\n");
-      criticalAlerts.forEach(alert ->
-          message.append(String.format("• %s: %d unidades restantes\n",
-              alert.getProductName(), alert.getCurrentStock())));
+      criticalAlerts.forEach(
+          alert ->
+              message.append(
+                  String.format(
+                      "• %s: %d unidades restantes\n",
+                      alert.getProductName(), alert.getCurrentStock())));
 
-      Notification notification = Notification.show(
-          message.toString(),
-          5000,
-          Notification.Position.TOP_END
-      );
+      Notification notification =
+          Notification.show(message.toString(), 5000, Notification.Position.TOP_END);
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
   }

@@ -192,9 +192,7 @@ public class ServiceForm extends Dialog {
     binderUpdate
         .forField(serviceType)
         .asRequired("El tipo de servicio es requerido")
-        .bind(
-            ServiceUpdateRequestDto::getServiceType,
-            ServiceUpdateRequestDto::setServiceType);
+        .bind(ServiceUpdateRequestDto::getServiceType, ServiceUpdateRequestDto::setServiceType);
 
     binderUpdate
         .forField(price)

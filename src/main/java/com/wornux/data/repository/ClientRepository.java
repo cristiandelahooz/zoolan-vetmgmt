@@ -2,7 +2,6 @@ package com.wornux.data.repository;
 
 import com.wornux.data.entity.Client;
 import com.wornux.data.enums.ClientRating;
-
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -46,14 +45,16 @@ public interface ClientRepository
 
   Optional<Client> findByEmail(String email);
 
-  @Query("SELECT COUNT(c) FROM Client c WHERE c.createdAt >= CAST(:startDate AS timestamp) AND c.createdAt < CAST(:endDate AS timestamp)")
-  Long countNewClientsByPeriod(@Param("startDate") Instant startDate,
-                               @Param("endDate") Instant endDate);
+  @Query(
+      "SELECT COUNT(c) FROM Client c WHERE c.createdAt >= CAST(:startDate AS timestamp) AND c.createdAt < CAST(:endDate AS timestamp)")
+  Long countNewClientsByPeriod(
+      @Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 
-  @Query("SELECT COUNT(DISTINCT i.client) FROM Invoice i WHERE i.createdDate >= CAST(:startDate AS timestamp) AND i.createdDate < CAST(:endDate AS timestamp) " +
-      "AND EXISTS (SELECT 1 FROM Invoice i2 WHERE i2.client = i.client AND i2.createdDate < CAST(:startDate AS timestamp))")
-  Long countReturningClientsByPeriod(@Param("startDate") Instant startDate,
-                                     @Param("endDate") Instant endDate);
+  @Query(
+      "SELECT COUNT(DISTINCT i.client) FROM Invoice i WHERE i.createdDate >= CAST(:startDate AS timestamp) AND i.createdDate < CAST(:endDate AS timestamp) "
+          + "AND EXISTS (SELECT 1 FROM Invoice i2 WHERE i2.client = i.client AND i2.createdDate < CAST(:startDate AS timestamp))")
+  Long countReturningClientsByPeriod(
+      @Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 
   @Query("SELECT COUNT(c) FROM Client c WHERE c.active = true")
   Long countActiveClients();

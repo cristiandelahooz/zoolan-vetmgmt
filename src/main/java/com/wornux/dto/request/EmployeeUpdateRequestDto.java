@@ -73,6 +73,6 @@ public class EmployeeUpdateRequestDto {
   @Nullable private String emergencyContactPhone;
 
   public EmployeeUpdateRequestDto() {
-  this.workScheduleDays = new ArrayList<>();
+    this.workScheduleDays = new ArrayList<>();
   }
 }

@@ -452,7 +452,8 @@ public class ConsultationsForm extends Dialog {
       }
 
       if (!isNew && !editingConsultation.isActive()) {
-        if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
+        if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
+            || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
           editingConsultation.setActive(true);
         }
       }

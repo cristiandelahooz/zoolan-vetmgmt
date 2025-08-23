@@ -26,9 +26,6 @@ import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Pet;
 import com.wornux.data.enums.PetType;
 import com.wornux.services.implementations.PetServiceImpl;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.format.DateTimeFormatter;
@@ -50,8 +47,6 @@ public class PetMergeView extends Div {
   private final Button searchBtn = new Button("Buscar");
   private final Grid<Pet> grid = new Grid<>(Pet.class, false);
 
-
-
   private final Button clearBtn = new Button("Limpiar selección");
   private final Button openMergeDialogBtn = new Button("Fusionar seleccionadas");
   private final Dialog confirmDialog = new Dialog();
@@ -59,7 +54,8 @@ public class PetMergeView extends Div {
   private final Div keepCard = new Div();
   private final Div removeCard = new Div();
 
-  private final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");private Pet keepPet;
+  private final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  private Pet keepPet;
   private Pet removePet;
 
   public PetMergeView(@Qualifier("petServiceImpl") PetServiceImpl petService) {
@@ -78,7 +74,9 @@ public class PetMergeView extends Div {
 
   private static String nvl(String s) {
     return s == null ? "" : s;
-  }private ComponentRenderer<Div, Pet> ownersRenderer() {
+  }
+
+  private ComponentRenderer<Div, Pet> ownersRenderer() {
     return new ComponentRenderer<>(
         pet -> {
           Div box = new Div();
@@ -467,6 +465,4 @@ public class PetMergeView extends Div {
       case OTRO -> "Otro";
     };
   }
-
-
 }

@@ -100,7 +100,8 @@ public class CompanyClientView extends Div {
         .setHeader("Estado")
         .setTextAlign(ColumnTextAlign.CENTER);
 
-    if(UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)){
+    if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
+        || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
       grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
     }
 

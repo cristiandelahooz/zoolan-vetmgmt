@@ -30,8 +30,6 @@ import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -51,7 +49,6 @@ public class WaitingRoomView extends VerticalLayout {
   private final ClientService clientService;
   private final PetService petService;
 
-
   private final Grid<WaitingRoom> grid = GridUtils.createBasicGrid(WaitingRoom.class);
   private final WaitingRoomForm form;
   private final VerticalLayout cardContainer = new VerticalLayout();
@@ -60,7 +57,8 @@ public class WaitingRoomView extends VerticalLayout {
       new MultiSelectComboBox<>("Prioridad");
   private final MultiSelectComboBox<WaitingRoomStatus> statusFilter =
       new MultiSelectComboBox<>("Estado");
-  private final Span quantity = new Span();TextField searchField = new TextField();
+  private final Span quantity = new Span();
+  TextField searchField = new TextField();
 
   public WaitingRoomView(
       WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {

@@ -133,7 +133,6 @@ public class InvoiceView extends Div {
 
     create.addClickListener(event -> invoiceForm.open());
 
-
     invoiceForm.setCallable(this::refreshAll);
 
     List<Client> allCustomerByDisabledIsFalse = customerService.getAllActiveClients();
@@ -207,7 +206,8 @@ public class InvoiceView extends Div {
             "Deuda total")
         .setTextAlign(ColumnTextAlign.END);
 
-    if(UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
+    if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
+        || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
       GridUtils.addComponentColumn(grid, this::renderActions, "Acciones")
           .setFlexGrow(0)
           .setTextAlign(ColumnTextAlign.CENTER);

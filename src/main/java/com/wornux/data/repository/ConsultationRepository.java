@@ -4,7 +4,6 @@ import com.wornux.data.base.AbstractRepository;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.Pet;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,17 +27,17 @@ public interface ConsultationRepository
 
   List<Consultation> findByVeterinarianIdAndActiveTrue(Long veterinarianId);
 
-@Query("SELECT DATE(c.consultationDate), COUNT(c) " +
-    "FROM Consultation c WHERE c.consultationDate >= :startDate AND c.consultationDate <= :endDate " +
-    "AND c.active = true GROUP BY DATE(c.consultationDate) ORDER BY DATE(c.consultationDate)")
-List<Object[]> findDailyConsultationCounts(@Param("startDate") LocalDateTime startDate,
-                                           @Param("endDate") LocalDateTime endDate);
+  @Query(
+      "SELECT DATE(c.consultationDate), COUNT(c) "
+          + "FROM Consultation c WHERE c.consultationDate >= :startDate AND c.consultationDate <= :endDate "
+          + "AND c.active = true GROUP BY DATE(c.consultationDate) ORDER BY DATE(c.consultationDate)")
+  List<Object[]> findDailyConsultationCounts(
+      @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-@Query("SELECT HOUR(c.consultationDate), COUNT(c) " +
-    "FROM Consultation c WHERE c.consultationDate >= :startDate AND c.consultationDate <= :endDate " +
-    "AND c.active = true GROUP BY HOUR(c.consultationDate) ORDER BY HOUR(c.consultationDate)")
-List<Object[]> findEmployeeUtilizationByHour(@Param("startDate") LocalDateTime startDate,
-                                             @Param("endDate") LocalDateTime endDate);
-
+  @Query(
+      "SELECT HOUR(c.consultationDate), COUNT(c) "
+          + "FROM Consultation c WHERE c.consultationDate >= :startDate AND c.consultationDate <= :endDate "
+          + "AND c.active = true GROUP BY HOUR(c.consultationDate) ORDER BY HOUR(c.consultationDate)")
+  List<Object[]> findEmployeeUtilizationByHour(
+      @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }
-

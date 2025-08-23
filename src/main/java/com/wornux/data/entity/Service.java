@@ -1,7 +1,6 @@
 package com.wornux.data.entity;
 
 import com.wornux.data.enums.ServiceType;
-
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

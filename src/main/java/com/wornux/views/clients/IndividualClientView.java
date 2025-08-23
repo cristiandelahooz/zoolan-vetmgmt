@@ -111,9 +111,12 @@ public class IndividualClientView extends Div {
         .setHeader("Estado")
         .setTextAlign(ColumnTextAlign.CENTER);
 
-    if(UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER) || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)){
+    if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
+        || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
       var actionsColumn =
-          grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+          grid.addComponentColumn(this::createActionsColumn)
+              .setHeader("Acciones")
+              .setAutoWidth(true);
       actionsColumn.setFrozenToEnd(true);
     }
 
