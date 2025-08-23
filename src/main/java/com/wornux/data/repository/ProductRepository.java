@@ -63,4 +63,8 @@ public interface ProductRepository
       @Param("usageType") ProductUsageType usageType,
       @Param("warehouseId") Long warehouseId,
       Pageable pageable);
+
+  @Query("SELECT p.id, p.name, p.accountingStock, p.availableStock, p.category " +
+      "FROM Product p WHERE p.active = true")
+  List<Object[]> findProductStockLevels();
 }
