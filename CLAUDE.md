@@ -229,3 +229,4 @@ vaadin.allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux
 4. Ensure responsive design with Vaadin components
 
 - guarda las reglas nagivation acces control, y una tabla de acceso por role, a cuales rutas tiene acceso
+- after any edits in the code, use jetbrains mcp to get the diagnostics of the file edited to see if there is any problem
