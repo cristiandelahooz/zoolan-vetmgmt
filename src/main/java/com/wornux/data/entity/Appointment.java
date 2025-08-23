@@ -96,7 +96,7 @@ public class Appointment {
   private String updatedBy;
 
   public String getAppointmentTitle() {
-    return getClientDisplayName() + " - " + serviceType.getDisplayName();
+    return getClientDisplayName() + " - " + serviceType.getDisplay();
   }
 
   public boolean isCompleted() {
@@ -112,7 +112,7 @@ public class Appointment {
   }
 
   public boolean requiresVeterinarian() {
-    return serviceType.isClinical();
+    return serviceType.getDescription().equals("MEDICAL");
   }
 
   public String getClientDisplayName() {
