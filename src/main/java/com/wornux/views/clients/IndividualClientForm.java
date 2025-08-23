@@ -40,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IndividualClientForm extends Dialog {
 
-  // Personal Information
   private final TextField firstName = new TextField("Nombre");
   private final TextField lastName = new TextField("Apellido");
   private final EmailField email = new EmailField("Correo Electrónico");
@@ -48,24 +47,20 @@ public class IndividualClientForm extends Dialog {
   private final DatePicker birthDate = new DatePicker("Fecha de Nacimiento");
   private final TextField nationality = new TextField("Nacionalidad");
 
-  // Identification (Individual)
   private final TextField cedula = new TextField("Cédula");
   private final TextField passport = new TextField("Pasaporte");
 
-  // Contact Information
   private final ComboBox<PreferredContactMethod> preferredContactMethod =
       new ComboBox<>("Método de Contacto Preferido");
   private final TextField emergencyContactName = new TextField("Nombre del Contacto de Emergencia");
   private final TextField emergencyContactNumber = new TextField("Teléfono de Emergencia");
 
-  // Address Information
   private final TextField province = new TextField("Provincia");
   private final TextField municipality = new TextField("Municipio");
   private final TextField sector = new TextField("Sector");
   private final TextField streetAddress = new TextField("Dirección");
   private final TextArea referencePoints = new TextArea("Puntos de Referencia");
 
-  // Additional Information
   private final ComboBox<ClientRating> rating = new ComboBox<>("Calificación");
   private final ComboBox<ReferenceSource> referenceSource = new ComboBox<>("Fuente de Referencia");
   private final TextArea notes = new TextArea("Notas");
@@ -82,7 +77,6 @@ public class IndividualClientForm extends Dialog {
   private final List<Runnable> clientCancelledListeners = new ArrayList<>();
   @Setter private Runnable onSaveCallback;
 
-  // Track current mode
   private boolean isEditMode = false;
   private Client currentClient = null;
 
@@ -144,17 +138,13 @@ public class IndividualClientForm extends Dialog {
     referenceSource.setItems(ReferenceSource.values());
     referenceSource.setItemLabelGenerator(ReferenceSource::name);
 
-    // Configure text areas
     referencePoints.setMaxLength(500);
     notes.setMaxLength(1000);
 
-    // Set default values
     nationality.setValue("Dominicana");
 
-    // Configure fields for real-time validation
     configureFieldsForRealTimeValidation();
 
-    // Add icons to fields
     addIconsToFields();
 
     VerticalLayout content = new VerticalLayout();
@@ -181,7 +171,6 @@ public class IndividualClientForm extends Dialog {
   }
 
   private void configureFieldsForRealTimeValidation() {
-    // Configure ValueChangeMode for immediate validation feedback
     firstName.setValueChangeMode(ValueChangeMode.EAGER);
     lastName.setValueChangeMode(ValueChangeMode.EAGER);
     email.setValueChangeMode(ValueChangeMode.EAGER);
@@ -198,7 +187,6 @@ public class IndividualClientForm extends Dialog {
     referencePoints.setValueChangeMode(ValueChangeMode.EAGER);
     notes.setValueChangeMode(ValueChangeMode.EAGER);
 
-    // Set required indicators
     firstName.setRequiredIndicatorVisible(true);
     lastName.setRequiredIndicatorVisible(true);
     email.setRequiredIndicatorVisible(true);
@@ -209,13 +197,11 @@ public class IndividualClientForm extends Dialog {
     sector.setRequiredIndicatorVisible(true);
     streetAddress.setRequiredIndicatorVisible(true);
 
-    // Configure field placeholders and helper text
     cedula.setPlaceholder("Ej: 40212345678");
     cedula.setHelperText("11 dígitos");
     passport.setPlaceholder("Ej: A12345678");
     passport.setHelperText("Formato internacional");
 
-    // Enable error message display
     email.setErrorMessage("Proporcione un correo electrónico válido");
     province.setErrorMessage("La provincia es requerida");
     municipality.setErrorMessage("El municipio es requerido");
@@ -251,7 +237,6 @@ public class IndividualClientForm extends Dialog {
   }
 
   private void setupCreateBinder() {
-    // Personal information validation
     binder
         .forField(firstName)
         .asRequired("El nombre es requerido")
@@ -287,7 +272,6 @@ public class IndividualClientForm extends Dialog {
         .withValidator(new StringLengthValidator("La nacionalidad no puede estar vacía", 1, null))
         .bind(ValidationBean::getNationality, ValidationBean::setNationality);
 
-    // Modified identification validation - conditional requirement
     binder
         .forField(cedula)
         .withValidator(this::validateCedulaConditional)
@@ -298,13 +282,11 @@ public class IndividualClientForm extends Dialog {
         .withValidator(this::validatePassportConditional)
         .bind(ValidationBean::getPassport, ValidationBean::setPassport);
 
-    // Emergency contact validation (optional)
     binder
         .forField(emergencyContactNumber)
         .withValidator(this::validateEmergencyPhone)
         .bind(ValidationBean::getEmergencyContactNumber, ValidationBean::setEmergencyContactNumber);
 
-    // Address validations
     binder
         .forField(province)
         .asRequired("La provincia es requerida")
@@ -329,7 +311,6 @@ public class IndividualClientForm extends Dialog {
         .withValidator(new StringLengthValidator("La dirección no puede estar vacía", 1, null))
         .bind(ValidationBean::getStreetAddress, ValidationBean::setStreetAddress);
 
-    // Optional fields
     binder.forField(birthDate).bind(ValidationBean::getBirthDate, ValidationBean::setBirthDate);
 
     binder
@@ -361,7 +342,6 @@ public class IndividualClientForm extends Dialog {
   }
 
   private void setupUpdateBinder() {
-    // Similar setup for update binder with same validation rules
     binderUpdate
         .forField(firstName)
         .asRequired("El nombre es requerido")
@@ -396,7 +376,6 @@ public class IndividualClientForm extends Dialog {
         .withValidator(new StringLengthValidator("La nacionalidad no puede estar vacía", 1, null))
         .bind(ClientUpdateRequestDto::getNationality, ClientUpdateRequestDto::setNationality);
 
-    // Modified identification validation for update - conditional requirement
     binderUpdate
         .forField(cedula)
         .withValidator(this::validateCedulaConditional)
@@ -438,7 +417,6 @@ public class IndividualClientForm extends Dialog {
         .withValidator(new StringLengthValidator("La dirección no puede estar vacía", 1, null))
         .bind(ClientUpdateRequestDto::getStreetAddress, ClientUpdateRequestDto::setStreetAddress);
 
-    // Optional fields
     binderUpdate
         .forField(birthDate)
         .bind(ClientUpdateRequestDto::getBirthDate, ClientUpdateRequestDto::setBirthDate);
@@ -479,17 +457,14 @@ public class IndividualClientForm extends Dialog {
         .bind(ClientUpdateRequestDto::getNotes, ClientUpdateRequestDto::setNotes);
   }
 
-  // New conditional validation methods
   private ValidationResult validateCedulaConditional(String value, ValueContext context) {
     String cedulaValue = value != null ? value.trim() : "";
     String passportValue = passport.getValue() != null ? passport.getValue().trim() : "";
 
-    // If both are empty, at least one is required
     if (cedulaValue.isEmpty() && passportValue.isEmpty()) {
       return ValidationResult.error("Debe proporcionar cédula o pasaporte");
     }
 
-    // If cedula has value, validate format
     if (!cedulaValue.isEmpty()) {
       if (!cedulaValue.matches(CEDULA_PATTERN)) {
         return ValidationResult.error("La cédula debe contener exactamente 11 dígitos");
@@ -503,12 +478,10 @@ public class IndividualClientForm extends Dialog {
     String passportValue = value != null ? value.trim() : "";
     String cedulaValue = cedula.getValue() != null ? cedula.getValue().trim() : "";
 
-    // If both are empty, at least one is required
     if (passportValue.isEmpty() && cedulaValue.isEmpty()) {
       return ValidationResult.error("Debe proporcionar cédula o pasaporte");
     }
 
-    // If passport has value, validate format
     if (!passportValue.isEmpty()) {
       if (!passportValue.matches(PASSPORT_PATTERN)) {
         return ValidationResult.error("Formato de pasaporte inválido");
@@ -526,7 +499,6 @@ public class IndividualClientForm extends Dialog {
           close();
         });
 
-    // Modified validation for identification documents
     cedula.addValueChangeListener(
         e -> {
           // Re-validate both fields when cedula changes
@@ -560,7 +532,6 @@ public class IndividualClientForm extends Dialog {
   }
 
   private void setupDynamicFieldValidation() {
-    // Add listeners to handle mutual exclusion
     cedula.addValueChangeListener(
         e -> {
           String cedulaValue = e.getValue();
@@ -618,8 +589,8 @@ public class IndividualClientForm extends Dialog {
             nationality.getValue(),
             convertEmptyToNull(cedula.getValue()),
             convertEmptyToNull(passport.getValue()),
-            null, // rnc is null for individuals
-            null, // companyName is null for individuals
+            null,
+            null,
             preferredContactMethod.getValue(),
             convertEmptyToNull(emergencyContactName.getValue()),
             convertEmptyToNull(emergencyContactNumber.getValue()),
@@ -663,8 +634,8 @@ public class IndividualClientForm extends Dialog {
             nationality.getValue(),
             convertEmptyToNull(cedula.getValue()),
             convertEmptyToNull(passport.getValue()),
-            null, // rnc
-            null, // companyName
+            null,
+            null,
             preferredContactMethod.getValue(),
             convertEmptyToNull(emergencyContactName.getValue()),
             convertEmptyToNull(emergencyContactNumber.getValue()),
@@ -693,14 +664,12 @@ public class IndividualClientForm extends Dialog {
     currentClient = null;
     setHeaderTitle("Nuevo Cliente Individual");
 
-    // Reset validation bean
     validationBean = new ValidationBean();
     validationBean.setRating(ClientRating.BUENO);
     validationBean.setNationality("Dominicana");
 
     binder.readBean(validationBean);
 
-    // Reset UI values and enable all identification fields
     rating.setValue(ClientRating.BUENO);
     nationality.setValue("Dominicana");
     cedula.setEnabled(true);
@@ -727,14 +696,14 @@ public class IndividualClientForm extends Dialog {
             client.getNationality(),
             client.getCedula(),
             client.getPassport(),
-            null, // rnc
-            null, // companyName
+            null,
+            null,
             client.getPreferredContactMethod(),
             client.getEmergencyContactName(),
             client.getEmergencyContactNumber(),
             client.getRating(),
-            null, // creditLimit
-            null, // paymentTermsDays
+            null,
+            null,
             client.getNotes(),
             client.getReferenceSource(),
             client.getProvince(),
