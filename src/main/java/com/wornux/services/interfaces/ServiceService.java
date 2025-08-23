@@ -1,7 +1,7 @@
 package com.wornux.services.interfaces;
 
 import com.wornux.data.entity.Service;
-import com.wornux.data.enums.ServiceCategory;
+import com.wornux.data.enums.ServiceType;
 import com.wornux.data.repository.ServiceRepository;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
@@ -21,7 +21,7 @@ public interface ServiceService {
 
   Page<Service> findAll(Pageable pageable);
 
-  List<Service> findByCategory(ServiceCategory category);
+  List<Service> findByServiceType(ServiceType serviceType);
 
   List<Service> findActiveServices();
 
@@ -43,7 +43,7 @@ public interface ServiceService {
 
   List<Service> getAllActiveServices();
 
-  List<Service> getServicesByCategory(ServiceCategory serviceCategory);
+  List<Service> getServicesByType(ServiceType serviceType);
 
   Service getServiceById(Long id);
 
