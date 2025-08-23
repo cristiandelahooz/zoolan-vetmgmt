@@ -44,9 +44,6 @@ public class SelectOwnerDialog extends Dialog {
     TextField cedulaFilter = new TextField();
     cedulaFilter.setPlaceholder("Filtrar por cédula");
 
-    // TextField phoneFilter = new TextField();
-    // phoneFilter.setPlaceholder("Filtrar por teléfono");
-
     HorizontalLayout filterBar =
         new HorizontalLayout(firstNameFilter, lastNameFilter, cedulaFilter);
 
@@ -85,11 +82,6 @@ public class SelectOwnerDialog extends Dialog {
         e ->
             dataProvider.setFilter(
                 Client::getCedula, ced -> ced != null && ced.contains(cedulaFilter.getValue())));
-
-    /*phoneFilter.addValueChangeListener(e ->
-        dataProvider.setFilter(Client::getPhoneNumber,
-                phone -> phone != null && phone.contains(phoneFilter.getValue()))
-    );*/
 
     grid.addColumn(Client::getFirstName).setHeader("Nombre");
     grid.addColumn(Client::getLastName).setHeader("Apellido");
