@@ -7,7 +7,6 @@ import lombok.Getter;
 public enum OfferingType {
   CONSULTATION("Consulta", "Consulta médica veterinaria"),
   VACCINATION("Vacunación", "Aplicación de vacunas"),
-  SURGERY("Cirugía", "Procedimientos quirúrgicos"),
   EMERGENCY("Emergencia", "Atención de emergencia"),
   GROOMING("Estética", "Servicios de estética y cuidado personal"),
   MEDICAL("Médico", "Servicios médicos veterinarios generales");
