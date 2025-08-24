@@ -1,4 +1,4 @@
-.PHONY: help run build package clean restart fully-restart test format db-up db-down db-clean db-shell db-logs
+.PHONY: help run build package clean restart fully-restart test format db-up db-down db-clean db-shell db-logs db-migrate db-info db-validate db-clean-migrate
 
 # ANSI Color Codes
 GREEN := \033[0;32m
@@ -14,6 +14,10 @@ else
 endif
 DOCKER_COMPOSE_FILE := compose.yml
 PROJECT_NAME := wornux-vet
+
+export FLYWAY_URL := jdbc:postgresql://localhost:5432/petcare_db
+export FLYWAY_USER := admin
+export FLYWAY_PASSWORD := admin
 
 help:
 	@echo ""
@@ -36,6 +40,12 @@ help:
 	@echo "  ${BLUE}make db-clean${NC}   : Cleans PostgreSQL container volumes."
 	@echo "  ${BLUE}make db-shell${NC}   : Connects to the PostgreSQL container's shell."
 	@echo "  ${BLUE}make db-logs${NC}    : Views the PostgreSQL container logs."
+	@echo ""
+	@echo "${YELLOW}Flyway Migration Commands:${NC}"
+	@echo "  ${BLUE}make db-migrate${NC} : Applies all pending Flyway migrations."
+	@echo "  ${BLUE}make db-info${NC}    : Shows the status of all migrations."
+	@echo "  ${BLUE}make db-validate${NC} : Validates applied migrations against available ones."
+	@echo "  ${BLUE}make db-clean-migrate${NC} : Cleans database and applies all migrations (DESTRUCTIVE)."
 	@echo ""
 
 run: db-up
@@ -102,3 +112,25 @@ db-shell:
 db-logs:
 	@echo "${BLUE}Viewing PostgreSQL container logs...${NC}"
 	docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f db
+
+db-migrate: db-up
+	@echo "${BLUE}Applying Flyway migrations...${NC}"
+	@sleep 3
+	$(MAVEN_CMD) flyway:migrate
+
+db-info: db-up
+	@echo "${BLUE}Checking migration status...${NC}"
+	@sleep 3
+	$(MAVEN_CMD) flyway:info
+
+db-validate: db-up
+	@echo "${BLUE}Validating migrations...${NC}"
+	@sleep 3
+	$(MAVEN_CMD) flyway:validate
+
+db-clean-migrate: db-clean db-up
+	@echo "${YELLOW}WARNING: This will clean the database and apply all migrations!${NC}"
+	@echo "${BLUE}Waiting for database to be ready...${NC}"
+	@sleep 5
+	$(MAVEN_CMD) flyway:clean flyway:migrate
+	@echo "${GREEN}Database cleaned and migrations applied successfully!${NC}"
