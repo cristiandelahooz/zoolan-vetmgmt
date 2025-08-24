@@ -16,3 +16,13 @@ vite.generated.ts
 .env
 /.qodo/
 src/main/bundles/
+
+# Playwright
+.playwright-mcp/
+
+# Java error logs
+hs_err_pid*.log
+
+# Generated directories
+output/
+storage/
