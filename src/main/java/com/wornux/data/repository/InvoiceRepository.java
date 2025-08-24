@@ -22,6 +22,17 @@ public interface InvoiceRepository
   Optional<Invoice> findByGrooming_Id(Long groomingId);
 
   @Query("""
+      select distinct i
+      from Invoice i
+      left join fetch i.services s
+      left join fetch s.service
+      left join fetch i.products p
+      left join fetch p.product
+      where i.consultation.id = :consultationId
+      """)
+  Optional<Invoice> findByConsultationIdWithDetails(@Param("consultationId") Long consultationId);
+
+  @Query("""
            select i from Invoice i
            left join fetch i.services
            left join fetch i.products
