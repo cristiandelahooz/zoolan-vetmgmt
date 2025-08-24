@@ -3,9 +3,14 @@ package com.wornux.views.calendar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -29,7 +34,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Slf4j
@@ -43,6 +51,8 @@ public class AppointmentCalendarView extends VerticalLayout {
   private final AppointmentService appointmentService;
   private final PetService petService;
   private final AppointmentDialog appointmentDialog;
+  private final Span currentViewLabel;
+  private final ComboBox<CalendarViewImpl> viewSelector;
 
   @Autowired
   public AppointmentCalendarView(
@@ -56,10 +66,17 @@ public class AppointmentCalendarView extends VerticalLayout {
     appointmentDialog =
         new AppointmentDialog(appointmentService, petService, (v) -> loadAppointments());
 
-    setSizeFull();
-    setPadding(true);
-    setSpacing(true);
+    // Initialize UI components
+    currentViewLabel = new Span();
+    viewSelector = createViewSelector();
 
+    // Layout configuration with professional styling
+    setSizeFull();
+    setPadding(false);
+    setSpacing(false);
+    addClassNames(LumoUtility.Background.CONTRAST_5, LumoUtility.Height.FULL);
+
+    // Initialize calendar with professional settings
     calendar =
         FullCalendarBuilder.create()
             .withCustomType(FullCalendarWithTooltip.class)
@@ -69,95 +86,266 @@ public class AppointmentCalendarView extends VerticalLayout {
             .withEntryLimit(3)
             .build();
 
+    configureCalendar();
+    setupCalendarEventListeners();
+
+    // Create calendar container with proper styling
+    Div calendarContainer = createCalendarContainer();
+
+    // Create header and toolbar
+    VerticalLayout header = createHeader();
+
+    // Layout composition
+    add(header, calendarContainer);
+    setFlexGrow(1, calendarContainer);
+
+    loadAppointments();
+  }
+
+  private void configureCalendar() {
     calendar.addThemeVariants(FullCalendarVariant.LUMO);
     calendar.setFirstDay(DayOfWeek.MONDAY);
     calendar.setNowIndicatorShown(true);
     calendar.setNumberClickable(true);
     calendar.setTimeslotsSelectable(true);
-
     calendar.setSlotMinTime(LocalTime.of(8, 0));
     calendar.setSlotMaxTime(LocalTime.of(20, 0));
     calendar.setBusinessHours(
         new BusinessHours(
             LocalTime.of(8, 0), LocalTime.of(20, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
         new BusinessHours(LocalTime.of(9, 0), LocalTime.of(14, 0), DayOfWeek.SATURDAY));
+  }
 
+  private void setupCalendarEventListeners() {
     calendar.addEntryClickedListener(this::onEntryClick);
     calendar.addTimeslotsSelectedListener(this::onTimeslotsSelected);
     calendar.addEntryResizedListener(this::onEntryResized);
     calendar.addEntryDroppedListener(this::onEntryDropped);
-
-    setFlexGrow(1, calendar);
-    setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
-
-    HorizontalLayout toolbar = createToolbar();
-
-    loadAppointments();
-    add(toolbar, calendar);
+    calendar.addDatesRenderedListener(this::onDatesRendered);
   }
 
-  private HorizontalLayout createToolbar() {
-    // Navigation buttons
-    Button prevBtn = new Button(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
+  private VerticalLayout createHeader() {
+    VerticalLayout header = new VerticalLayout();
+    header.setPadding(false);
+    header.setSpacing(false);
+    header.addClassNames(
+        LumoUtility.Background.BASE, LumoUtility.BoxShadow.SMALL, LumoUtility.Padding.LARGE);
+
+    // Title section
+    H2 title = new H2("Calendario de Citas");
+    title.addClassNames(
+        LumoUtility.FontSize.XLARGE,
+        LumoUtility.FontWeight.SEMIBOLD,
+        LumoUtility.TextColor.PRIMARY,
+        LumoUtility.Margin.NONE);
+
+    // Main toolbar
+    HorizontalLayout toolbar = createMainToolbar();
+
+    // View info section
+    HorizontalLayout viewInfo = createViewInfoSection();
+
+    header.add(title, toolbar, viewInfo);
+    return header;
+  }
+
+  private HorizontalLayout createMainToolbar() {
+    // Navigation buttons with professional styling
+    Button prevBtn = new Button(VaadinIcon.ANGLE_LEFT.create());
+    prevBtn.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_CONTRAST);
     prevBtn.setTooltipText("Anterior");
+    prevBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
+    prevBtn.addClickListener(e -> calendar.previous());
 
-    Button nextBtn = new Button(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+    Button nextBtn = new Button(VaadinIcon.ANGLE_RIGHT.create());
+    nextBtn.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_CONTRAST);
     nextBtn.setTooltipText("Siguiente");
+    nextBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
+    nextBtn.addClickListener(e -> calendar.next());
 
-    Button todayBtn = new Button("Hoy", e -> calendar.today());
+    Button todayBtn = new Button("Hoy");
     todayBtn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+    todayBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
+    todayBtn.addClickListener(e -> calendar.today());
 
-    // View selector
-    ComboBox<CalendarViewImpl> viewSelector = new ComboBox<>();
-    viewSelector.setItems(
+    // Action buttons group - responsive design
+    Button newAppointmentBtn = new Button("Nueva Cita", createStyledIcon(VaadinIcon.PLUS));
+    newAppointmentBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    newAppointmentBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
+
+    // Mobile-friendly button with icon only
+    Button mobileNewBtn = new Button(createStyledIcon(VaadinIcon.PLUS));
+    mobileNewBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ICON);
+    mobileNewBtn.setTooltipText("Nueva Cita");
+    mobileNewBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
+    mobileNewBtn.getStyle().set("display", "none");
+    mobileNewBtn.addClickListener(e -> openNewAppointmentDialog());
+
+    Button refreshBtn = new Button(createStyledIcon(VaadinIcon.REFRESH));
+    refreshBtn.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_CONTRAST);
+    refreshBtn.setTooltipText("Actualizar");
+    refreshBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
+    refreshBtn.addClickListener(e -> loadAppointments());
+
+    // Navigation group - responsive
+    HorizontalLayout navGroup = new HorizontalLayout(prevBtn, todayBtn, nextBtn);
+    navGroup.addClassNames(
+        LumoUtility.Gap.SMALL, LumoUtility.AlignItems.CENTER, LumoUtility.FlexWrap.NOWRAP);
+
+    // Action group - responsive
+    HorizontalLayout actionGroup =
+        new HorizontalLayout(newAppointmentBtn, mobileNewBtn, refreshBtn);
+    actionGroup.addClassNames(
+        LumoUtility.Gap.SMALL, LumoUtility.AlignItems.CENTER, LumoUtility.FlexWrap.NOWRAP);
+    newAppointmentBtn.addClickListener(e -> openNewAppointmentDialog());
+
+    // Main toolbar layout with responsive behavior
+    HorizontalLayout toolbar = new HorizontalLayout();
+    toolbar.setWidthFull();
+    toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+    toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
+    toolbar.addClassNames(
+        LumoUtility.Gap.MEDIUM,
+        LumoUtility.Padding.Vertical.MEDIUM);
+
+    toolbar.add(navGroup, actionGroup);
+    return toolbar;
+  }
+
+  private HorizontalLayout createViewInfoSection() {
+    // Current period label with professional styling and responsive behavior
+    currentViewLabel.addClassNames(
+        LumoUtility.FontSize.LARGE,
+        LumoUtility.FontWeight.MEDIUM,
+        LumoUtility.TextColor.SECONDARY,
+        LumoUtility.Overflow.HIDDEN
+    );
+    currentViewLabel.getStyle().set("flex-grow", "1");
+
+    // View selector styling with responsive width
+    viewSelector.addClassNames(LumoUtility.BorderRadius.MEDIUM);
+    viewSelector.setWidth("180px");
+    viewSelector.getStyle().set("min-width", "150px");
+    viewSelector.getStyle().set("flex-shrink", "0");
+
+    HorizontalLayout viewInfo = new HorizontalLayout(currentViewLabel, viewSelector);
+    viewInfo.setWidthFull();
+    viewInfo.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+    viewInfo.setAlignItems(FlexComponent.Alignment.CENTER);
+    viewInfo.addClassNames(
+        LumoUtility.Gap.MEDIUM,
+        LumoUtility.Padding.Vertical.SMALL,
+        LumoUtility.Padding.Top.MEDIUM
+    );
+    viewInfo.getStyle().set("border-top", "1px solid var(--lumo-contrast-10pct)");
+
+    return viewInfo;
+  }
+
+  private Div createCalendarContainer() {
+    Div container = new Div(calendar);
+    container.setSizeFull();
+    container.addClassNames(
+        LumoUtility.Background.BASE,
+        LumoUtility.BorderRadius.MEDIUM,
+        LumoUtility.BoxShadow.SMALL,
+        LumoUtility.Margin.Horizontal.LARGE,
+        LumoUtility.Margin.Vertical.MEDIUM,
+        LumoUtility.Padding.MEDIUM,
+        LumoUtility.Overflow.HIDDEN
+    );
+
+    // Set flex properties for responsive behavior
+    calendar.getStyle().set("flex-grow", "1");
+    calendar.getStyle().set("min-height", "0");
+    calendar.getStyle().set("width", "100%");
+
+    return container;
+  }
+
+  private ComboBox<CalendarViewImpl> createViewSelector() {
+    ComboBox<CalendarViewImpl> selector = new ComboBox<>();
+    selector.setItems(
         CalendarViewImpl.DAY_GRID_MONTH,
         CalendarViewImpl.TIME_GRID_WEEK,
         CalendarViewImpl.TIME_GRID_DAY,
         CalendarViewImpl.LIST_WEEK);
-    viewSelector.setValue(CalendarViewImpl.DAY_GRID_MONTH);
-    viewSelector.setItemLabelGenerator(this::getViewDisplayName);
-    viewSelector.addValueChangeListener(
+    selector.setItemLabelGenerator(this::getViewDisplayName);
+    selector.setValue(CalendarViewImpl.DAY_GRID_MONTH);
+    selector.addValueChangeListener(
         e -> {
-          if (e.getValue() != null) {
-            calendar.changeView(e.getValue());
+          CalendarViewImpl value = e.getValue();
+          if (value != null) {
+            calendar.changeView(value);
           }
         });
-    viewSelector.setWidth("150px");
+    return selector;
+  }
 
-    // Action buttons
-    Button newAppointmentBtn =
-        new Button("Nueva Cita", VaadinIcon.PLUS.create(), e -> openNewAppointmentDialog());
-    newAppointmentBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+  private Icon createStyledIcon(VaadinIcon vaadinIcon) {
+    Icon icon = vaadinIcon.create();
+    icon.addClassNames(LumoUtility.IconSize.SMALL);
+    return icon;
+  }
 
-    Button refreshBtn = new Button(VaadinIcon.REFRESH.create(), e -> loadAppointments());
-    refreshBtn.setTooltipText("Actualizar");
+  private void onDatesRendered(DatesRenderedEvent event) {
+    LocalDate intervalStart = event.getIntervalStart();
+    CalendarViewImpl currentView = viewSelector.getValue();
 
-    // Layout
-    HorizontalLayout navGroup = new HorizontalLayout(prevBtn, nextBtn, todayBtn);
-    navGroup.setSpacing(false);
-    navGroup.addClassName(LumoUtility.Gap.XSMALL);
-
-    HorizontalLayout actionGroup = new HorizontalLayout(newAppointmentBtn, refreshBtn);
-    actionGroup.addClassName(LumoUtility.Gap.SMALL);
-
-    HorizontalLayout toolbar = new HorizontalLayout();
-    toolbar.setWidthFull();
-    toolbar.setJustifyContentMode(JustifyContentMode.BETWEEN);
-    toolbar.add(navGroup, viewSelector, actionGroup);
-    toolbar.setAlignItems(Alignment.CENTER);
-    toolbar.addClassName(LumoUtility.Gap.MEDIUM);
-    toolbar.addClassName(LumoUtility.Padding.MEDIUM);
-
-    return toolbar;
+    if (currentView != null && intervalStart != null) {
+      String formattedInterval = formatIntervalForView(intervalStart, currentView);
+      currentViewLabel.setText(formattedInterval);
+    }
   }
 
   private String getViewDisplayName(CalendarViewImpl view) {
     return switch (view) {
-      case DAY_GRID_MONTH -> "Mes";
-      case TIME_GRID_WEEK -> "Semana";
-      case TIME_GRID_DAY -> "Día";
+      case DAY_GRID_MONTH -> "Vista Mensual";
+      case TIME_GRID_WEEK -> "Vista Semanal";
+      case TIME_GRID_DAY -> "Vista Diaria";
       case LIST_WEEK -> "Lista Semanal";
       default -> view.getClientSideValue();
+    };
+  }
+
+  private String formatIntervalForView(LocalDate intervalStart, CalendarViewImpl view) {
+    Locale locale = new Locale("es", "ES");
+    DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale);
+    DateTimeFormatter dayFormatter =
+        DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", locale);
+
+    return switch (view) {
+      case DAY_GRID_MONTH -> intervalStart.format(monthFormatter).toUpperCase();
+      case TIME_GRID_WEEK -> {
+        LocalDate weekEnd = intervalStart.plusDays(6);
+        if (intervalStart.getMonth() == weekEnd.getMonth()) {
+          yield String.format(
+              "%d - %d de %s %d",
+              intervalStart.getDayOfMonth(),
+              weekEnd.getDayOfMonth(),
+              intervalStart.getMonth().getDisplayName(TextStyle.FULL, locale),
+              intervalStart.getYear());
+        } else {
+          yield String.format(
+              "%d de %s - %d de %s %d",
+              intervalStart.getDayOfMonth(),
+              intervalStart.getMonth().getDisplayName(TextStyle.SHORT, locale),
+              weekEnd.getDayOfMonth(),
+              weekEnd.getMonth().getDisplayName(TextStyle.SHORT, locale),
+              weekEnd.getYear());
+        }
+      }
+      case TIME_GRID_DAY -> intervalStart.format(dayFormatter);
+      case LIST_WEEK -> {
+        LocalDate weekEnd = intervalStart.plusDays(6);
+        yield String.format(
+            "Semana del %d al %d de %s %d",
+            intervalStart.getDayOfMonth(),
+            weekEnd.getDayOfMonth(),
+            intervalStart.getMonth().getDisplayName(TextStyle.FULL, locale),
+            intervalStart.getYear());
+      }
+      default -> intervalStart.toString();
     };
   }
 
@@ -226,12 +414,21 @@ public class AppointmentCalendarView extends VerticalLayout {
 
       appointmentService.updateAppointment(appointmentId, updateDto);
 
-      Notification.show("Cita actualizada", 3000, Notification.Position.BOTTOM_END)
-          .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+      // Professional styled notification
+      Notification notification = Notification.show("✅ Cita actualizada correctamente");
+      notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+      notification.setPosition(Notification.Position.TOP_END);
+      notification.setDuration(3000);
     } catch (Exception e) {
       log.error("Error updating appointment", e);
-      Notification.show("Error al actualizar la cita", 3000, Notification.Position.MIDDLE)
-          .addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+      // Professional styled error notification
+      Notification notification =
+          Notification.show("❌ Error al actualizar la cita. Inténtelo de nuevo.");
+      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+      notification.setPosition(Notification.Position.TOP_CENTER);
+      notification.setDuration(5000);
+
       loadAppointments(); // Reload to revert visual changes
     }
   }
@@ -239,17 +436,40 @@ public class AppointmentCalendarView extends VerticalLayout {
   private JsonObject createDefaultInitialOptions() {
     JsonObject initialOptions = Json.createObject();
 
-    JsonObject headerToolbar = Json.createObject();
-    headerToolbar.put("left", "prev,next today");
-    headerToolbar.put("center", "title");
-    headerToolbar.put("right", "dayGridMonth,timeGridWeek,timeGridDay,listWeek");
+    // Hide default header as we create custom toolbar
+    initialOptions.put("headerToolbar", false);
 
-    initialOptions.put("headerToolbar", headerToolbar);
+    // Professional calendar settings
+    initialOptions.put("height", "100%");
     initialOptions.put("weekNumbers", true);
     initialOptions.put("weekNumberCalculation", "ISO");
+    initialOptions.put("navLinks", true);
+    initialOptions.put("dayMaxEvents", 3);
+    initialOptions.put("moreLinkClick", "popover");
+    initialOptions.put("eventDisplay", "block");
+
+    // Time formatting
     initialOptions.put(
         "eventTimeFormat",
         Json.parse("{\"hour\": \"2-digit\", \"minute\": \"2-digit\", \"meridiem\": false}"));
+
+    initialOptions.put(
+        "slotLabelFormat",
+        Json.parse("{\"hour\": \"2-digit\", \"minute\": \"2-digit\", \"meridiem\": false}"));
+
+    // Spanish localization with better formatting
+    initialOptions.put("locale", "es");
+    initialOptions.put("firstDay", 1); // Monday
+
+    // Enhanced interaction
+    initialOptions.put("selectable", true);
+    initialOptions.put("selectMirror", true);
+    initialOptions.put("editable", true);
+    initialOptions.put("eventResizableFromStart", true);
+
+    // Better mobile experience
+    initialOptions.put("handleWindowResize", true);
+    initialOptions.put("windowResizeDelay", 100);
 
     return initialOptions;
   }
