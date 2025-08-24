@@ -113,7 +113,7 @@ public class MainLayout extends AppLayout {
 
   private MenuBar createUserMenu() {
     MenuBar menuBar = new MenuBar();
-    menuBar.addClassNames(LumoUtility.Margin.Start.AUTO, LumoUtility.Background.TRANSPARENT);
+    menuBar.addClassNames(LumoUtility.Margin.Start.AUTO);
 
     Avatar avatar = new Avatar();
     avatar.addClassNames(LumoUtility.Width.MEDIUM, LumoUtility.Height.MEDIUM);
@@ -146,6 +146,7 @@ public class MainLayout extends AppLayout {
     userInfo.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
     MenuItem userMenuItem = menuBar.addItem(userInfo);
+    userMenuItem.addClassName(LumoUtility.Background.TRANSPARENT);
     SubMenu userSubMenu = userMenuItem.getSubMenu();
 
     userSubMenu.addSeparator();
