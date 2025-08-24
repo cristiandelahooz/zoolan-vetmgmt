@@ -7,7 +7,6 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 
-
 @NpmPackage(value = "tippy.js", version = "6.2.3")
 @Tag("full-calendar-with-tooltip")
 @JsModule("./full-calendar-with-tooltip.ts")

@@ -1,42 +1,37 @@
 package com.wornux.services.validation;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.wornux.services.implementations.ValidationErrorHandlerImpl;
 import com.wornux.services.interfaces.ValidationErrorHandler;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 /**
- * Unit tests for ValidationErrorHandler implementation.
- * Tests the centralized validation error handling functionality.
- * 
+ * Unit tests for ValidationErrorHandler implementation. Tests the centralized validation error
+ * handling functionality.
+ *
  * @author Veterinary Management System
  * @since 1.0.0
  */
 @ExtendWith(MockitoExtension.class)
 class ValidationErrorHandlerTest {
 
-  @Mock
-  private ValidationMessageFormatter messageFormatter;
-  
-  @Mock
-  private ValidationErrorNotificationService notificationService;
-  
-  @Mock
-  private ConstraintViolation<?> violation1;
-  
-  @Mock
-  private ConstraintViolation<?> violation2;
-  
+  @Mock private ValidationMessageFormatter messageFormatter;
+
+  @Mock private ValidationErrorNotificationService notificationService;
+
+  @Mock private ConstraintViolation<?> violation1;
+
+  @Mock private ConstraintViolation<?> violation2;
+
   private ValidationErrorHandler validationErrorHandler;
 
   @BeforeEach
@@ -74,13 +69,13 @@ class ValidationErrorHandlerTest {
     // Given
     String originalMessage = "campo requerido";
     String formattedMessage = "Complete todos los campos obligatorios para continuar";
-    
+
     when(violation1.getMessage()).thenReturn(originalMessage);
     when(messageFormatter.formatMessage(originalMessage)).thenReturn(formattedMessage);
 
     Set<ConstraintViolation<?>> violations = Set.of(violation1);
     ConstraintViolationException exception = new ConstraintViolationException(violations);
-    
+
     ValidationErrorContext customContext = ValidationErrorContext.forCalendarOperations();
 
     // When
@@ -96,7 +91,7 @@ class ValidationErrorHandlerTest {
     // Given
     String originalMessage = "fecha de inicio debe ser en el futuro";
     String expectedFormatted = "La fecha de inicio debe programarse para un momento futuro";
-    
+
     when(messageFormatter.formatMessage(originalMessage)).thenReturn(expectedFormatted);
 
     // When
@@ -115,18 +110,20 @@ class ValidationErrorHandlerTest {
 
     // When/Then - should not throw exception
     assertDoesNotThrow(() -> validationErrorHandler.handleValidationErrors(exception));
-    
+
     // Should not interact with notification service for empty violations
     verifyNoInteractions(notificationService);
   }
 
-  @Test 
+  @Test
   void shouldCreateCalendarContextWithCorrectSettings() {
     // When
     ValidationErrorContext context = ValidationErrorContext.forCalendarOperations();
-    
+
     // Then
-    assertEquals(com.vaadin.flow.component.notification.Notification.Position.TOP_CENTER, context.getPosition());
+    assertEquals(
+        com.vaadin.flow.component.notification.Notification.Position.TOP_CENTER,
+        context.getPosition());
     assertEquals(8000, context.getDuration());
     assertTrue(context.isCombineErrors());
     assertTrue(context.getAdditionalCssClasses().contains("calendar"));
@@ -136,9 +133,11 @@ class ValidationErrorHandlerTest {
   void shouldCreateDialogContextWithCorrectSettings() {
     // When
     ValidationErrorContext context = ValidationErrorContext.forDialogForms();
-    
+
     // Then
-    assertEquals(com.vaadin.flow.component.notification.Notification.Position.TOP_END, context.getPosition());
+    assertEquals(
+        com.vaadin.flow.component.notification.Notification.Position.TOP_END,
+        context.getPosition());
     assertEquals(6000, context.getDuration());
     assertTrue(context.isStaggeredTiming());
     assertFalse(context.isCombineErrors());
@@ -150,9 +149,11 @@ class ValidationErrorHandlerTest {
   void shouldCreateGeneralFormContextWithCorrectSettings() {
     // When
     ValidationErrorContext context = ValidationErrorContext.forGeneralForms();
-    
+
     // Then
-    assertEquals(com.vaadin.flow.component.notification.Notification.Position.BOTTOM_END, context.getPosition());
+    assertEquals(
+        com.vaadin.flow.component.notification.Notification.Position.BOTTOM_END,
+        context.getPosition());
     assertEquals(5000, context.getDuration());
     assertTrue(context.isCombineErrors());
     assertTrue(context.getAdditionalCssClasses().contains("form"));

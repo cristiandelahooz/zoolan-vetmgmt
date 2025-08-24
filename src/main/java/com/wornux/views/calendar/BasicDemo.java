@@ -2,9 +2,8 @@ package com.wornux.views.calendar;
 
 import com.wornux.views.calendar.entryproviders.EntryService;
 import elemental.json.JsonObject;
-import org.vaadin.stefan.fullcalendar.*;
-
 import java.util.Collections;
+import org.vaadin.stefan.fullcalendar.*;
 
 public class BasicDemo extends AbstractCalendarView {
 

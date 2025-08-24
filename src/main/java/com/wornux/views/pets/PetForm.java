@@ -337,7 +337,8 @@ public class PetForm extends Dialog {
     if (preselectedClient != null) {
       this.selectedOwner = preselectedClient;
       this.ownerId = preselectedClient.getId();
-      this.ownerName.setValue(nvl(preselectedClient.getFirstName()) + " " + nvl(preselectedClient.getLastName()));
+      this.ownerName.setValue(
+          nvl(preselectedClient.getFirstName()) + " " + nvl(preselectedClient.getLastName()));
       this.ownerName.setInvalid(false);
     }
   }

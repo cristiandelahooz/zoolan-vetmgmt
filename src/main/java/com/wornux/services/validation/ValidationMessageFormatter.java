@@ -1,19 +1,17 @@
 package com.wornux.services.validation;
 
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
 /**
- * Formats validation messages to be user-friendly and professional.
- * Transforms technical validation messages into clear, actionable feedback in Spanish.
- * 
- * <p>This formatter uses pattern matching to identify common validation scenarios
- * and provides contextual, professional messaging that guides users toward
- * resolving validation issues.</p>
- * 
+ * Formats validation messages to be user-friendly and professional. Transforms technical validation
+ * messages into clear, actionable feedback in Spanish.
+ *
+ * <p>This formatter uses pattern matching to identify common validation scenarios and provides
+ * contextual, professional messaging that guides users toward resolving validation issues.
+ *
  * @author Veterinary Management System
  * @since 1.0.0
  */
@@ -28,7 +26,7 @@ public class ValidationMessageFormatter {
 
   /**
    * Formats a validation message to be user-friendly and professional.
-   * 
+   *
    * @param originalMessage the original validation message from constraints
    * @return formatted user-friendly message in Spanish
    */
@@ -50,113 +48,92 @@ public class ValidationMessageFormatter {
     return applyGeneralFormatting(message);
   }
 
-  /**
-   * Initializes the mapping between message patterns and their professional equivalents.
-   */
+  /** Initializes the mapping between message patterns and their professional equivalents. */
   private Map<Pattern, String> initializeMessagePatterns() {
     Map<Pattern, String> patterns = new HashMap<>();
 
     // Appointment-specific patterns
     patterns.put(
         Pattern.compile("fecha de inicio.*futuro", Pattern.CASE_INSENSITIVE),
-        "La fecha de inicio debe programarse para un momento futuro"
-    );
+        "La fecha de inicio debe programarse para un momento futuro");
 
     patterns.put(
         Pattern.compile("fecha de fin.*futuro|fecha de cierre.*futuro", Pattern.CASE_INSENSITIVE),
-        "La fecha de finalización debe programarse para un momento futuro"
-    );
+        "La fecha de finalización debe programarse para un momento futuro");
 
     patterns.put(
         Pattern.compile("fecha de inicio.*anterior.*fecha de fin", Pattern.CASE_INSENSITIVE),
-        "La fecha de inicio debe ser anterior a la fecha de finalización"
-    );
+        "La fecha de inicio debe ser anterior a la fecha de finalización");
 
     patterns.put(
         Pattern.compile("duración.*mínimo|duración.*corta", Pattern.CASE_INSENSITIVE),
-        "La duración de la cita debe ser de al menos 15 minutos"
-    );
+        "La duración de la cita debe ser de al menos 15 minutos");
 
     patterns.put(
         Pattern.compile("conflicto.*horario|solapamiento.*cita", Pattern.CASE_INSENSITIVE),
-        "Ya existe una cita programada en este horario. Seleccione un horario diferente"
-    );
+        "Ya existe una cita programada en este horario. Seleccione un horario diferente");
 
     // Client and Pet patterns
     patterns.put(
         Pattern.compile("información.*cliente.*registrado", Pattern.CASE_INSENSITIVE),
-        "Seleccione un cliente registrado o proporcione datos del cliente invitado"
-    );
+        "Seleccione un cliente registrado o proporcione datos del cliente invitado");
 
     patterns.put(
         Pattern.compile("mascota.*cliente.*registrado", Pattern.CASE_INSENSITIVE),
-        "Para seleccionar una mascota, debe asociarla con un cliente registrado"
-    );
+        "Para seleccionar una mascota, debe asociarla con un cliente registrado");
 
     patterns.put(
         Pattern.compile("mascota.*requerida|debe.*seleccionar.*mascota", Pattern.CASE_INSENSITIVE),
-        "Debe seleccionar una mascota para la cita"
-    );
+        "Debe seleccionar una mascota para la cita");
 
     // General field validation patterns
     patterns.put(
-        Pattern.compile("campo.*requerido|no puede estar vacío|obligatorio", Pattern.CASE_INSENSITIVE),
-        "Complete todos los campos obligatorios para continuar"
-    );
+        Pattern.compile(
+            "campo.*requerido|no puede estar vacío|obligatorio", Pattern.CASE_INSENSITIVE),
+        "Complete todos los campos obligatorios para continuar");
 
     patterns.put(
         Pattern.compile("formato.*correo|email.*inválido", Pattern.CASE_INSENSITIVE),
-        "Ingrese una dirección de correo electrónico válida"
-    );
+        "Ingrese una dirección de correo electrónico válida");
 
     patterns.put(
         Pattern.compile("formato.*teléfono|teléfono.*inválido", Pattern.CASE_INSENSITIVE),
-        "Ingrese un número de teléfono válido (formato: 809XXXXXXX)"
-    );
+        "Ingrese un número de teléfono válido (formato: 809XXXXXXX)");
 
     patterns.put(
         Pattern.compile("longitud.*mínima|muy corto", Pattern.CASE_INSENSITIVE),
-        "El texto ingresado es muy corto. Verifique la longitud mínima requerida"
-    );
+        "El texto ingresado es muy corto. Verifique la longitud mínima requerida");
 
     patterns.put(
         Pattern.compile("longitud.*máxima|muy largo", Pattern.CASE_INSENSITIVE),
-        "El texto ingresado es muy largo. Verifique la longitud máxima permitida"
-    );
+        "El texto ingresado es muy largo. Verifique la longitud máxima permitida");
 
     // Business rule patterns
     patterns.put(
         Pattern.compile("horario.*negocio|fuera.*horario", Pattern.CASE_INSENSITIVE),
-        "La cita debe programarse dentro del horario de atención (8:00 AM - 8:00 PM)"
-    );
+        "La cita debe programarse dentro del horario de atención (8:00 AM - 8:00 PM)");
 
     patterns.put(
         Pattern.compile("día.*no.*laborable|día.*cerrado", Pattern.CASE_INSENSITIVE),
-        "No se pueden programar citas en días no laborables"
-    );
+        "No se pueden programar citas en días no laborables");
 
     patterns.put(
         Pattern.compile("veterinario.*disponible", Pattern.CASE_INSENSITIVE),
-        "No hay veterinarios disponibles en el horario seleccionado"
-    );
+        "No hay veterinarios disponibles en el horario seleccionado");
 
     // Data integrity patterns
     patterns.put(
         Pattern.compile("ya.*existe|duplicado", Pattern.CASE_INSENSITIVE),
-        "Ya existe un registro con esta información. Verifique los datos ingresados"
-    );
+        "Ya existe un registro con esta información. Verifique los datos ingresados");
 
     patterns.put(
         Pattern.compile("no.*encontrado|no.*existe", Pattern.CASE_INSENSITIVE),
-        "El registro solicitado no fue encontrado. Verifique la información"
-    );
+        "El registro solicitado no fue encontrado. Verifique la información");
 
     return patterns;
   }
 
-  /**
-   * Applies general formatting rules when no specific pattern matches.
-   */
+  /** Applies general formatting rules when no specific pattern matches. */
   private String applyGeneralFormatting(String message) {
     String formatted = message.trim();
 
@@ -171,14 +148,15 @@ public class ValidationMessageFormatter {
     }
 
     // Replace technical terms with user-friendly equivalents
-    formatted = formatted
-        .replaceAll("\\bConstraintViolation\\b", "Error de validación")
-        .replaceAll("\\bValidation\\b", "Validación")
-        .replaceAll("\\bmust\\b", "debe")
-        .replaceAll("\\bcannot\\b", "no puede")
-        .replaceAll("\\binvalid\\b", "inválido")
-        .replaceAll("\\brequired\\b", "requerido")
-        .replaceAll("\\bnull\\b", "vacío");
+    formatted =
+        formatted
+            .replaceAll("\\bConstraintViolation\\b", "Error de validación")
+            .replaceAll("\\bValidation\\b", "Validación")
+            .replaceAll("\\bmust\\b", "debe")
+            .replaceAll("\\bcannot\\b", "no puede")
+            .replaceAll("\\binvalid\\b", "inválido")
+            .replaceAll("\\brequired\\b", "requerido")
+            .replaceAll("\\bnull\\b", "vacío");
 
     return formatted;
   }

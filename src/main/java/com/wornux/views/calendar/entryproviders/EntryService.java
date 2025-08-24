@@ -1,15 +1,14 @@
 package com.wornux.views.calendar.entryproviders;
 
-import lombok.NoArgsConstructor;
-import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.ResourceEntry;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.NoArgsConstructor;
+import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.ResourceEntry;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 
 public class EntryService<T extends Entry> {
 

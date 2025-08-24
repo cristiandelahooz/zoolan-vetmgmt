@@ -4,11 +4,10 @@ import com.wornux.data.entity.Offering;
 import com.wornux.data.repository.OfferingRepository;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /** Enhanced offering interface for managing veterinary services with consultation integration */
 public interface OfferingService {

@@ -1,5 +1,8 @@
 package com.wornux.data.entity;
 
+import static com.wornux.constants.AppointmentConstants.MAX_APPOINTMENT_NOTES_LENGTH;
+import static com.wornux.constants.AppointmentConstants.MAX_REASON_LENGTH;
+
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.data.enums.OfferingType;
 import jakarta.persistence.*;
@@ -8,17 +11,13 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
-
-import java.time.LocalDateTime;
-
-import static com.wornux.constants.AppointmentConstants.MAX_APPOINTMENT_NOTES_LENGTH;
-import static com.wornux.constants.AppointmentConstants.MAX_REASON_LENGTH;
 
 @Entity
 @Table(name = "appointments")

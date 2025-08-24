@@ -133,11 +133,10 @@ public class MiniCalendar extends CustomField<LocalDate>
 
   @Override
   public void setReadOnly(boolean readOnly) {
-    super.setReadOnly(readOnly);
+    setReadOnly(readOnly);
     for (Map.Entry<LocalDate, Component> entry : dayToComponentMapping.entrySet()) {
       final var dayComponent = entry.getValue();
-      if (dayComponent instanceof HasStyle) {
-        final var styledComponent = (HasStyle) dayComponent;
+      if (dayComponent instanceof HasStyle styledComponent) {
         toggleStyle(styledComponent, CSS_READONLY);
       }
     }
@@ -278,14 +277,10 @@ public class MiniCalendar extends CustomField<LocalDate>
     monthYearTitleLayout.setSpacing(true);
 
     var titleLayout = new HorizontalLayout();
-    //        var titleLayout = new HorizontalLayout(previousMonthButton, monthYearTitleLayout,
-    // nextMonthButton);
     titleLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
     titleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
     titleLayout.setWidthFull();
     titleLayout.setSpacing(true);
-    //        titleLayout.setHeight(30, Unit.PIXELS);
-    //        titleLayout.expand(monthYearTitleLayout);
 
     monthTitle.addClickListener(
         event -> {
@@ -440,6 +435,14 @@ public class MiniCalendar extends CustomField<LocalDate>
 
   private Component createDayComponent(LocalDate forDay) {
     var component = span(String.valueOf(forDay.getDayOfMonth()));
+
+    addDayClickListener(component, forDay);
+    applyDayComponentStyling(component, forDay);
+
+    return component;
+  }
+
+  private void addDayClickListener(Span component, LocalDate forDay) {
     component.addClickListener(
         event -> {
           if (isInteractionDisabled()) {
@@ -462,16 +465,28 @@ public class MiniCalendar extends CustomField<LocalDate>
 
           setModelValue(forDay, true);
         });
+  }
 
+  private void applyDayComponentStyling(Span component, LocalDate forDay) {
     if (Objects.equals(getValue(), forDay)) {
       component.addClassName(CSS_SELECTED);
       selectedComponent = component;
     }
 
+    applyWeekendStyling(component, forDay);
+    applyVariantStyling(component, forDay);
+    applyReadOnlyStyling(component);
+    applyDayEnabledStyling(component, forDay);
+    applyCustomDayStyling(component, forDay);
+  }
+
+  private void applyWeekendStyling(Span component, LocalDate forDay) {
     if (isWeekend(forDay) && hasVariant(MiniCalendarVariant.HIGHLIGHT_WEEKEND)) {
       component.addClassName(MiniCalendarVariant.HIGHLIGHT_WEEKEND.getVariantName());
     }
+  }
 
+  private void applyVariantStyling(Span component, LocalDate forDay) {
     component.addClassName(CSS_DAY);
 
     if (hasVariant(MiniCalendarVariant.ROUNDED)) {
@@ -485,11 +500,15 @@ public class MiniCalendar extends CustomField<LocalDate>
     if (hasVariant(MiniCalendarVariant.HIGHLIGHT_CURRENT_DAY) && forDay.equals(LocalDate.now())) {
       component.addClassName(MiniCalendarVariant.HIGHLIGHT_CURRENT_DAY.getVariantName());
     }
+  }
 
+  private void applyReadOnlyStyling(Span component) {
     if (isReadOnly()) {
       component.addClassName(CSS_READONLY);
     }
+  }
 
+  private void applyDayEnabledStyling(Span component, LocalDate forDay) {
     if (dayEnabledProvider != null) {
       var dayEnabled = dayEnabledProvider.test(forDay);
       component.setEnabled(dayEnabled);
@@ -497,7 +516,9 @@ public class MiniCalendar extends CustomField<LocalDate>
         component.addClassName(CSS_DISABLED);
       }
     }
+  }
 
+  private void applyCustomDayStyling(Span component, LocalDate forDay) {
     if (dayStyleProvider != null) {
       var additionalClassNames = dayStyleProvider.apply(forDay);
       if (additionalClassNames != null) {
@@ -509,8 +530,6 @@ public class MiniCalendar extends CustomField<LocalDate>
             });
       }
     }
-
-    return component;
   }
 
   private void addRow(List<? extends Component> columns) {

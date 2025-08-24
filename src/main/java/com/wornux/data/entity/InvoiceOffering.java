@@ -1,12 +1,11 @@
 package com.wornux.data.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.util.Objects;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.proxy.HibernateProxy;
-
-import java.math.BigDecimal;
-import java.util.Objects;
 
 /** Composite entity linking invoices with offerings Similar to InvoiceProduct but for offerings */
 @Entity

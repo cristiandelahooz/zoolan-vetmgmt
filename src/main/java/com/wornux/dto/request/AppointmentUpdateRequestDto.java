@@ -1,5 +1,8 @@
 package com.wornux.dto.request;
 
+import static com.wornux.constants.AppointmentConstants.MAX_APPOINTMENT_NOTES_LENGTH;
+import static com.wornux.constants.AppointmentConstants.MAX_REASON_LENGTH;
+
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.AppointmentClientInfo;
 import com.wornux.data.enums.AppointmentStatus;
@@ -7,13 +10,9 @@ import com.wornux.data.enums.OfferingType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
-
-import java.time.LocalDateTime;
-
-import static com.wornux.constants.AppointmentConstants.MAX_APPOINTMENT_NOTES_LENGTH;
-import static com.wornux.constants.AppointmentConstants.MAX_REASON_LENGTH;
 
 @Data
 @BrowserCallable

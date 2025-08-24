@@ -1,5 +1,10 @@
 package com.wornux.views.transactions;
 
+import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
+import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.CommonUtils.createIconItem;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -43,11 +48,6 @@ import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
 import com.wornux.views.customers.ClientCreationDialog;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -55,11 +55,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
-import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.CommonUtils.createIconItem;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 @Slf4j
 public class InvoiceForm extends Div {

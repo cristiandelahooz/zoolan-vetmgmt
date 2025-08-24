@@ -1,6 +1,5 @@
 package com.wornux.views.calendar;
 
-import com.wornux.views.calendar.entryproviders.EntryService;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.UI;
@@ -20,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.wornux.views.calendar.entryproviders.EntryService;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -51,7 +51,8 @@ public class CalendarViewToolbar extends MenuBar {
   private final Consumer<Collection<Entry>> onSamplesRemoved;
   private final List<org.vaadin.stefan.fullcalendar.CalendarView> customViews;
 
-  private org.vaadin.stefan.fullcalendar.CalendarView selectedView = CalendarViewImpl.DAY_GRID_MONTH;
+  private org.vaadin.stefan.fullcalendar.CalendarView selectedView =
+      CalendarViewImpl.DAY_GRID_MONTH;
   private Button buttonDatePicker;
   private MenuItem viewSelector;
   private Select<Timezone> timezoneSelector;
@@ -463,7 +464,10 @@ public class CalendarViewToolbar extends MenuBar {
     }
   }
 
-  void updateIntervalLabel(HasText intervalLabel, org.vaadin.stefan.fullcalendar.CalendarView view, LocalDate intervalStart) {
+  void updateIntervalLabel(
+      HasText intervalLabel,
+      org.vaadin.stefan.fullcalendar.CalendarView view,
+      LocalDate intervalStart) {
     String text = "--";
     Locale locale = calendar.getLocale();
 

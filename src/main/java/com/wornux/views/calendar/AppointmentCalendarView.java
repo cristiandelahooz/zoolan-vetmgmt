@@ -63,7 +63,8 @@ public class AppointmentCalendarView extends VerticalLayout {
     this.appointmentService = appointmentService;
 
     appointmentForm =
-        new AppointmentForm(appointmentService, clientService, petService, clientMapper, v -> loadAppointments());
+        new AppointmentForm(
+            appointmentService, clientService, petService, clientMapper, v -> loadAppointments());
 
     // Initialize UI components
     currentViewLabel = new Span();

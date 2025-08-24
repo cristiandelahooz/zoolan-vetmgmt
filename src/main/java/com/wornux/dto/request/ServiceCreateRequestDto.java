@@ -1,10 +1,9 @@
 package com.wornux.dto.request;
 
 import com.wornux.data.enums.OfferingType;
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Data;
-
-import java.math.BigDecimal;
 
 @Data
 @Builder

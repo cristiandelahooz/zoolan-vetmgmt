@@ -1,5 +1,9 @@
 package com.wornux.views.transactions;
 
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+import static com.wornux.utils.PredicateUtils.predicateForNumericField;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
@@ -55,21 +59,16 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.core5.http.ContentType;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.io.ByteArrayInputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
-import static com.wornux.utils.PredicateUtils.predicateForNumericField;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.core5.http.ContentType;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @Uses(Icon.class)
@@ -116,7 +115,8 @@ public class InvoiceView extends Div {
         new InvoiceForm(
             service,
             customerService,
-            productService, offeringService,
+            productService,
+            offeringService,
             auditService,
             clientMapper,
             invoiceReportService);

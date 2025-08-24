@@ -2,13 +2,12 @@ package com.wornux.data.entity;
 
 import com.wornux.data.enums.OfferingType;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.envers.Audited;
-import org.hibernate.proxy.HibernateProxy;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import lombok.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * Entity representing a offering that can be provided to pets Services are simpler than products -

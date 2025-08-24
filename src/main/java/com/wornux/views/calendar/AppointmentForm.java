@@ -123,7 +123,7 @@ public class AppointmentForm extends Div {
     // Initialize offering type selection
     offeringTypeSelect.setLabel("Tipo de Servicio");
     offeringTypeSelect.setItems(OfferingType.values());
-    offeringTypeSelect.setItemLabelGenerator(OfferingType::name);
+    offeringTypeSelect.setItemLabelGenerator(OfferingType::getDisplay);
     offeringTypeSelect.setRequiredIndicatorVisible(true);
     offeringTypeSelect.setWidthFull();
     offeringTypeSelect.addValueChangeListener(
@@ -402,23 +402,19 @@ public class AppointmentForm extends Div {
     // Create horizontal layout for time components with shared label
     Div timeLabelDiv = new Div(new Span("Horario de la Cita"));
     timeLabelDiv.addClassNames(
-        LumoUtility.FontSize.SMALL, 
-        LumoUtility.FontWeight.MEDIUM, 
-        LumoUtility.TextColor.SECONDARY);
-    
+        LumoUtility.FontSize.SMALL, LumoUtility.FontWeight.MEDIUM, LumoUtility.TextColor.SECONDARY);
+
     Div timeLayout = new Div(startTime, endTime);
     timeLayout.addClassNames(
-        LumoUtility.Display.FLEX, 
-        LumoUtility.FlexDirection.ROW, 
+        LumoUtility.Display.FLEX,
+        LumoUtility.FlexDirection.ROW,
         LumoUtility.Gap.MEDIUM,
         LumoUtility.JustifyContent.BETWEEN);
-    
+
     Div timeSection = new Div(timeLabelDiv, timeLayout);
     timeSection.addClassNames(
-        LumoUtility.Display.FLEX, 
-        LumoUtility.FlexDirection.COLUMN,
-        LumoUtility.Gap.SMALL);
-    
+        LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Gap.SMALL);
+
     Div section = new Div(titleField, appointmentDate, timeSection);
     section.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
     section.addClassNames(LumoUtility.Gap.SMALL);
