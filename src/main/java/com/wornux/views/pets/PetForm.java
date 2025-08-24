@@ -332,6 +332,16 @@ public class PetForm extends Dialog {
     open();
   }
 
+  public void openForNewWithOwner(Client preselectedClient) {
+    openForNew();
+    if (preselectedClient != null) {
+      this.selectedOwner = preselectedClient;
+      this.ownerId = preselectedClient.getId();
+      this.ownerName.setValue(nvl(preselectedClient.getFirstName()) + " " + nvl(preselectedClient.getLastName()));
+      this.ownerName.setInvalid(false);
+    }
+  }
+
   private static String nvl(String s) {
     return s == null ? "" : s;
   }
