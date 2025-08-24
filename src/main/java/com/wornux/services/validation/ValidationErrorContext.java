@@ -94,7 +94,7 @@ public class ValidationErrorContext {
         .position(Notification.Position.TOP_END)
         .duration(6000)
         .staggeredTiming(true)
-        .staggerDelayMs(400)  // Increased delay for better readability
+        .staggerDelayMs(200)  // Reduced delay for faster display
         .combineErrors(false)  // Show individual notifications
         .maxIndividualErrors(10)  // Allow more individual errors
         .additionalCssClasses("dialog-validation-error")
