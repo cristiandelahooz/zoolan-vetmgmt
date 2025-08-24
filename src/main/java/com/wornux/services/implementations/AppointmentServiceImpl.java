@@ -1,7 +1,5 @@
 package com.wornux.services.implementations;
 
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.Appointment;
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.data.repository.AppointmentRepository;
@@ -20,13 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@RequiredArgsConstructor
-@BrowserCallable
-@Transactional
 @Slf4j
-// TODO: remove this annotation to restrict access to authenticated users only
-@AnonymousAllowed
+@Service
+@Transactional
+@RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
 
   private final AppointmentRepository appointmentRepository;
