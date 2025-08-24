@@ -59,6 +59,8 @@ public class ConsultationsView extends Div {
   private final transient ServiceService serviceService;
   private final transient ProductService productService;
   private final transient ConsultationsForm consultationsForm;
+  private final ConsultationDetailsSidebar detailsSidebar;
+
 
   public ConsultationsView(
       @Qualifier("consultationServiceImpl") ConsultationService consultationService,
@@ -79,6 +81,9 @@ public class ConsultationsView extends Div {
             serviceService,
             invoiceService,
             productService);
+    this.detailsSidebar = new ConsultationDetailsSidebar(invoiceService, consultationsForm);
+    add(detailsSidebar); // para que el overlay viva en el DOM
+
 
     setId("consultations-view");
 
@@ -97,13 +102,13 @@ public class ConsultationsView extends Div {
         GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
 
 
-    // Al final de createGrid(...) o justo después de crear el grid:
     grid.asSingleSelect().addValueChangeListener(e -> {
       Consultation sel = e.getValue();
       if (sel != null) {
-        openConsultationDetailsDialog(sel);
+        detailsSidebar.open(sel);
       }
     });
+
 
     add(createTitle(), createFilter(), gridLayout);
     addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
@@ -371,179 +376,5 @@ public class ConsultationsView extends Div {
     }
   }
 
-  private void openConsultationDetailsDialog(Consultation c) {
-    Dialog dialog = new Dialog();
-    dialog.setHeaderTitle("Detalles de la Consulta");
-    dialog.setModal(true);
-    dialog.setDraggable(true);
-    dialog.setResizable(true);
-    dialog.setWidth("640px");
 
-    // ====== Contenedor principal con look & feel del ejemplo ======
-    VerticalLayout layout = new VerticalLayout();
-    layout.setWidthFull();
-    layout.getStyle()
-            .set("padding", "1.5rem")
-            .set("border-radius", "10px")
-            .set("background-color", "var(--lumo-base-color)")
-            .set("box-shadow", "var(--lumo-box-shadow-m)");
-    layout.setSpacing(true);
-    layout.setPadding(false);
-
-    // ====== Badges (estado consulta + estado factura) ======
-    // Estado de la consulta
-    Span status = new Span(c.isActive() ? "ACTIVO" : "INACTIVO");
-    status.getElement().getThemeList().add("badge pill");
-    status.getElement().getThemeList().add(c.isActive() ? "success" : "error");
-
-    // Estado de la factura asociada (si existe)
-    Span invoiceBadge = new Span("SIN FACTURA");
-    invoiceBadge.getElement().getThemeList().add("badge pill");
-    invoiceBadge.getElement().getThemeList().add("contrast");
-    try {
-      Invoice inv = invoiceService.findByConsultation(c);
-      if (inv != null) {
-        invoiceBadge.setText("FACTURA: " + inv.getStatus().name());
-        invoiceBadge.getElement().getThemeList().remove("contrast");
-        switch (inv.getStatus()) {
-          case PAID -> invoiceBadge.getElement().getThemeList().add("success");
-          case PENDING -> invoiceBadge.getElement().getThemeList().add("primary");
-          default -> invoiceBadge.getElement().getThemeList().add("error");
-        }
-      }
-    } catch (Exception ignored) {}
-
-    HorizontalLayout header = new HorizontalLayout(status, invoiceBadge);
-    header.setWidthFull();
-    header.setJustifyContentMode(HorizontalLayout.JustifyContentMode.BETWEEN);
-
-    // ====== Datos del cliente (dueño) ======
-    Client owner = null;
-    if (c.getPet() != null) {
-      List<Client> owners = (c.getPet().getOwners() != null)
-              ? c.getPet().getOwners()
-              : java.util.Collections.emptyList();
-
-      owner = owners.stream().findFirst().orElse(null);
-    }
-
-
-    Span clientName = new Span(owner != null
-            ? owner.getFirstName() + " " + owner.getLastName()
-            : "Sin dueño asignado");
-    clientName.getElement().getStyle().set("font-weight", "bold").set("font-size", "1.2em");
-
-    Icon phoneIcon = VaadinIcon.PHONE.create();
-    phoneIcon.setColor("var(--lumo-secondary-text-color)");
-    Span phoneText = new Span(owner != null && owner.getPhoneNumber() != null ? owner.getPhoneNumber() : "N/A");
-
-    Icon mailIcon = VaadinIcon.ENVELOPE.create();
-    mailIcon.setColor("var(--lumo-secondary-text-color)");
-    Span emailText = new Span(owner != null && owner.getEmail() != null ? owner.getEmail() : "N/A");
-
-    HorizontalLayout contactInfo = new HorizontalLayout(phoneIcon, phoneText, new Span("•"), mailIcon, emailText);
-    contactInfo.setAlignItems(FlexComponent.Alignment.CENTER);
-    contactInfo.setSpacing(true);
-
-    // ====== Datos de la mascota ======
-    Span petInfo = new Span(
-            (c.getPet() != null ? c.getPet().getName() : "N/A")
-                    + " • "
-                    + (c.getPet() != null && c.getPet().getType() != null ? c.getPet().getType().name() : "N/A")
-                    + " • "
-                    + (c.getPet() != null && c.getPet().getBreed() != null ? c.getPet().getBreed() : "N/A")
-                    + " • "
-                    + (c.getPet() != null && c.getPet().getGender() != null ? c.getPet().getGender().name() : "N/A")
-    );
-    petInfo.getElement().getStyle()
-            .set("font-weight", "600")
-            .set("color", "var(--lumo-primary-text-color)")
-            .set("font-size", "1.05em");
-
-    // ====== Detalles de la visita ======
-    // Veterinario
-    Icon vetIcon = VaadinIcon.USER.create();
-    vetIcon.setColor("var(--lumo-secondary-text-color)");
-    String vetName = (c.getVeterinarian() != null)
-            ? (c.getVeterinarian().getFirstName() + " " + c.getVeterinarian().getLastName())
-            : "N/A";
-    HorizontalLayout vetRow = new HorizontalLayout(vetIcon, new Span("Veterinario: " + vetName));
-
-    // Fecha/hora consulta
-    Icon dateIcon = VaadinIcon.CALENDAR.create();
-    dateIcon.setColor("var(--lumo-secondary-text-color)");
-    String dateStr = c.getConsultationDate() != null
-            ? c.getConsultationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a"))
-            : "N/A";
-    HorizontalLayout dateRow = new HorizontalLayout(dateIcon, new Span("Fecha de consulta: " + dateStr));
-
-    // Notas
-    Icon notesIcon = VaadinIcon.NOTEBOOK.create();
-    notesIcon.setColor("var(--lumo-secondary-text-color)");
-    HorizontalLayout notesRow = new HorizontalLayout(
-            notesIcon, new Span("Notas: " + (c.getNotes() != null && !c.getNotes().isBlank() ? c.getNotes() : "N/A"))
-    );
-
-    // Diagnóstico
-    Icon diagIcon = VaadinIcon.CLIPBOARD_HEART.create();
-    diagIcon.setColor("var(--lumo-secondary-text-color)");
-    HorizontalLayout diagRow = new HorizontalLayout(
-            diagIcon, new Span("Diagnóstico: " + (c.getDiagnosis() != null && !c.getDiagnosis().isBlank() ? c.getDiagnosis() : "N/A"))
-    );
-
-    // Tratamiento
-    Icon treatIcon = VaadinIcon.STETHOSCOPE.create();
-    treatIcon.setColor("var(--lumo-secondary-text-color)");
-    HorizontalLayout treatRow = new HorizontalLayout(
-            treatIcon, new Span("Tratamiento: " + (c.getTreatment() != null && !c.getTreatment().isBlank() ? c.getTreatment() : "N/A"))
-    );
-
-    // Prescripción
-    Icon rxIcon = VaadinIcon.PILL.create();
-    rxIcon.setColor("var(--lumo-secondary-text-color)");
-    HorizontalLayout rxRow = new HorizontalLayout(
-            rxIcon, new Span("Prescripción: " + (c.getPrescription() != null && !c.getPrescription().isBlank() ? c.getPrescription() : "N/A"))
-    );
-
-    // Alinear filas
-    for (HorizontalLayout row : new HorizontalLayout[]{vetRow, dateRow, notesRow, diagRow, treatRow, rxRow}) {
-      row.setAlignItems(FlexComponent.Alignment.CENTER);
-      row.setSpacing(true);
-    }
-
-    // ====== Botones ======
-    Button editBtn = new Button("Editar Consulta", e -> {
-      evaluateForEdit(c); // ya tienes este método
-      dialog.close();
-    });
-    editBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-    editBtn.setMinWidth("200px");
-
-    Button closeBtn = new Button("Cerrar", e -> dialog.close());
-    closeBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-    closeBtn.setMinWidth("200px");
-
-    HorizontalLayout actions = new HorizontalLayout(editBtn, closeBtn);
-    actions.setJustifyContentMode(HorizontalLayout.JustifyContentMode.CENTER);
-    actions.getStyle().set("margin-top", "1rem");
-    actions.setWidthFull();
-
-    layout.add(
-            header,
-            clientName,
-            contactInfo,
-            petInfo,
-            vetRow,
-            dateRow,
-            notesRow,
-            diagRow,
-            treatRow,
-            rxRow,
-            actions
-    );
-
-    dialog.add(layout);
-    dialog.addDialogCloseActionListener(e -> grid.deselectAll());
-    dialog.open();
-  }
 }
