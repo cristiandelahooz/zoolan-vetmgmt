@@ -4,7 +4,7 @@ import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.wornux.views.DashboardView;
-import com.wornux.views.appointments.AppointmentsCalendarView;
+import com.wornux.views.calendar.AppointmentCalendarView;
 import com.wornux.views.clients.CompanyClientView;
 import com.wornux.views.clients.IndividualClientView;
 import com.wornux.views.consultations.ConsultationsView;
@@ -32,12 +32,10 @@ public class MenuUtil {
       nav.addItem(
           new SideNavItem("Inicio", DashboardView.class, LineAwesomeIcon.HOME_SOLID.create()));
 
-    if (accessChecker.hasAccess(AppointmentsCalendarView.class))
+    if (accessChecker.hasAccess(AppointmentCalendarView.class))
       nav.addItem(
           new SideNavItem(
-              "Citas",
-              AppointmentsCalendarView.class,
-              LineAwesomeIcon.CALENDAR_ALT_SOLID.create()));
+              "Citas", AppointmentCalendarView.class, LineAwesomeIcon.CALENDAR_ALT_SOLID.create()));
 
     if (accessChecker.hasAccess(InventoryView.class)
         || accessChecker.hasAccess(WarehouseView.class)) {

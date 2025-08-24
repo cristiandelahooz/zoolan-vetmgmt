@@ -1,0 +1,11 @@
+package com.wornux.views.calendar;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MenuItem {
+  String label();
+
+  // VaadinIcon icon();
+}
