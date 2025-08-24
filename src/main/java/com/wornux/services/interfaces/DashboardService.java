@@ -14,6 +14,9 @@ public interface DashboardService {
   /** Get top performing services by revenue */
   List<ChartDataDto> getTopServicesAnalysis();
 
+  /** Get count of healthy stock items */
+  long getHealthyStockCount();
+
   /** Get stock health analysis with alerts for low stock items */
   List<StockAlertDto> getStockHealthAnalysis();
 
