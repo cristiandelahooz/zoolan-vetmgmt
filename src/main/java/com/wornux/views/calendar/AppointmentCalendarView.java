@@ -8,7 +8,6 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.wornux.utils.ValidationNotificationUtils;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,17 +17,13 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.services.interfaces.AppointmentService;
 import com.wornux.services.interfaces.PetService;
+import com.wornux.utils.ValidationNotificationUtils;
 import com.wornux.views.MainLayout;
 import com.wornux.views.calendar.utils.FullCalendarWithTooltip;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
-import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,6 +33,10 @@ import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
 @Slf4j
 @Route(value = "calendar", layout = MainLayout.class)
@@ -246,6 +245,7 @@ public class AppointmentCalendarView extends VerticalLayout {
         CalendarViewImpl.TIME_GRID_DAY,
         CalendarViewImpl.LIST_WEEK);
     selector.setItemLabelGenerator(this::getViewDisplayName);
+    selector.setAllowCustomValue(false);
     selector.setValue(CalendarViewImpl.DAY_GRID_MONTH);
     selector.addValueChangeListener(
         e -> {
@@ -354,9 +354,7 @@ public class AppointmentCalendarView extends VerticalLayout {
 
   private void onEntryClick(EntryClickedEvent event) {
     Long appointmentId = Long.valueOf(event.getEntry().getId());
-    appointmentEntryService
-        .getAppointment(appointmentId)
-        .ifPresent(appointmentDialog::openForEdit);
+    appointmentEntryService.getAppointment(appointmentId).ifPresent(appointmentDialog::openForEdit);
   }
 
   private void onTimeslotsSelected(TimeslotsSelectedEvent event) {
@@ -449,5 +447,4 @@ public class AppointmentCalendarView extends VerticalLayout {
 
     return initialOptions;
   }
-
 }
