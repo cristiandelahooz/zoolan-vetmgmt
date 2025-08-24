@@ -4,7 +4,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -131,21 +130,13 @@ public class AppointmentCalendarView extends VerticalLayout {
     header.addClassNames(
         LumoUtility.Background.BASE, LumoUtility.BoxShadow.SMALL, LumoUtility.Padding.LARGE);
 
-    // Title section
-    H2 title = new H2("Calendario de Citas");
-    title.addClassNames(
-        LumoUtility.FontSize.XLARGE,
-        LumoUtility.FontWeight.SEMIBOLD,
-        LumoUtility.TextColor.PRIMARY,
-        LumoUtility.Margin.NONE);
-
     // Main toolbar
     HorizontalLayout toolbar = createMainToolbar();
 
     // View info section
     HorizontalLayout viewInfo = createViewInfoSection();
 
-    header.add(title, toolbar, viewInfo);
+    header.add(toolbar, viewInfo);
     return header;
   }
 
@@ -204,9 +195,7 @@ public class AppointmentCalendarView extends VerticalLayout {
     toolbar.setWidthFull();
     toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
     toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
-    toolbar.addClassNames(
-        LumoUtility.Gap.MEDIUM,
-        LumoUtility.Padding.Vertical.MEDIUM);
+    toolbar.addClassNames(LumoUtility.Gap.MEDIUM, LumoUtility.Padding.Vertical.MEDIUM);
 
     toolbar.add(navGroup, actionGroup);
     return toolbar;
@@ -218,8 +207,7 @@ public class AppointmentCalendarView extends VerticalLayout {
         LumoUtility.FontSize.LARGE,
         LumoUtility.FontWeight.MEDIUM,
         LumoUtility.TextColor.SECONDARY,
-        LumoUtility.Overflow.HIDDEN
-    );
+        LumoUtility.Overflow.HIDDEN);
     currentViewLabel.getStyle().set("flex-grow", "1");
 
     // View selector styling with responsive width
@@ -233,10 +221,7 @@ public class AppointmentCalendarView extends VerticalLayout {
     viewInfo.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
     viewInfo.setAlignItems(FlexComponent.Alignment.CENTER);
     viewInfo.addClassNames(
-        LumoUtility.Gap.MEDIUM,
-        LumoUtility.Padding.Vertical.SMALL,
-        LumoUtility.Padding.Top.MEDIUM
-    );
+        LumoUtility.Gap.MEDIUM, LumoUtility.Padding.Vertical.SMALL, LumoUtility.Padding.Top.MEDIUM);
     viewInfo.getStyle().set("border-top", "1px solid var(--lumo-contrast-10pct)");
 
     return viewInfo;
@@ -252,8 +237,7 @@ public class AppointmentCalendarView extends VerticalLayout {
         LumoUtility.Margin.Horizontal.LARGE,
         LumoUtility.Margin.Vertical.MEDIUM,
         LumoUtility.Padding.MEDIUM,
-        LumoUtility.Overflow.HIDDEN
-    );
+        LumoUtility.Overflow.HIDDEN);
 
     // Set flex properties for responsive behavior
     calendar.getStyle().set("flex-grow", "1");

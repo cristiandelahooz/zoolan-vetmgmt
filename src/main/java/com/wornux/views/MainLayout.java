@@ -47,10 +47,10 @@ public class MainLayout extends AppLayout {
 
     viewTitle = new H1();
     viewTitle.addClassNames(
-        LumoUtility.FontSize.LARGE,
+        LumoUtility.FontSize.XLARGE,
         LumoUtility.FontWeight.SEMIBOLD,
+        LumoUtility.TextColor.PRIMARY,
         LumoUtility.Margin.NONE,
-        LumoUtility.TextColor.HEADER,
         LumoUtility.Flex.GROW);
 
     MenuBar userMenu = createUserMenu();
