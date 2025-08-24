@@ -124,4 +124,10 @@ public class InvoiceService {
   public Optional<Invoice> findByGroomingIdWithDetails(Long groomingId) {
     return repository.findByGroomingIdWithDetails(groomingId);
   }
+
+  @Transactional
+  public Optional<Invoice> findByConsultationIdWithDetails(Long consultationId) {
+    return repository.findByConsultationIdWithDetails(consultationId);
+  }
+
 }
