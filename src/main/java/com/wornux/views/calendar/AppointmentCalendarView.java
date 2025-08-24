@@ -3,7 +3,6 @@ package com.wornux.views.calendar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -24,7 +23,6 @@ import elemental.json.Json;
 import elemental.json.JsonObject;
 import jakarta.annotation.security.PermitAll;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
@@ -46,14 +44,13 @@ import java.util.Optional;
 public class AppointmentCalendarView extends VerticalLayout {
 
   private final FullCalendar calendar;
-  private final AppointmentEntryService appointmentEntryService;
-  private final AppointmentService appointmentService;
-  private final PetService petService;
+  private final transient AppointmentEntryService appointmentEntryService;
+  private final transient AppointmentService appointmentService;
+  private final transient PetService petService;
   private final AppointmentDialog appointmentDialog;
   private final Span currentViewLabel;
   private final ComboBox<CalendarViewImpl> viewSelector;
 
-  @Autowired
   public AppointmentCalendarView(
       AppointmentEntryService appointmentEntryService,
       AppointmentService appointmentService,
@@ -63,19 +60,22 @@ public class AppointmentCalendarView extends VerticalLayout {
     this.petService = petService;
 
     appointmentDialog =
-        new AppointmentDialog(appointmentService, petService, (v) -> loadAppointments());
+        new AppointmentDialog(appointmentService, petService, v -> loadAppointments());
 
     // Initialize UI components
     currentViewLabel = new Span();
     viewSelector = createViewSelector();
 
     // Layout configuration with professional styling
+    addClassNames(
+        LumoUtility.Background.CONTRAST_5,
+        LumoUtility.Display.FLEX,
+        LumoUtility.FlexDirection.COLUMN,
+        LumoUtility.Padding.MEDIUM);
     setSizeFull();
     setPadding(false);
     setSpacing(false);
-    addClassNames(LumoUtility.Background.CONTRAST_5, LumoUtility.Height.FULL);
 
-    // Initialize calendar with professional settings
     calendar =
         FullCalendarBuilder.create()
             .withCustomType(FullCalendarWithTooltip.class)
@@ -89,14 +89,14 @@ public class AppointmentCalendarView extends VerticalLayout {
     setupCalendarEventListeners();
 
     // Create calendar container with proper styling
-    Div calendarContainer = createCalendarContainer();
+    createCalendarContainer();
 
     // Create header and toolbar
     VerticalLayout header = createHeader();
 
-    // Layout composition
-    add(header, calendarContainer);
-    setFlexGrow(1, calendarContainer);
+    // Layout composition with spacing
+    header.addClassNames(LumoUtility.Margin.Bottom.SMALL);
+    add(header, calendar);
 
     loadAppointments();
   }
@@ -227,24 +227,15 @@ public class AppointmentCalendarView extends VerticalLayout {
     return viewInfo;
   }
 
-  private Div createCalendarContainer() {
-    Div container = new Div(calendar);
-    container.setSizeFull();
-    container.addClassNames(
+  private void createCalendarContainer() {
+    calendar.addClassNames(
         LumoUtility.Background.BASE,
         LumoUtility.BorderRadius.MEDIUM,
         LumoUtility.BoxShadow.SMALL,
-        LumoUtility.Margin.Horizontal.LARGE,
-        LumoUtility.Margin.Vertical.MEDIUM,
         LumoUtility.Padding.MEDIUM,
         LumoUtility.Overflow.HIDDEN);
-
-    // Set flex properties for responsive behavior
-    calendar.getStyle().set("flex-grow", "1");
-    calendar.getStyle().set("min-height", "0");
-    calendar.getStyle().set("width", "100%");
-
-    return container;
+    calendar.setSizeFull();
+    setFlexGrow(1, calendar);
   }
 
   private ComboBox<CalendarViewImpl> createViewSelector() {
@@ -365,10 +356,7 @@ public class AppointmentCalendarView extends VerticalLayout {
     Long appointmentId = Long.valueOf(event.getEntry().getId());
     appointmentEntryService
         .getAppointment(appointmentId)
-        .ifPresent(
-            appointment -> {
-              appointmentDialog.openForEdit(appointment);
-            });
+        .ifPresent(appointmentDialog::openForEdit);
   }
 
   private void onTimeslotsSelected(TimeslotsSelectedEvent event) {
@@ -399,7 +387,7 @@ public class AppointmentCalendarView extends VerticalLayout {
       appointmentService.updateAppointment(appointmentId, updateDto);
 
       // Professional styled notification
-      Notification notification = Notification.show("✅ Cita actualizada correctamente");
+      Notification notification = Notification.show("Cita actualizada correctamente");
       notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
       notification.setPosition(Notification.Position.TOP_END);
       notification.setDuration(3000);
@@ -408,7 +396,7 @@ public class AppointmentCalendarView extends VerticalLayout {
 
       // Professional styled error notification
       Notification notification =
-          Notification.show("❌ Error al actualizar la cita. Inténtelo de nuevo.");
+          Notification.show("Error al actualizar la cita. Inténtelo de nuevo.");
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
       notification.setPosition(Notification.Position.TOP_CENTER);
       notification.setDuration(5000);
@@ -424,7 +412,7 @@ public class AppointmentCalendarView extends VerticalLayout {
     initialOptions.put("headerToolbar", false);
 
     // Professional calendar settings
-    initialOptions.put("height", "100%");
+    initialOptions.put("height", "auto");
     initialOptions.put("weekNumbers", true);
     initialOptions.put("weekNumberCalculation", "ISO");
     initialOptions.put("navLinks", true);
