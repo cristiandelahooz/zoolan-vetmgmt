@@ -1,0 +1,165 @@
+/* Validation Error Notification Styling for Zoolan Vetmgmt */
+
+/* Base validation error notification styling */
+vaadin-notification.validation-error {
+  --lumo-notification-font-size: var(--lumo-font-size-s);
+  --lumo-notification-font-weight: 500;
+  box-shadow: var(--lumo-box-shadow-m);
+  border-radius: var(--lumo-border-radius-m);
+  max-width: 420px;
+  font-family: var(--lumo-font-family);
+}
+
+/* Calendar-specific validation errors */
+vaadin-notification.calendar-validation-error {
+  --lumo-notification-font-size: var(--lumo-font-size-m);
+  border-left: 4px solid var(--lumo-error-color);
+  padding-left: var(--lumo-space-m);
+  max-width: 400px;
+  font-weight: 500;
+}
+
+/* Dialog form validation errors */
+vaadin-notification.dialog-validation-error {
+  --lumo-notification-font-size: var(--lumo-font-size-s);
+  max-width: 350px;
+  border-radius: var(--lumo-border-radius-s);
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+/* General form validation errors */
+vaadin-notification.form-validation-error {
+  border-radius: var(--lumo-border-radius-m);
+  font-weight: 400;
+  max-width: 380px;
+}
+
+/* Critical validation errors */
+vaadin-notification.critical-validation-error {
+  --lumo-notification-font-size: var(--lumo-font-size-m);
+  border: 2px solid var(--lumo-error-color);
+  box-shadow: var(--lumo-box-shadow-l);
+  font-weight: 600;
+  animation: pulse 0.6s ease-in-out;
+}
+
+/* Subtle validation errors */
+vaadin-notification.subtle-validation-error {
+  --lumo-notification-font-size: var(--lumo-font-size-xs);
+  opacity: 0.9;
+  font-weight: 400;
+  border-radius: var(--lumo-border-radius-l);
+}
+
+/* Mobile validation errors */
+vaadin-notification.mobile-validation-error {
+  --lumo-notification-font-size: var(--lumo-font-size-m);
+  padding: var(--lumo-space-m);
+  border-radius: 0;
+  width: 100%;
+  max-width: none;
+}
+
+/* Delayed validation errors (for staggered notifications) */
+vaadin-notification.delayed-validation-error {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Summary validation errors */
+vaadin-notification.summary-validation-error {
+  --lumo-notification-font-size: var(--lumo-font-size-s);
+  background: linear-gradient(135deg, var(--lumo-error-color-10pct), var(--lumo-error-color-20pct));
+  border-left: 6px solid var(--lumo-error-color);
+  font-weight: 500;
+}
+
+/* Enhanced text styling for validation messages */
+vaadin-notification.validation-error div,
+vaadin-notification.validation-error span {
+  line-height: 1.4;
+  color: var(--lumo-error-contrast-color);
+}
+
+/* Improved bullet point styling for multiple errors */
+vaadin-notification.validation-error div[style*="white-space: pre"] {
+  white-space: pre-line !important;
+}
+
+/* Animation keyframes */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Dark theme adjustments */
+[theme~="dark"] vaadin-notification.validation-error {
+  --lumo-notification-font-weight: 400;
+}
+
+[theme~="dark"] vaadin-notification.critical-validation-error {
+  border-color: var(--lumo-error-color-50pct);
+  box-shadow: 0 0 0 2px var(--lumo-error-color-10pct), var(--lumo-box-shadow-l);
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  vaadin-notification.validation-error {
+    max-width: 90vw;
+    margin: 0 var(--lumo-space-s);
+  }
+  
+  vaadin-notification.calendar-validation-error,
+  vaadin-notification.dialog-validation-error,
+  vaadin-notification.form-validation-error {
+    max-width: 90vw;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  vaadin-notification.validation-error {
+    border: 2px solid var(--lumo-error-color);
+    font-weight: 600;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  vaadin-notification.validation-error {
+    animation: none;
+  }
+  
+  vaadin-notification.delayed-validation-error,
+  vaadin-notification.critical-validation-error {
+    animation: none;
+  }
+}
