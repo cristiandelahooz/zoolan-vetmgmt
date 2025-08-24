@@ -2,7 +2,6 @@ package com.wornux.data.repository;
 
 import com.wornux.data.entity.Offering;
 import com.wornux.data.enums.OfferingType;
-import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -21,9 +20,9 @@ public interface OfferingRepository
   List<Offering> findByActiveTrue();
 
   /** Find services by category */
-  List<Offering> findByServiceTypeAndActiveTrue(OfferingType serviceType);
+  List<Offering> findByOfferingTypeAndActiveTrue(OfferingType offeringType);
 
-  /** Find services by name containing (case insensitive) */
+  /** Find services by name containing (case-insensitive) */
   @Query(
       "SELECT s FROM Offering s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :name, '%')) AND s.active = true")
   List<Offering> findByNameContainingIgnoreCaseAndActiveTrue(@Param("name") String name);
@@ -34,19 +33,9 @@ public interface OfferingRepository
   @Query("SELECT s FROM Offering s WHERE s.active = true ORDER BY s.name ASC")
   List<Offering> findAllActiveServices();
 
-  @Query(
-      "SELECT s FROM Offering s WHERE s.active = true AND s.serviceType = :serviceType ORDER BY s.name ASC")
-  List<Offering> findActiveServicesByServiceType(@Param("serviceType") OfferingType serviceType);
-
-  @Query(
-      "SELECT s FROM Offering s WHERE s.active = true AND (s.name LIKE %:searchTerm% OR s.description LIKE %:searchTerm%) ORDER BY s.name ASC")
-  List<Offering> findActiveServicesByNameOrDescription(@Param("searchTerm") String searchTerm);
-
   boolean existsByNameAndActiveTrue(String name);
 
-  Optional<Object> findByNameAndActiveTrueAndIdNot(String name, @NonNull Long id);
+  Optional<Object> findByNameAndActiveTrueAndIdNot(String name, Long id);
 
   List<Offering> findByActiveTrueOrderByNameAsc();
-
-  List<Offering> findByServiceTypeAndActiveTrueOrderByNameAsc(OfferingType serviceType);
 }

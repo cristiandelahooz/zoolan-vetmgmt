@@ -2,9 +2,6 @@ package com.wornux.data.repository;
 
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Invoice;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,14 +9,18 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
 public interface InvoiceRepository
     extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
 
-  @EntityGraph(attributePaths = {"client", "products.product", "services.offering"})
+  @EntityGraph(attributePaths = {"client", "products.product", "offerings.offering"})
   @Query("SELECT i FROM Invoice i WHERE i.code = :code")
   Optional<Invoice> findByCodeWithServicesAndProducts(@Param("code") Long code);
 
-  @EntityGraph(attributePaths = {"client", "products.product", "services.offering"})
+  @EntityGraph(attributePaths = {"client", "products.product", "offerings.offering"})
   @Query("SELECT i FROM Invoice i WHERE i.consultation = :consultation AND i.active = true")
   Optional<Invoice> findByConsultation(@Param("consultation") Consultation consultation);
 
@@ -31,9 +32,9 @@ public interface InvoiceRepository
       @Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 
   @Query(
-      "SELECT s.name, SUM(is.amount) as revenue "
-          + "FROM ServiceInvoice is JOIN is.service s JOIN is.invoice i "
+      "SELECT o.name, SUM(is.amount) as revenue "
+          + "FROM InvoiceOffering is JOIN is.offering o JOIN is.invoice i "
           + "WHERE i.createdDate >= :startDate "
-          + "GROUP BY s.id, s.name ORDER BY revenue DESC")
+          + "GROUP BY o.id, o.name ORDER BY revenue DESC")
   List<Object[]> findTopServicesByRevenue(@Param("startDate") Instant startDate, Pageable pageable);
 }

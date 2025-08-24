@@ -1,19 +1,24 @@
 package com.wornux.data.entity;
 
-import static com.wornux.constants.AppointmentConstants.*;
-
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.data.enums.OfferingType;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
+
+import java.time.LocalDateTime;
+
+import static com.wornux.constants.AppointmentConstants.MAX_APPOINTMENT_NOTES_LENGTH;
+import static com.wornux.constants.AppointmentConstants.MAX_REASON_LENGTH;
 
 @Entity
 @Table(name = "appointments")
@@ -40,10 +45,10 @@ public class Appointment {
   @Future(message = "La fecha de cierre de la cita debe ser en el futuro")
   private LocalDateTime endAppointmentDate;
 
-  @Column(name = "service_type", nullable = false)
+  @Column(name = "offering_type", nullable = false)
   @Enumerated(EnumType.STRING)
   @NotNull(message = "El tipo de servicio es obligatorio")
-  private OfferingType serviceType;
+  private OfferingType offeringType;
 
   @Column(name = "status", nullable = false)
   @Enumerated(EnumType.STRING)
@@ -96,7 +101,7 @@ public class Appointment {
   private String updatedBy;
 
   public String getAppointmentTitle() {
-    return getClientDisplayName() + " - " + serviceType.getDisplay();
+    return getClientDisplayName() + " - " + offeringType.getDisplay();
   }
 
   public boolean isCompleted() {
@@ -112,7 +117,7 @@ public class Appointment {
   }
 
   public boolean requiresVeterinarian() {
-    return serviceType.getDescription().equals("MEDICAL");
+    return offeringType.getDescription().equals("MEDICAL");
   }
 
   public String getClientDisplayName() {

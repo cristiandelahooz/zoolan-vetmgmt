@@ -4,11 +4,17 @@ import com.wornux.data.repository.ClientRepository;
 import com.wornux.data.repository.ConsultationRepository;
 import com.wornux.data.repository.InvoiceRepository;
 import com.wornux.data.repository.ProductRepository;
-import com.wornux.data.repository.OfferingRepository;
 import com.wornux.dto.dashboard.ChartDataDto;
 import com.wornux.dto.dashboard.RevenueDataDto;
 import com.wornux.dto.dashboard.StockAlertDto;
 import com.wornux.services.interfaces.DashboardService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,12 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +33,6 @@ public class DashboardServiceImpl implements DashboardService {
 
   private final InvoiceRepository invoiceRepository;
   private final ProductRepository productRepository;
-  private final OfferingRepository serviceRepository;
   private final ConsultationRepository consultationRepository;
   private final ClientRepository clientRepository;
 
@@ -61,7 +60,7 @@ public class DashboardServiceImpl implements DashboardService {
       double avgRevenue =
           revenueData.stream().mapToDouble(RevenueDataDto::getRevenue).average().orElse(0.0);
 
-      LocalDate lastPeriod = revenueData.get(revenueData.size() - 1).getPeriod();
+      LocalDate lastPeriod = revenueData.getLast().getPeriod();
       for (int i = 1; i <= 3; i++) {
         LocalDate forecastPeriod = lastPeriod.plusMonths(i);
         revenueData.add(new RevenueDataDto(forecastPeriod, avgRevenue, 0L, true));
@@ -96,8 +95,7 @@ public class DashboardServiceImpl implements DashboardService {
             row -> {
               Long productId = ((Number) row[0]).longValue();
               String productName = (String) row[1];
-              Integer accountingStock = ((Number) row[2]).intValue();
-              Integer availableStock = ((Number) row[3]).intValue();
+              int availableStock = ((Number) row[3]).intValue();
               String category = row[4].toString();
 
               String alertLevel;
@@ -144,13 +142,8 @@ public class DashboardServiceImpl implements DashboardService {
 
   @Override
   public Map<String, Object> getClientRetentionMetrics() {
-    LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
     LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
 
-    // Convert to Instant for InvoiceRepository (which expects Instant)
-    Instant sixMonthsAgoInstant = sixMonthsAgo.atZone(ZoneId.systemDefault()).toInstant();
-
-    // Use LocalDateTime for ClientRepository (which expects LocalDateTime)
     Long newClients =
         clientRepository.countNewClientsByPeriod(
             threeMonthsAgo.atZone(ZoneId.systemDefault()).toInstant(),

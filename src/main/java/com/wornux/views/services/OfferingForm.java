@@ -26,20 +26,21 @@ import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
 import com.wornux.services.interfaces.OfferingService;
 import com.wornux.utils.NotificationUtils;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class OfferingForm extends Dialog {
 
   private final TextField name = new TextField("Nombre del Servicio");
   private final TextArea description = new TextArea("Descripción");
-  private final ComboBox<OfferingType> serviceType = new ComboBox<>("Tipo de Servicio");
+  private final ComboBox<OfferingType> offeringType = new ComboBox<>("Tipo de Servicio");
   private final NumberField price = new NumberField("Precio");
 
   private final Button saveButton = new Button("Guardar");
@@ -51,16 +52,16 @@ public class OfferingForm extends Dialog {
   private final Binder<ServiceUpdateRequestDto> binderUpdate =
       new BeanValidationBinder<>(ServiceUpdateRequestDto.class);
 
-  private final transient OfferingService serviceService;
+  private final transient OfferingService offeringService;
   private final List<Consumer<ServiceCreateRequestDto>> serviceSavedListeners = new ArrayList<>();
   private final List<Runnable> serviceCancelledListeners = new ArrayList<>();
   private boolean isEditMode = false;
   private Offering currentOffering;
   private ValidationBean validationBean;
-  private Runnable onSaveCallback;
+  @Setter private Runnable onSaveCallback;
 
-  public OfferingForm(OfferingService serviceService) {
-    this.serviceService = serviceService;
+  public OfferingForm(OfferingService offeringService) {
+    this.offeringService = offeringService;
     this.validationBean = new ValidationBean();
 
     setupDialog();
@@ -104,10 +105,10 @@ public class OfferingForm extends Dialog {
     description.setMaxLength(500);
     description.setHelperText("Máximo 500 caracteres");
 
-    serviceType.setItems(OfferingType.values());
-    serviceType.setItemLabelGenerator(OfferingType::getDisplay);
-    serviceType.setRequiredIndicatorVisible(true);
-    serviceType.setPrefixComponent(VaadinIcon.CLIPBOARD_HEART.create());
+    offeringType.setItems(OfferingType.values());
+    offeringType.setItemLabelGenerator(OfferingType::getDisplay);
+    offeringType.setRequiredIndicatorVisible(true);
+    offeringType.setPrefixComponent(VaadinIcon.CLIPBOARD_HEART.create());
 
     price.setPrefixComponent(VaadinIcon.DOLLAR.create());
     price.setRequiredIndicatorVisible(true);
@@ -124,7 +125,7 @@ public class OfferingForm extends Dialog {
     FormLayout formLayout = new FormLayout();
     formLayout.addClassNames(LumoUtility.Padding.MEDIUM);
 
-    formLayout.add(name, serviceType, price, description);
+    formLayout.add(name, offeringType, price, description);
 
     formLayout.setResponsiveSteps(
         new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
@@ -132,10 +133,6 @@ public class OfferingForm extends Dialog {
     formLayout.setColspan(description, 2);
 
     return formLayout;
-  }
-
-  public void setOnSaveCallback(Runnable callback) {
-    this.onSaveCallback = callback;
   }
 
   public void updateHeaderTitle(String title) {
@@ -163,9 +160,9 @@ public class OfferingForm extends Dialog {
         .bind(ValidationBean::getDescription, ValidationBean::setDescription);
 
     binder
-        .forField(serviceType)
+        .forField(offeringType)
         .asRequired("El tipo de servicio es requerido")
-        .bind(ValidationBean::getServiceType, ValidationBean::setServiceType);
+        .bind(ValidationBean::getOfferingType, ValidationBean::setOfferingType);
 
     binder
         .forField(price)
@@ -188,9 +185,9 @@ public class OfferingForm extends Dialog {
         .bind(ServiceUpdateRequestDto::getDescription, ServiceUpdateRequestDto::setDescription);
 
     binderUpdate
-        .forField(serviceType)
+        .forField(offeringType)
         .asRequired("El tipo de servicio es requerido")
-        .bind(ServiceUpdateRequestDto::getServiceType, ServiceUpdateRequestDto::setServiceType);
+        .bind(ServiceUpdateRequestDto::getOfferingType, ServiceUpdateRequestDto::setOfferingType);
 
     binderUpdate
         .forField(price)
@@ -242,11 +239,11 @@ public class OfferingForm extends Dialog {
                   validationBean.getDescription() != null
                       ? validationBean.getDescription().trim()
                       : null)
-              .serviceType(validationBean.getServiceType())
+              .offeringType(validationBean.getOfferingType())
               .price(BigDecimal.valueOf(validationBean.getPrice()))
               .build();
 
-      serviceService.save(dto);
+      offeringService.save(dto);
       NotificationUtils.success("Servicio creado exitosamente");
       close();
       fireServiceSavedEvent(dto);
@@ -267,7 +264,7 @@ public class OfferingForm extends Dialog {
 
     try {
       ServiceUpdateRequestDto updateDto = binderUpdate.getBean();
-      serviceService.updateService(currentOffering.getId(), updateDto);
+      offeringService.updateService(currentOffering.getId(), updateDto);
       NotificationUtils.success("Servicio actualizado exitosamente");
       close();
       if (onSaveCallback != null) {
@@ -310,14 +307,14 @@ public class OfferingForm extends Dialog {
   private void clearForm() {
     name.clear();
     description.clear();
-    serviceType.clear();
+    offeringType.clear();
     price.clear();
   }
 
   private void populateForm(Offering offering) {
     name.setValue(offering.getName());
     description.setValue(offering.getDescription() != null ? offering.getDescription() : "");
-    serviceType.setValue(offering.getServiceType());
+    offeringType.setValue(offering.getOfferingType());
     price.setValue(offering.getPrice().doubleValue());
   }
 
@@ -325,7 +322,7 @@ public class OfferingForm extends Dialog {
     return new ServiceUpdateRequestDto(
         offering.getName(),
         offering.getDescription(),
-        offering.getServiceType(),
+        offering.getOfferingType(),
         offering.getPrice().doubleValue());
   }
 
@@ -350,7 +347,7 @@ public class OfferingForm extends Dialog {
   public static class ValidationBean {
     private String name;
     private String description;
-    private OfferingType serviceType;
+    private OfferingType offeringType;
     private Double price;
   }
 }

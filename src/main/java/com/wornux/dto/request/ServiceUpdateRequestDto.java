@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class ServiceUpdateRequestDto {
   private String name;
   private String description;
-  private OfferingType serviceType;
+  private OfferingType offeringType;
   private Double price;
 }

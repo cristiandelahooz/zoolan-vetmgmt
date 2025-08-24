@@ -30,13 +30,14 @@ import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.pets.SelectPetDialog;
 import com.wornux.views.services.OfferingForm;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import lombok.Setter;
 
 /**
  * Form para registrar sesiones de Grooming (estética), siguiendo el patrón de ConsultationsForm
@@ -79,7 +80,7 @@ public class GroomingForm extends Dialog {
   private final transient GroomingSessionService groomingSessionService;
   private final transient EmployeeService employeeService;
   private final transient PetService petService;
-  private final transient OfferingService serviceService;
+  private final transient OfferingService offeringService;
   private final transient ProductService productService;
   private final transient InvoiceService invoiceService;
   private final List<ServiceItem> selectedServices = new ArrayList<>();
@@ -93,16 +94,16 @@ public class GroomingForm extends Dialog {
       GroomingSessionService groomingSessionService,
       EmployeeService employeeService,
       PetService petService,
-      OfferingService serviceService,
+      OfferingService offeringService,
       InvoiceService invoiceService,
       ProductService productService) {
     this.groomingSessionService = groomingSessionService;
     this.employeeService = employeeService;
     this.petService = petService;
-    this.serviceService = serviceService;
+    this.offeringService = offeringService;
     this.invoiceService = invoiceService;
     this.productService = productService;
-    this.serviceForm = new OfferingForm(serviceService);
+    this.serviceForm = new OfferingForm(offeringService);
     // NUEVO
     this.selectPetDialog = new SelectPetDialog(petService);
 
@@ -428,7 +429,7 @@ public class GroomingForm extends Dialog {
               .forEach(emp -> groomerComboBox.getListDataView().addItem(emp));
 
       // Servicios de estética
-      serviceService.findGroomingServices()
+      offeringService.findGroomingServices()
               .forEach(offering -> serviceComboBox.getListDataView().addItem(offering));
 
       // Productos internos
@@ -444,7 +445,7 @@ public class GroomingForm extends Dialog {
     groomerComboBox.setItems(employeeService.getGroomers());
 
     // Servicios de estética
-    serviceComboBox.setItems(serviceService.findGroomingServices());
+    serviceComboBox.setItems(offeringService.findGroomingServices());
 
     // Productos internos
     productComboBox.setItems(productService.findInternalUseProducts());
@@ -506,13 +507,13 @@ public class GroomingForm extends Dialog {
               .build();
 
       for (ServiceItem serviceItem : selectedServices) {
-        ServiceInvoice serviceInvoice =
-            ServiceInvoice.builder()
+        InvoiceOffering serviceInvoice =
+            InvoiceOffering.builder()
                 .offering(serviceItem.getService())
                 .quantity(serviceItem.getQuantity())
                 .amount(serviceItem.getSubtotal())
                 .build();
-        invoice.addService(serviceInvoice);
+        invoice.addOffering(serviceInvoice);
       }
 
       for (ProductItem productItem : selectedProducts) {
@@ -578,10 +579,10 @@ public class GroomingForm extends Dialog {
       serviceForm.addServiceSavedListener(dto -> {
           // Refrescar selector y auto-seleccionar el nuevo servicio (filtrado a grooming)
           serviceComboBox.getListDataView().removeItems(serviceComboBox.getListDataView().getItems().toList());
-          serviceService.findGroomingServices()
+          offeringService.findGroomingServices()
                   .forEach(offering -> serviceComboBox.getListDataView().addItem(offering));
 
-          serviceService.getAllActiveServices().stream()
+          offeringService.getAllActiveServices().stream()
                   .filter(s -> s.getName().equals(dto.getName()))
                   .findFirst()
                   .ifPresent(serviceComboBox::setValue);
@@ -593,7 +594,7 @@ public class GroomingForm extends Dialog {
     serviceForm.addServiceSavedListener(
         dto -> {
           // Refrescar los servicios de GROOMING en el combo
-          var groomingServices = serviceService.findGroomingServices();
+          var groomingServices = offeringService.findGroomingServices();
           serviceComboBox.setItems(groomingServices); // <-- primero poblar
 
           // Seleccionar el recién creado (por nombre). Mejor si luego pasas el ID.

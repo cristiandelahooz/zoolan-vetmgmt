@@ -1,5 +1,8 @@
 package com.wornux.data.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ClientRating {
   MUY_BUENO("Cliente muy bueno"),
   BUENO("Cliente bueno"),
@@ -11,9 +14,5 @@ public enum ClientRating {
 
   ClientRating(String description) {
     this.description = description;
-  }
-
-  public String getDescription() {
-    return description;
   }
 }

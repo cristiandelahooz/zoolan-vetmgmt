@@ -1,10 +1,5 @@
 package com.wornux.views.transactions;
 
-import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
-import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.CommonUtils.createIconItem;
-
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -40,30 +35,31 @@ import com.wornux.mapper.ClientMapper;
 import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
-import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.OfferingService;
+import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.report.InvoiceReportService;
 import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
 import com.wornux.views.customers.ClientCreationDialog;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
+import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.CommonUtils.createIconItem;
 
 @Slf4j
 public class InvoiceForm extends Div {
@@ -103,7 +99,7 @@ public class InvoiceForm extends Div {
       InvoiceService invoiceService,
       ClientService customerService,
       ProductService productService,
-      OfferingService serviceService,
+      OfferingService offeringService,
       AuditService auditService,
       ClientMapper clientMapper,
       InvoiceReportService invoiceReportService) {
@@ -236,8 +232,8 @@ public class InvoiceForm extends Div {
                 return Optional.ofNullable(((InvoiceProduct) item).getProduct())
                     .map(Product::getName)
                     .orElse("");
-              } else if (item instanceof ServiceInvoice) {
-                return Optional.ofNullable(((ServiceInvoice) item).getOffering())
+              } else if (item instanceof InvoiceOffering) {
+                return Optional.ofNullable(((InvoiceOffering) item).getOffering())
                     .map(Offering::getName)
                     .orElse("");
               }
@@ -253,8 +249,8 @@ public class InvoiceForm extends Div {
                 return Optional.ofNullable(((InvoiceProduct) item).getProduct())
                     .map(Product::getDescription)
                     .orElse("");
-              } else if (item instanceof ServiceInvoice) {
-                return Optional.ofNullable(((ServiceInvoice) item).getOffering())
+              } else if (item instanceof InvoiceOffering) {
+                return Optional.ofNullable(((InvoiceOffering) item).getOffering())
                     .map(Offering::getDescription)
                     .orElse("");
               }
@@ -269,8 +265,8 @@ public class InvoiceForm extends Div {
               Double quantity = 0.0;
               if (item instanceof InvoiceProduct) {
                 quantity = ((InvoiceProduct) item).getQuantity();
-              } else if (item instanceof ServiceInvoice) {
-                quantity = ((ServiceInvoice) item).getQuantity();
+              } else if (item instanceof InvoiceOffering) {
+                quantity = ((InvoiceOffering) item).getQuantity();
               }
               return new DecimalFormat("#,##0.00")
                   .format(Optional.ofNullable(quantity).orElse(0.0));
@@ -285,8 +281,8 @@ public class InvoiceForm extends Div {
               BigDecimal price = BigDecimal.ZERO;
               if (item instanceof InvoiceProduct) {
                 price = ((InvoiceProduct) item).getPrice();
-              } else if (item instanceof ServiceInvoice) {
-                price = ((ServiceInvoice) item).getPrice();
+              } else if (item instanceof InvoiceOffering) {
+                price = ((InvoiceOffering) item).getPrice();
               }
               return new DecimalFormat("#,##0.00")
                   .format(Optional.ofNullable(price).orElse(BigDecimal.ZERO));
@@ -301,8 +297,8 @@ public class InvoiceForm extends Div {
               BigDecimal amount = BigDecimal.ZERO;
               if (item instanceof InvoiceProduct) {
                 amount = ((InvoiceProduct) item).getAmount();
-              } else if (item instanceof ServiceInvoice) {
-                amount = ((ServiceInvoice) item).getAmount();
+              } else if (item instanceof InvoiceOffering) {
+                amount = ((InvoiceOffering) item).getAmount();
               }
               return new DecimalFormat("#,##0.00")
                   .format(Optional.ofNullable(amount).orElse(BigDecimal.ZERO));
@@ -330,11 +326,11 @@ public class InvoiceForm extends Div {
 
     BigDecimal servicesTotal =
         Optional.ofNullable(element)
-            .map(Invoice::getServices)
+            .map(Invoice::getOfferings)
             .map(List::stream)
             .orElse(Stream.empty())
             .filter(s -> s.getOffering() != null && s.getAmount() != null)
-            .map(ServiceInvoice::getAmount)
+            .map(InvoiceOffering::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     BigDecimal currentSubtotal = productsTotal.add(servicesTotal);
@@ -546,20 +542,20 @@ public class InvoiceForm extends Div {
       }
 
       element.getProducts().clear();
-      element.getServices().clear();
+      element.getOfferings().clear();
 
       Set<InvoiceProduct> finalProducts =
           invoiceProducts.stream().filter(p -> p.getProduct() != null).collect(Collectors.toSet());
       finalProducts.forEach(element::addProduct);
 
-      List<ServiceInvoice> servicesFromDisplayedItems =
+      List<InvoiceOffering> servicesFromDisplayedItems =
           displayedItems.stream()
-              .filter(item -> item instanceof ServiceInvoice)
-              .map(item -> (ServiceInvoice) item)
+              .filter(item -> item instanceof InvoiceOffering)
+              .map(item -> (InvoiceOffering) item)
               .collect(Collectors.toList());
-      servicesFromDisplayedItems.forEach(element::addService);
+      servicesFromDisplayedItems.forEach(element::addOffering);
 
-      if (element.getProducts().isEmpty() && element.getServices().isEmpty()) {
+      if (element.getProducts().isEmpty() && element.getOfferings().isEmpty()) {
         NotificationUtils.error("Debes seleccionar al menos un producto o servicio");
         return;
       }
@@ -683,8 +679,8 @@ public class InvoiceForm extends Div {
   private void refreshGrid() {
     displayedItems.clear();
     displayedItems.addAll(invoiceProducts);
-    if (element != null && element.getServices() != null) {
-      displayedItems.addAll(element.getServices());
+    if (element != null && element.getOfferings() != null) {
+      displayedItems.addAll(element.getOfferings());
     }
     gridItems.getDataProvider().refreshAll();
     calculateTotals();

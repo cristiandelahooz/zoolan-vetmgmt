@@ -96,7 +96,7 @@ public class InvoiceView extends Div {
   private final transient InvoiceService service;
   private final InvoiceForm invoiceForm;
   private final transient InvoiceReportService invoiceReportService;
-  private final transient OfferingService serviceService;
+  private final transient OfferingService offeringService;
 
   public InvoiceView(
       InvoiceService service,
@@ -104,10 +104,10 @@ public class InvoiceView extends Div {
       ProductService productService,
       AuditService auditService,
       ClientMapper clientMapper,
-      OfferingService serviceService,
+      OfferingService offeringService,
       InvoiceReportService invoiceReportService) {
     this.service = service;
-    this.serviceService = serviceService;
+    this.offeringService = offeringService;
     this.invoiceReportService = invoiceReportService;
 
     setId("invoices-view");
@@ -116,8 +116,7 @@ public class InvoiceView extends Div {
         new InvoiceForm(
             service,
             customerService,
-            productService,
-            serviceService,
+            productService, offeringService,
             auditService,
             clientMapper,
             invoiceReportService);

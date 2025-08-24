@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface ServiceMapper {
+public interface OfferingMapper {
 
   Offering toEntity(ServiceCreateRequestDto dto);
 

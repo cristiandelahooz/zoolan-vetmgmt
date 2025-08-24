@@ -28,14 +28,13 @@ import com.wornux.data.enums.PetType;
 import com.wornux.services.implementations.PetServiceImpl;
 import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.vaadin.lineawesome.LineAwesomeIcon;
-
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 @Slf4j
 @Route(value = "mascotas-fusionar", layout = MainLayout.class)

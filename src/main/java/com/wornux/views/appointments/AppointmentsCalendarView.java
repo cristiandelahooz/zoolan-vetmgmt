@@ -25,17 +25,18 @@ import com.wornux.views.MainLayout;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import jakarta.annotation.security.PermitAll;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "appointments", layout = MainLayout.class)
@@ -157,9 +158,9 @@ public class AppointmentsCalendarView extends VerticalLayout {
     entry.setEnd(appointment.getEndAppointmentDate());
     entry.setDescription(
         String.format(
-            "Mascota: %s | Servicio: %s", appointment.getPetName(), appointment.getServiceType()));
+            "Mascota: %s | Servicio: %s", appointment.getPetName(), appointment.getOfferingType()));
 
-    if (appointment.getServiceType() != null) {
+    if (appointment.getOfferingType() != null) {
       entry.setColor("#2196F3");
     }
 
@@ -244,24 +245,24 @@ public class AppointmentsCalendarView extends VerticalLayout {
             .collect(Collectors.toList());
     petSelect.setItems(pets);
 
-    Select<OfferingType> serviceTypeSelect = new Select<>();
-    serviceTypeSelect.setLabel("Tipo de Servicio");
-    serviceTypeSelect.setItems(OfferingType.values());
-    serviceTypeSelect.setItemLabelGenerator(OfferingType::name);
-    serviceTypeSelect.setRequiredIndicatorVisible(true);
-    serviceTypeSelect.setWidthFull();
+    Select<OfferingType> offeringTypeSelect = new Select<>();
+    offeringTypeSelect.setLabel("Tipo de Servicio");
+    offeringTypeSelect.setItems(OfferingType.values());
+    offeringTypeSelect.setItemLabelGenerator(OfferingType::name);
+    offeringTypeSelect.setRequiredIndicatorVisible(true);
+    offeringTypeSelect.setWidthFull();
 
     TextField notesField = new TextField("Notas");
     notesField.setWidthFull();
 
-    formLayout.add(titleField, petSelect, serviceTypeSelect, notesField);
+    formLayout.add(titleField, petSelect, offeringTypeSelect, notesField);
     formLayout.setColspan(notesField, 2);
 
     Button saveButton =
         new Button(
             "Guardar",
             e -> {
-              if (titleField.isEmpty() || petSelect.isEmpty() || serviceTypeSelect.isEmpty()) {
+              if (titleField.isEmpty() || petSelect.isEmpty() || offeringTypeSelect.isEmpty()) {
                 Notification.show("Por favor complete todos los campos requeridos");
                 return;
               }
@@ -269,7 +270,7 @@ public class AppointmentsCalendarView extends VerticalLayout {
               AppointmentCreateRequestDto createDto = new AppointmentCreateRequestDto();
               createDto.setReason(titleField.getValue()); // Using reason field for title
               createDto.setPetId(petSelect.getValue().getId());
-              createDto.setServiceType(serviceTypeSelect.getValue());
+              createDto.setOfferingType(offeringTypeSelect.getValue());
               createDto.setStartAppointmentDate(start);
               createDto.setEndAppointmentDate(end);
               createDto.setNotes(notesField.getValue());

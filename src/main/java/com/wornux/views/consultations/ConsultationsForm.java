@@ -73,7 +73,7 @@ public class ConsultationsForm extends Dialog {
   private final transient ConsultationService consultationService;
   private final transient EmployeeService employeeService;
   private final transient PetService petService;
-  private final transient OfferingService serviceService;
+  private final transient OfferingService offeringService;
   private final transient InvoiceService invoiceService;
   private final transient ProductService productService;
   private final List<ServiceItem> selectedServices = new ArrayList<>();
@@ -88,16 +88,16 @@ public class ConsultationsForm extends Dialog {
       ConsultationService consultationService,
       EmployeeService employeeService,
       PetService petService,
-      OfferingService serviceService,
+      OfferingService offeringService,
       InvoiceService invoiceService,
       ProductService productService) {
     this.consultationService = consultationService;
     this.employeeService = employeeService;
     this.petService = petService;
-    this.serviceService = serviceService;
+    this.offeringService = offeringService;
     this.productService = productService;
     this.invoiceService = invoiceService;
-    this.offeringForm = new OfferingForm(serviceService);
+    this.offeringForm = new OfferingForm(offeringService);
 
     this.selectPetDialog = new SelectPetDialog(petService);
 
@@ -430,7 +430,7 @@ public class ConsultationsForm extends Dialog {
   private void loadComboBoxData() {
     veterinarianComboBox.setItems(employeeService.getVeterinarians());
 
-    serviceComboBox.setItems(serviceService.findMedicalServices());
+    serviceComboBox.setItems(offeringService.findMedicalServices());
 
     productComboBox.setItems(productService.findInternalUseProducts());
   }
@@ -513,7 +513,7 @@ public class ConsultationsForm extends Dialog {
               this.editingInvoice = invoice;
 
               invoice
-                  .getServices()
+                  .getOfferings()
                   .forEach(
                       serviceInvoice ->
                           selectedServices.add(
@@ -556,7 +556,7 @@ public class ConsultationsForm extends Dialog {
   private void setupServiceForm() {
     offeringForm.addServiceSavedListener(
         dto -> {
-          var medicalServices = serviceService.findMedicalServices();
+          var medicalServices = offeringService.findMedicalServices();
           serviceComboBox.setItems(medicalServices);
           medicalServices.stream()
               .filter(s -> s.getName().equalsIgnoreCase(dto.getName()))
@@ -624,15 +624,15 @@ public class ConsultationsForm extends Dialog {
               .build();
     }
 
-    invoiceToSave.getServices().clear();
+    invoiceToSave.getOfferings().clear();
     for (ServiceItem serviceItem : selectedServices) {
-      ServiceInvoice serviceInvoice =
-          ServiceInvoice.builder()
+      InvoiceOffering serviceInvoice =
+          InvoiceOffering.builder()
               .offering(serviceItem.getService())
               .quantity(serviceItem.getQuantity())
               .amount(serviceItem.getSubtotal())
               .build();
-      invoiceToSave.addService(serviceInvoice);
+      invoiceToSave.addOffering(serviceInvoice);
     }
 
     invoiceToSave.getProducts().clear();

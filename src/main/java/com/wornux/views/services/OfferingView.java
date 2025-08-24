@@ -59,12 +59,12 @@ public class OfferingView extends Div {
   private final Span quantity = new Span();
 
   private final Button create = new Button();
-  private final transient OfferingService serviceService;
+  private final transient OfferingService offeringService;
   private final OfferingForm offeringForm;
 
-  public OfferingView(OfferingService serviceService) {
-    this.serviceService = serviceService;
-    this.offeringForm = new OfferingForm(serviceService);
+  public OfferingView(OfferingService offeringService) {
+    this.offeringService = offeringService;
+    this.offeringForm = new OfferingForm(offeringService);
 
     setId("services-view");
 
@@ -76,7 +76,7 @@ public class OfferingView extends Div {
         });
     offeringForm.addServiceCancelledListener(offeringForm::close);
 
-    createGrid(serviceService, createFilterSpecification());
+    createGrid(offeringService, createFilterSpecification());
 
     final Div gridLayout = new Div(grid);
     gridLayout.addClassNames(
@@ -95,7 +95,7 @@ public class OfferingView extends Div {
     GridUtils.addColumn(grid, Offering::getName, "Nombre", "name");
     GridUtils.addColumn(grid, Offering::getDescription, "Descripción", "description");
 
-    grid.addColumn(serviceEntity -> serviceEntity.getServiceType().getDisplay())
+    grid.addColumn(serviceEntity -> serviceEntity.getOfferingType().getDisplay())
         .setHeader("Tipo")
         .setSortable(true)
         .setAutoWidth(true);
@@ -162,7 +162,7 @@ public class OfferingView extends Div {
   }
 
   private void updateQuantityLabel() {
-    long count = serviceService.getAllActiveServices().size();
+    long count = offeringService.getAllActiveServices().size();
     quantity.setText("Servicios (" + count + ")");
   }
 
@@ -309,7 +309,7 @@ public class OfferingView extends Div {
 
   private void deleteService(Offering offering) {
     try {
-      serviceService.deactivateService(offering.getId());
+      offeringService.deactivateService(offering.getId());
       NotificationUtils.success("Servicio eliminado exitosamente");
       refreshAll();
     } catch (Exception e) {

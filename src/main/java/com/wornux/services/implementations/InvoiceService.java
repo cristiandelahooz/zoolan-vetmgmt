@@ -2,14 +2,10 @@ package com.wornux.services.implementations;
 
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Invoice;
-import com.wornux.data.entity.ServiceInvoice;
+import com.wornux.data.entity.InvoiceOffering;
 import com.wornux.data.repository.InvoiceRepository;
-import com.wornux.data.repository.InvoiceServiceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,12 +13,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class InvoiceService {
 
   @Getter private final InvoiceRepository repository;
-  private final InvoiceServiceRepository invoiceServiceRepository;
 
   public Optional<Invoice> get(Long id) {
     if (id == null) return Optional.empty();
@@ -97,7 +96,7 @@ public class InvoiceService {
   @Transactional()
   public long getServicesCount(Long invoiceId) {
     Invoice invoice = findByIdWithDetails(invoiceId);
-    return invoice.getServices().size();
+    return invoice.getOfferings().size();
   }
 
   // Get invoice products count for display
@@ -111,8 +110,8 @@ public class InvoiceService {
   @Transactional()
   public BigDecimal calculateServicesTotal(Long invoiceId) {
     Invoice invoice = findByIdWithDetails(invoiceId);
-    return invoice.getServices().stream()
-        .map(ServiceInvoice::getAmount)
+    return invoice.getOfferings().stream()
+        .map(InvoiceOffering::getAmount)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 }

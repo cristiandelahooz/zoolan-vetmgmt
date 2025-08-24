@@ -1,19 +1,23 @@
 package com.wornux.dto.request;
 
-import static com.wornux.constants.AppointmentConstants.*;
-
 import com.wornux.data.entity.AppointmentClientInfo;
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.data.enums.OfferingType;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import static com.wornux.constants.AppointmentConstants.MAX_APPOINTMENT_NOTES_LENGTH;
+import static com.wornux.constants.AppointmentConstants.MAX_REASON_LENGTH;
 
 @Data
 @Builder
@@ -30,7 +34,7 @@ public class AppointmentCreateRequestDto {
   private LocalDateTime endAppointmentDate;
 
   @NotNull(message = "El tipo de servicio es obligatorio")
-  private OfferingType serviceType;
+  private OfferingType offeringType;
 
   private AppointmentStatus status;
 

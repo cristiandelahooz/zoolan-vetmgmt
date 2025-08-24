@@ -50,7 +50,7 @@ public class ConsultationsView extends Div {
   private final Span quantity = new Span();
   private final transient ConsultationService consultationService;
   private final transient InvoiceService invoiceService;
-  private final transient OfferingService serviceService;
+  private final transient OfferingService offeringService;
   private final transient ProductService productService;
   private final transient ConsultationsForm consultationsForm;
 
@@ -58,19 +58,19 @@ public class ConsultationsView extends Div {
       @Qualifier("consultationServiceImpl") ConsultationService consultationService,
       @Qualifier("employeeServiceImpl") EmployeeService employeeService,
       @Qualifier("petServiceImpl") PetService petService,
-      @Qualifier("serviceServiceImpl") OfferingService serviceService,
+      @Qualifier("offeringServiceImpl") OfferingService offeringService,
       @Qualifier("productServiceImpl") ProductService productService,
       InvoiceService invoiceService) {
     this.consultationService = consultationService;
     this.invoiceService = invoiceService;
     this.productService = productService;
-    this.serviceService = serviceService;
+    this.offeringService = offeringService;
     this.consultationsForm =
         new ConsultationsForm(
             consultationService,
             employeeService,
             petService,
-            serviceService,
+            offeringService,
             invoiceService,
             productService);
 

@@ -4,14 +4,15 @@ import com.wornux.data.enums.InvoiceStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.proxy.HibernateProxy;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
-import lombok.*;
-import org.hibernate.envers.Audited;
-import org.hibernate.proxy.HibernateProxy;
 
 @Getter
 @Setter
@@ -57,7 +58,7 @@ public class Invoice extends Auditable implements Serializable {
       fetch = FetchType.LAZY,
       orphanRemoval = true)
   @Builder.Default
-  private List<ServiceInvoice> services = new ArrayList<>();
+  private List<InvoiceOffering> offerings = new ArrayList<>();
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "consultation", referencedColumnName = "id")
@@ -166,25 +167,25 @@ public class Invoice extends Auditable implements Serializable {
         : getClass().hashCode();
   }
 
-  public void addService(ServiceInvoice serviceInvoice) {
-    services.add(serviceInvoice);
-    serviceInvoice.setInvoice(this);
-    serviceInvoice.calculateAmount();
+  public void addOffering(InvoiceOffering invoiceOffering) {
+    offerings.add(invoiceOffering);
+    invoiceOffering.setInvoice(this);
+    invoiceOffering.calculateAmount();
   }
 
-  public void removeService(ServiceInvoice serviceInvoice) {
-    services.remove(serviceInvoice);
-    serviceInvoice.setInvoice(null);
+  public void removeOffering(InvoiceOffering invoiceOffering) {
+    offerings.remove(invoiceOffering);
+    invoiceOffering.setInvoice(null);
   }
 
   public void calculateTotals() {
-    BigDecimal servicesTotal =
-        services.stream().map(ServiceInvoice::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal offeringsTotal =
+        offerings.stream().map(InvoiceOffering::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
     BigDecimal productsTotal =
         products.stream().map(InvoiceProduct::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    this.subtotal = servicesTotal.add(productsTotal);
+    this.subtotal = offeringsTotal.add(productsTotal);
     this.tax = this.subtotal.multiply(TAX_RATE);
     this.total = this.subtotal.add(this.tax);
   }
