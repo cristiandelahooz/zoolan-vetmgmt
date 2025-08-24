@@ -15,7 +15,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
+import com.wornux.mapper.ClientMapper;
 import com.wornux.services.interfaces.AppointmentService;
+import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.ValidationNotificationUtils;
 import com.wornux.views.MainLayout;
@@ -47,19 +49,21 @@ public class AppointmentCalendarView extends VerticalLayout {
   private final FullCalendar calendar;
   private final transient AppointmentEntryService appointmentEntryService;
   private final transient AppointmentService appointmentService;
-  private final AppointmentDialog appointmentDialog;
+  private final AppointmentForm appointmentForm;
   private final Span currentViewLabel;
   private final ComboBox<CalendarViewImpl> viewSelector;
 
   public AppointmentCalendarView(
       AppointmentEntryService appointmentEntryService,
       AppointmentService appointmentService,
-      PetService petService) {
+      PetService petService,
+      ClientService clientService,
+      ClientMapper clientMapper) {
     this.appointmentEntryService = appointmentEntryService;
     this.appointmentService = appointmentService;
 
-    appointmentDialog =
-        new AppointmentDialog(appointmentService, petService, v -> loadAppointments());
+    appointmentForm =
+        new AppointmentForm(appointmentService, clientService, petService, clientMapper, v -> loadAppointments());
 
     // Initialize UI components
     currentViewLabel = new Span();
@@ -95,7 +99,7 @@ public class AppointmentCalendarView extends VerticalLayout {
 
     // Layout composition with spacing
     header.addClassNames(LumoUtility.Margin.Bottom.SMALL);
-    add(header, calendar);
+    add(header, calendar, appointmentForm);
 
     loadAppointments();
   }
@@ -325,7 +329,7 @@ public class AppointmentCalendarView extends VerticalLayout {
   }
 
   private void openNewAppointmentDialog() {
-    appointmentDialog.openForNew(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
+    appointmentForm.openForNew(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
   }
 
   public void loadAppointments() {
@@ -354,13 +358,13 @@ public class AppointmentCalendarView extends VerticalLayout {
 
   private void onEntryClick(EntryClickedEvent event) {
     Long appointmentId = Long.valueOf(event.getEntry().getId());
-    appointmentEntryService.getAppointment(appointmentId).ifPresent(appointmentDialog::openForEdit);
+    appointmentEntryService.getAppointment(appointmentId).ifPresent(appointmentForm::openForEdit);
   }
 
   private void onTimeslotsSelected(TimeslotsSelectedEvent event) {
     LocalDateTime start = event.getStart();
     LocalDateTime end = event.getEnd();
-    appointmentDialog.openForNew(start, end);
+    appointmentForm.openForNew(start, end);
   }
 
   private void onEntryResized(EntryResizedEvent event) {
