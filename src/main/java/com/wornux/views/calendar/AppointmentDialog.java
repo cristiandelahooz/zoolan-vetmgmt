@@ -15,19 +15,19 @@ import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.dto.response.AppointmentResponseDto;
 import com.wornux.services.interfaces.AppointmentService;
 import com.wornux.services.interfaces.PetService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-
+import com.wornux.utils.ValidationNotificationUtils;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 
 @Slf4j
 public class AppointmentDialog extends Dialog {
 
-  private final AppointmentService appointmentService;
-  private final PetService petService;
+  private final transient AppointmentService appointmentService;
+  private final transient PetService petService;
   private final Consumer<Void> onSaveCallback;
 
   private AppointmentResponseDto currentAppointment;
@@ -118,7 +118,7 @@ public class AppointmentDialog extends Dialog {
                     pet.setName(dto.name());
                     return pet;
                   })
-              .collect(Collectors.toList());
+              .toList();
       petSelect.setItems(pets);
     } catch (Exception e) {
       log.error("Error loading pets", e);
@@ -205,6 +205,9 @@ public class AppointmentDialog extends Dialog {
       onSaveCallback.accept(null);
       close();
 
+    } catch (ConstraintViolationException e) {
+      log.error("Validation error saving appointment", e);
+      ValidationNotificationUtils.handleDialogValidationErrors(e);
     } catch (Exception e) {
       log.error("Error saving appointment", e);
       Notification.show("Error guardando la cita", 3000, Notification.Position.MIDDLE)
@@ -270,6 +273,9 @@ public class AppointmentDialog extends Dialog {
       onSaveCallback.accept(null);
       close();
 
+    } catch (ConstraintViolationException e) {
+      log.error("Validation error deleting appointment", e);
+      ValidationNotificationUtils.handleDialogValidationErrors(e);
     } catch (Exception e) {
       log.error("Error deleting appointment", e);
       Notification.show("Error eliminando la cita", 3000, Notification.Position.MIDDLE)

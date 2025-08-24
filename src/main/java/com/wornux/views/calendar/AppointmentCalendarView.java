@@ -8,6 +8,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.wornux.utils.ValidationNotificationUtils;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,6 +23,7 @@ import com.wornux.views.calendar.utils.FullCalendarWithTooltip;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import jakarta.annotation.security.PermitAll;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
@@ -46,7 +48,6 @@ public class AppointmentCalendarView extends VerticalLayout {
   private final FullCalendar calendar;
   private final transient AppointmentEntryService appointmentEntryService;
   private final transient AppointmentService appointmentService;
-  private final transient PetService petService;
   private final AppointmentDialog appointmentDialog;
   private final Span currentViewLabel;
   private final ComboBox<CalendarViewImpl> viewSelector;
@@ -57,7 +58,6 @@ public class AppointmentCalendarView extends VerticalLayout {
       PetService petService) {
     this.appointmentEntryService = appointmentEntryService;
     this.appointmentService = appointmentService;
-    this.petService = petService;
 
     appointmentDialog =
         new AppointmentDialog(appointmentService, petService, v -> loadAppointments());
@@ -284,7 +284,7 @@ public class AppointmentCalendarView extends VerticalLayout {
   }
 
   private String formatIntervalForView(LocalDate intervalStart, CalendarViewImpl view) {
-    Locale locale = new Locale("es", "ES");
+    Locale locale = Locale.of("es", "ES");
     DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale);
     DateTimeFormatter dayFormatter =
         DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM 'de' yyyy", locale);
@@ -391,6 +391,10 @@ public class AppointmentCalendarView extends VerticalLayout {
       notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
       notification.setPosition(Notification.Position.TOP_END);
       notification.setDuration(3000);
+    } catch (ConstraintViolationException e) {
+      log.error("Validation error updating appointment", e);
+      ValidationNotificationUtils.handleCalendarValidationErrors(e);
+      loadAppointments(); // Reload to revert visual changes
     } catch (Exception e) {
       log.error("Error updating appointment", e);
 
@@ -445,4 +449,5 @@ public class AppointmentCalendarView extends VerticalLayout {
 
     return initialOptions;
   }
+
 }
