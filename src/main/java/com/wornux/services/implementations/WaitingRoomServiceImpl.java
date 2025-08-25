@@ -382,4 +382,19 @@ public class WaitingRoomServiceImpl
   public WaitingRoomRepository getRepository() {
     return waitingRoomRepository;
   }
+
+  @Override
+  public List<WaitingRoom> findByAssignedVeterinarian(Long veterinarianId) {
+    return waitingRoomRepository.findByAssignedVeterinarian_Id(veterinarianId);
+  }
+
+  @Override
+  public List<WaitingRoom> findForVeterinarian(Long veterinarianId) {
+    List<WaitingRoomStatus> activeStatuses = Arrays.asList(
+            WaitingRoomStatus.ESPERANDO,
+            WaitingRoomStatus.EN_CONSULTA
+    );
+    return waitingRoomRepository.findByVeterinarianAndStatuses(veterinarianId, activeStatuses);
+  }
+
 }
