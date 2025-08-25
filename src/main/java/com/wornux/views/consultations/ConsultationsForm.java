@@ -58,12 +58,12 @@ public class ConsultationsForm extends Dialog {
   private final TextArea prescriptionTextArea = new TextArea("Prescripción");
 
   private final ComboBox<Offering> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
-  private final Button addServiceButton = new Button("Agregar Servicio", new Icon(VaadinIcon.PLUS));
+  private final Button addServiceButton = new Button("Agregar", new Icon(VaadinIcon.PLUS));
   private final Grid<OfferingItem> servicesGrid = new Grid<>(OfferingItem.class, false);
 
   private final ComboBox<Product> productComboBox = new ComboBox<>("Seleccionar Producto");
   private final NumberField productQuantityField = new NumberField("Cantidad");
-  private final Button addProductButton = new Button("Agregar Producto", new Icon(VaadinIcon.PLUS));
+  private final Button addProductButton = new Button("Agregar", new Icon(VaadinIcon.PLUS));
   private final Grid<ProductItem> productsGrid = new Grid<>(ProductItem.class, false);
 
   private final Span totalServicesSpan = new Span("$0.00");
@@ -72,7 +72,7 @@ public class ConsultationsForm extends Dialog {
 
   private final Button saveButton = new Button("Registrar Consulta");
   private final Button cancelButton = new Button("Cancelar");
-  private final Button createServiceButton = new Button("Crear Nuevo Servicio");
+  private final Button createServiceButton = new Button("Crear");
 
   private final Binder<Consultation> binder = new Binder<>(Consultation.class);
 
