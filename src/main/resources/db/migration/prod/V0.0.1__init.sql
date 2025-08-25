@@ -992,6 +992,11 @@ alter table if exists grooming_sessions
         foreign key (pet)
             references pets;
 
+alter table if exists grooming_sessions
+    add constraint FKd7hshm7cxanujkw3g45t6jr6n
+        foreign key (waiting_room_id)
+            references waiting_room;
+
 alter table if exists grooming_sessions_log
     add constraint FKsvf3xtu3x5ivb23kx9dxy7dea
         foreign key (rev)
