@@ -976,8 +976,8 @@ FROM invoices i
 INSERT INTO appointments (start_appointment_date, end_appointment_date,
                           offering_type, status,
                           reason, notes, client_id, pet_id, employee_id,
-                          created_at,
-                          updated_at, created_by, updated_by)
+                          created_by,
+                          created_date, last_modified_by, last_modified_date)
 SELECT NOW() + (INTERVAL '1 day' * (ROW_NUMBER() OVER ())),
        NOW() + (INTERVAL '1 day' * (ROW_NUMBER() OVER ())) +
        INTERVAL '30 minutes',
@@ -1000,10 +1000,10 @@ SELECT NOW() + (INTERVAL '1 day' * (ROW_NUMBER() OVER ())),
        po.owners,
        po.pet_id,
        e.employee_id,
+       'vet.martinez',
        NOW(),
-       NOW(),
-       'admin',
-       NULL
+       'vet.martinez',
+       NOW()
 FROM pet_owners po
          CROSS JOIN (SELECT employee_id
                      FROM employee
