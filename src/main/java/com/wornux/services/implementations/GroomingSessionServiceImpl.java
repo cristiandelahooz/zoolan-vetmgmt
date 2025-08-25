@@ -52,6 +52,9 @@ public class GroomingSessionServiceImpl
   @Override
   public GroomingSession save(GroomingSession session) {
     log.debug("Saving GroomingSession: {}", session.getId());
+    if (session.getNotes() == null) {
+      session.setNotes("");
+    }
     return groomingSessionRepository.save(session);
   }
 
