@@ -76,7 +76,7 @@ public class ValidationNotificationUtils implements ApplicationContextAware {
    */
   public static void handleFormValidationErrors(ConstraintViolationException exception) {
     getValidationErrorHandler()
-        .handleValidationErrors(exception, ValidationErrorContext.forGeneralForms());
+        .handleValidationErrors(exception, ValidationErrorContext.forIndividualErrorsImmediate());
   }
 
   /**
@@ -104,7 +104,8 @@ public class ValidationNotificationUtils implements ApplicationContextAware {
   private static ValidationErrorHandler getValidationErrorHandler() {
     if (applicationContext == null) {
       throw new IllegalStateException(
-          "ApplicationContext not initialized. Ensure ValidationNotificationUtils is properly configured as a Spring bean.");
+          "ApplicationContext not initialized. Ensure ValidationNotificationUtils is properly"
+              + " configured as a Spring bean.");
     }
 
     return applicationContext.getBean(ValidationErrorHandler.class);
