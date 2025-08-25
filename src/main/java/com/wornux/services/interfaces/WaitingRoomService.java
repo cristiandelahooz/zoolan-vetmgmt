@@ -69,4 +69,10 @@ public interface WaitingRoomService {
   void update(WaitingRoom waitingRoom);
 
   WaitingRoomRepository getRepository();
+
+  List<WaitingRoom> findByAssignedVeterinarian(Long veterinarianId);
+
+  List<WaitingRoom> findForVeterinarian(Long veterinarianId);
+
+
 }
