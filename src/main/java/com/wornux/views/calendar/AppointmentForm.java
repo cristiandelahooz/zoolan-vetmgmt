@@ -128,30 +128,32 @@ public class AppointmentForm extends Div {
     offeringTypeSelect.addValueChangeListener(
         event -> {
           isGroomingWorkflow = event.getValue() == OfferingType.GROOMING;
+          enableFormFields(event.getValue() != null);
           updateWorkflowVisibility();
         });
 
-    // Initialize client selection
     clientCombo.setClearButtonVisible(true);
     clientCombo.setWidthFull();
     clientCombo.setRequiredIndicatorVisible(true);
+    clientCombo.setEnabled(false);
     setupClientCombo();
 
-    // Initialize pet selection
     petCombo.setClearButtonVisible(true);
     petCombo.setWidthFull();
     petCombo.setRequiredIndicatorVisible(true);
     petCombo.setEnabled(false);
 
-    // Initialize form fields
     titleField.setRequired(true);
     titleField.setWidthFull();
+    titleField.setEnabled(false);
 
     appointmentDate.setRequired(true);
     appointmentDate.setWidthFull();
+    appointmentDate.setEnabled(false);
 
     startTime.setRequired(true);
     startTime.setWidth("48%");
+    startTime.setEnabled(false);
     startTime.addValueChangeListener(
         event -> {
           if (event.getValue() != null && endTime.isEmpty()) {
@@ -161,24 +163,26 @@ public class AppointmentForm extends Div {
 
     endTime.setRequired(true);
     endTime.setWidth("48%");
+    endTime.setEnabled(false);
 
     notesField.setWidthFull();
+    notesField.setEnabled(false);
     CommonUtils.commentsFormat(notesField, 500);
 
-    // Initialize guest client info fields
     initializeGuestClientFields();
 
-    // Setup add buttons
     addClient.setTooltipText("Agregar un cliente");
     addClient.addThemeVariants(
         ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
     addClient.addClassNames(LumoUtility.Width.AUTO);
+    addClient.setEnabled(false);
     addClient.addClickListener(this::openClientCreationDialog);
 
     addPet.setTooltipText("Agregar una mascota");
     addPet.addThemeVariants(
         ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
     addPet.addClassNames(LumoUtility.Width.AUTO);
+    addPet.setEnabled(false);
     addPet.addClickListener(this::openPetCreationDialog);
   }
 
@@ -263,9 +267,11 @@ public class AppointmentForm extends Div {
           if (selectedClient != null) {
             loadClientPets(selectedClient);
             petCombo.setEnabled(true);
+            addPet.setEnabled(true);
           } else {
             petCombo.clear();
             petCombo.setEnabled(false);
+            addPet.setEnabled(false);
           }
         });
   }
@@ -309,25 +315,44 @@ public class AppointmentForm extends Div {
       return;
     }
 
-    petForm.setOnSaveCallback(
-        () -> {
-          // Refresh pet list for the selected client
-          loadClientPets(clientCombo.getValue());
-        });
+    petForm.setOnSaveCallback(() -> loadClientPets(clientCombo.getValue()));
 
-    // Open PetForm with pre-selected client
     petForm.openForNewWithOwner(clientCombo.getValue());
+  }
+
+  private void enableFormFields(boolean enabled) {
+    titleField.setEnabled(enabled);
+    appointmentDate.setEnabled(enabled);
+    startTime.setEnabled(enabled);
+    endTime.setEnabled(enabled);
+    notesField.setEnabled(enabled);
+    
+    clientCombo.setEnabled(enabled && !isGroomingWorkflow);
+    addClient.setEnabled(enabled && !isGroomingWorkflow);
+    addPet.setEnabled(enabled && !isGroomingWorkflow && clientCombo.getValue() != null);
+    
+    if (enabled && isGroomingWorkflow) {
+      guestClientName.setEnabled(true);
+      guestClientPhone.setEnabled(true);
+      guestClientEmail.setEnabled(true);
+      guestPetType.setEnabled(true);
+      guestPetBreed.setEnabled(true);
+    } else {
+      guestClientName.setEnabled(false);
+      guestClientPhone.setEnabled(false);
+      guestClientEmail.setEnabled(false);
+      guestPetType.setEnabled(false);
+      guestPetBreed.setEnabled(false);
+    }
   }
 
   private void updateWorkflowVisibility() {
     boolean showGuestFields = isGroomingWorkflow;
     boolean showClientPetSelection = !isGroomingWorkflow;
 
-    // Toggle guest client info fields
     Arrays.asList(guestClientName, guestClientPhone, guestClientEmail, guestPetType, guestPetBreed)
         .forEach(field -> field.setVisible(showGuestFields));
 
-    // Toggle client/pet selection
     clientCombo.setVisible(showClientPetSelection);
     petCombo.setVisible(showClientPetSelection);
     addClient.setVisible(showClientPetSelection);
