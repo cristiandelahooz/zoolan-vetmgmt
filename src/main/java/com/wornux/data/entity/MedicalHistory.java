@@ -23,7 +23,7 @@ public class MedicalHistory {
   private Long id;
 
   @OneToOne
-  @JoinColumn(name = "pet", unique = true)
+  @JoinColumn(name = "pet")
   @JsonIgnore
   private Pet pet;
 

@@ -33,26 +33,8 @@ public class Supplier {
   @Column(name = "supplier_id")
   protected Long id;
 
-  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
-  @Column(name = "rnc", length = 11, nullable = false, unique = true, columnDefinition = "CHAR(11)")
-  private String rnc;
-
-  @Column(name = "company_name", nullable = false)
-  private String companyName;
-
-  @Column(name = "contact_person")
-  @Nullable
-  private String contactPerson;
-
-  @Pattern(
-      regexp = DOMINICAN_PHONE_PATTERN,
-      message = "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
-  @Column(name = "contact_phone")
-  @Nullable
-  private String contactPhone;
-
   @Email(message = "Por favor, proporcione una dirección de correo electrónico válida")
-  @Column(name = "contact_email", unique = true)
+  @Column(name = "contact_email")
   @Nullable
   protected String contactEmail;
 
@@ -71,6 +53,25 @@ public class Supplier {
   @Column(name = "street_address")
   @NotNull(message = "La dirección de la calle del suplidor es requerido")
   protected String streetAddress;
+
+  @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener exactamente 9 dígitos")
+  @Column(name = "rnc", length = 11)
+  @NotNull
+  private String rnc;
+
+  @Column(name = "company_name", nullable = false)
+  private String companyName;
+
+  @Column(name = "contact_person")
+  @Nullable
+  private String contactPerson;
+
+  @Pattern(
+      regexp = DOMINICAN_PHONE_PATTERN,
+      message = "Proporcione un número de teléfono válido (809, 849 o 829 seguido de 7 dígitos)")
+  @Column(name = "contact_phone")
+  @Nullable
+  private String contactPhone;
 
   @Column(name = "active")
   @Builder.Default

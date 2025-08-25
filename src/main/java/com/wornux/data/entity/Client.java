@@ -32,19 +32,19 @@ import static com.wornux.constants.ValidationConstants.*;
 public class Client extends User {
 
   @Pattern(regexp = CEDULA_PATTERN, message = "La cédula debe contener exactamente 11 dígitos")
-  @Column(name = "cedula", length = 11, columnDefinition = "CHAR(11)")
+  @Column(name = "cedula", length = 11)
   @Nullable
   private String cedula;
 
   @Pattern(
       regexp = PASSPORT_PATTERN,
       message = "El pasaporte debe contener 9 caracteres alfanuméricos")
-  @Column(name = "passport", length = 9, columnDefinition = "CHAR(9)")
+  @Column(name = "passport", length = 9)
   @Nullable
   private String passport;
 
   @Pattern(regexp = RNC_PATTERN, message = "El RNC debe contener 9 u 11 dígitos")
-  @Column(name = "rnc", length = 11, nullable = true, unique = true, columnDefinition = "CHAR(11)")
+  @Column(name = "rnc", length = 11)
   @Nullable
   private String rnc;
 
