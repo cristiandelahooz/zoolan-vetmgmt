@@ -9,6 +9,7 @@ import java.util.Objects;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.proxy.HibernateProxy;
+import com.wornux.data.enums.VisitType;
 
 @Entity
 @Table(name = "waiting_room")
@@ -64,6 +65,15 @@ public class WaitingRoom {
   @JoinColumn(name = "assigned_veterinarian")
   private Employee assignedVeterinarian;
 
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "assigned_groomer")
+  private Employee assignedGroomer;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type", nullable = false)
+  @NotNull
+  private VisitType type = VisitType.MEDICA;
+
   @PrePersist
   public void prePersist() {
     if (arrivalTime == null) {
@@ -71,12 +81,12 @@ public class WaitingRoom {
     }
   }
 
-  public void startConsultation() {
-    this.status = WaitingRoomStatus.EN_CONSULTA;
+  public void startService() {
+    this.status = WaitingRoomStatus.EN_PROCESO;
     this.consultationStartedAt = LocalDateTime.now();
   }
 
-  public void completeConsultation() {
+  public void completeService() {
     this.status = WaitingRoomStatus.COMPLETADO;
     this.completedAt = LocalDateTime.now();
   }
