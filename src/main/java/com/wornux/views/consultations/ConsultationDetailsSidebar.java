@@ -57,6 +57,7 @@ public class ConsultationDetailsSidebar extends Div {
 
     // botones
     sidebar.getSave().setText("Editar consulta");
+    sidebar.getDelete().getElement().getStyle().set("display", "none");
     sidebar.getSave().addThemeVariants(ButtonVariant.LUMO_PRIMARY);
     sidebar.setOnSaveClickListener(
         e -> {
