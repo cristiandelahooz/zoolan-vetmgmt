@@ -27,13 +27,15 @@ spring:
     placeholderReplacement: false
 
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
     properties:
-      org:
-        hibernate:
-          envers:
-            audit_table_suffix: _log
-            store_data_at_delete: true
+      hibernate:
+        envers:
+          audit_table_suffix: _log
+          store_data_at_delete: true
+    hibernate:
+      ddl-auto: validate
 
 logging:
   level:
@@ -41,7 +43,7 @@ logging:
 
 # Launch the default browser when starting the application in development mode
 vaadin:
-  launch-browser: true
+  launch-browser: false
   # To improve the performance during development.
   # For more information https://vaadin.com/docs/latest/flow/integrations/spring/configuration#special-configuration-parameters
   allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux
@@ -53,12 +55,15 @@ spring:
     activate:
       on-profile: dev
   flyway:
-    enabled: true
-    locations: [ classpath:db/migration/prod, classpath:db/migration/dev ] #, filesystem:./sql
+    enabled: false
+    locations: [ classpath:db/migration/prod, classpath:db/migration/dev ]
   jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        order_inserts: true
+        order_updates: true
 
   devtools:
     restart:
@@ -67,3 +72,26 @@ spring:
       quiet-period: 1s
       poll-interval: 2s
       log-condition-evaluation-delta: false
+---
+spring:
+  config:
+    activate:
+      on-profile: create-schema
+  flyway:
+    enabled: false
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        order_inserts: true
+        order_updates: true
+      javax:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: create.sql
+              create-source: metadata
+    hibernate:
+      ddl-auto: create
+    show-sql: false
