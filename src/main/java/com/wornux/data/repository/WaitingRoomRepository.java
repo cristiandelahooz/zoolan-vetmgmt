@@ -89,4 +89,21 @@ public interface WaitingRoomRepository
   List<WaitingRoom> findByVeterinarianAndStatuses(
       @Param("veterinarianId") Long veterinarianId,
       @Param("statuses") List<WaitingRoomStatus> statuses);
+
+  List<WaitingRoom> findByAssignedGroomer_Id(Long groomerId);
+
+  @Query("""
+    SELECT wr FROM WaitingRoom wr
+      JOIN FETCH wr.client c
+      JOIN FETCH wr.pet p
+    WHERE wr.assignedGroomer.id = :groomerId
+      AND wr.status IN (:statuses)
+    ORDER BY wr.priority DESC, wr.arrivalTime ASC
+""")
+  List<WaitingRoom> findByGroomerAndStatuses(
+          @Param("groomerId") Long groomerId,
+          @Param("statuses") List<WaitingRoomStatus> statuses
+  );
+
+
 }
