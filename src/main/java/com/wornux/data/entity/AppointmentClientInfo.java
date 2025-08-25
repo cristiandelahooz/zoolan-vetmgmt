@@ -1,8 +1,5 @@
 package com.wornux.data.entity;
 
-import static com.wornux.constants.AppointmentConstants.*;
-import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
-
 import com.wornux.data.enums.PetType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -16,6 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static com.wornux.constants.AppointmentConstants.*;
+import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 
 @Embeddable
 @Data
