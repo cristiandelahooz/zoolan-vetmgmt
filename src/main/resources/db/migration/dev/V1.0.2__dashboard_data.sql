@@ -23,22 +23,24 @@ SELECT (NOW() - (n * INTERVAL '1 day'))::date AS appointment_date
 FROM generate_series(0, 365) n;
 
 -- Generate appointments over the last year
-INSERT INTO appointments (start_appointment_date, end_appointment_date, offering_type, status, reason, client_id, pet_id, employee_id, created_at, updated_at, created_by)
+INSERT INTO appointments (start_appointment_date, end_appointment_date, offering_type, status, reason, client_id, pet_id, employee_id, created_date, last_modified_date, created_by, last_modified_by)
 SELECT
     d.appointment_date + '08:00:00'::time + (floor(random() * 10) || ' hours')::interval, -- Start between 8 AM and 6 PM
     d.appointment_date + '08:30:00'::time + (floor(random() * 10) || ' hours')::interval, -- 30 min duration
-    CASE (random() * 2)::int
+    CASE (random() * 4)::int
         WHEN 0 THEN 'MEDICAL'
         WHEN 1 THEN 'GROOMING'
-        ELSE 'KENNEL'
+        WHEN 2 THEN 'CONSULTATION'
+        ELSE 'VACCINATION'
         END,
     'COMPLETADA',
     'Cita histórica generada para dashboard',
     (SELECT client_id FROM client ORDER BY random() LIMIT 1),
     (SELECT id FROM pets ORDER BY random() LIMIT 1),
     (SELECT employee_id FROM employee WHERE employee_role = 'VETERINARIAN' ORDER BY random() LIMIT 1),
-    d.appointment_date,
-    d.appointment_date,
+    d.appointment_date::timestamp with time zone,
+    d.appointment_date::timestamp with time zone,
+    'system',
     'system'
 FROM date_series d
          CROSS JOIN generate_series(1, (random() * 8 + 3)::int) -- 3 to 11 appointments per day
@@ -59,8 +61,8 @@ SELECT
         END,
     'Tratamiento estándar aplicado',
     'Consulta histórica generada para dashboard',
-    a.created_at,
-    a.updated_at,
+    a.created_date,
+    a.last_modified_date,
     TRUE
 FROM appointments a
 WHERE random() < 0.8; -- Create consultations for 80% of appointments
