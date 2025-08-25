@@ -104,4 +104,17 @@ public interface GroomingSessionService {
    * @return the GroomingSessionRepository instance
    */
   GroomingSessionRepository getRepository();
+
+  // Asignar un groomer desde la sala de espera (solo si está ESPERANDO)
+  void assignFromWaitingRoom(Long waitingRoomId, Long groomerId);
+
+  // Iniciar sesión de grooming desde la sala de espera (mueve WR a EN_PROCESO y crea la sesión)
+  GroomingSession start(Long waitingRoomId);
+
+  // Finalizar la sesión (marca WR como COMPLETADO y libera groomer)
+  void finish(Long groomingSessionId);
+
+  // Listar sesiones activas del groomer (similar a findForVeterinarian)
+  List<GroomingSession> findForGroomer(Long groomerId);
+
 }
