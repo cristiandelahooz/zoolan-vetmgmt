@@ -1,32 +1,18 @@
 package com.wornux.data.entity;
 
-import static com.wornux.constants.ValidationConstants.CEDULA_PATTERN;
-import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN_OPTIONAL;
-import static com.wornux.constants.ValidationConstants.MAX_IDENTIFICATION_DOCUMENT_COUNT;
-import static com.wornux.constants.ValidationConstants.PASSPORT_PATTERN;
-import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
-
 import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
+
+import static com.wornux.constants.ValidationConstants.*;
 
 @Entity
 @Table(
