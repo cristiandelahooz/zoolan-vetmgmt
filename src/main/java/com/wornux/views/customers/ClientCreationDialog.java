@@ -28,8 +28,7 @@ public class ClientCreationDialog extends Dialog {
 
   @Setter private transient Consumer<Client> onClientCreated;
 
-  public ClientCreationDialog(
-      ClientService clientService, ClientMapper clientMapper) {
+  public ClientCreationDialog(ClientService clientService, ClientMapper clientMapper) {
     this.clientService = clientService;
     this.clientMapper = clientMapper;
     this.individualClientForm = new IndividualClientForm(clientService);

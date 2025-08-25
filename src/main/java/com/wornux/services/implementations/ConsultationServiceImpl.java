@@ -4,6 +4,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.data.entity.*;
+import com.wornux.data.enums.ConsultationStatus;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.data.repository.ConsultationRepository;
@@ -29,7 +30,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.wornux.data.enums.ConsultationStatus;
 
 @Service
 @Transactional
@@ -254,15 +254,22 @@ public class ConsultationServiceImpl
   @Override
   @Transactional
   public void assignFromWaitingRoom(Long waitingRoomId, Long veterinarianId) {
-    WaitingRoom wr = waitingRoomRepository.findById(waitingRoomId)
-            .orElseThrow(() -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
+    WaitingRoom wr =
+        waitingRoomRepository
+            .findById(waitingRoomId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
 
     if (wr.getStatus() != WaitingRoomStatus.ESPERANDO) {
-      throw new IllegalStateException("Solo se puede asignar un veterinario cuando el estado es ESPERANDO.");
+      throw new IllegalStateException(
+          "Solo se puede asignar un veterinario cuando el estado es ESPERANDO.");
     }
 
-    Employee vet = employeeRepository.findById(veterinarianId)
-            .orElseThrow(() -> new EntityNotFoundException("Veterinario no encontrado: " + veterinarianId));
+    Employee vet =
+        employeeRepository
+            .findById(veterinarianId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("Veterinario no encontrado: " + veterinarianId));
 
     if (vet.getEmployeeRole() != EmployeeRole.VETERINARIAN) {
       throw new IllegalStateException("El empleado seleccionado no es veterinario.");
@@ -282,7 +289,6 @@ public class ConsultationServiceImpl
     log.info("Veterinario {} asignado a WaitingRoom {}", vet.getId(), wr.getId());
   }
 
-
   private String buildInitialNotes(WaitingRoom wr, String extra) {
     StringBuilder sb = new StringBuilder();
     if (wr.getReasonForVisit() != null && !wr.getReasonForVisit().isBlank()) {
@@ -299,11 +305,15 @@ public class ConsultationServiceImpl
 
   @Override
   public Consultation start(Long waitingRoomId) {
-    WaitingRoom wr = waitingRoomRepository.findById(waitingRoomId)
-            .orElseThrow(() -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
+    WaitingRoom wr =
+        waitingRoomRepository
+            .findById(waitingRoomId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
 
     if (wr.getStatus() != WaitingRoomStatus.ESPERANDO) {
-      throw new IllegalStateException("Solo se puede iniciar una consulta si el estado es ESPERANDO.");
+      throw new IllegalStateException(
+          "Solo se puede iniciar una consulta si el estado es ESPERANDO.");
     }
 
     wr.startConsultation();
@@ -323,25 +333,30 @@ public class ConsultationServiceImpl
   @Override
   @Transactional
   public void finish(Long consultationId) {
-    Consultation c = consultationRepository.findById(consultationId)
-            .orElseThrow(() -> new EntityNotFoundException("Consultation not found: " + consultationId));
+    Consultation c =
+        consultationRepository
+            .findById(consultationId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("Consultation not found: " + consultationId));
 
     // Marcar consulta finalizada
     c.setStatus(ConsultationStatus.COMPLETADO);
     c.setFinishedAt(LocalDateTime.now());
-    //c.setActive(false);
+    // c.setActive(false);
     consultationRepository.save(c);
 
     // Cerrar WaitingRoom asociado
     WaitingRoom wr = c.getWaitingRoom();
     if (wr == null) {
-      wr = waitingRoomRepository.findTopByPet_IdAndStatusInOrderByArrivalTimeDesc(
-              c.getPet().getId(),
-              List.of(WaitingRoomStatus.EN_CONSULTA, WaitingRoomStatus.ESPERANDO)
-      ).orElse(null);
+      wr =
+          waitingRoomRepository
+              .findTopByPet_IdAndStatusInOrderByArrivalTimeDesc(
+                  c.getPet().getId(),
+                  List.of(WaitingRoomStatus.EN_CONSULTA, WaitingRoomStatus.ESPERANDO))
+              .orElse(null);
     }
     if (wr != null) {
-      wr.completeConsultation();  
+      wr.completeConsultation();
       waitingRoomRepository.save(wr);
     }
 
@@ -353,12 +368,9 @@ public class ConsultationServiceImpl
     }
   }
 
-
-
   @Override
   public List<Consultation> findForVeterinarian(Long veterinarianId) {
-    return consultationRepository
-            .findByVeterinarian_IdAndActiveTrueOrderByConsultationDateDesc(veterinarianId);
+    return consultationRepository.findByVeterinarian_IdAndActiveTrueOrderByConsultationDateDesc(
+        veterinarianId);
   }
-
 }

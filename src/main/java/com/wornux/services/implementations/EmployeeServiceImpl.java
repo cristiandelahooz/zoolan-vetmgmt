@@ -226,14 +226,16 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         .limit(limit)
         .collect(Collectors.toList());
   }
-  
+
   public List<Employee> getAvailableVets() {
     return employeeRepository.findByEmployeeRoleAndAvailable(EmployeeRole.VETERINARIAN, true);
   }
 
   @Transactional
   public void markVetBusy(Long vetId) {
-    Employee e = employeeRepository.findById(vetId)
+    Employee e =
+        employeeRepository
+            .findById(vetId)
             .orElseThrow(() -> new EntityNotFoundException("Vet not found: " + vetId));
     e.setAvailable(false);
     employeeRepository.save(e);
@@ -241,15 +243,17 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
 
   @Transactional
   public void markVetAvailable(Long vetId) {
-    Employee e = employeeRepository.findById(vetId)
+    Employee e =
+        employeeRepository
+            .findById(vetId)
             .orElseThrow(() -> new EntityNotFoundException("Vet not found: " + vetId));
     e.setAvailable(true);
     employeeRepository.save(e);
   }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Employee> findByUsername(String username) {
-        return employeeRepository.findByUsername(username);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Employee> findByUsername(String username) {
+    return employeeRepository.findByUsername(username);
+  }
 }

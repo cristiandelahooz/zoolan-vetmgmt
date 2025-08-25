@@ -390,11 +390,8 @@ public class WaitingRoomServiceImpl
 
   @Override
   public List<WaitingRoom> findForVeterinarian(Long veterinarianId) {
-    List<WaitingRoomStatus> activeStatuses = Arrays.asList(
-            WaitingRoomStatus.ESPERANDO,
-            WaitingRoomStatus.EN_CONSULTA
-    );
+    List<WaitingRoomStatus> activeStatuses =
+        Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_CONSULTA);
     return waitingRoomRepository.findByVeterinarianAndStatuses(veterinarianId, activeStatuses);
   }
-
 }

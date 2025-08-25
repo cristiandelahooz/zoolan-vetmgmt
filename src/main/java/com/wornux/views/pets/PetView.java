@@ -46,8 +46,14 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "mascotas", layout = MainLayout.class)
 @PageTitle("Mascotas")
-@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER","ROLE_EMP_VETERINARIAN","ROLE_EMP_RECEPTIONIST","ROLE_EMP_LAB_TECHNICIAN","ROLE_EMP_GROOMER" })
-
+@RolesAllowed({
+  "ROLE_SYSTEM_ADMIN",
+  "ROLE_MANAGER",
+  "ROLE_EMP_VETERINARIAN",
+  "ROLE_EMP_RECEPTIONIST",
+  "ROLE_EMP_LAB_TECHNICIAN",
+  "ROLE_EMP_GROOMER"
+})
 public class PetView extends Div {
 
   private final Grid<Pet> grid = GridUtils.createBasicGrid(Pet.class);
@@ -63,11 +69,11 @@ public class PetView extends Div {
   private final PetForm petForm;
   private final ConsultationService consultationService;
 
-    private final boolean fullAccess;
-    private final boolean receptionistOnly;
-    private final boolean gridNoActionsRole;
+  private final boolean fullAccess;
+  private final boolean receptionistOnly;
+  private final boolean gridNoActionsRole;
 
-    public PetView(
+  public PetView(
       @Qualifier("petServiceImpl") PetService petService,
       @Qualifier("clientServiceImpl") ClientService clientService,
       @Qualifier("consultationServiceImpl") ConsultationService consultationService) {
@@ -75,20 +81,17 @@ public class PetView extends Div {
     this.petForm = new PetForm(petService, clientService);
     this.consultationService = consultationService;
     this.fullAccess =
-                UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
-                        || UserUtils.hasEmployeeRole(EmployeeRole.ADMINISTRATIVE);
+        UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
+            || UserUtils.hasEmployeeRole(EmployeeRole.ADMINISTRATIVE);
 
     this.gridNoActionsRole =
-                UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)
-                        || UserUtils.hasEmployeeRole(EmployeeRole.GROOMER)
-                        || UserUtils.hasEmployeeRole(EmployeeRole.LAB_TECHNICIAN);
+        UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)
+            || UserUtils.hasEmployeeRole(EmployeeRole.GROOMER)
+            || UserUtils.hasEmployeeRole(EmployeeRole.LAB_TECHNICIAN);
 
+    this.receptionistOnly = UserUtils.hasEmployeeRole(EmployeeRole.RECEPTIONIST) && !fullAccess;
 
-    this.receptionistOnly =
-                UserUtils.hasEmployeeRole(EmployeeRole.RECEPTIONIST) && !fullAccess;
-
-
-        setId("pet-view");
+    setId("pet-view");
 
     petForm.addPetSavedListener(
         pet -> {
@@ -201,36 +204,38 @@ public class PetView extends Div {
     });*/
 
     /*grid.asSingleSelect()
-        .addValueChangeListener(
-            event -> {
-              Pet selected = event.getValue();
-              if (selected != null) {
-                new PetDetailDialog(selected, consultationService).open();
-              }
-            });*/
+    .addValueChangeListener(
+        event -> {
+          Pet selected = event.getValue();
+          if (selected != null) {
+            new PetDetailDialog(selected, consultationService).open();
+          }
+        });*/
 
-      if (receptionistOnly) {
-          // Recepcionista: NO ver detalle
-          grid.asSingleSelect().addValueChangeListener(e -> grid.deselectAll());
-      } else {
-          // Admin/Administrative/Manager/User/Vet/Groomer/Lab: ver detalle
-          grid.asSingleSelect().addValueChangeListener(event -> {
-              Pet selected = event.getValue();
-              if (selected != null) {
+    if (receptionistOnly) {
+      // Recepcionista: NO ver detalle
+      grid.asSingleSelect().addValueChangeListener(e -> grid.deselectAll());
+    } else {
+      // Admin/Administrative/Manager/User/Vet/Groomer/Lab: ver detalle
+      grid.asSingleSelect()
+          .addValueChangeListener(
+              event -> {
+                Pet selected = event.getValue();
+                if (selected != null) {
                   new PetDetailDialog(selected, consultationService).open();
-              }
-          });
-      }
-
-    //grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
-      if (!hideActions) {
-          grid.addComponentColumn(this::createActionsColumn)
-                  .setHeader("Acciones")
-                  .setAutoWidth(true)
-                  .setFlexGrow(0)
-                  .setTextAlign(ColumnTextAlign.CENTER);
-      }
+                }
+              });
     }
+
+    // grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+    if (!hideActions) {
+      grid.addComponentColumn(this::createActionsColumn)
+          .setHeader("Acciones")
+          .setAutoWidth(true)
+          .setFlexGrow(0)
+          .setTextAlign(ColumnTextAlign.CENTER);
+    }
+  }
 
   public Specification<Pet> createFilterSpecification() {
     return (root, query, builder) -> {

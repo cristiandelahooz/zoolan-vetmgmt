@@ -89,5 +89,4 @@ public interface EmployeeRepository
   List<Employee> findEmployeesWorkingOnDay(@Param("dayOfWeek") DayOfWeek dayOfWeek);
 
   List<Employee> findByEmployeeRoleAndAvailable(EmployeeRole role, boolean available);
-  
 }

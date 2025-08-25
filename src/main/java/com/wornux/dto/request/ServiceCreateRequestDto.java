@@ -1,8 +1,7 @@
 package com.wornux.dto.request;
 
-import java.math.BigDecimal;
-
 import com.wornux.data.enums.ServiceType;
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Data;
 

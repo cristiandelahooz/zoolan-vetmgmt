@@ -51,8 +51,7 @@ public class ServiceView extends Div {
   private final Grid<Service> grid = GridUtils.createBasicGrid(Service.class);
 
   private final TextField searchField = new TextField("Buscar servicios");
-  private final ComboBox<ServiceType> serviceCategoryFilter =
-      new ComboBox<>("Filtrar por tipo");
+  private final ComboBox<ServiceType> serviceCategoryFilter = new ComboBox<>("Filtrar por tipo");
   private final Span quantity = new Span();
 
   private final Button create = new Button();
@@ -111,16 +110,16 @@ public class ServiceView extends Div {
         .setHeader("Estado")
         .setTextAlign(ColumnTextAlign.CENTER);
 
-    if(UserUtils.hasEmployeeRole(EmployeeRole.ADMINISTRATIVE) || UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)) {
+    if (UserUtils.hasEmployeeRole(EmployeeRole.ADMINISTRATIVE)
+        || UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)) {
       var actionsColumn =
-          grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+          grid.addComponentColumn(this::createActionsColumn)
+              .setHeader("Acciones")
+              .setAutoWidth(true);
       actionsColumn.setFrozenToEnd(true);
     }
 
-    grid.asSingleSelect()
-        .addValueChangeListener(
-            event -> {
-            });
+    grid.asSingleSelect().addValueChangeListener(event -> {});
   }
 
   public Specification<Service> createFilterSpecification() {

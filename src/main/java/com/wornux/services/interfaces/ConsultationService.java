@@ -102,6 +102,8 @@ public interface ConsultationService {
   public void assignFromWaitingRoom(Long waitingRoomId, Long veterinarianId);
 
   public Consultation start(Long waitingRoomId);
+
   void finish(Long consultationId);
+
   List<Consultation> findForVeterinarian(Long veterinarianId);
 }

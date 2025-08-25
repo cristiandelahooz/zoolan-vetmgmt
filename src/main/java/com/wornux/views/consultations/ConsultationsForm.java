@@ -479,7 +479,6 @@ public class ConsultationsForm extends Dialog {
     }
   }
 
-
   /*private void save(ClickEvent<Button> event) {
     try {
       if (editingConsultation == null) {
@@ -554,9 +553,11 @@ public class ConsultationsForm extends Dialog {
       // si venía de sala de espera, finalizamos la consulta y cerramos la entrada
       if (sourceWaitingRoom != null) {
         try {
-          consultationService.finish(saved.getId());   // <— libera vet y marca WR COMPLETADO
+          consultationService.finish(saved.getId()); // <— libera vet y marca WR COMPLETADO
         } catch (Exception ex) {
-          NotificationUtils.error("La consulta se guardó, pero no se pudo cerrar la sala de espera: " + ex.getMessage());
+          NotificationUtils.error(
+              "La consulta se guardó, pero no se pudo cerrar la sala de espera: "
+                  + ex.getMessage());
         }
       }
 
@@ -573,7 +574,6 @@ public class ConsultationsForm extends Dialog {
       NotificationUtils.error("Error al guardar la consulta: " + e.getMessage());
     }
   }
-
 
   public void openForNew() {
     clearForm();
@@ -807,14 +807,14 @@ public class ConsultationsForm extends Dialog {
     this.petName.setReadOnly(true);
     this.selectPetButton.setEnabled(false);
 
-
     // Veterinario
     if (vet != null) {
       // Asegurar que el combo contiene al vet
       java.util.List<Employee> items = new java.util.ArrayList<>();
-      this.veterinarianComboBox.getDataProvider()
-              .fetch(new com.vaadin.flow.data.provider.Query<>())
-              .forEach(items::add);
+      this.veterinarianComboBox
+          .getDataProvider()
+          .fetch(new com.vaadin.flow.data.provider.Query<>())
+          .forEach(items::add);
       boolean present = items.stream().anyMatch(e -> e.getId().equals(vet.getId()));
       if (!present) {
         items.add(vet);
@@ -826,6 +826,7 @@ public class ConsultationsForm extends Dialog {
       }
     }
   }
+
   public void attachWaitingRoom(WaitingRoom wr) {
     this.sourceWaitingRoom = wr;
   }
@@ -839,10 +840,8 @@ public class ConsultationsForm extends Dialog {
         veterinarianComboBox.setReadOnly(true);
       }
     } else if (employeeService != null) {
-      veterinarianComboBox.setReadOnly(false);       
+      veterinarianComboBox.setReadOnly(false);
       veterinarianComboBox.setItems(employeeService.getVeterinarians());
     }
   }
-
-
 }

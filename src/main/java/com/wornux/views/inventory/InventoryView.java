@@ -36,7 +36,6 @@ import com.wornux.views.consultations.ConsultationsView;
 import com.wornux.views.products.ProductForm;
 import com.wornux.views.products.ProductGrid;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,7 +45,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @PageTitle("Inventario")
 @Route(value = "inventario", layout = MainLayout.class)
-@RolesAllowed({ "ROLE_SYSTEM_ADMIN", "ROLE_MANAGER" })
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
 public class InventoryView extends Div {
 
   private final ProductGrid productGrid;
@@ -208,30 +207,30 @@ public class InventoryView extends Div {
         LumoUtility.Background.PRIMARY);
     updateQuantity();
 
-warehouseFilter.setItems(
-    warehouseService.getAllWarehouses().stream()
-        .map(
-            dto -> {
-                Warehouse w = new Warehouse();
-                w.setId(dto.getId());
-                w.setName(dto.getName());
-                return w;
-            })
-        .toList());
-warehouseFilter.setItemLabelGenerator(Warehouse::getName);
-warehouseFilter.setClearButtonVisible(true);
-warehouseFilter.addValueChangeListener(e -> refreshGrid());
-warehouseFilter.setWidth("15%");
+    warehouseFilter.setItems(
+        warehouseService.getAllWarehouses().stream()
+            .map(
+                dto -> {
+                  Warehouse w = new Warehouse();
+                  w.setId(dto.getId());
+                  w.setName(dto.getName());
+                  return w;
+                })
+            .toList());
+    warehouseFilter.setItemLabelGenerator(Warehouse::getName);
+    warehouseFilter.setClearButtonVisible(true);
+    warehouseFilter.addValueChangeListener(e -> refreshGrid());
+    warehouseFilter.setWidth("15%");
 
-Button clearFilters = new Button("Limpiar Filtros", VaadinIcon.REFRESH.create());
-clearFilters.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-clearFilters.addClickListener(e -> clearAllFilters());
+    Button clearFilters = new Button("Limpiar Filtros", VaadinIcon.REFRESH.create());
+    clearFilters.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+    clearFilters.addClickListener(e -> clearAllFilters());
 
-HorizontalLayout firstRowFilters =
-    new HorizontalLayout(searchField, categoryFilter, warehouseFilter);
-firstRowFilters.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
-firstRowFilters.setWidthFull();
-firstRowFilters.setSpacing(true);
+    HorizontalLayout firstRowFilters =
+        new HorizontalLayout(searchField, categoryFilter, warehouseFilter);
+    firstRowFilters.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
+    firstRowFilters.setWidthFull();
+    firstRowFilters.setSpacing(true);
 
     HorizontalLayout secondRowFilters =
         new HorizontalLayout(unitFilter, usageTypeFilter, clearFilters, quantity);
@@ -267,7 +266,7 @@ firstRowFilters.setSpacing(true);
         predicates.add(
             criteriaBuilder.like(
                 criteriaBuilder.lower(root.get("name")),
-        "%" + searchField.getValue().toLowerCase() + "%"));
+                "%" + searchField.getValue().toLowerCase() + "%"));
       }
 
       if (categoryFilter.getValue() != null && !categoryFilter.getValue().isEmpty()) {

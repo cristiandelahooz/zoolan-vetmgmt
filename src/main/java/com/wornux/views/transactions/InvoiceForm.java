@@ -547,9 +547,7 @@ public class InvoiceForm extends Div {
       boolean isNewInvoice = (element.getCode() == null || element.getCode() == 0);
 
       if (isNewInvoice) {
-        element =
-            invoiceService.create(
-                element);
+        element = invoiceService.create(element);
       }
 
       element.getProducts().clear();
@@ -557,16 +555,14 @@ public class InvoiceForm extends Div {
 
       Set<InvoiceProduct> finalProducts =
           invoiceProducts.stream().filter(p -> p.getProduct() != null).collect(Collectors.toSet());
-      finalProducts.forEach(
-          element::addProduct);
+      finalProducts.forEach(element::addProduct);
 
       List<ServiceInvoice> servicesFromDisplayedItems =
           displayedItems.stream()
               .filter(item -> item instanceof ServiceInvoice)
               .map(item -> (ServiceInvoice) item)
               .collect(Collectors.toList());
-      servicesFromDisplayedItems.forEach(
-          element::addService);
+      servicesFromDisplayedItems.forEach(element::addService);
 
       if (element.getProducts().isEmpty() && element.getServices().isEmpty()) {
         NotificationUtils.error("Debes seleccionar al menos un producto o servicio");

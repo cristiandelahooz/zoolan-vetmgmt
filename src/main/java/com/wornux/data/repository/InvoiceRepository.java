@@ -21,7 +21,8 @@ public interface InvoiceRepository
 
   Optional<Invoice> findByGrooming_Id(Long groomingId);
 
-  @Query("""
+  @Query(
+      """
       select distinct i
       from Invoice i
       left join fetch i.services s
@@ -32,7 +33,8 @@ public interface InvoiceRepository
       """)
   Optional<Invoice> findByConsultationIdWithDetails(@Param("consultationId") Long consultationId);
 
-  @Query("""
+  @Query(
+      """
            select i from Invoice i
            left join fetch i.services
            left join fetch i.products

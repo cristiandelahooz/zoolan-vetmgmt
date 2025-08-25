@@ -64,7 +64,6 @@ public class WaitingRoom {
   @JoinColumn(name = "assigned_veterinarian")
   private Employee assignedVeterinarian;
 
-
   @PrePersist
   public void prePersist() {
     if (arrivalTime == null) {
@@ -105,6 +104,4 @@ public class WaitingRoom {
         ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
         : getClass().hashCode();
   }
-
-
 }

@@ -4,7 +4,6 @@ import static com.wornux.constants.ValidationConstants.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wornux.data.enums.ClientRating;
-import com.wornux.data.enums.Gender;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
 import jakarta.validation.constraints.*;

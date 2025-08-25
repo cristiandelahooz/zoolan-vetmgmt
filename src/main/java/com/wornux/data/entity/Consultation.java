@@ -1,10 +1,10 @@
 package com.wornux.data.entity;
 
+import com.wornux.data.enums.ConsultationStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.envers.Audited;
-import com.wornux.data.enums.ConsultationStatus;
 
 /** Entity representing a veterinary consultation */
 @Entity
@@ -59,14 +59,18 @@ public class Consultation {
   @Builder.Default
   private ConsultationStatus status = ConsultationStatus.PENDIENTE;
 
-  @Column(name = "assigned_at")  private LocalDateTime assignedAt;
-  @Column(name = "started_at")   private LocalDateTime startedAt;
-  @Column(name = "finished_at")  private LocalDateTime finishedAt;
+  @Column(name = "assigned_at")
+  private LocalDateTime assignedAt;
+
+  @Column(name = "started_at")
+  private LocalDateTime startedAt;
+
+  @Column(name = "finished_at")
+  private LocalDateTime finishedAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "waiting_room_id")
   private WaitingRoom waitingRoom;
-
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;

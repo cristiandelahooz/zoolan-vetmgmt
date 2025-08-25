@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -76,19 +75,18 @@ public interface WaitingRoomRepository
   List<WaitingRoom> findByStatusOrderByPriorityAscArrivalTimeAsc(WaitingRoomStatus status);
 
   Optional<WaitingRoom> findTopByPet_IdAndStatusInOrderByArrivalTimeDesc(
-          Long petId, Collection<WaitingRoomStatus> statuses);
+      Long petId, Collection<WaitingRoomStatus> statuses);
 
   List<WaitingRoom> findByAssignedVeterinarian_Id(Long veterinarianId);
 
-  @Query("SELECT wr FROM WaitingRoom wr " +
-          "JOIN FETCH wr.client c " +
-          "JOIN FETCH wr.pet p " +
-          "WHERE wr.assignedVeterinarian.id = :veterinarianId " +
-          "AND wr.status IN (:statuses) " +
-          "ORDER BY wr.priority DESC, wr.arrivalTime ASC")
+  @Query(
+      "SELECT wr FROM WaitingRoom wr "
+          + "JOIN FETCH wr.client c "
+          + "JOIN FETCH wr.pet p "
+          + "WHERE wr.assignedVeterinarian.id = :veterinarianId "
+          + "AND wr.status IN (:statuses) "
+          + "ORDER BY wr.priority DESC, wr.arrivalTime ASC")
   List<WaitingRoom> findByVeterinarianAndStatuses(
-          @Param("veterinarianId") Long veterinarianId,
-          @Param("statuses") List<WaitingRoomStatus> statuses);
-
-
+      @Param("veterinarianId") Long veterinarianId,
+      @Param("statuses") List<WaitingRoomStatus> statuses);
 }

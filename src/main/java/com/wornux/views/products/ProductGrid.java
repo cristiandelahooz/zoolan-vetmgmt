@@ -176,8 +176,7 @@ public class ProductGrid extends Grid<Product> {
       return new Span("-");
     }
 
-    Span badge =
-        new Span(getCategoryDisplayName(category));
+    Span badge = new Span(getCategoryDisplayName(category));
     badge.getElement().getThemeList().add("badge pill");
 
     switch (category) {

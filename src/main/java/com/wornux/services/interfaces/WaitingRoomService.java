@@ -73,6 +73,4 @@ public interface WaitingRoomService {
   List<WaitingRoom> findByAssignedVeterinarian(Long veterinarianId);
 
   List<WaitingRoom> findForVeterinarian(Long veterinarianId);
-
-
 }

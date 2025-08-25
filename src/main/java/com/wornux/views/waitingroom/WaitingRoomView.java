@@ -5,6 +5,7 @@ import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -16,11 +17,11 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.WaitingRoom;
 import com.wornux.data.enums.Priority;
 import com.wornux.data.enums.WaitingRoomStatus;
@@ -29,21 +30,19 @@ import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.MainLayout;
 import jakarta.annotation.security.RolesAllowed;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.wornux.data.entity.Employee;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @Route(value = "sala-espera", layout = MainLayout.class)
 @PageTitle("Sala de Espera")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER","ROLE_EMP_RECEPTIONIST"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_RECEPTIONIST"})
 public class WaitingRoomView extends VerticalLayout {
 
   private final WaitingRoomService waitingRoomService;
@@ -53,7 +52,6 @@ public class WaitingRoomView extends VerticalLayout {
   private final EmployeeService employeeService;
   private final ConsultationService consultationService;
 
-
   private final Grid<WaitingRoom> grid = GridUtils.createBasicGrid(WaitingRoom.class);
   private final WaitingRoomForm form;
   private final VerticalLayout cardContainer = new VerticalLayout();
@@ -62,10 +60,15 @@ public class WaitingRoomView extends VerticalLayout {
       new MultiSelectComboBox<>("Prioridad");
   private final MultiSelectComboBox<WaitingRoomStatus> statusFilter =
       new MultiSelectComboBox<>("Estado");
-  private final Span quantity = new Span();TextField searchField = new TextField();
+  private final Span quantity = new Span();
+  TextField searchField = new TextField();
 
   public WaitingRoomView(
-      WaitingRoomService waitingRoomService, ClientService clientService, PetService petService, ConsultationService consultationService, EmployeeService employeeService) {
+      WaitingRoomService waitingRoomService,
+      ClientService clientService,
+      PetService petService,
+      ConsultationService consultationService,
+      EmployeeService employeeService) {
     this.waitingRoomService = waitingRoomService;
     this.clientService = clientService;
     this.petService = petService;
@@ -172,23 +175,24 @@ public class WaitingRoomView extends VerticalLayout {
             wr -> wr.getArrivalTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
         .setHeader("Hora de Llegada");
 
-    grid.addComponentColumn(wr -> {
-      Employee vet = wr.getAssignedVeterinarian();
-      Span badge;
+    grid.addComponentColumn(
+            wr -> {
+              Employee vet = wr.getAssignedVeterinarian();
+              Span badge;
 
-      if (vet != null) {
-        badge = new Span(vet.getFirstName() + " " + vet.getLastName());
-        badge.getElement().getThemeList().add("badge success");
-        // Verde cuando tiene veterinario asignado
-      } else {
-        badge = new Span("Sin asignar");
-        badge.getElement().getThemeList().add("badge error");
-        // Rojo cuando no tiene
-      }
+              if (vet != null) {
+                badge = new Span(vet.getFirstName() + " " + vet.getLastName());
+                badge.getElement().getThemeList().add("badge success");
+                // Verde cuando tiene veterinario asignado
+              } else {
+                badge = new Span("Sin asignar");
+                badge.getElement().getThemeList().add("badge error");
+                // Rojo cuando no tiene
+              }
 
-      return badge;
-    }).setHeader("Veterinario");
-
+              return badge;
+            })
+        .setHeader("Veterinario");
 
     grid.addComponentColumn(this::renderStatus).setHeader("Estado");
 
@@ -373,21 +377,21 @@ public class WaitingRoomView extends VerticalLayout {
     completeButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
     completeButton.setWidth("220px");
 
-   /* Button startButton =
-        new Button(
-            "Iniciar Consulta",
-            e -> {
-              wr.setStatus(WaitingRoomStatus.EN_CONSULTA);
-              waitingRoomService.update(wr);
-              refreshGrid();
-              dialog.close();
-            });*/
-    //startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    /* Button startButton =
+    new Button(
+        "Iniciar Consulta",
+        e -> {
+          wr.setStatus(WaitingRoomStatus.EN_CONSULTA);
+          waitingRoomService.update(wr);
+          refreshGrid();
+          dialog.close();
+        });*/
+    // startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
     Button cancelConsultation = new Button("Cancelar Consulta");
     cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-    //HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
+    // HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
     HorizontalLayout actions = new HorizontalLayout(cancelConsultation);
     actions.setSpacing(true);
     actions.setJustifyContentMode(JustifyContentMode.CENTER);
@@ -395,7 +399,7 @@ public class WaitingRoomView extends VerticalLayout {
 
     actions.getStyle().set("margin-top", "1rem");
 
-    //startButton.setMinWidth("200px");
+    // startButton.setMinWidth("200px");
     cancelConsultation.setMinWidth("200px");
 
     cancelConsultation.addClickListener(
@@ -426,10 +430,10 @@ public class WaitingRoomView extends VerticalLayout {
 
     HorizontalLayout buttons = new HorizontalLayout();
     if (wr.getStatus() == WaitingRoomStatus.ESPERANDO) {
-      //buttons.add(startButton, cancelConsultation);
+      // buttons.add(startButton, cancelConsultation);
       buttons.add(cancelConsultation);
     } else if (wr.getStatus() == WaitingRoomStatus.EN_CONSULTA) {
-      //buttons.add(completeButton, cancelConsultation);
+      // buttons.add(completeButton, cancelConsultation);
     }
 
     layout.add(header, clientName, contactInfo, petInfo, reason, notes, arrival, waiting, buttons);
@@ -475,10 +479,7 @@ public class WaitingRoomView extends VerticalLayout {
 
     Button assign = new Button(new Icon(VaadinIcon.STETHOSCOPE));
     assign.addThemeVariants(
-            ButtonVariant.LUMO_ICON,
-            ButtonVariant.LUMO_PRIMARY,
-            ButtonVariant.LUMO_SMALL
-    );
+        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
     assign.getElement().setProperty("title", "Asignar veterinario");
     assign.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
     assign.addClickListener(e -> openAssignDialog(waitingRoom));
@@ -510,7 +511,7 @@ public class WaitingRoomView extends VerticalLayout {
           refreshAll();
         });
 
-    HorizontalLayout actions = new HorizontalLayout(assign,edit, delete);
+    HorizontalLayout actions = new HorizontalLayout(assign, edit, delete);
     actions.setSpacing(true);
     actions.setPadding(false);
     actions.setMargin(false);
@@ -549,27 +550,30 @@ public class WaitingRoomView extends VerticalLayout {
       vets.setValue(wr.getAssignedVeterinarian());
     }
 
-    Button assign = new Button("Asignar", ev -> {
-      Employee selected = vets.getValue();
-      if (selected == null) {
-        NotificationUtils.error("Selecciona un veterinario");
-        return;
-      }
-      try {
-        // Nueva lógica: solo asignar vet (no crear consulta todavía)
-        consultationService.assignFromWaitingRoom(wr.getId(), selected.getId());
+    Button assign =
+        new Button(
+            "Asignar",
+            ev -> {
+              Employee selected = vets.getValue();
+              if (selected == null) {
+                NotificationUtils.error("Selecciona un veterinario");
+                return;
+              }
+              try {
+                // Nueva lógica: solo asignar vet (no crear consulta todavía)
+                consultationService.assignFromWaitingRoom(wr.getId(), selected.getId());
 
-        if (wr.getAssignedVeterinarian() == null) {
-          NotificationUtils.success("Veterinario asignado correctamente");
-        } else {
-          NotificationUtils.success("Veterinario actualizado correctamente");
-        }
-        d.close();
-        refreshGrid();
-      } catch (Exception ex) {
-        NotificationUtils.error("No se pudo asignar: " + ex.getMessage());
-      }
-    });
+                if (wr.getAssignedVeterinarian() == null) {
+                  NotificationUtils.success("Veterinario asignado correctamente");
+                } else {
+                  NotificationUtils.success("Veterinario actualizado correctamente");
+                }
+                d.close();
+                refreshGrid();
+              } catch (Exception ex) {
+                NotificationUtils.error("No se pudo asignar: " + ex.getMessage());
+              }
+            });
     assign.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
     Button cancel = new Button("Cancelar", e -> d.close());
@@ -584,5 +588,4 @@ public class WaitingRoomView extends VerticalLayout {
     d.setResizable(true);
     d.open();
   }
-
 }

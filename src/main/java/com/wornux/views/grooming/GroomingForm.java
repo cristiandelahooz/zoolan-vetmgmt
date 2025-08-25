@@ -521,7 +521,8 @@ public class GroomingForm extends Dialog {
       }
 
       // 4) Construir nueva factura (ahora con vínculo grooming)
-      Invoice invoice = Invoice.builder()
+      Invoice invoice =
+          Invoice.builder()
               .client(session.getPet().getOwners().iterator().next())
               .grooming(session)
               .issuedDate(LocalDate.now())
@@ -536,7 +537,8 @@ public class GroomingForm extends Dialog {
 
       // 5) Agregar líneas
       for (ServiceItem si : selectedServices) {
-        ServiceInvoice line = ServiceInvoice.builder()
+        ServiceInvoice line =
+            ServiceInvoice.builder()
                 .service(si.getService())
                 .quantity(si.getQuantity())
                 .amount(si.getSubtotal())
@@ -545,7 +547,8 @@ public class GroomingForm extends Dialog {
       }
 
       for (ProductItem pi : selectedProducts) {
-        InvoiceProduct line = InvoiceProduct.builder()
+        InvoiceProduct line =
+            InvoiceProduct.builder()
                 .product(pi.getProduct())
                 .quantity(pi.getQuantity())
                 .price(pi.getProduct().getSalesPrice())
@@ -683,25 +686,29 @@ public class GroomingForm extends Dialog {
     setHeaderTitle("Editar Grooming");
 
     // Cargar líneas desde factura existente (con fetch de detalle)
-    invoiceService.findByGroomingIdWithDetails(session.getId()).ifPresent(inv -> {
-      selectedServices.clear();
-      inv.getServices().forEach(si ->
-              selectedServices.add(new ServiceItem(si.getService(), si.getQuantity()))
-      );
-      servicesGrid.setItems(selectedServices);
+    invoiceService
+        .findByGroomingIdWithDetails(session.getId())
+        .ifPresent(
+            inv -> {
+              selectedServices.clear();
+              inv.getServices()
+                  .forEach(
+                      si ->
+                          selectedServices.add(new ServiceItem(si.getService(), si.getQuantity())));
+              servicesGrid.setItems(selectedServices);
 
-      selectedProducts.clear();
-      inv.getProducts().forEach(ip ->
-              selectedProducts.add(new ProductItem(ip.getProduct(), ip.getQuantity()))
-      );
-      productsGrid.setItems(selectedProducts);
+              selectedProducts.clear();
+              inv.getProducts()
+                  .forEach(
+                      ip ->
+                          selectedProducts.add(new ProductItem(ip.getProduct(), ip.getQuantity())));
+              productsGrid.setItems(selectedProducts);
 
-      updateTotals();
-    });
+              updateTotals();
+            });
 
     open();
   }
-
 
   private void clearForm() {
     binder.readBean(null);
@@ -794,7 +801,5 @@ public class GroomingForm extends Dialog {
     public BigDecimal getSubtotal() {
       return subtotal;
     }
-
-
   }
 }

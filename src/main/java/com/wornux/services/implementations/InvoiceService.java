@@ -129,5 +129,4 @@ public class InvoiceService {
   public Optional<Invoice> findByConsultationIdWithDetails(Long consultationId) {
     return repository.findByConsultationIdWithDetails(consultationId);
   }
-
 }

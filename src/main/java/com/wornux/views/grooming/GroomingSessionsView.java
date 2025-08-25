@@ -4,13 +4,15 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.dialog.DialogVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,32 +24,26 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.Breadcrumb;
 import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
-import com.wornux.data.entity.Client;
 import com.wornux.data.entity.GroomingSession;
-import com.wornux.data.entity.Invoice;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Order;
-
-
-import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.icon.*;
-import com.vaadin.flow.component.orderedlayout.*;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
-
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 @Route(value = "grooming", layout = com.wornux.views.MainLayout.class)
 @PageTitle("Grooming")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_GROOMER", "ROLE_EMP_KENNEL_ASSISTANT"})
+@RolesAllowed({
+  "ROLE_SYSTEM_ADMIN",
+  "ROLE_MANAGER",
+  "ROLE_EMP_GROOMER",
+  "ROLE_EMP_KENNEL_ASSISTANT"
+})
 public class GroomingSessionsView extends Div {
 
   private final Grid<GroomingSession> grid = GridUtils.createBasicGrid(GroomingSession.class);
@@ -114,13 +110,14 @@ public class GroomingSessionsView extends Div {
       GroomingSessionService service, Specification<GroomingSession> specification) {
     GridUtils.configureGrid(grid, specification, service.getRepository());
 
-    grid.asSingleSelect().addValueChangeListener(e -> {
-      if (e.getValue() != null) {
-        detailsSidebar.open(e.getValue());
-        grid.deselectAll();
-      }
-    });
-
+    grid.asSingleSelect()
+        .addValueChangeListener(
+            e -> {
+              if (e.getValue() != null) {
+                detailsSidebar.open(e.getValue());
+                grid.deselectAll();
+              }
+            });
 
     GridUtils.addColumn(
         grid, s -> s.getPet() != null ? s.getPet().getName() : "", "Mascota", "pet");
@@ -340,8 +337,4 @@ public class GroomingSessionsView extends Div {
       quantity.setText("Grooming");
     }
   }
-
-
-
-
 }
