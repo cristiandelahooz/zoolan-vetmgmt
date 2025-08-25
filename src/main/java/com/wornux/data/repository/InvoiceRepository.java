@@ -36,4 +36,14 @@ public interface InvoiceRepository
           + "WHERE i.createdDate >= :startDate "
           + "GROUP BY o.id, o.name ORDER BY revenue DESC")
   List<Object[]> findTopServicesByRevenue(@Param("startDate") Instant startDate, Pageable pageable);
+
+  Optional<Invoice> findByGrooming_Id(Long groomingId);
+
+  @EntityGraph(attributePaths = {"client", "products.product", "offerings.offering"})
+  @Query("SELECT i FROM Invoice i WHERE i.grooming.id = :groomingId AND i.active = true")
+  Optional<Invoice> findByGroomingIdWithDetails(@Param("groomingId") Long groomingId);
+
+  @EntityGraph(attributePaths = {"client", "products.product", "offerings.offering"})
+  @Query("SELECT i FROM Invoice i WHERE i.consultation.id = :consultationId AND i.active = true")
+  Optional<Invoice> findByConsultationIdWithDetails(@Param("consultationId") Long consultationId);
 }

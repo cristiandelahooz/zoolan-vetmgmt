@@ -43,13 +43,13 @@ public class MyWaitingRoomView extends VerticalLayout {
   private final PetService petService;
   private final InvoiceService invoiceService;
   private final ProductService productService;
-  private final ServiceService serviceService;
+  private final OfferingService offeringService;
 
   private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
 
   public MyWaitingRoomView(
       WaitingRoomService waitingRoomService,
-      ServiceService serviceService,
+      OfferingService offeringService,
       ConsultationService consultationService,
       GroomingSessionService groomingSessionService, // 👈 inyecta
       EmployeeService employeeService,
@@ -64,7 +64,7 @@ public class MyWaitingRoomView extends VerticalLayout {
     this.petService = petService;
     this.invoiceService = invoiceService;
     this.productService = productService;
-    this.serviceService = serviceService;
+    this.offeringService = offeringService;
 
     setSizeFull();
     setPadding(true);
@@ -164,7 +164,7 @@ public class MyWaitingRoomView extends VerticalLayout {
             consultationService,
             employeeService,
             petService,
-            serviceService,
+            offeringService,
             invoiceService,
             productService);
     form.openForNew();
@@ -216,7 +216,7 @@ public class MyWaitingRoomView extends VerticalLayout {
             groomingSessionService,
             employeeService,
             petService,
-            serviceService,
+            offeringService,
             invoiceService,
             productService);
 

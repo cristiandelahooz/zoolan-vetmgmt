@@ -40,4 +40,6 @@ public interface ConsultationRepository
           + "AND c.active = true GROUP BY HOUR(c.consultationDate) ORDER BY HOUR(c.consultationDate)")
   List<Object[]> findEmployeeUtilizationByHour(
       @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+  List<Consultation> findByVeterinarian_IdAndActiveTrueOrderByConsultationDateDesc(Long veterinarianId);
 }

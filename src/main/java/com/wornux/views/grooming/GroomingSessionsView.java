@@ -59,7 +59,7 @@ public class GroomingSessionsView extends Div {
 
   private final transient GroomingSessionService groomingSessionService;
   private final transient InvoiceService invoiceService;
-  private final transient ServiceService serviceService;
+  private final transient OfferingService offeringService;
   private final transient ProductService productService;
   private final transient GroomingForm groomingForm;
   private final GroomingDetailsSidebar detailsSidebar;
@@ -68,20 +68,20 @@ public class GroomingSessionsView extends Div {
       @Qualifier("groomingSessionServiceImpl") GroomingSessionService groomingSessionService,
       @Qualifier("employeeServiceImpl") EmployeeService employeeService,
       @Qualifier("petServiceImpl") PetService petService,
-      @Qualifier("serviceServiceImpl") ServiceService serviceService,
+      @Qualifier("offeringServiceImpl") OfferingService offeringService,
       @Qualifier("productServiceImpl") ProductService productService,
       InvoiceService invoiceService) {
 
     this.groomingSessionService = groomingSessionService;
     this.invoiceService = invoiceService;
     this.productService = productService;
-    this.serviceService = serviceService;
+    this.offeringService = offeringService;
     this.groomingForm =
         new GroomingForm(
             groomingSessionService,
             employeeService,
             petService,
-            serviceService,
+            offeringService,
             invoiceService,
             productService);
 

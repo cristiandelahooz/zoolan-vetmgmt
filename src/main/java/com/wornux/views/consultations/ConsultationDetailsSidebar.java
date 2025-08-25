@@ -296,16 +296,16 @@ public class ConsultationDetailsSidebar extends Div {
     BigDecimal subtotal = BigDecimal.ZERO, tax = BigDecimal.ZERO, total = BigDecimal.ZERO;
 
     if (inv != null) {
-      if (inv.getServices() != null) {
+      if (inv.getOfferings() != null) {
         rows.addAll(
-            inv.getServices().stream()
+            inv.getOfferings().stream()
                 .map(
                     si ->
                         new LineRow(
                             "Servicio",
-                            si.getService() != null ? si.getService().getName() : "",
+                            si.getOffering() != null ? si.getOffering().getName() : "",
                             Optional.ofNullable(si.getQuantity()).orElse(0.0),
-                            Optional.ofNullable(si.getPrice()).orElse(BigDecimal.ZERO),
+                            Optional.ofNullable(si.getOffering().getPrice()).orElse(BigDecimal.ZERO),
                             Optional.ofNullable(si.getAmount()).orElse(BigDecimal.ZERO)))
                 .collect(Collectors.toList()));
       }
