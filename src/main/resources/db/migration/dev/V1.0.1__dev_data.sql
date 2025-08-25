@@ -804,10 +804,10 @@ SELECT s.name,
 FROM (VALUES ('Consulta Veterinaria', 'Consulta general y diagnóstico', TRUE, 800.00, 'MEDICAL'),
              ('Baño y Corte', 'Servicio de grooming completo', TRUE, 1200.00, 'GROOMING'),
              ('Vacunación', 'Aplicación de vacunas', TRUE, 600.00, 'MEDICAL'),
-             ('Desparasitación', 'Tratamiento antiparasitario', TRUE, 500.00, 'MEDICAL'),
-             ('Guardería', 'Cuidado diario de mascotas', TRUE, 1000.00, 'KENNEL'),
-             ('Laboratorio', 'Análisis clínicos veterinarios', TRUE, 1500.00, 'LAB'),
-             ('Pensión', 'Hospedaje temporal de mascotas', TRUE, 2000.00, 'KENNEL'),
+             ('Desparasitación', 'Tratamiento antiparasitario', TRUE, 500.00, 'VACCINATION'),
+             ('Guardería', 'Cuidado diario de mascotas', TRUE, 1000.00, 'MEDICAL'),
+             ('Laboratorio', 'Análisis clínicos veterinarios', TRUE, 1500.00, 'VACCINATION'),
+             ('Pensión', 'Hospedaje temporal de mascotas', TRUE, 2000.00, 'MEDICAL'),
              ('Cirugía menor', 'Procedimientos quirúrgicos menores', TRUE, 3500.00, 'MEDICAL'),
              ('Corte de uñas', 'Recorte profesional de uñas', TRUE, 300.00, 'GROOMING'),
              ('Limpieza dental', 'Limpieza bucal veterinaria', TRUE, 900.00,
@@ -1025,12 +1025,12 @@ SELECT CURRENT_DATE - (INTERVAL '1 day' * (ROW_NUMBER() OVER ())),
            ELSE 1000.00
            END,
        CASE (ROW_NUMBER() OVER () % 4)
-           WHEN 0 THEN 'EFECTIVO'
-           WHEN 1 THEN 'TARJETA'
-           WHEN 2 THEN 'TRANSFERENCIA'
-           ELSE 'CHEQUE'
+           WHEN 0 THEN 'CASH'
+           WHEN 1 THEN 'ELECTRONIC'
+           WHEN 2 THEN 'TRANSFER'
+           ELSE 'CASH'
            END,
-       'COMPLETADO',
+       'SUCCESS',
        'REF-' || LPAD((ROW_NUMBER() OVER ())::text, 6, '0'),
        'Pago procesado correctamente',
        'admin',

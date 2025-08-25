@@ -5,7 +5,9 @@
 --  ███████║   ██║   ██║  ██║╚██████╔╝╚██████╗   ██║   ╚██████╔╝██║  ██║███████╗
 --  ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
+
 create sequence revision_seq start with 1 increment by 50;
+
 create table appointments
 (
     client_id              bigint,
@@ -32,6 +34,7 @@ create table appointments
     updated_by             varchar(255),
     primary key (id)
 );
+
 create table appointments_log
 (
     assigned_employee_mod      boolean,
@@ -73,6 +76,7 @@ create table appointments_log
     updated_by                 varchar(255),
     primary key (rev, id)
 );
+
 create table client
 (
     credit_limit             float(53),
@@ -80,9 +84,9 @@ create table client
     payment_terms_days       integer,
     verified                 boolean,
     client_id                bigint not null,
-    passport                 CHAR(9),
-    cedula                   CHAR(11),
-    rnc                      CHAR(11) unique,
+    passport                 varchar(9),
+    cedula                   varchar(11),
+    rnc                      varchar(11),
     notes                    varchar(500),
     company_name             varchar(255),
     emergency_contact_name   varchar(255),
@@ -95,8 +99,10 @@ create table client
                                                   'PASANTE', 'RECOMENDACION_PROFESIONAL', 'OTRO')),
     primary key (client_id),
     unique (cedula),
-    unique (passport)
+    unique (passport),
+    unique (rnc)
 );
+
 create table client_log
 (
     cedula_mod                   boolean,
@@ -119,9 +125,9 @@ create table client_log
     verified                     boolean,
     verified_mod                 boolean,
     client_id                    bigint  not null,
-    passport                     CHAR(9),
-    cedula                       CHAR(11),
-    rnc                          CHAR(11),
+    passport                     varchar(9),
+    cedula                       varchar(11),
+    rnc                          varchar(11),
     notes                        varchar(500),
     company_name                 varchar(255),
     emergency_contact_name       varchar(255),
@@ -134,6 +140,7 @@ create table client_log
                                                       'PASANTE', 'RECOMENDACION_PROFESIONAL', 'OTRO')),
     primary key (rev, client_id)
 );
+
 create table consultations
 (
     active            boolean      not null,
@@ -150,6 +157,7 @@ create table consultations
     treatment         TEXT,
     primary key (id)
 );
+
 create table consultations_log
 (
     active                boolean,
@@ -179,6 +187,7 @@ create table consultations_log
     treatment             TEXT,
     primary key (rev, id)
 );
+
 create table employee
 (
     available               boolean,
@@ -193,6 +202,7 @@ create table employee
     gender                  varchar(255) check (gender in ('MASCULINO', 'FEMENINO', 'OTRO')),
     primary key (employee_id)
 );
+
 create table employee_log
 (
     available                   boolean,
@@ -215,6 +225,7 @@ create table employee_log
     gender                      varchar(255) check (gender in ('MASCULINO', 'FEMENINO', 'OTRO')),
     primary key (rev, employee_id)
 );
+
 create table employee_work_schedule
 (
     end_time    time(6),
@@ -224,6 +235,7 @@ create table employee_work_schedule
     day_of_week varchar(255) check (day_of_week in
                                     ('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'))
 );
+
 create table grooming_sessions
 (
     active        boolean      not null,
@@ -236,6 +248,7 @@ create table grooming_sessions
     notes         TEXT         not null,
     primary key (id)
 );
+
 create table grooming_sessions_log
 (
     active            boolean,
@@ -257,6 +270,7 @@ create table grooming_sessions_log
     notes             TEXT,
     primary key (rev, id)
 );
+
 create table invoice_offerings
 (
     amount   numeric(10, 2) not null,
@@ -266,6 +280,7 @@ create table invoice_offerings
     offering bigint         not null,
     primary key (id)
 );
+
 create table invoice_offerings_log
 (
     amount       numeric(10, 2),
@@ -281,6 +296,7 @@ create table invoice_offerings_log
     offering     bigint,
     primary key (rev, id)
 );
+
 create table invoice_product
 (
     amount             numeric(38, 2)              not null,
@@ -295,6 +311,7 @@ create table invoice_product
     last_modified_by   varchar(255)                not null,
     primary key (code)
 );
+
 create table invoice_product_log
 (
     amount       numeric(38, 2),
@@ -312,6 +329,7 @@ create table invoice_product_log
     product      bigint,
     primary key (rev, code)
 );
+
 create table invoices
 (
     active              boolean                     not null,
@@ -338,6 +356,7 @@ create table invoices
                                                                                'CANCELLED')),
     primary key (code)
 );
+
 create table invoices_log
 (
     active                  boolean,
@@ -380,12 +399,13 @@ create table invoices_log
                                                  'SENT', 'CANCELLED')),
     primary key (rev, code)
 );
+
 create table medical_histories
 (
     active             boolean not null,
     created_at         timestamp(6),
     id                 bigint generated by default as identity,
-    pet                bigint unique,
+    pet                bigint,
     updated_at         timestamp(6),
     allergies          TEXT,
     chronic_conditions TEXT,
@@ -393,8 +413,10 @@ create table medical_histories
     notes              TEXT,
     surgeries          TEXT,
     vaccinations       TEXT,
-    primary key (id)
+    primary key (id),
+    unique (pet)
 );
+
 create table medical_histories_log
 (
     active                 boolean,
@@ -423,6 +445,7 @@ create table medical_histories_log
     vaccinations           TEXT,
     primary key (rev, id)
 );
+
 create table offerings
 (
     active        boolean        not null,
@@ -435,6 +458,7 @@ create table offerings
     offering_type varchar(255)   not null check (offering_type in ('CONSULTATION', 'VACCINATION', 'GROOMING', 'MEDICAL')),
     primary key (id)
 );
+
 create table offerings_log
 (
     active            boolean,
@@ -456,6 +480,7 @@ create table offerings_log
     offering_type     varchar(255) check (offering_type in ('CONSULTATION', 'VACCINATION', 'GROOMING', 'MEDICAL')),
     primary key (rev, id)
 );
+
 create table payments
 (
     payment_date       date                        not null,
@@ -471,6 +496,7 @@ create table payments
     status             varchar(255)                not null check (status in ('PENDING', 'SUCCESS', 'FAILED', 'REFUNDED')),
     primary key (code)
 );
+
 create table payments_detail
 (
     amount             numeric(38, 2)              not null,
@@ -483,6 +509,7 @@ create table payments_detail
     last_modified_by   varchar(255)                not null,
     primary key (code)
 );
+
 create table payments_detail_log
 (
     amount      numeric(38, 2),
@@ -496,6 +523,7 @@ create table payments_detail_log
     payment     bigint,
     primary key (rev, code)
 );
+
 create table payments_log
 (
     details_mod          boolean,
@@ -516,11 +544,13 @@ create table payments_log
     status               varchar(255) check (status in ('PENDING', 'SUCCESS', 'FAILED', 'REFUNDED')),
     primary key (rev, code)
 );
+
 create table pet_owners
 (
     owners bigint not null,
     pet_id bigint not null
 );
+
 create table pet_owners_log
 (
     rev     integer not null,
@@ -529,6 +559,7 @@ create table pet_owners_log
     pet_id  bigint  not null,
     primary key (rev, owners, pet_id)
 );
+
 create table pets
 (
     active     boolean not null,
@@ -543,6 +574,7 @@ create table pets
     type       varchar(255) check (type in ('PERRO', 'GATO', 'AVE', 'CONEJO', 'HAMSTER', 'REPTIL', 'OTRO')),
     primary key (id)
 );
+
 create table pets_log
 (
     active              boolean,
@@ -570,6 +602,7 @@ create table pets_log
     type                varchar(255) check (type in ('PERRO', 'GATO', 'AVE', 'CONEJO', 'HAMSTER', 'REPTIL', 'OTRO')),
     primary key (rev, id)
 );
+
 create table products
 (
     accounting_stock integer        not null check (accounting_stock >= 0),
@@ -588,6 +621,7 @@ create table products
     usage_type       varchar(255)   not null check (usage_type in ('PRIVADO', 'VENTA', 'AMBOS')),
     primary key (product_id)
 );
+
 create table products_log
 (
     accounting_stock     integer,
@@ -621,6 +655,7 @@ create table products_log
     usage_type           varchar(255) check (usage_type in ('PRIVADO', 'VENTA', 'AMBOS')),
     primary key (rev, product_id)
 );
+
 create table revision
 (
     id            integer not null,
@@ -629,21 +664,25 @@ create table revision
     modifier_user varchar(255),
     primary key (id)
 );
+
 create table suppliers
 (
     active         boolean,
     supplier_id    bigint generated by default as identity,
-    rnc            CHAR(11)     not null unique,
+    rnc            varchar(11)  not null,
     company_name   varchar(255) not null,
-    contact_email  varchar(255) unique,
+    contact_email  varchar(255),
     contact_person varchar(255),
     contact_phone  varchar(255),
     municipality   varchar(255) not null,
     province       varchar(255) not null,
     sector         varchar(255) not null,
     street_address varchar(255) not null,
-    primary key (supplier_id)
+    primary key (supplier_id),
+    unique (rnc),
+    unique (contact_email)
 );
+
 create table suppliers_log
 (
     active             boolean,
@@ -661,7 +700,7 @@ create table suppliers_log
     sector_mod         boolean,
     street_address_mod boolean,
     supplier_id        bigint  not null,
-    rnc                CHAR(11),
+    rnc                varchar(11),
     company_name       varchar(255),
     contact_email      varchar(255),
     contact_person     varchar(255),
@@ -672,6 +711,7 @@ create table suppliers_log
     street_address     varchar(255),
     primary key (rev, supplier_id)
 );
+
 create table tokens
 (
     invalidated   boolean       not null,
@@ -682,6 +722,7 @@ create table tokens
     code          varchar(255)  not null,
     primary key (code)
 );
+
 create table users
 (
     active           boolean,
@@ -706,6 +747,7 @@ create table users
     unique (username),
     unique (email)
 );
+
 create table users_log
 (
     active               boolean,
@@ -747,6 +789,7 @@ create table users_log
     username             varchar(255),
     primary key (rev, user_id)
 );
+
 create table waiting_room
 (
     arrival_time            timestamp(6) not null,
@@ -761,6 +804,7 @@ create table waiting_room
     status                  varchar(255) not null check (status in ('ESPERANDO', 'EN_CONSULTA', 'COMPLETADO', 'CANCELADO')),
     primary key (id)
 );
+
 create table waiting_room_log
 (
     arrival_time_mod            boolean,
@@ -786,6 +830,7 @@ create table waiting_room_log
     status                      varchar(255) check (status in ('ESPERANDO', 'EN_CONSULTA', 'COMPLETADO', 'CANCELADO')),
     primary key (rev, id)
 );
+
 create table warehouses
 (
     available_for_sale boolean,
@@ -795,6 +840,7 @@ create table warehouses
     warehouse_type     varchar(255) not null check (warehouse_type in ('PRINCIPAL', 'SECUNDARIO')),
     primary key (id)
 );
+
 create table warehouses_log
 (
     available_for_sale     boolean,
@@ -811,105 +857,262 @@ create table warehouses_log
     warehouse_type         varchar(255) check (warehouse_type in ('PRINCIPAL', 'SECUNDARIO')),
     primary key (rev, id)
 );
-create index IDXobqq8jcniv7eqgtr3d6dij8my on invoices (issued_date);
-create index IDXkoilk8qkqukefxtsd17wxruwl on invoices (payment_date);
-create index IDXq11xedrmax65vyfuevlmuj2h8 on invoices (status);
-create index IDXde6eb2c0lybp2pc53g6dcucp8 on payments (payment_date);
-create index IDX9jrrbqwqavqj0h46ndebsooln on payments (method);
-create index IDXh570cdj7423ffvxr2vulqkh3 on payments (status);
-create index IDX7nq3j9mbmotv8kv3nv9kbcb7c on tokens (username);
-create index IDXjhr80jk1x6bj5a9ntyadphy1q on tokens (access_token);
-create index IDX7myvscvtg39o98vb00njnvp7w on tokens (refresh_token);
+
+create index IDXobqq8jcniv7eqgtr3d6dij8my
+    on invoices (issued_date);
+
+create index IDXkoilk8qkqukefxtsd17wxruwl
+    on invoices (payment_date);
+
+create index IDXq11xedrmax65vyfuevlmuj2h8
+    on invoices (status);
+
+create index IDX270ikka7el7mi5ocy54s8ahsr
+    on medical_histories (pet);
+
+create index IDXde6eb2c0lybp2pc53g6dcucp8
+    on payments (payment_date);
+
+create index IDX9jrrbqwqavqj0h46ndebsooln
+    on payments (method);
+
+create index IDXh570cdj7423ffvxr2vulqkh3
+    on payments (status);
+
+create index IDX7nq3j9mbmotv8kv3nv9kbcb7c
+    on tokens (username);
+
+create index IDXjhr80jk1x6bj5a9ntyadphy1q
+    on tokens (access_token);
+
+create index IDX7myvscvtg39o98vb00njnvp7w
+    on tokens (refresh_token);
+
 alter table if exists appointments
-    add constraint FK2nfdx8rbmibbksa4aq8rpgb5t foreign key (employee_id) references employee;
+    add constraint FK2nfdx8rbmibbksa4aq8rpgb5t
+        foreign key (employee_id)
+            references employee;
+
 alter table if exists appointments
-    add constraint FK21ahd1jev5nvuumq6rjg8eg1t foreign key (client_id) references client;
+    add constraint FK21ahd1jev5nvuumq6rjg8eg1t
+        foreign key (client_id)
+            references client;
+
 alter table if exists appointments
-    add constraint FK62dl3dvwsbveq3vv067becwmj foreign key (pet_id) references pets;
+    add constraint FK62dl3dvwsbveq3vv067becwmj
+        foreign key (pet_id)
+            references pets;
+
 alter table if exists appointments_log
-    add constraint FKj90rylaxnwyiohsfu2xmaip6f foreign key (rev) references revision;
+    add constraint FKj90rylaxnwyiohsfu2xmaip6f
+        foreign key (rev)
+            references revision;
+
 alter table if exists client
-    add constraint FKmqxwjd2y48otpmr20m6odjdj9 foreign key (client_id) references users;
+    add constraint FKmqxwjd2y48otpmr20m6odjdj9
+        foreign key (client_id)
+            references users;
+
 alter table if exists client_log
-    add constraint FKhc8qsplusdntqv09j74ifujy2 foreign key (rev, client_id) references users_log;
+    add constraint FKhc8qsplusdntqv09j74ifujy2
+        foreign key (rev, client_id)
+            references users_log;
+
 alter table if exists consultations
-    add constraint FK2klbeoayj3626onur7rhl3uhv foreign key (medical_history) references medical_histories;
+    add constraint FK2klbeoayj3626onur7rhl3uhv
+        foreign key (medical_history)
+            references medical_histories;
+
 alter table if exists consultations
-    add constraint FK2pkrrnadplc1sxb45wwq8mff8 foreign key (pet) references pets;
+    add constraint FK2pkrrnadplc1sxb45wwq8mff8
+        foreign key (pet)
+            references pets;
+
 alter table if exists consultations
-    add constraint FKpn5udnpi2fi2b1ptft6ylm8hk foreign key (veterinarian) references employee;
+    add constraint FKpn5udnpi2fi2b1ptft6ylm8hk
+        foreign key (veterinarian)
+            references employee;
+
 alter table if exists consultations_log
-    add constraint FKbidrcugkvbds78ub7ivt5j4jg foreign key (rev) references revision;
+    add constraint FKbidrcugkvbds78ub7ivt5j4jg
+        foreign key (rev)
+            references revision;
+
 alter table if exists employee
-    add constraint FK7oa45fd2yfp32wxpx7s1ssllw foreign key (employee_id) references users;
+    add constraint FK7oa45fd2yfp32wxpx7s1ssllw
+        foreign key (employee_id)
+            references users;
+
 alter table if exists employee_log
-    add constraint FK4ducncdikjn32v8odyp8a7i5w foreign key (rev, employee_id) references users_log;
+    add constraint FK4ducncdikjn32v8odyp8a7i5w
+        foreign key (rev, employee_id)
+            references users_log;
+
 alter table if exists employee_work_schedule
-    add constraint FKck7o5poc0s4p6joycwk87ywy foreign key (employee_id) references employee;
+    add constraint FKck7o5poc0s4p6joycwk87ywy
+        foreign key (employee_id)
+            references employee;
+
 alter table if exists grooming_sessions
-    add constraint FKb2aatvjgxqrqkyrlpsdndgdl1 foreign key (groomer) references employee;
+    add constraint FKb2aatvjgxqrqkyrlpsdndgdl1
+        foreign key (groomer)
+            references employee;
+
 alter table if exists grooming_sessions
-    add constraint FKnbvqnlivwksy2nlwmyjbm2pqo foreign key (pet) references pets;
+    add constraint FKnbvqnlivwksy2nlwmyjbm2pqo
+        foreign key (pet)
+            references pets;
+
 alter table if exists grooming_sessions_log
-    add constraint FKsvf3xtu3x5ivb23kx9dxy7dea foreign key (rev) references revision;
+    add constraint FKsvf3xtu3x5ivb23kx9dxy7dea
+        foreign key (rev)
+            references revision;
+
 alter table if exists invoice_offerings
-    add constraint FK75jl4spkqugr5y4y3h3irw8kg foreign key (invoice) references invoices;
+    add constraint FK75jl4spkqugr5y4y3h3irw8kg
+        foreign key (invoice)
+            references invoices;
+
 alter table if exists invoice_offerings
-    add constraint FKect21cf69leq5hpd243gp8qse foreign key (offering) references offerings;
+    add constraint FKect21cf69leq5hpd243gp8qse
+        foreign key (offering)
+            references offerings;
+
 alter table if exists invoice_offerings_log
-    add constraint FKwra48p996uekcbw7a5dn5me7 foreign key (rev) references revision;
+    add constraint FKwra48p996uekcbw7a5dn5me7
+        foreign key (rev)
+            references revision;
+
 alter table if exists invoice_product
-    add constraint FKhvovdyepagtn9tfkik9bkrfd5 foreign key (invoice) references invoices;
+    add constraint FKhvovdyepagtn9tfkik9bkrfd5
+        foreign key (invoice)
+            references invoices;
+
 alter table if exists invoice_product
-    add constraint FKagglsqw2oum9ifdgmauguv2e7 foreign key (product) references products;
+    add constraint FKagglsqw2oum9ifdgmauguv2e7
+        foreign key (product)
+            references products;
+
 alter table if exists invoice_product_log
-    add constraint FKt47997ya2n9owsreoghjrmbbd foreign key (rev) references revision;
+    add constraint FKt47997ya2n9owsreoghjrmbbd
+        foreign key (rev)
+            references revision;
+
 alter table if exists invoices
-    add constraint FKmasp3313l4cd635ipc1972eum foreign key (client) references client;
+    add constraint FKmasp3313l4cd635ipc1972eum
+        foreign key (client)
+            references client;
+
 alter table if exists invoices
-    add constraint FKa6x96jyd0b8xd1rlaqptj414t foreign key (consultation) references consultations;
+    add constraint FKa6x96jyd0b8xd1rlaqptj414t
+        foreign key (consultation)
+            references consultations;
+
 alter table if exists invoices_log
-    add constraint FKtqwargqw4a5wekr4nuq50mmgc foreign key (rev) references revision;
+    add constraint FKtqwargqw4a5wekr4nuq50mmgc
+        foreign key (rev)
+            references revision;
+
 alter table if exists medical_histories
-    add constraint FKi0eists62d7ofv0aocgiwt9ql foreign key (pet) references pets;
+    add constraint FKi0eists62d7ofv0aocgiwt9ql
+        foreign key (pet)
+            references pets;
+
 alter table if exists medical_histories_log
-    add constraint FKestxejfc8m2atyyqg228h64dp foreign key (rev) references revision;
+    add constraint FKestxejfc8m2atyyqg228h64dp
+        foreign key (rev)
+            references revision;
+
 alter table if exists offerings_log
-    add constraint FK8d95g1us025ojhujd1irm96n4 foreign key (rev) references revision;
+    add constraint FK8d95g1us025ojhujd1irm96n4
+        foreign key (rev)
+            references revision;
+
 alter table if exists payments_detail
-    add constraint FKm99sesvhy2381qvr1nvxm1n7c foreign key (invoice) references invoices;
+    add constraint FKm99sesvhy2381qvr1nvxm1n7c
+        foreign key (invoice)
+            references invoices;
+
 alter table if exists payments_detail
-    add constraint FKtrhl4sbn1iti2crpigd0u01q6 foreign key (payment) references payments;
+    add constraint FKtrhl4sbn1iti2crpigd0u01q6
+        foreign key (payment)
+            references payments;
+
 alter table if exists payments_detail_log
-    add constraint FKr82grhl3rr1kn8xcqrko18qte foreign key (rev) references revision;
+    add constraint FKr82grhl3rr1kn8xcqrko18qte
+        foreign key (rev)
+            references revision;
+
 alter table if exists payments_log
-    add constraint FK8t5lt6drf30iugmu01s1ieo3o foreign key (rev) references revision;
+    add constraint FK8t5lt6drf30iugmu01s1ieo3o
+        foreign key (rev)
+            references revision;
+
 alter table if exists pet_owners
-    add constraint FKf81y5ohv4mf6q7ns9t5ir7qvl foreign key (owners) references client;
+    add constraint FKf81y5ohv4mf6q7ns9t5ir7qvl
+        foreign key (owners)
+            references client;
+
 alter table if exists pet_owners
-    add constraint FKsvrtwtba03fykrdrjv78043rn foreign key (pet_id) references pets;
+    add constraint FKsvrtwtba03fykrdrjv78043rn
+        foreign key (pet_id)
+            references pets;
+
 alter table if exists pet_owners_log
-    add constraint FKfvurh3qf3excacwrq7p8vsrej foreign key (rev) references revision;
+    add constraint FKfvurh3qf3excacwrq7p8vsrej
+        foreign key (rev)
+            references revision;
+
 alter table if exists pets_log
-    add constraint FK1c9vaxk5daoqyxk742h1blqao foreign key (rev) references revision;
+    add constraint FK1c9vaxk5daoqyxk742h1blqao
+        foreign key (rev)
+            references revision;
+
 alter table if exists products
-    add constraint FK42ysdt57etvlvgyl61kx30p63 foreign key (supplier) references suppliers;
+    add constraint FK42ysdt57etvlvgyl61kx30p63
+        foreign key (supplier)
+            references suppliers;
+
 alter table if exists products
-    add constraint FK8px79mnafcw9t6hrvwv8xqwhw foreign key (warehouse) references warehouses;
+    add constraint FK8px79mnafcw9t6hrvwv8xqwhw
+        foreign key (warehouse)
+            references warehouses;
+
 alter table if exists products_log
-    add constraint FKbkarpxag2ay59lstls419et6v foreign key (rev) references revision;
+    add constraint FKbkarpxag2ay59lstls419et6v
+        foreign key (rev)
+            references revision;
+
 alter table if exists suppliers_log
-    add constraint FK6gyecjx9w3169pe1ppqmwl9o8 foreign key (rev) references revision;
+    add constraint FK6gyecjx9w3169pe1ppqmwl9o8
+        foreign key (rev)
+            references revision;
+
 alter table if exists users_log
-    add constraint FKesjusbgn1jmfp1e7nmmqu9tgq foreign key (rev) references revision;
+    add constraint FKesjusbgn1jmfp1e7nmmqu9tgq
+        foreign key (rev)
+            references revision;
+
 alter table if exists waiting_room
-    add constraint FK6tu10j6iqpkrl4a4rhspep21r foreign key (client) references client;
+    add constraint FK6tu10j6iqpkrl4a4rhspep21r
+        foreign key (client)
+            references client;
+
 alter table if exists waiting_room
-    add constraint FK6tpr1te3wnfy0gf5a35oexvhe foreign key (pet) references pets;
+    add constraint FK6tpr1te3wnfy0gf5a35oexvhe
+        foreign key (pet)
+            references pets;
+
 alter table if exists waiting_room_log
-    add constraint FKokhscugvadup6fs7nq074jb18 foreign key (rev) references revision;
+    add constraint FKokhscugvadup6fs7nq074jb18
+        foreign key (rev)
+            references revision;
+
 alter table if exists warehouses_log
-    add constraint FKiqg7n8u0graxm2mjwfuslpalh foreign key (rev) references revision;
+    add constraint FKiqg7n8u0graxm2mjwfuslpalh
+        foreign key (rev)
+            references revision;
+
 
 --  ██████╗  █████╗ ████████╗ █████╗       ─────▀▄▀─────▄─────▄
 --  ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗      ──▄███████▄──▀██▄██▀
