@@ -46,7 +46,9 @@ public class AppointmentClientInfo {
   @NotNull
   private PetType petType;
 
-  @NotNull private String breed;
+  @Column(name = "guest_client_pet_breed")
+  @NotNull
+  private String breed;
 
   @Column(name = "guest_client_email")
   @Email(message = "Proporcione un email válido")
