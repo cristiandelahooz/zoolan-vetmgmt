@@ -96,4 +96,6 @@ public interface EmployeeService {
   public void markVetAvailable(Long vetId);
 
   Optional<Employee> findByUsername(String username);
+
+  public List<Employee> getAvailableGroomers();
 }
