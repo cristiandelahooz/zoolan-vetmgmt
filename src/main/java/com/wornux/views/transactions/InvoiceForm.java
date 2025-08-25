@@ -47,6 +47,7 @@ import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
+import com.wornux.views.calendar.AppointmentForm;
 import com.wornux.views.customers.ClientCreationDialog;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -748,24 +749,7 @@ public class InvoiceForm extends Div {
 
     List<Client> allCustomerByDisabledIsFalse = customerService.getAllActiveClients();
     customer.setClearButtonVisible(true);
-    customer.setItems(
-        comboBoxItemFilter(Client::getFirstName, String::contains), allCustomerByDisabledIsFalse);
-    customer.setItemLabelGenerator(Client::getFirstName);
-    customer.setRenderer(
-        new ComponentRenderer<>(
-            item -> {
-              Div container = new Div();
-              container.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
-
-              Span title = new Span(item.getFirstName());
-              title.addClassNames(LumoUtility.FontWeight.BOLD);
-
-              Span subtitle = new Span(item.getFullName());
-              subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.SMALL);
-
-              container.add(title, subtitle);
-              return container;
-            }));
+    AppointmentForm.setActiveClients(allCustomerByDisabledIsFalse, customer);
     customer.addValueChangeListener(
         event -> {
           bill.setVisible(event.getValue() != null);
