@@ -9,14 +9,17 @@ import com.wornux.dto.response.AppointmentResponseDto;
 import com.wornux.exception.AppointmentNotFoundException;
 import com.wornux.mapper.AppointmentMapper;
 import com.wornux.services.interfaces.AppointmentService;
-import java.time.LocalDateTime;
-import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
