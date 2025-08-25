@@ -16,6 +16,7 @@ public interface WaitingRoomMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "status", constant = "ESPERANDO")
   @Mapping(target = "arrivalTime", expression = "java(java.time.LocalDateTime.now())")
+  @Mapping(target = "type", source = "dto.type")
   WaitingRoom toEntity(
       WaitingRoomCreateRequestDto dto,
       @Context ClientRepository clientRepository,
