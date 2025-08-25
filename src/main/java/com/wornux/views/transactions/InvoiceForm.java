@@ -1,10 +1,5 @@
 package com.wornux.views.transactions;
 
-import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
-import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.CommonUtils.createIconItem;
-
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -47,8 +42,12 @@ import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
-import com.wornux.views.calendar.AppointmentForm;
 import com.wornux.views.customers.ClientCreationDialog;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -56,10 +55,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
+import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
+import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
+import static com.wornux.utils.CommonUtils.createIconItem;
 
 @Slf4j
 public class InvoiceForm extends Div {
@@ -228,12 +227,12 @@ public class InvoiceForm extends Div {
     gridItems
         .addColumn(
             item -> {
-              if (item instanceof InvoiceProduct) {
-                return Optional.ofNullable(((InvoiceProduct) item).getProduct())
+              if (item instanceof InvoiceProduct invoiceProduct) {
+                return Optional.ofNullable(invoiceProduct.getProduct())
                     .map(Product::getName)
                     .orElse("");
-              } else if (item instanceof InvoiceOffering) {
-                return Optional.ofNullable(((InvoiceOffering) item).getOffering())
+              } else if (item instanceof InvoiceOffering invoiceOffering) {
+                return Optional.ofNullable(invoiceOffering.getOffering())
                     .map(Offering::getName)
                     .orElse("");
               }
@@ -245,12 +244,12 @@ public class InvoiceForm extends Div {
     gridItems
         .addColumn(
             item -> {
-              if (item instanceof InvoiceProduct) {
-                return Optional.ofNullable(((InvoiceProduct) item).getProduct())
+              if (item instanceof InvoiceProduct invoiceProduct) {
+                return Optional.ofNullable(invoiceProduct.getProduct())
                     .map(Product::getDescription)
                     .orElse("");
-              } else if (item instanceof InvoiceOffering) {
-                return Optional.ofNullable(((InvoiceOffering) item).getOffering())
+              } else if (item instanceof InvoiceOffering invoiceOffering) {
+                return Optional.ofNullable(invoiceOffering.getOffering())
                     .map(Offering::getDescription)
                     .orElse("");
               }
@@ -747,9 +746,7 @@ public class InvoiceForm extends Div {
               c.addClassNames(LumoUtility.Margin.Horizontal.XSMALL);
             });
 
-    List<Client> allCustomerByDisabledIsFalse = customerService.getAllActiveClients();
     customer.setClearButtonVisible(true);
-    AppointmentForm.setActiveClients(allCustomerByDisabledIsFalse, customer);
     customer.addValueChangeListener(
         event -> {
           bill.setVisible(event.getValue() != null);
