@@ -22,6 +22,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.Setter;
+import com.wornux.data.enums.VisitType;
+
 
 public class WaitingRoomForm extends Dialog {
 
@@ -30,6 +32,7 @@ public class WaitingRoomForm extends Dialog {
   private final ComboBox<Pet> petField = new ComboBox<>("Mascota");
   private final TextField reasonField = new TextField("Razón de Visita");
   private final ComboBox<Priority> priorityField = new ComboBox<>("Prioridad");
+  private final ComboBox<VisitType> typeField = new ComboBox<>("Tipo");
   private final TextArea notesField = new TextArea("Notas");
   private final DateTimePicker arrivalTimeField = new DateTimePicker("Hora de Llegada");
   private final Button saveButton = new Button("Guardar");
@@ -89,6 +92,14 @@ public class WaitingRoomForm extends Dialog {
     // ===== Campos simples
     priorityField.setItems(Priority.values());
 
+    //tipo
+    // ===== Tipo (Médica / Grooming)
+    typeField.setItems(VisitType.values());
+    typeField.setItemLabelGenerator(t -> t == VisitType.MEDICA ? "Médica" : "Grooming");
+    typeField.setRequiredIndicatorVisible(true);
+    typeField.setPlaceholder("Seleccione el tipo de atención");
+
+
     // Hora de llegada: solo lectura y automática
     arrivalTimeField.setReadOnly(true);
     arrivalTimeField.setHelperText("Se registrará automáticamente al guardar");
@@ -100,6 +111,7 @@ public class WaitingRoomForm extends Dialog {
             clientField, // Cliente (readonly) + botón suffix
             petField, // Mascota (se habilita con el cliente)
             reasonField,
+                typeField,
             priorityField,
             notesField,
             arrivalTimeField);
@@ -133,6 +145,7 @@ public class WaitingRoomForm extends Dialog {
             .clientId(selectedClient.getId())
             .petId(petField.getValue().getId())
             .reasonForVisit(reasonField.getValue())
+                .type(typeField.getValue())
             .priority(priorityField.getValue())
             .notes(notesField.getValue())
             .arrivalTime(arrival)
@@ -146,6 +159,7 @@ public class WaitingRoomForm extends Dialog {
         editingWaitingRoom.setClient(selectedClient);
         editingWaitingRoom.setPet(petField.getValue());
         editingWaitingRoom.setReasonForVisit(reasonField.getValue());
+        editingWaitingRoom.setType(typeField.getValue());
         editingWaitingRoom.setPriority(priorityField.getValue());
         editingWaitingRoom.setNotes(notesField.getValue());
         // arrivalTime NO se modifica en edición (se mantiene el original)
@@ -170,6 +184,13 @@ public class WaitingRoomForm extends Dialog {
     } else {
       clientField.setInvalid(false);
     }
+
+    if (typeField.isEmpty()) {
+      typeField.setInvalid(true);
+      typeField.setErrorMessage("Debe seleccionar el tipo");
+      valid = false;
+    } else typeField.setInvalid(false);
+
 
     if (petField.isEmpty()) {
       petField.setInvalid(true);
@@ -237,6 +258,10 @@ public class WaitingRoomForm extends Dialog {
 
     reasonField.clear();
     reasonField.setInvalid(false);
+
+    typeField.clear();
+    typeField.setInvalid(false);
+
 
     priorityField.clear();
     priorityField.setInvalid(false);
