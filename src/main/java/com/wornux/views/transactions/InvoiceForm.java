@@ -746,7 +746,24 @@ public class InvoiceForm extends Div {
               c.addClassNames(LumoUtility.Margin.Horizontal.XSMALL);
             });
 
+    List<Client> allCustomerByDisabledIsFalse = customerService.getAllActiveClients();
     customer.setClearButtonVisible(true);
+    customer.setItemLabelGenerator(Client::getFirstName);
+    customer.setRenderer(
+        new ComponentRenderer<>(
+            item -> {
+              Div container = new Div();
+              container.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
+
+              Span title = new Span(item.getFirstName());
+              title.addClassNames(LumoUtility.FontWeight.BOLD);
+
+              Span subtitle = new Span(item.getFullName());
+              subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.SMALL);
+
+              container.add(title, subtitle);
+              return container;
+            }));
     customer.addValueChangeListener(
         event -> {
           bill.setVisible(event.getValue() != null);
