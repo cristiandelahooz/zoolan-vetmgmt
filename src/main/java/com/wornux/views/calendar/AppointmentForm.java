@@ -48,7 +48,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -199,8 +198,9 @@ public class AppointmentForm extends Div {
     guestPetBreed.setRequired(true);
     guestPetBreed.setWidthFull();
 
-    Arrays.asList(guestClientName, guestClientPhone, guestClientEmail, guestPetType, guestPetBreed)
-        .forEach(field -> field.setVisible(false));
+    //    Arrays.asList(guestClientName, guestClientPhone, guestClientEmail, guestPetType,
+    // guestPetBreed)
+    //        .forEach(field -> field.setVisible(false));
   }
 
   private void setupSidebar() {
@@ -356,8 +356,9 @@ public class AppointmentForm extends Div {
     boolean showGuestFields = isGroomingWorkflow;
     boolean showClientPetSelection = !isGroomingWorkflow;
 
-    Arrays.asList(guestClientName, guestClientPhone, guestClientEmail, guestPetType, guestPetBreed)
-        .forEach(field -> field.setVisible(showGuestFields));
+    //    Arrays.asList(guestClientName, guestClientPhone, guestClientEmail, guestPetType,
+    // guestPetBreed)
+    //        .forEach(field -> field.setVisible(showGuestFields));
 
     clientCombo.setVisible(showClientPetSelection);
     petCombo.setVisible(showClientPetSelection);
