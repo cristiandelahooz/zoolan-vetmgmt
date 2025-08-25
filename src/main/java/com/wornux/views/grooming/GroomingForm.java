@@ -37,6 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.Setter;
+import com.vaadin.flow.component.ClickEvent;
+import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.security.UserUtils;
 
 /**
  * Form para registrar sesiones de Grooming (estética), siguiendo el patrón de ConsultationsForm
@@ -95,6 +99,8 @@ public class GroomingForm extends Dialog {
   private transient GroomingSession editingSession;
   private final List<ServiceItem> selectedServices = new ArrayList<>();
   private final List<ProductItem> selectedProducts = new ArrayList<>();
+
+  private WaitingRoom sourceWaitingRoom;
 
   @Setter private transient Consumer<GroomingSession> onSaveCallback;
 
@@ -445,7 +451,7 @@ public class GroomingForm extends Dialog {
               .forEach(product -> productComboBox.getListDataView().addItem(product));
   }*/
 
-  private void loadComboBoxData() {
+  /*private void loadComboBoxData() {
     // Mascotas
     // petComboBox.setItems(petService.getAllPets());
 
@@ -457,9 +463,74 @@ public class GroomingForm extends Dialog {
 
     // Productos internos
     productComboBox.setItems(productService.findInternalUseProducts());
+  }*/
+
+  private void loadComboBoxData() {
+    // Groomer (con comportamiento por rol)
+    applyDefaultGroomerSelection();
+
+    // Servicios de estética
+    if (serviceService != null) {
+      serviceComboBox.setItems(serviceService.findGroomingServices());
+    }
+
+    // Productos internos
+    if (productService != null) {
+      productComboBox.setItems(productService.findInternalUseProducts());
+    }
   }
 
   private void save(ClickEvent<Button> event) {
+    try {
+      if (editingSession == null) {
+        editingSession = new GroomingSession();
+        editingSession.setGroomingDate(LocalDateTime.now());
+      }
+
+      if (selectedPet == null) {
+        petName.setInvalid(true);
+        petName.setErrorMessage("Debe seleccionar una mascota");
+        NotificationUtils.error("Debe seleccionar una mascota");
+        return;
+      }
+
+      binder.writeBean(editingSession);
+      editingSession.setPet(selectedPet);
+      if (groomerComboBox.getValue() != null) { // por si el binder no lo capturó aún
+        editingSession.setGroomer(groomerComboBox.getValue());
+      }
+
+      GroomingSession saved = groomingSessionService.save(editingSession);
+
+      if (!selectedServices.isEmpty() || !selectedProducts.isEmpty()) {
+        recreateInvoiceFor(saved);
+      }
+
+      // Si viene de waiting room, finalizar sesión y cerrar WR (liberar groomer)
+      if (sourceWaitingRoom != null) { // <<<
+        try {
+          // Método espejo al de consulta: debe existir en tu GroomingSessionServiceImpl
+          groomingSessionService.finish(saved.getId()); // <<<
+        } catch (Exception ex) {
+          NotificationUtils.error(
+                  "La sesión se guardó, pero no se pudo cerrar la sala de espera: " + ex.getMessage());
+        }
+      }
+
+      NotificationUtils.success("Grooming registrado y finalizado."); // mensaje espejo
+      if (onSaveCallback != null) onSaveCallback.accept(saved);
+      close();
+
+    } catch (ValidationException e) {
+      NotificationUtils.error("Por favor, complete todos los campos requeridos");
+    } catch (Exception e) {
+      NotificationUtils.error("Error al guardar: " + e.getMessage());
+    }
+  }
+
+
+
+  /*private void save(ClickEvent<Button> event) {
     try {
       if (editingSession == null) {
         editingSession = new GroomingSession();
@@ -496,7 +567,7 @@ public class GroomingForm extends Dialog {
     } catch (Exception e) {
       NotificationUtils.error("Error al guardar: " + e.getMessage());
     }
-  }
+  }*/
 
   private void recreateInvoiceFor(GroomingSession session) {
     try {
@@ -659,6 +730,8 @@ public class GroomingForm extends Dialog {
     petName.clear();
     petName.setInvalid(false);
 
+    applyDefaultGroomerSelection();
+
     saveButton.setText("Registrar");
     editingSession = null;
     setHeaderTitle("Nuevo Grooming");
@@ -802,4 +875,49 @@ public class GroomingForm extends Dialog {
       return subtotal;
     }
   }
+
+  public void presetForGroomerAndPet(Pet pet, Employee groomer, boolean lockGroomerField) {
+    // Mascota
+    this.selectedPet = pet;
+    this.petName.setValue(pet != null ? pet.getName() : "");
+    this.petName.setInvalid(false);
+    this.petName.setReadOnly(true);
+    this.selectPetButton.setEnabled(false);
+
+    // Groomer
+    if (groomer != null) {
+      java.util.List<Employee> items = new java.util.ArrayList<>();
+      this.groomerComboBox.getDataProvider()
+              .fetch(new com.vaadin.flow.data.provider.Query<>())
+              .forEach(items::add);
+      boolean present = items.stream().anyMatch(e -> e.getId().equals(groomer.getId()));
+      if (!present) {
+        items.add(groomer);
+        this.groomerComboBox.setItems(items);
+      }
+      this.groomerComboBox.setValue(groomer);
+      if (lockGroomerField) {
+        this.groomerComboBox.setReadOnly(true);
+      }
+    }
+  }
+  public void attachWaitingRoom(WaitingRoom wr) {
+    this.sourceWaitingRoom = wr;
+  }
+
+  private void applyDefaultGroomerSelection() {
+    if (UserUtils.hasEmployeeRole(EmployeeRole.GROOMER)) {
+      Employee currentGroomer = UserUtils.getCurrentEmployee().orElse(null);
+      if (currentGroomer != null) {
+        groomerComboBox.setItems(java.util.List.of(currentGroomer));
+        groomerComboBox.setValue(currentGroomer);
+        groomerComboBox.setReadOnly(true);
+      }
+    } else if (employeeService != null) {
+      groomerComboBox.setReadOnly(false);
+      groomerComboBox.setItems(employeeService.getGroomers());
+    }
+  }
+
+
 }
