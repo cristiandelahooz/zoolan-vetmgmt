@@ -25,13 +25,13 @@ import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.Sidebar;
 import com.wornux.data.entity.*;
 import com.wornux.data.enums.OfferingType;
 import com.wornux.data.enums.PetType;
-import com.wornux.dto.request.AppointmentCreateRequestDto;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.dto.response.AppointmentResponseDto;
 import com.wornux.mapper.ClientMapper;
@@ -251,7 +251,6 @@ public class AppointmentForm extends Div {
         .asRequired("El titulo de la cita es obligatorio")
         .bind(Appointment::getReason, Appointment::setReason);
 
-    binder.forField(notesField).bind(Appointment::getNotes, Appointment::setNotes);
     binder.forField(notesField).bind(Appointment::getNotes, Appointment::setNotes);
     binder.forField(clientCombo).bind(Appointment::getClient, Appointment::setClient);
     binder.forField(petCombo).bind(Appointment::getPet, Appointment::setPet);
@@ -571,11 +570,21 @@ public class AppointmentForm extends Div {
   }
 
   private void createNewAppointment() {
-    AppointmentCreateRequestDto createDto = new AppointmentCreateRequestDto();
     Appointment appointment = new Appointment();
-    populateCreateDto(createDto);
+    AppointmentClientInfo appointmentClientInfo = new AppointmentClientInfo();
+    try {
+      binder.writeBean(appointment);
+      setDateRangeForAppointment(appointment);
+      if (isGroomingWorkflow) {
+        guestInfoBinder.writeBean(appointmentClientInfo);
+        appointment.setGuestClientInfo(appointmentClientInfo);
+      }
+    } catch (ValidationException ex) {
+      log.error("Error binding appointment data", ex);
+      throw new RuntimeException("Error binding appointment data", ex);
+    }
 
-    appointmentService.createAppointment(createDto);
+    appointmentService.createOrUpdateAppointment(appointment);
 
     Notification.show("Cita creada exitosamente", 3000, Notification.Position.BOTTOM_END)
         .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
@@ -596,32 +605,12 @@ public class AppointmentForm extends Div {
         .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
   }
 
-  private void populateCreateDto(AppointmentCreateRequestDto dto) {
-    dto.setReason(titleField.getValue());
-    dto.setOfferingType(offeringTypeSelect.getValue());
-    dto.setNotes(notesField.getValue());
-
+  private void setDateRangeForAppointment(Appointment dto) {
     LocalDateTime startDateTime =
         LocalDateTime.of(appointmentDate.getValue(), startTime.getValue());
     LocalDateTime endDateTime = LocalDateTime.of(appointmentDate.getValue(), endTime.getValue());
     dto.setStartAppointmentDate(startDateTime);
     dto.setEndAppointmentDate(endDateTime);
-
-    if (isGroomingWorkflow) {
-      AppointmentClientInfo guestInfo =
-          AppointmentClientInfo.builder()
-              .name(guestClientName.getValue())
-              .phone(guestClientPhone.getValue())
-              .email(guestClientEmail.getValue())
-              .petType(guestPetType.getValue())
-              .breed(guestPetBreed.getValue())
-              .build();
-      dto.setGuestClientInfo(guestInfo);
-    } else {
-      if (petCombo.getValue() != null) {
-        dto.setPetId(petCombo.getValue().getId());
-      }
-    }
   }
 
   private void clearForm() {
