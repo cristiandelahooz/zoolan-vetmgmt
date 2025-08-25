@@ -2,6 +2,7 @@ package com.wornux.views.calendar;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -44,7 +45,6 @@ import com.wornux.utils.ValidationNotificationUtils;
 import com.wornux.views.customers.ClientCreationDialog;
 import com.wornux.views.pets.PetForm;
 import jakarta.validation.ConstraintViolationException;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -53,6 +53,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
 import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
@@ -90,8 +91,6 @@ public class AppointmentForm extends Div {
   private final PetForm petForm;
   private transient AppointmentResponseDto currentAppointment;
   private boolean isGroomingWorkflow = false;
-
-  @Setter private transient Runnable callable;
 
   public AppointmentForm(
       AppointmentService appointmentService,
@@ -495,7 +494,6 @@ public class AppointmentForm extends Div {
 
       onSaveCallback.accept(null);
       sidebar.close();
-
     } catch (ConstraintViolationException e) {
       log.error("Validation error saving appointment", e);
       ValidationNotificationUtils.handleFormValidationErrors(e);
