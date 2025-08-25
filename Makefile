@@ -1,4 +1,4 @@
-.PHONY: help run build package clean restart fully-restart test format db-up db-down db-clean db-shell db-logs db-migrate db-info db-validate db-clean-migrate
+.PHONY: help run build package clean restart fully-restart test format db-up db-down db-clean db-shell db-logs db-migrate db-info db-validate db-clean-migrate create-schema
 
 # ANSI Color Codes
 GREEN := \033[0;32m
@@ -134,3 +134,8 @@ db-clean-migrate: db-clean db-up
 	@sleep 5
 	$(MAVEN_CMD) flyway:clean flyway:migrate
 	@echo "${GREEN}Database cleaned and migrations applied successfully!${NC}"
+
+create-schema: db-restart
+	@echo "${BLUE}Running Spring Boot with create-schema profile to generate database schema...${NC}"
+	@sleep 3
+	$(MAVEN_CMD) spring-boot:run -Dspring-boot.run.profiles=create-schema
