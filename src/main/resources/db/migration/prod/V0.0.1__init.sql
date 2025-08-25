@@ -23,8 +23,8 @@ create table appointments
     guest_client_name      varchar(100),
     reason                 varchar(500),
     notes                  varchar(1000),
-    breed                  varchar(255),
     created_by             varchar(255),
+    guest_client_pet_breed varchar(255),
     guest_client_pet_type  varchar(255) check (guest_client_pet_type in
                                                ('PERRO', 'GATO', 'AVE', 'CONEJO', 'HAMSTER', 'REPTIL', 'OTRO')),
     offering_type          varchar(255) not null check (offering_type in ('CONSULTATION', 'VACCINATION', 'GROOMING', 'MEDICAL')),
@@ -63,10 +63,10 @@ create table appointments_log
     updated_at                 timestamp(6),
     reason                     varchar(500),
     notes                      varchar(1000),
-    breed                      varchar(255),
     created_by                 varchar(255),
     guest_client_email         varchar(255),
     guest_client_name          varchar(255),
+    guest_client_pet_breed     varchar(255),
     guest_client_pet_type      varchar(255) check (guest_client_pet_type in
                                                    ('PERRO', 'GATO', 'AVE', 'CONEJO', 'HAMSTER', 'REPTIL', 'OTRO')),
     guest_client_phone         varchar(255),
