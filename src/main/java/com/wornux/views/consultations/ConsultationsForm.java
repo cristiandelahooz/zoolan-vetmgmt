@@ -535,7 +535,7 @@ public class ConsultationsForm extends Dialog {
       }
 
       binder.writeBean(editingConsultation);
-      
+
       editingConsultation.setPet(selectedPet);
       if (veterinarianComboBox.getValue() != null) {
         editingConsultation.setVeterinarian(veterinarianComboBox.getValue());
@@ -581,6 +581,8 @@ public class ConsultationsForm extends Dialog {
     selectedPet = null;
     petName.clear();
     petName.setInvalid(false);
+
+    applyDefaultVetSelection();
 
     saveButton.setText("Registrar Consulta");
     editingConsultation = null;
@@ -827,5 +829,20 @@ public class ConsultationsForm extends Dialog {
   public void attachWaitingRoom(WaitingRoom wr) {
     this.sourceWaitingRoom = wr;
   }
+
+  private void applyDefaultVetSelection() {
+    if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
+      Employee currentVet = UserUtils.getCurrentEmployee().orElse(null);
+      if (currentVet != null) {
+        veterinarianComboBox.setItems(java.util.List.of(currentVet));
+        veterinarianComboBox.setValue(currentVet);
+        veterinarianComboBox.setReadOnly(true);
+      }
+    } else if (employeeService != null) {
+      veterinarianComboBox.setReadOnly(false);       
+      veterinarianComboBox.setItems(employeeService.getVeterinarians());
+    }
+  }
+
 
 }
