@@ -19,8 +19,6 @@ import com.wornux.mapper.PetMapper;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import jakarta.validation.Valid;
-import java.util.*;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -29,6 +27,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -146,6 +147,13 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
   @Override
   public List<Pet> getPetsByOwnerId2(Long ownerId) {
+    return petRepository.findByOwnerId2(ownerId);
+  }
+
+  @Override
+  @Transactional
+  public List<Pet> getPetsByOwner(Long ownerId) {
+    log.debug("Request to get Pets by Owner ID: {}", ownerId);
     return petRepository.findByOwnerId2(ownerId);
   }
 
