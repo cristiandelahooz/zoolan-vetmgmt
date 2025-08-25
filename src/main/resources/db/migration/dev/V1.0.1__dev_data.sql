@@ -897,7 +897,7 @@ SELECT i.created_by,
        i.created_date,
        i.last_modified_by,
        i.last_modified_date,
-       i.client,
+       i.client_id,
        i.consultation,
        i.consultation_notes,
        i.issued_date,
@@ -912,63 +912,41 @@ SELECT i.created_by,
        i.paid_to_date,
        i.notes,
        i.active
-FROM (VALUES ('vet.martinez', NOW(), 'vet.martinez',
-              NOW(), 13, 1, 'aa',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
-              3000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 540, 3540, 0, NULL, TRUE),
-             ('vet.sanchez', NOW(), 'vet.sanchez',
-              NOW(), 14, 2, 'bb',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
-              1500, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 270, 1770, 0, NULL, TRUE),
-             ('vet.martinez', NOW(), 'vet.martinez',
-              NOW(), 15, 3, 'cc',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
-              4500, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 810, 5310, 0, NULL, TRUE),
-             ('vet.sanchez', NOW(), 'vet.sanchez',
-              NOW(), 16, 4, 'dd',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
-              2000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 360, 2360, 0, NULL, TRUE),
-             ('vet.martinez', NOW(), 'vet.martinez',
-              NOW(), 17, 5, 'ee',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL, 'PENDING',
-              3500, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 630, 4130, 0, NULL, TRUE),
-             ('vet.sanchez', NOW(), 'vet.sanchez',
-              NOW(), 18, 6, 'ff',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
-              'PAID', 4000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 720, 4720, 0, NULL, TRUE),
-             ('vet.martinez', NOW(), 'vet.martinez',
-              NOW(), 19, 7, 'gg',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
-              'PAID', 2500, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 450, 2950, 0, NULL, TRUE),
-             ('vet.sanchez', NOW(), 'vet.sanchez',
-              NOW(), 20, 8, 'hh',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
-              'PENDING', 1000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 180, 1180, 0, NULL, TRUE),
-             ('vet.martinez', NOW(), 'vet.martinez',
-              NOW(), 21, 9, 'ii',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
-              'PENDING', 5000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 900, 5900, 0, NULL, TRUE),
-             ('vet.sanchez', NOW(), 'vet.sanchez',
-              NOW(), 22, 10, 'jj',
-              CURRENT_DATE, CURRENT_DATE + INTERVAL '30 day', NULL,
-              'PAID', 6000, CAST(NULL AS NUMERIC), CAST(NULL AS NUMERIC), 1080, 7080, 0, NULL, TRUE)) AS i(created_by,
-                                                                                                           created_date,
-                                                                                                           last_modified_by,
-                                                                                                           last_modified_date,
-                                                                                                           client,
-                                                                                                           consultation,
-                                                                                                           consultation_notes,
-                                                                                                           issued_date,
-                                                                                                           payment_date,
-                                                                                                           sales_order,
-                                                                                                           status,
-                                                                                                           subtotal,
-                                                                                                           discount_percentage,
-                                                                                                           discount,
-                                                                                                           tax, total,
-                                                                                                           paid_to_date,
-                                                                                                           notes,
-                                                                                                           active);
+FROM (
+    SELECT 
+        CASE (ROW_NUMBER() OVER () % 2) WHEN 0 THEN 'vet.martinez' ELSE 'vet.sanchez' END as created_by,
+        NOW() as created_date,
+        CASE (ROW_NUMBER() OVER () % 2) WHEN 0 THEN 'vet.martinez' ELSE 'vet.sanchez' END as last_modified_by,
+        NOW() as last_modified_date,
+        c.client_id,
+        (ROW_NUMBER() OVER ()) as consultation,
+        CASE (ROW_NUMBER() OVER () % 5) 
+            WHEN 0 THEN 'Consulta de rutina'
+            WHEN 1 THEN 'Control de vacunas'
+            WHEN 2 THEN 'Revisión general'
+            WHEN 3 THEN 'Tratamiento médico'
+            ELSE 'Chequeo preventivo'
+        END as consultation_notes,
+        CURRENT_DATE as issued_date,
+        CURRENT_DATE + INTERVAL '30 day' as payment_date,
+        CAST(NULL AS VARCHAR) as sales_order,
+        CASE (ROW_NUMBER() OVER () % 3) 
+            WHEN 0 THEN 'PENDING'
+            WHEN 1 THEN 'PAID'
+            ELSE 'PENDING'
+        END as status,
+        (1000 + (ROW_NUMBER() OVER ()) * 500)::NUMERIC as subtotal,
+        CAST(NULL AS NUMERIC) as discount_percentage,
+        CAST(NULL AS NUMERIC) as discount,
+        ((1000 + (ROW_NUMBER() OVER ()) * 500) * 0.18)::NUMERIC as tax,
+        ((1000 + (ROW_NUMBER() OVER ()) * 500) * 1.18)::NUMERIC as total,
+        0::NUMERIC as paid_to_date,
+        CAST(NULL AS VARCHAR) as notes,
+        TRUE as active
+    FROM client c
+    ORDER BY c.client_id
+    LIMIT 10
+) AS i;
 
 
 -- =================================================================================================
