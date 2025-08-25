@@ -315,7 +315,7 @@ public class WaitingRoomView extends VerticalLayout {
 
   private void openDetailsDialog(WaitingRoom wr) {
     Dialog dialog = new Dialog();
-    dialog.setHeaderTitle("Detalles de la Consulta");
+    dialog.setHeaderTitle("Detalles");
     dialog.setModal(true);
     dialog.setDraggable(true);
     dialog.setResizable(true);
@@ -451,7 +451,7 @@ public class WaitingRoomView extends VerticalLayout {
         });*/
     // startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-    Button cancelConsultation = new Button("Cancelar Consulta");
+    Button cancelConsultation = new Button("Cancelar");
     cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
     // HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
