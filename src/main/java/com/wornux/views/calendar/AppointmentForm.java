@@ -1,10 +1,5 @@
 package com.wornux.views.calendar;
 
-import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
-import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.CommonUtils.createIconItem;
-
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,7 +16,6 @@ import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.shared.HasClearButton;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
@@ -48,14 +42,20 @@ import com.wornux.utils.ValidationNotificationUtils;
 import com.wornux.views.customers.ClientCreationDialog;
 import com.wornux.views.pets.PetForm;
 import jakarta.validation.ConstraintViolationException;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
+import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.CommonUtils.createIconItem;
 
 @Slf4j
 public class AppointmentForm extends Div {
@@ -64,9 +64,6 @@ public class AppointmentForm extends Div {
   private final transient ClientService clientService;
   private final transient PetService petService;
   private final Consumer<Void> onSaveCallback;
-
-  private transient AppointmentResponseDto currentAppointment;
-
   private final Select<OfferingType> offeringTypeSelect = new Select<>();
   private final ComboBox<Client> clientCombo = new ComboBox<>("Selecciona un cliente");
   private final ComboBox<Pet> petCombo = new ComboBox<>("Selecciona una mascota");
@@ -75,25 +72,22 @@ public class AppointmentForm extends Div {
   private final TimePicker startTime = new TimePicker("Hora de Inicio");
   private final TimePicker endTime = new TimePicker("Hora de Fin");
   private final TextArea notesField = new TextArea("Notas");
-
   // AppointmentClientInfo fields for grooming workflow
   private final TextField guestClientName = new TextField("Nombre del Cliente");
   private final TextField guestClientPhone = new TextField("Teléfono");
   private final TextField guestClientEmail = new TextField("Email");
   private final Select<PetType> guestPetType = new Select<>();
   private final TextField guestPetBreed = new TextField("Raza de la Mascota");
-
   private final Binder<AppointmentCreateRequestDto> binder =
       new BeanValidationBinder<>(AppointmentCreateRequestDto.class);
   private final Sidebar sidebar = new Sidebar();
   private final Button addClient = new Button(VaadinIcon.PLUS_CIRCLE.create());
   private final Button addPet = new Button(VaadinIcon.PLUS_CIRCLE.create());
-
   private final Div layoutTabBar = new Div();
   private final Div generalFormDiv = new Div();
   private final ClientCreationDialog clientCreationDialog;
   private final PetForm petForm;
-
+  private transient AppointmentResponseDto currentAppointment;
   private boolean isGroomingWorkflow = false;
 
   @Setter private transient Runnable callable;
