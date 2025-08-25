@@ -584,7 +584,7 @@ public class ConsultationsForm extends Dialog {
 
     applyDefaultVetSelection();
 
-    saveButton.setText("Registrar Consulta");
+    saveButton.setText("Registrar");
     editingConsultation = null;
     editingInvoice = null;
     setHeaderTitle("Nueva Consulta");
@@ -627,7 +627,7 @@ public class ConsultationsForm extends Dialog {
               updateTotals();
             });
 
-    saveButton.setText("Actualizar Consulta");
+    saveButton.setText("Actualizar");
     setHeaderTitle("Editar Consulta");
     open();
   }
