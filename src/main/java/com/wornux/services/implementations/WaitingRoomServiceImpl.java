@@ -78,7 +78,7 @@ public class WaitingRoomServiceImpl
     log.debug("Request to get current waiting room");
 
     List<WaitingRoomStatus> activeStatuses =
-        Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_CONSULTA);
+        Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
 
     List<WaitingRoom> waitingList = waitingRoomRepository.findCurrentWaitingRoom(activeStatuses);
 
@@ -125,7 +125,7 @@ public class WaitingRoomServiceImpl
           "Solo se pueden mover a consulta las entradas en estado 'WAITING'");
     }
 
-    waitingRoom.startConsultation();
+    waitingRoom.startService();
     WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
 
     log.info(
@@ -146,12 +146,12 @@ public class WaitingRoomServiceImpl
             .findById(waitingRoomId)
             .orElseThrow(() -> new WaitingRoomNotFoundException(waitingRoomId));
 
-    if (waitingRoom.getStatus() != WaitingRoomStatus.EN_CONSULTA) {
+    if (waitingRoom.getStatus() != WaitingRoomStatus.EN_PROCESO) {
       throw new IllegalStateException(
           "Solo se pueden completar las consultas en estado 'IN_CONSULTATION'");
     }
 
-    waitingRoom.completeConsultation();
+    waitingRoom.completeService();
     WaitingRoom updated = waitingRoomRepository.save(waitingRoom);
 
     log.info(
@@ -256,7 +256,7 @@ public class WaitingRoomServiceImpl
   @Override
   @Transactional(readOnly = true)
   public long getInConsultationCount() {
-    return waitingRoomRepository.countByStatus(WaitingRoomStatus.EN_CONSULTA);
+    return waitingRoomRepository.countByStatus(WaitingRoomStatus.EN_PROCESO);
   }
 
   @Override
@@ -362,7 +362,7 @@ public class WaitingRoomServiceImpl
     WaitingRoom waitingRoom =
         waitingRoomRepository.findById(id).orElseThrow(() -> new WaitingRoomNotFoundException(id));
 
-    if (waitingRoom.getStatus() == WaitingRoomStatus.EN_CONSULTA) {
+    if (waitingRoom.getStatus() == WaitingRoomStatus.EN_PROCESO) {
       throw new IllegalStateException(
           "No se puede eliminar una entrada que está en consulta activa");
     }
@@ -381,5 +381,29 @@ public class WaitingRoomServiceImpl
   @Override
   public WaitingRoomRepository getRepository() {
     return waitingRoomRepository;
+  }
+
+  @Override
+  public List<WaitingRoom> findByAssignedVeterinarian(Long veterinarianId) {
+    return waitingRoomRepository.findByAssignedVeterinarian_Id(veterinarianId);
+  }
+
+  @Override
+  public List<WaitingRoom> findForVeterinarian(Long veterinarianId) {
+    List<WaitingRoomStatus> activeStatuses =
+        Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
+    return waitingRoomRepository.findByVeterinarianAndStatuses(veterinarianId, activeStatuses);
+  }
+
+  @Override
+  public List<WaitingRoom> findByAssignedGroomer(Long groomerId) {
+    return waitingRoomRepository.findByAssignedGroomer_Id(groomerId);
+  }
+
+  @Override
+  public List<WaitingRoom> findForGroomer(Long groomerId) {
+    List<WaitingRoomStatus> activeStatuses =
+        Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
+    return waitingRoomRepository.findByGroomerAndStatuses(groomerId, activeStatuses);
   }
 }

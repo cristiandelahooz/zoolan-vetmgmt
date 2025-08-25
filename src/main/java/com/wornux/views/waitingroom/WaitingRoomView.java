@@ -5,6 +5,7 @@ import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -20,12 +21,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.WaitingRoom;
 import com.wornux.data.enums.Priority;
+import com.wornux.data.enums.VisitType;
 import com.wornux.data.enums.WaitingRoomStatus;
-import com.wornux.services.interfaces.ClientService;
-import com.wornux.services.interfaces.PetService;
-import com.wornux.services.interfaces.WaitingRoomService;
+import com.wornux.services.interfaces.*;
 import com.wornux.utils.GridUtils;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.MainLayout;
@@ -42,12 +43,15 @@ import org.springframework.data.jpa.domain.Specification;
 @Slf4j
 @Route(value = "sala-espera", layout = MainLayout.class)
 @PageTitle("Sala de Espera")
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_USER"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_RECEPTIONIST"})
 public class WaitingRoomView extends VerticalLayout {
 
   private final WaitingRoomService waitingRoomService;
   private final ClientService clientService;
   private final PetService petService;
+  private final GroomingSessionService groomingSessionService;
+  private final EmployeeService employeeService;
+  private final ConsultationService consultationService;
 
   private final Grid<WaitingRoom> grid = GridUtils.createBasicGrid(WaitingRoom.class);
   private final WaitingRoomForm form;
@@ -59,12 +63,21 @@ public class WaitingRoomView extends VerticalLayout {
       new MultiSelectComboBox<>("Estado");
   private final Span quantity = new Span();
   TextField searchField = new TextField();
+  private final MultiSelectComboBox<VisitType> typeFilter = new MultiSelectComboBox<>("Tipo");
 
   public WaitingRoomView(
-      WaitingRoomService waitingRoomService, ClientService clientService, PetService petService) {
+      WaitingRoomService waitingRoomService,
+      ClientService clientService,
+      PetService petService,
+      ConsultationService consultationService,
+      EmployeeService employeeService,
+      GroomingSessionService groomingSessionService) {
     this.waitingRoomService = waitingRoomService;
     this.clientService = clientService;
     this.petService = petService;
+    this.consultationService = consultationService;
+    this.employeeService = employeeService;
+    this.groomingSessionService = groomingSessionService;
 
     setSizeFull();
     setPadding(true);
@@ -102,6 +115,11 @@ public class WaitingRoomView extends VerticalLayout {
     searchField.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
     searchField.addValueChangeListener(e -> refreshGrid());
 
+    typeFilter.setItems(VisitType.values());
+    typeFilter.setClearButtonVisible(true);
+    typeFilter.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+    typeFilter.addValueChangeListener(e -> refreshGrid());
+
     quantity.addClassNames(
         LumoUtility.BorderRadius.SMALL,
         LumoUtility.Height.XSMALL,
@@ -124,7 +142,7 @@ public class WaitingRoomView extends VerticalLayout {
     statusFilter.addValueChangeListener(e -> refreshGrid());
 
     HorizontalLayout filters =
-        new HorizontalLayout(searchField, priorityFilter, statusFilter, quantity);
+        new HorizontalLayout(searchField, priorityFilter, statusFilter, typeFilter, quantity);
     filters.setAlignItems(Alignment.END);
     filters.setWidthFull();
     filters.setSpacing(true);
@@ -165,6 +183,79 @@ public class WaitingRoomView extends VerticalLayout {
     grid.addColumn(
             wr -> wr.getArrivalTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
         .setHeader("Hora de Llegada");
+
+    /*grid.addComponentColumn(
+        wr -> {
+          Employee vet = wr.getAssignedVeterinarian();
+          Span badge;
+
+          if (vet != null) {
+            badge = new Span(vet.getFirstName() + " " + vet.getLastName());
+            badge.getElement().getThemeList().add("badge success");
+            // Verde cuando tiene veterinario asignado
+          } else {
+            badge = new Span("Sin asignar");
+            badge.getElement().getThemeList().add("badge error");
+            // Rojo cuando no tiene
+          }
+
+          return badge;
+        })
+    .setHeader("Veterinario");*/
+
+    grid.addComponentColumn(
+            wr -> {
+              // si no aplica (no es MEDICA), muestra un guion
+              var type = wr.getType() != null ? wr.getType() : VisitType.MEDICA;
+              if (type != VisitType.MEDICA) {
+                return new Span("—"); // o "-"
+              }
+
+              Employee vet = wr.getAssignedVeterinarian();
+              Span badge;
+              if (vet != null) {
+                badge = new Span(vet.getFirstName() + " " + vet.getLastName());
+                badge.getElement().getThemeList().add("badge success");
+              } else {
+                badge = new Span("Sin asignar");
+                badge.getElement().getThemeList().add("badge error");
+              }
+              return badge;
+            })
+        .setHeader("Veterinario");
+
+    /*grid.addComponentColumn(wr -> {
+      Employee groomer = wr.getAssignedGroomer();
+      Span badge;
+      if (groomer != null) {
+        badge = new Span(groomer.getFirstName() + " " + groomer.getLastName());
+        badge.getElement().getThemeList().add("badge success");
+      } else {
+        badge = new Span("Sin asignar");
+        badge.getElement().getThemeList().add("badge error");
+      }
+      return badge;
+    }).setHeader("Groomer");*/
+
+    grid.addComponentColumn(
+            wr -> {
+              var type = wr.getType() != null ? wr.getType() : VisitType.MEDICA;
+              if (type != VisitType.GROOMING) {
+                return new Span("—");
+              }
+
+              Employee groomer = wr.getAssignedGroomer();
+              Span badge;
+              if (groomer != null) {
+                badge = new Span(groomer.getFirstName() + " " + groomer.getLastName());
+                badge.getElement().getThemeList().add("badge success");
+              } else {
+                badge = new Span("Sin asignar");
+                badge.getElement().getThemeList().add("badge error");
+              }
+              return badge;
+            })
+        .setHeader("Groomer");
 
     grid.addComponentColumn(this::renderStatus).setHeader("Estado");
 
@@ -213,7 +304,7 @@ public class WaitingRoomView extends VerticalLayout {
 
     switch (wr.getStatus()) {
       case ESPERANDO -> badge.getElement().getThemeList().add("primary");
-      case EN_CONSULTA -> badge.getElement().getThemeList().add("success");
+      case EN_PROCESO -> badge.getElement().getThemeList().add("success");
       case COMPLETADO -> badge.getElement().getThemeList().add("contrast");
       case CANCELADO -> badge.getElement().getThemeList().add("error");
       default -> badge.getElement().getThemeList().add("badge");
@@ -224,7 +315,7 @@ public class WaitingRoomView extends VerticalLayout {
 
   private void openDetailsDialog(WaitingRoom wr) {
     Dialog dialog = new Dialog();
-    dialog.setHeaderTitle("Detalles de la Consulta");
+    dialog.setHeaderTitle("Detalles");
     dialog.setModal(true);
     dialog.setDraggable(true);
     dialog.setResizable(true);
@@ -253,7 +344,7 @@ public class WaitingRoomView extends VerticalLayout {
     Span status = new Span(wr.getStatus().name().replace("_", " "));
     status.getElement().getThemeList().add("badge pill");
     switch (wr.getStatus()) {
-      case EN_CONSULTA -> status.getElement().getThemeList().add("success");
+      case EN_PROCESO -> status.getElement().getThemeList().add("success");
       case COMPLETADO -> status.getElement().getThemeList().add("contrast");
       case CANCELADO -> status.getElement().getThemeList().add("error");
       default -> status.getElement().getThemeList().add("primary");
@@ -349,28 +440,29 @@ public class WaitingRoomView extends VerticalLayout {
     completeButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
     completeButton.setWidth("220px");
 
-    Button startButton =
-        new Button(
-            "Iniciar Consulta",
-            e -> {
-              wr.setStatus(WaitingRoomStatus.EN_CONSULTA);
-              waitingRoomService.update(wr);
-              refreshGrid();
-              dialog.close();
-            });
-    startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    /* Button startButton =
+    new Button(
+        "Iniciar Consulta",
+        e -> {
+          wr.setStatus(WaitingRoomStatus.EN_CONSULTA);
+          waitingRoomService.update(wr);
+          refreshGrid();
+          dialog.close();
+        });*/
+    // startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-    Button cancelConsultation = new Button("Cancelar Consulta");
+    Button cancelConsultation = new Button("Cancelar");
     cancelConsultation.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-    HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
+    // HorizontalLayout actions = new HorizontalLayout(startButton, cancelConsultation);
+    HorizontalLayout actions = new HorizontalLayout(cancelConsultation);
     actions.setSpacing(true);
     actions.setJustifyContentMode(JustifyContentMode.CENTER);
     actions.setWidthFull();
 
     actions.getStyle().set("margin-top", "1rem");
 
-    startButton.setMinWidth("200px");
+    // startButton.setMinWidth("200px");
     cancelConsultation.setMinWidth("200px");
 
     cancelConsultation.addClickListener(
@@ -385,7 +477,7 @@ public class WaitingRoomView extends VerticalLayout {
 
           dialogConfirm.addConfirmListener(
               event -> {
-                if (wr.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
+                if (wr.getStatus().equals(WaitingRoomStatus.EN_PROCESO)) {
                   NotificationUtils.error("No se puede cancelar una entrada que está en consulta.");
                   return;
                 }
@@ -401,9 +493,10 @@ public class WaitingRoomView extends VerticalLayout {
 
     HorizontalLayout buttons = new HorizontalLayout();
     if (wr.getStatus() == WaitingRoomStatus.ESPERANDO) {
-      buttons.add(startButton, cancelConsultation);
-    } else if (wr.getStatus() == WaitingRoomStatus.EN_CONSULTA) {
-      buttons.add(completeButton, cancelConsultation);
+      // buttons.add(startButton, cancelConsultation);
+      buttons.add(cancelConsultation);
+    } else if (wr.getStatus() == WaitingRoomStatus.EN_PROCESO) {
+      // buttons.add(completeButton, cancelConsultation);
     }
 
     layout.add(header, clientName, contactInfo, petInfo, reason, notes, arrival, waiting, buttons);
@@ -441,11 +534,32 @@ public class WaitingRoomView extends VerticalLayout {
               items -> root.get("status").in(items),
               builder);
 
-      return builder.and(searchPredicate, priorityPredicate, statusPredicate);
+      Predicate typePredicate =
+          createPredicateForSelectedItems(
+              Optional.ofNullable(typeFilter.getSelectedItems()),
+              items -> root.get("type").in(items),
+              builder);
+
+      return builder.and(searchPredicate, priorityPredicate, statusPredicate, typePredicate);
     };
   }
 
   private Component createActionsColumn(WaitingRoom waitingRoom) {
+
+    Button assignVet = new Button(new Icon(VaadinIcon.STETHOSCOPE));
+    assignVet.addThemeVariants(
+        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
+    assignVet.getElement().setProperty("title", "Asignar veterinario");
+    assignVet.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+    assignVet.addClickListener(e -> openAssignDialog(waitingRoom));
+
+    Button assignGroomer = new Button(new Icon(VaadinIcon.SCISSORS));
+    assignGroomer.addThemeVariants(
+        ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
+    assignGroomer.getElement().setProperty("title", "Asignar groomer");
+    assignGroomer.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+    assignGroomer.addClickListener(e -> openAssignGroomerDialog(waitingRoom));
+
     Button edit = new Button(new Icon(VaadinIcon.EDIT));
     edit.addThemeVariants(
         ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
@@ -464,7 +578,7 @@ public class WaitingRoomView extends VerticalLayout {
     edit.addClickListener(e -> form.openForEdit(waitingRoom));
     delete.addClickListener(
         e -> {
-          if (waitingRoom.getStatus().equals(WaitingRoomStatus.EN_CONSULTA)) {
+          if (waitingRoom.getStatus().equals(WaitingRoomStatus.EN_PROCESO)) {
             NotificationUtils.error("No se puede eliminar una entrada que está en consulta.");
             return;
           }
@@ -473,7 +587,14 @@ public class WaitingRoomView extends VerticalLayout {
           refreshAll();
         });
 
-    HorizontalLayout actions = new HorizontalLayout(edit, delete);
+    var type = waitingRoom.getType();
+    if (type == null) {
+      type = VisitType.MEDICA;
+    }
+    assignVet.setVisible(type == VisitType.MEDICA);
+    assignGroomer.setVisible(type == VisitType.GROOMING);
+
+    HorizontalLayout actions = new HorizontalLayout(assignVet, assignGroomer, edit, delete);
     actions.setSpacing(true);
     actions.setPadding(false);
     actions.setMargin(false);
@@ -496,5 +617,106 @@ public class WaitingRoomView extends VerticalLayout {
       log.warn("Error getting employee count", e);
       quantity.setText("En sala de espera:");
     }
+  }
+
+  private void openAssignDialog(WaitingRoom wr) {
+    Dialog d = new Dialog();
+    d.setHeaderTitle("Asignar veterinario");
+
+    ComboBox<Employee> vets = new ComboBox<>("Veterinario disponible");
+    vets.setItemLabelGenerator(v -> v.getFirstName() + " " + v.getLastName());
+    vets.setWidthFull();
+    vets.setItems(employeeService.getAvailableVets()); // SOLO disponibles
+
+    // Si ya hay un vet asignado, mostrarlo como valor inicial
+    if (wr.getAssignedVeterinarian() != null) {
+      vets.setValue(wr.getAssignedVeterinarian());
+    }
+
+    Button assign =
+        new Button(
+            "Asignar",
+            ev -> {
+              Employee selected = vets.getValue();
+              if (selected == null) {
+                NotificationUtils.error("Selecciona un veterinario");
+                return;
+              }
+              try {
+                // Nueva lógica: solo asignar vet (no crear consulta todavía)
+                consultationService.assignFromWaitingRoom(wr.getId(), selected.getId());
+
+                if (wr.getAssignedVeterinarian() == null) {
+                  NotificationUtils.success("Veterinario asignado correctamente");
+                } else {
+                  NotificationUtils.success("Veterinario actualizado correctamente");
+                }
+                d.close();
+                refreshGrid();
+              } catch (Exception ex) {
+                NotificationUtils.error("No se pudo asignar: " + ex.getMessage());
+              }
+            });
+    assign.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+    Button cancel = new Button("Cancelar", e -> d.close());
+    cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+    VerticalLayout content = new VerticalLayout(vets);
+    content.setPadding(false);
+
+    d.add(content);
+    d.getFooter().add(cancel, assign);
+    d.setDraggable(true);
+    d.setResizable(true);
+    d.open();
+  }
+
+  private void openAssignGroomerDialog(WaitingRoom wr) {
+    Dialog d = new Dialog();
+    d.setHeaderTitle("Asignar groomer");
+
+    ComboBox<Employee> groomers = new ComboBox<>("Groomer disponible");
+    groomers.setItemLabelGenerator(g -> g.getFirstName() + " " + g.getLastName());
+    groomers.setWidthFull();
+    groomers.setItems(employeeService.getAvailableGroomers());
+    if (wr.getAssignedGroomer() != null) {
+      groomers.setValue(wr.getAssignedGroomer());
+    }
+
+    Button assign =
+        new Button(
+            "Asignar",
+            ev -> {
+              Employee selected = groomers.getValue();
+              if (selected == null) {
+                NotificationUtils.error("Selecciona un groomer");
+                return;
+              }
+              try {
+                // Espejo del assignFromWaitingRoom de consultas, pero para grooming
+                groomingSessionService.assignFromWaitingRoom(wr.getId(), selected.getId());
+                NotificationUtils.success(
+                    (wr.getAssignedGroomer() == null ? "Groomer asignado" : "Groomer actualizado")
+                        + " correctamente");
+                d.close();
+                refreshGrid();
+              } catch (Exception ex) {
+                NotificationUtils.error("No se pudo asignar: " + ex.getMessage());
+              }
+            });
+    assign.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+    Button cancel = new Button("Cancelar", e -> d.close());
+    cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+    VerticalLayout content = new VerticalLayout(groomers);
+    content.setPadding(false);
+
+    d.add(content);
+    d.getFooter().add(cancel, assign);
+    d.setDraggable(true);
+    d.setResizable(true);
+    d.open();
   }
 }

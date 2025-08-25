@@ -1,6 +1,7 @@
 package com.wornux.data.entity;
 
 import com.wornux.data.enums.Priority;
+import com.wornux.data.enums.VisitType;
 import com.wornux.data.enums.WaitingRoomStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -60,6 +61,19 @@ public class WaitingRoom {
   @Column(name = "completed_at")
   private LocalDateTime completedAt;
 
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "assigned_veterinarian")
+  private Employee assignedVeterinarian;
+
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "assigned_groomer")
+  private Employee assignedGroomer;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type", nullable = false)
+  @NotNull
+  private VisitType type = VisitType.MEDICA;
+
   @PrePersist
   public void prePersist() {
     if (arrivalTime == null) {
@@ -67,12 +81,12 @@ public class WaitingRoom {
     }
   }
 
-  public void startConsultation() {
-    this.status = WaitingRoomStatus.EN_CONSULTA;
+  public void startService() {
+    this.status = WaitingRoomStatus.EN_PROCESO;
     this.consultationStartedAt = LocalDateTime.now();
   }
 
-  public void completeConsultation() {
+  public void completeService() {
     this.status = WaitingRoomStatus.COMPLETADO;
     this.completedAt = LocalDateTime.now();
   }

@@ -24,12 +24,15 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.*;
+import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.security.UserUtils;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.pets.SelectPetDialog;
-import com.wornux.views.services.OfferingForm;
+import com.wornux.views.services.ServiceForm;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,57 +55,68 @@ public class GroomingForm extends Dialog {
   // Mascota (selector por diálogo)
   private final TextField petName = new TextField("Mascota");
   private final Button selectPetButton = new Button("Seleccionar");
+  private Pet selectedPet;
   private final SelectPetDialog selectPetDialog;
+
   private final ComboBox<Employee> groomerComboBox = new ComboBox<>("Groomer");
   private final TextArea notesTextArea = new TextArea("Notas de Grooming");
+
   // Servicios (estética)
-  private final ComboBox<Offering> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
+  private final ComboBox<Service> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
   private final Button addServiceButton = new Button("Agregar Servicio", new Icon(VaadinIcon.PLUS));
   private final Grid<ServiceItem> servicesGrid = new Grid<>(ServiceItem.class, false);
+
   // Productos
   private final ComboBox<Product> productComboBox = new ComboBox<>("Seleccionar Producto");
   private final NumberField productQuantityField = new NumberField("Cantidad");
   private final Button addProductButton = new Button("Agregar Producto", new Icon(VaadinIcon.PLUS));
   private final Grid<ProductItem> productsGrid = new Grid<>(ProductItem.class, false);
+
   // Totales (UI)
   private final Span totalServicesSpan = new Span("$0.00");
   private final Span totalProductsSpan = new Span("$0.00");
   private final Span grandTotalSpan = new Span("$0.00");
+
   // Acciones
   private final Button saveButton = new Button("Registrar");
   private final Button cancelButton = new Button("Cancelar");
   private final Button createServiceButton = new Button("Crear Nuevo Servicio");
-  private final OfferingForm serviceForm;
+  private final ServiceForm serviceForm;
+
   // Binder
   private final Binder<GroomingSession> binder = new Binder<>(GroomingSession.class);
+
   // Services
   private final transient GroomingSessionService groomingSessionService;
   private final transient EmployeeService employeeService;
   private final transient PetService petService;
-  private final transient OfferingService offeringService;
+  private final transient ServiceService serviceService;
   private final transient ProductService productService;
   private final transient InvoiceService invoiceService;
-  private final List<ServiceItem> selectedServices = new ArrayList<>();
-  private final List<ProductItem> selectedProducts = new ArrayList<>();
-  private Pet selectedPet;
+
   // Estado
   private transient GroomingSession editingSession;
+  private final List<ServiceItem> selectedServices = new ArrayList<>();
+  private final List<ProductItem> selectedProducts = new ArrayList<>();
+
+  private WaitingRoom sourceWaitingRoom;
+
   @Setter private transient Consumer<GroomingSession> onSaveCallback;
 
   public GroomingForm(
       GroomingSessionService groomingSessionService,
       EmployeeService employeeService,
       PetService petService,
-      OfferingService offeringService,
+      ServiceService serviceService,
       InvoiceService invoiceService,
       ProductService productService) {
     this.groomingSessionService = groomingSessionService;
     this.employeeService = employeeService;
     this.petService = petService;
-    this.offeringService = offeringService;
+    this.serviceService = serviceService;
     this.invoiceService = invoiceService;
     this.productService = productService;
-    this.serviceForm = new OfferingForm(offeringService);
+    this.serviceForm = new ServiceForm(serviceService);
     // NUEVO
     this.selectPetDialog = new SelectPetDialog(petService);
 
@@ -355,19 +369,19 @@ public class GroomingForm extends Dialog {
   }
 
   private void addSelectedService() {
-    Offering selectedOffering = serviceComboBox.getValue();
-    if (selectedOffering == null) return;
+    Service selectedService = serviceComboBox.getValue();
+    if (selectedService == null) return;
 
     boolean alreadyAdded =
         selectedServices.stream()
-            .anyMatch(item -> item.getService().getId().equals(selectedOffering.getId()));
+            .anyMatch(item -> item.getService().getId().equals(selectedService.getId()));
 
     if (alreadyAdded) {
       NotificationUtils.error("Este servicio ya ha sido agregado");
       return;
     }
 
-    ServiceItem serviceItem = new ServiceItem(selectedOffering, 1.0);
+    ServiceItem serviceItem = new ServiceItem(selectedService, 1.0);
     selectedServices.add(serviceItem);
     servicesGrid.setItems(selectedServices);
     serviceComboBox.clear();
@@ -428,15 +442,15 @@ public class GroomingForm extends Dialog {
               .forEach(emp -> groomerComboBox.getListDataView().addItem(emp));
 
       // Servicios de estética
-      offeringService.findGroomingServices()
-              .forEach(offering -> serviceComboBox.getListDataView().addItem(offering));
+      serviceService.findGroomingServices()
+              .forEach(service -> serviceComboBox.getListDataView().addItem(service));
 
       // Productos internos
       productService.findInternalUseProducts()
               .forEach(product -> productComboBox.getListDataView().addItem(product));
   }*/
 
-  private void loadComboBoxData() {
+  /*private void loadComboBoxData() {
     // Mascotas
     // petComboBox.setItems(petService.getAllPets());
 
@@ -444,13 +458,183 @@ public class GroomingForm extends Dialog {
     groomerComboBox.setItems(employeeService.getGroomers());
 
     // Servicios de estética
-    serviceComboBox.setItems(offeringService.findGroomingServices());
+    serviceComboBox.setItems(serviceService.findGroomingServices());
 
     // Productos internos
     productComboBox.setItems(productService.findInternalUseProducts());
+  }*/
+
+  private void loadComboBoxData() {
+    // Groomer (con comportamiento por rol)
+    applyDefaultGroomerSelection();
+
+    // Servicios de estética
+    if (serviceService != null) {
+      serviceComboBox.setItems(serviceService.findGroomingServices());
+    }
+
+    // Productos internos
+    if (productService != null) {
+      productComboBox.setItems(productService.findInternalUseProducts());
+    }
   }
 
   private void save(ClickEvent<Button> event) {
+    try {
+      if (editingSession == null) {
+        editingSession = new GroomingSession();
+        editingSession.setGroomingDate(LocalDateTime.now());
+      }
+
+      if (selectedPet == null) {
+        petName.setInvalid(true);
+        petName.setErrorMessage("Debe seleccionar una mascota");
+        NotificationUtils.error("Debe seleccionar una mascota");
+        return;
+      }
+
+      binder.writeBean(editingSession);
+      editingSession.setPet(selectedPet);
+      if (groomerComboBox.getValue() != null) { // por si el binder no lo capturó aún
+        editingSession.setGroomer(groomerComboBox.getValue());
+      }
+
+      GroomingSession saved = groomingSessionService.save(editingSession);
+
+      if (!selectedServices.isEmpty() || !selectedProducts.isEmpty()) {
+        recreateInvoiceFor(saved);
+      }
+
+      // Si viene de waiting room, finalizar sesión y cerrar WR (liberar groomer)
+      if (sourceWaitingRoom != null) { // <<<
+        try {
+          // Método espejo al de consulta: debe existir en tu GroomingSessionServiceImpl
+          groomingSessionService.finish(saved.getId()); // <<<
+        } catch (Exception ex) {
+          NotificationUtils.error(
+              "La sesión se guardó, pero no se pudo cerrar la sala de espera: " + ex.getMessage());
+        }
+      }
+
+      NotificationUtils.success("Grooming registrado y finalizado."); // mensaje espejo
+      if (onSaveCallback != null) onSaveCallback.accept(saved);
+      close();
+
+    } catch (ValidationException e) {
+      NotificationUtils.error("Por favor, complete todos los campos requeridos");
+    } catch (Exception e) {
+      NotificationUtils.error("Error al guardar: " + e.getMessage());
+    }
+  }
+
+  /*private void save(ClickEvent<Button> event) {
+    try {
+      if (editingSession == null) {
+        editingSession = new GroomingSession();
+        editingSession.setGroomingDate(LocalDateTime.now());
+      }
+
+      if (selectedPet == null) {
+        petName.setInvalid(true);
+        petName.setErrorMessage("Debe seleccionar una mascota");
+        NotificationUtils.error("Debe seleccionar una mascota");
+        return;
+      }
+
+      binder.writeBean(editingSession);
+      editingSession.setPet(selectedPet);
+
+      // Guarda o actualiza la sesión de grooming
+      GroomingSession saved = groomingSessionService.save(editingSession);
+
+      // Si hay ítems, recrea la factura (borra la pendiente y crea nueva)
+      if (!selectedServices.isEmpty() || !selectedProducts.isEmpty()) {
+        recreateInvoiceFor(saved);
+      }
+
+      NotificationUtils.success("Grooming registrado exitosamente");
+
+      if (onSaveCallback != null) {
+        onSaveCallback.accept(saved);
+      }
+      close();
+
+    } catch (ValidationException e) {
+      NotificationUtils.error("Por favor, complete todos los campos requeridos");
+    } catch (Exception e) {
+      NotificationUtils.error("Error al guardar: " + e.getMessage());
+    }
+  }*/
+
+  private void recreateInvoiceFor(GroomingSession session) {
+    try {
+      // 1) Buscar factura del mismo grooming
+      Invoice existing = invoiceService.findByGroomingId(session.getId()).orElse(null);
+
+      // 2) Si existe y está pagada, no tocar
+      if (existing != null && existing.getStatus() == InvoiceStatus.PAID) {
+        NotificationUtils.info("Factura asociada pagada. No se realizaron cambios en la factura.");
+        return;
+      }
+
+      // 3) Si existe y NO está pagada, eliminarla
+      if (existing != null) {
+        try {
+          invoiceService.delete(existing.getCode());
+          NotificationUtils.info("Factura anterior eliminada para crear una nueva.");
+        } catch (Exception e) {
+          NotificationUtils.error("Error al eliminar la factura asociada pendiente anterior.");
+          return;
+        }
+      }
+
+      // 4) Construir nueva factura (ahora con vínculo grooming)
+      Invoice invoice =
+          Invoice.builder()
+              .client(session.getPet().getOwners().iterator().next())
+              .grooming(session)
+              .issuedDate(LocalDate.now())
+              .paymentDate(LocalDate.now().plusDays(30))
+              .status(InvoiceStatus.PENDING)
+              .paidToDate(BigDecimal.ZERO)
+              .groomingNotes("Grooming para " + session.getPet().getName())
+              .subtotal(BigDecimal.ZERO)
+              .tax(BigDecimal.ZERO)
+              .total(BigDecimal.ZERO)
+              .build();
+
+      // 5) Agregar líneas
+      for (ServiceItem si : selectedServices) {
+        ServiceInvoice line =
+            ServiceInvoice.builder()
+                .service(si.getService())
+                .quantity(si.getQuantity())
+                .amount(si.getSubtotal())
+                .build();
+        invoice.addService(line);
+      }
+
+      for (ProductItem pi : selectedProducts) {
+        InvoiceProduct line =
+            InvoiceProduct.builder()
+                .product(pi.getProduct())
+                .quantity(pi.getQuantity())
+                .price(pi.getProduct().getSalesPrice())
+                .amount(pi.getSubtotal())
+                .build();
+        invoice.addProduct(line);
+      }
+
+      // 6) Totales y persistir
+      invoice.calculateTotals();
+      invoiceService.create(invoice);
+      NotificationUtils.success("Factura generada automáticamente");
+    } catch (Exception e) {
+      NotificationUtils.error("Error al recrear la factura: " + e.getMessage());
+    }
+  }
+
+  /*private void save(ClickEvent<Button> event) {
     try {
       if (editingSession == null) {
         editingSession = new GroomingSession();
@@ -488,7 +672,7 @@ public class GroomingForm extends Dialog {
     } catch (Exception e) {
       NotificationUtils.error("Error al guardar: " + e.getMessage());
     }
-  }
+  }*/
 
   private void createAutomaticInvoice(GroomingSession session) {
     try {
@@ -506,13 +690,13 @@ public class GroomingForm extends Dialog {
               .build();
 
       for (ServiceItem serviceItem : selectedServices) {
-        InvoiceOffering serviceInvoice =
-            InvoiceOffering.builder()
-                .offering(serviceItem.getService())
+        ServiceInvoice serviceInvoice =
+            ServiceInvoice.builder()
+                .service(serviceItem.getService())
                 .quantity(serviceItem.getQuantity())
                 .amount(serviceItem.getSubtotal())
                 .build();
-        invoice.addOffering(serviceInvoice);
+        invoice.addService(serviceInvoice);
       }
 
       for (ProductItem productItem : selectedProducts) {
@@ -543,11 +727,24 @@ public class GroomingForm extends Dialog {
     petName.clear();
     petName.setInvalid(false);
 
+    applyDefaultGroomerSelection();
+
     saveButton.setText("Registrar");
     editingSession = null;
     setHeaderTitle("Nuevo Grooming");
     open();
   }
+
+  /*public void openForEdit(GroomingSession session) {
+    this.editingSession = session;
+    binder.readBean(session);
+    selectedPet = session.getPet();
+    petName.setValue(selectedPet != null ? selectedPet.getName() : "");
+    petName.setInvalid(false);
+    saveButton.setText("Actualizar");
+    setHeaderTitle("Editar Grooming");
+    open();
+  }*/
 
   public void openForEdit(GroomingSession session) {
     this.editingSession = session;
@@ -557,6 +754,29 @@ public class GroomingForm extends Dialog {
     petName.setInvalid(false);
     saveButton.setText("Actualizar");
     setHeaderTitle("Editar Grooming");
+
+    // Cargar líneas desde factura existente (con fetch de detalle)
+    invoiceService
+        .findByGroomingIdWithDetails(session.getId())
+        .ifPresent(
+            inv -> {
+              selectedServices.clear();
+              inv.getServices()
+                  .forEach(
+                      si ->
+                          selectedServices.add(new ServiceItem(si.getService(), si.getQuantity())));
+              servicesGrid.setItems(selectedServices);
+
+              selectedProducts.clear();
+              inv.getProducts()
+                  .forEach(
+                      ip ->
+                          selectedProducts.add(new ProductItem(ip.getProduct(), ip.getQuantity())));
+              productsGrid.setItems(selectedProducts);
+
+              updateTotals();
+            });
+
     open();
   }
 
@@ -578,10 +798,10 @@ public class GroomingForm extends Dialog {
       serviceForm.addServiceSavedListener(dto -> {
           // Refrescar selector y auto-seleccionar el nuevo servicio (filtrado a grooming)
           serviceComboBox.getListDataView().removeItems(serviceComboBox.getListDataView().getItems().toList());
-          offeringService.findGroomingServices()
-                  .forEach(offering -> serviceComboBox.getListDataView().addItem(offering));
+          serviceService.findGroomingServices()
+                  .forEach(service -> serviceComboBox.getListDataView().addItem(service));
 
-          offeringService.getAllActiveServices().stream()
+          serviceService.getAllActiveServices().stream()
                   .filter(s -> s.getName().equals(dto.getName()))
                   .findFirst()
                   .ifPresent(serviceComboBox::setValue);
@@ -593,7 +813,7 @@ public class GroomingForm extends Dialog {
     serviceForm.addServiceSavedListener(
         dto -> {
           // Refrescar los servicios de GROOMING en el combo
-          var groomingServices = offeringService.findGroomingServices();
+          var groomingServices = serviceService.findGroomingServices();
           serviceComboBox.setItems(groomingServices); // <-- primero poblar
 
           // Seleccionar el recién creado (por nombre). Mejor si luego pasas el ID.
@@ -606,18 +826,18 @@ public class GroomingForm extends Dialog {
 
   // Clases de grid
   public static class ServiceItem {
-    private final Offering offering;
+    private final Service service;
     private final Double quantity;
     private final BigDecimal subtotal;
 
-    public ServiceItem(Offering offering, Double quantity) {
-      this.offering = offering;
+    public ServiceItem(Service service, Double quantity) {
+      this.service = service;
       this.quantity = quantity;
-      this.subtotal = offering.getPrice().multiply(BigDecimal.valueOf(quantity));
+      this.subtotal = service.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 
-    public Offering getService() {
-      return offering;
+    public Service getService() {
+      return service;
     }
 
     public Double getQuantity() {
@@ -650,6 +870,51 @@ public class GroomingForm extends Dialog {
 
     public BigDecimal getSubtotal() {
       return subtotal;
+    }
+  }
+
+  public void presetForGroomerAndPet(Pet pet, Employee groomer, boolean lockGroomerField) {
+    // Mascota
+    this.selectedPet = pet;
+    this.petName.setValue(pet != null ? pet.getName() : "");
+    this.petName.setInvalid(false);
+    this.petName.setReadOnly(true);
+    this.selectPetButton.setEnabled(false);
+
+    // Groomer
+    if (groomer != null) {
+      java.util.List<Employee> items = new java.util.ArrayList<>();
+      this.groomerComboBox
+          .getDataProvider()
+          .fetch(new com.vaadin.flow.data.provider.Query<>())
+          .forEach(items::add);
+      boolean present = items.stream().anyMatch(e -> e.getId().equals(groomer.getId()));
+      if (!present) {
+        items.add(groomer);
+        this.groomerComboBox.setItems(items);
+      }
+      this.groomerComboBox.setValue(groomer);
+      if (lockGroomerField) {
+        this.groomerComboBox.setReadOnly(true);
+      }
+    }
+  }
+
+  public void attachWaitingRoom(WaitingRoom wr) {
+    this.sourceWaitingRoom = wr;
+  }
+
+  private void applyDefaultGroomerSelection() {
+    if (UserUtils.hasEmployeeRole(EmployeeRole.GROOMER)) {
+      Employee currentGroomer = UserUtils.getCurrentEmployee().orElse(null);
+      if (currentGroomer != null) {
+        groomerComboBox.setItems(java.util.List.of(currentGroomer));
+        groomerComboBox.setValue(currentGroomer);
+        groomerComboBox.setReadOnly(true);
+      }
+    } else if (employeeService != null) {
+      groomerComboBox.setReadOnly(false);
+      groomerComboBox.setItems(employeeService.getGroomers());
     }
   }
 }

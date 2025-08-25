@@ -40,6 +40,10 @@ public class GroomingSession {
   @Column(nullable = false)
   private Boolean active = true;
 
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "waiting_room_id")
+  private WaitingRoom waitingRoom;
+
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 

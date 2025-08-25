@@ -1,5 +1,6 @@
 package com.wornux.data.entity;
 
+import com.wornux.data.enums.ConsultationStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
@@ -52,6 +53,24 @@ public class Consultation {
   @Builder.Default
   @Column(nullable = false)
   private Boolean active = true;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
+  @Builder.Default
+  private ConsultationStatus status = ConsultationStatus.PENDIENTE;
+
+  @Column(name = "assigned_at")
+  private LocalDateTime assignedAt;
+
+  @Column(name = "started_at")
+  private LocalDateTime startedAt;
+
+  @Column(name = "finished_at")
+  private LocalDateTime finishedAt;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "waiting_room_id")
+  private WaitingRoom waitingRoom;
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;

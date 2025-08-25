@@ -3,13 +3,14 @@ package com.wornux.services.implementations;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.ListRepositoryService;
-import com.wornux.data.entity.Consultation;
-import com.wornux.data.entity.Employee;
-import com.wornux.data.entity.MedicalHistory;
-import com.wornux.data.entity.Pet;
+import com.wornux.data.entity.*;
+import com.wornux.data.enums.ConsultationStatus;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.data.repository.ConsultationRepository;
 import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.data.repository.PetRepository;
+import com.wornux.data.repository.WaitingRoomRepository;
 import com.wornux.dto.request.CreateConsultationRequestDto;
 import com.wornux.dto.request.UpdateConsultationRequestDto;
 import com.wornux.exception.EmployeeNotFoundException;
@@ -46,6 +47,7 @@ public class ConsultationServiceImpl
   private final PetRepository petRepository;
   private final ConsultationMapper consultationMapper;
   private final EmployeeRepository employeeRepository;
+  private final WaitingRoomRepository waitingRoomRepository;
 
   public Consultation save(Consultation item) {
     log.debug("Saving Consultation: {}", item.getId());
@@ -247,5 +249,128 @@ public class ConsultationServiceImpl
   @Override
   public ConsultationRepository getRepository() {
     return consultationRepository;
+  }
+
+  @Override
+  @Transactional
+  public void assignFromWaitingRoom(Long waitingRoomId, Long veterinarianId) {
+    WaitingRoom wr =
+        waitingRoomRepository
+            .findById(waitingRoomId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
+
+    if (wr.getStatus() != WaitingRoomStatus.ESPERANDO) {
+      throw new IllegalStateException(
+          "Solo se puede asignar un veterinario cuando el estado es ESPERANDO.");
+    }
+
+    Employee vet =
+        employeeRepository
+            .findById(veterinarianId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("Veterinario no encontrado: " + veterinarianId));
+
+    if (vet.getEmployeeRole() != EmployeeRole.VETERINARIAN) {
+      throw new IllegalStateException("El empleado seleccionado no es veterinario.");
+    }
+    if (!vet.isAvailable()) {
+      throw new IllegalStateException("El veterinario seleccionado no está disponible.");
+    }
+
+    // Marcar como ocupado
+    vet.setAvailable(false);
+    employeeRepository.save(vet);
+
+    // Solo guardar asignación en el waiting room
+    wr.setAssignedVeterinarian(vet);
+    waitingRoomRepository.save(wr);
+
+    log.info("Veterinario {} asignado a WaitingRoom {}", vet.getId(), wr.getId());
+  }
+
+  private String buildInitialNotes(WaitingRoom wr, String extra) {
+    StringBuilder sb = new StringBuilder();
+    if (wr.getReasonForVisit() != null && !wr.getReasonForVisit().isBlank()) {
+      sb.append("Motivo: ").append(wr.getReasonForVisit()).append('\n');
+    }
+    if (wr.getNotes() != null && !wr.getNotes().isBlank()) {
+      sb.append("Notas recepción: ").append(wr.getNotes()).append('\n');
+    }
+    if (extra != null && !extra.isBlank()) {
+      sb.append("Notas secretaria: ").append(extra);
+    }
+    return sb.toString();
+  }
+
+  @Override
+  public Consultation start(Long waitingRoomId) {
+    WaitingRoom wr =
+        waitingRoomRepository
+            .findById(waitingRoomId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
+
+    if (wr.getStatus() != WaitingRoomStatus.ESPERANDO) {
+      throw new IllegalStateException(
+          "Solo se puede iniciar una consulta si el estado es ESPERANDO.");
+    }
+
+    wr.startService();
+    waitingRoomRepository.save(wr);
+
+    Consultation c = new Consultation();
+    c.setPet(wr.getPet());
+    c.setVeterinarian(wr.getAssignedVeterinarian());
+    c.setConsultationDate(LocalDateTime.now());
+    c.setActive(true);
+    c.setStatus(ConsultationStatus.EN_PROCESO);
+
+    Consultation saved = consultationRepository.save(c);
+    return saved;
+  }
+
+  @Override
+  @Transactional
+  public void finish(Long consultationId) {
+    Consultation c =
+        consultationRepository
+            .findById(consultationId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("Consultation not found: " + consultationId));
+
+    // Marcar consulta finalizada
+    c.setStatus(ConsultationStatus.COMPLETADO);
+    c.setFinishedAt(LocalDateTime.now());
+    // c.setActive(false);
+    consultationRepository.save(c);
+
+    // Cerrar WaitingRoom asociado
+    WaitingRoom wr = c.getWaitingRoom();
+    if (wr == null) {
+      wr =
+          waitingRoomRepository
+              .findTopByPet_IdAndStatusInOrderByArrivalTimeDesc(
+                  c.getPet().getId(),
+                  List.of(WaitingRoomStatus.EN_PROCESO, WaitingRoomStatus.ESPERANDO))
+              .orElse(null);
+    }
+    if (wr != null) {
+      wr.completeService();
+      waitingRoomRepository.save(wr);
+    }
+
+    // Liberar veterinario
+    Employee vet = c.getVeterinarian();
+    if (vet != null) {
+      vet.setAvailable(true);
+      employeeRepository.save(vet);
+    }
+  }
+
+  @Override
+  public List<Consultation> findForVeterinarian(Long veterinarianId) {
+    return consultationRepository.findByVeterinarian_IdAndActiveTrueOrderByConsultationDateDesc(
+        veterinarianId);
   }
 }

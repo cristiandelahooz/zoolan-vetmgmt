@@ -87,4 +87,6 @@ public interface EmployeeRepository
           + "AND ws.isOffDay = false "
           + "AND e.active = true")
   List<Employee> findEmployeesWorkingOnDay(@Param("dayOfWeek") DayOfWeek dayOfWeek);
+
+  List<Employee> findByEmployeeRoleAndAvailable(EmployeeRole role, boolean available);
 }

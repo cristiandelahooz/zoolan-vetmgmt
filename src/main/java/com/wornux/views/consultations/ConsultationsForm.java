@@ -26,13 +26,12 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.*;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.InvoiceStatus;
-import com.wornux.data.enums.SystemRole;
 import com.wornux.security.UserUtils;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.views.pets.SelectPetDialog;
-import com.wornux.views.services.OfferingForm;
+import com.wornux.views.services.ServiceForm;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,60 +42,70 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
-/** Enhanced form for creating and editing consultations with offering and product integration */
+/** Enhanced form for creating and editing consultations with service and product integration */
 @Slf4j
 public class ConsultationsForm extends Dialog {
 
   private final TextField petName = new TextField("Mascota");
   private final Button selectPetButton = new Button("Seleccionar");
+  private Pet selectedPet;
   private final SelectPetDialog selectPetDialog;
+
   private final ComboBox<Employee> veterinarianComboBox = new ComboBox<>("Veterinario");
   private final TextArea notesTextArea = new TextArea("Notas de Consulta");
   private final TextArea diagnosisTextArea = new TextArea("Diagnóstico");
   private final TextArea treatmentTextArea = new TextArea("Tratamiento");
   private final TextArea prescriptionTextArea = new TextArea("Prescripción");
-  private final ComboBox<Offering> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
+
+  private final ComboBox<Service> serviceComboBox = new ComboBox<>("Seleccionar Servicio");
   private final Button addServiceButton = new Button("Agregar Servicio", new Icon(VaadinIcon.PLUS));
   private final Grid<ServiceItem> servicesGrid = new Grid<>(ServiceItem.class, false);
+
   private final ComboBox<Product> productComboBox = new ComboBox<>("Seleccionar Producto");
   private final NumberField productQuantityField = new NumberField("Cantidad");
   private final Button addProductButton = new Button("Agregar Producto", new Icon(VaadinIcon.PLUS));
   private final Grid<ProductItem> productsGrid = new Grid<>(ProductItem.class, false);
+
   private final Span totalServicesSpan = new Span("$0.00");
   private final Span totalProductsSpan = new Span("$0.00");
   private final Span grandTotalSpan = new Span("$0.00");
+
   private final Button saveButton = new Button("Registrar Consulta");
   private final Button cancelButton = new Button("Cancelar");
   private final Button createServiceButton = new Button("Crear Nuevo Servicio");
+
   private final Binder<Consultation> binder = new Binder<>(Consultation.class);
+
   private final transient ConsultationService consultationService;
   private final transient EmployeeService employeeService;
   private final transient PetService petService;
-  private final transient OfferingService offeringService;
+  private final transient ServiceService serviceService;
   private final transient InvoiceService invoiceService;
   private final transient ProductService productService;
-  private final List<ServiceItem> selectedServices = new ArrayList<>();
-  private final List<ProductItem> selectedProducts = new ArrayList<>();
-  private final OfferingForm offeringForm;
-  private Pet selectedPet;
+
   private transient Consultation editingConsultation;
   private transient Invoice editingInvoice;
+  private final List<ServiceItem> selectedServices = new ArrayList<>();
+  private final List<ProductItem> selectedProducts = new ArrayList<>();
+  private final ServiceForm serviceForm;
+  private WaitingRoom sourceWaitingRoom;
+
   @Setter private transient Consumer<Consultation> onSaveCallback;
 
   public ConsultationsForm(
       ConsultationService consultationService,
       EmployeeService employeeService,
       PetService petService,
-      OfferingService offeringService,
+      ServiceService serviceService,
       InvoiceService invoiceService,
       ProductService productService) {
     this.consultationService = consultationService;
     this.employeeService = employeeService;
     this.petService = petService;
-    this.offeringService = offeringService;
+    this.serviceService = serviceService;
     this.productService = productService;
     this.invoiceService = invoiceService;
-    this.offeringForm = new OfferingForm(offeringService);
+    this.serviceForm = new ServiceForm(serviceService);
 
     this.selectPetDialog = new SelectPetDialog(petService);
 
@@ -361,20 +370,20 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void addSelectedService() {
-    Offering selectedOffering = serviceComboBox.getValue();
-    if (selectedOffering == null) return;
+    Service selectedService = serviceComboBox.getValue();
+    if (selectedService == null) return;
 
-    // Check if offering already added
+    // Check if service already added
     boolean alreadyAdded =
         selectedServices.stream()
-            .anyMatch(item -> item.getService().getId().equals(selectedOffering.getId()));
+            .anyMatch(item -> item.getService().getId().equals(selectedService.getId()));
 
     if (alreadyAdded) {
       NotificationUtils.error("Este servicio ya ha sido agregado");
       return;
     }
 
-    ServiceItem serviceItem = new ServiceItem(selectedOffering, 1.0);
+    ServiceItem serviceItem = new ServiceItem(selectedService, 1.0);
     selectedServices.add(serviceItem);
     servicesGrid.setItems(selectedServices);
     serviceComboBox.clear();
@@ -382,7 +391,7 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void openServiceCreationDialog() {
-    offeringForm.openForNew();
+    serviceForm.openForNew();
   }
 
   private void addSelectedProduct() {
@@ -426,27 +435,55 @@ public class ConsultationsForm extends Dialog {
     grandTotalSpan.setText("$" + grandTotal);
   }
 
-  private void loadComboBoxData() {
-    veterinarianComboBox.setItems(employeeService.getVeterinarians());
+  /*private void loadComboBoxData() {
 
-    serviceComboBox.setItems(offeringService.findMedicalServices());
-
-    productComboBox.setItems(productService.findInternalUseProducts());
-  }
-
-  private void save(ClickEvent<Button> event) {
-    try {
-      boolean isNew = editingConsultation == null;
-      if (isNew) {
-        editingConsultation = new Consultation();
-        editingConsultation.setConsultationDate(LocalDateTime.now());
+      if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
+        Employee currentVet = UserUtils.getCurrentEmployee().orElse(null);
+        veterinarianComboBox.setItems(List.of(currentVet));
+        veterinarianComboBox.setValue(currentVet);
+        veterinarianComboBox.setReadOnly(true);
+      } else {
+        veterinarianComboBox.setItems(employeeService.getVeterinarians());
       }
 
-      if (!isNew && !editingConsultation.isActive()) {
-        if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
-            || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) {
-          editingConsultation.setActive(true);
-        }
+      serviceComboBox.setItems(serviceService.findMedicalServices());
+      productComboBox.setItems(productService.findInternalUseProducts());
+
+
+    veterinarianComboBox.setItems(employeeService.getVeterinarians());
+
+    serviceComboBox.setItems(serviceService.findMedicalServices());
+
+    productComboBox.setItems(productService.findInternalUseProducts());
+  }*/
+
+  private void loadComboBoxData() {
+    // Veterinario: si es VETERINARIAN, fijar el vet logueado y bloquear el campo
+    if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
+      Employee currentVet = UserUtils.getCurrentEmployee().orElse(null);
+      if (currentVet != null) {
+        veterinarianComboBox.setItems(java.util.List.of(currentVet));
+        veterinarianComboBox.setValue(currentVet);
+        veterinarianComboBox.setReadOnly(true);
+      }
+    } else if (employeeService != null) {
+      // Admin/manager: lista completa
+      veterinarianComboBox.setItems(employeeService.getVeterinarians());
+    }
+
+    if (serviceService != null) {
+      serviceComboBox.setItems(serviceService.findMedicalServices());
+    }
+    if (productService != null) {
+      productComboBox.setItems(productService.findInternalUseProducts());
+    }
+  }
+
+  /*private void save(ClickEvent<Button> event) {
+    try {
+      if (editingConsultation == null) {
+        editingConsultation = new Consultation();
+        editingConsultation.setConsultationDate(LocalDateTime.now());
       }
 
       if (selectedPet == null) {
@@ -480,6 +517,62 @@ public class ConsultationsForm extends Dialog {
     } catch (Exception e) {
       NotificationUtils.error("Error al guardar la consulta: " + e.getMessage());
     }
+  }*/
+
+  private void save(ClickEvent<Button> event) {
+    try {
+      if (editingConsultation == null) {
+        editingConsultation = new Consultation();
+        editingConsultation.setConsultationDate(LocalDateTime.now());
+      }
+
+      if (selectedPet == null) {
+        petName.setInvalid(true);
+        petName.setErrorMessage("Debe seleccionar una mascota");
+        NotificationUtils.error("Debe seleccionar una mascota");
+        return;
+      }
+
+      binder.writeBean(editingConsultation);
+
+      editingConsultation.setPet(selectedPet);
+      if (veterinarianComboBox.getValue() != null) {
+        editingConsultation.setVeterinarian(veterinarianComboBox.getValue());
+      }
+
+      // vincular con la entrada del WaitingRoom (si viene de allí)
+      if (sourceWaitingRoom != null) {
+        editingConsultation.setWaitingRoom(sourceWaitingRoom);
+      }
+
+      Consultation saved = consultationService.save(editingConsultation);
+
+      // generar/actualizar factura
+      saveOrUpdateInvoice(saved);
+
+      // si venía de sala de espera, finalizamos la consulta y cerramos la entrada
+      if (sourceWaitingRoom != null) {
+        try {
+          consultationService.finish(saved.getId()); // <— libera vet y marca WR COMPLETADO
+        } catch (Exception ex) {
+          NotificationUtils.error(
+              "La consulta se guardó, pero no se pudo cerrar la sala de espera: "
+                  + ex.getMessage());
+        }
+      }
+
+      NotificationUtils.success("Consulta registrada y finalizada.");
+      if (onSaveCallback != null) onSaveCallback.accept(saved);
+      close();
+
+    } catch (ValidationException e) {
+      NotificationUtils.error("Por favor, complete todos los campos requeridos");
+    } catch (ObjectOptimisticLockingFailureException ex) {
+      log.error(ex.getLocalizedMessage());
+      NotificationUtils.error("El registro fue modificado por otro usuario.");
+    } catch (Exception e) {
+      NotificationUtils.error("Error al guardar la consulta: " + e.getMessage());
+    }
   }
 
   public void openForNew() {
@@ -489,7 +582,9 @@ public class ConsultationsForm extends Dialog {
     petName.clear();
     petName.setInvalid(false);
 
-    saveButton.setText("Registrar Consulta");
+    applyDefaultVetSelection();
+
+    saveButton.setText("Registrar");
     editingConsultation = null;
     editingInvoice = null;
     setHeaderTitle("Nueva Consulta");
@@ -512,12 +607,12 @@ public class ConsultationsForm extends Dialog {
               this.editingInvoice = invoice;
 
               invoice
-                  .getOfferings()
+                  .getServices()
                   .forEach(
                       serviceInvoice ->
                           selectedServices.add(
                               new ServiceItem(
-                                  serviceInvoice.getOffering(), serviceInvoice.getQuantity())));
+                                  serviceInvoice.getService(), serviceInvoice.getQuantity())));
 
               invoice
                   .getProducts()
@@ -532,7 +627,7 @@ public class ConsultationsForm extends Dialog {
               updateTotals();
             });
 
-    saveButton.setText("Actualizar Consulta");
+    saveButton.setText("Actualizar");
     setHeaderTitle("Editar Consulta");
     open();
   }
@@ -553,9 +648,9 @@ public class ConsultationsForm extends Dialog {
   }
 
   private void setupServiceForm() {
-    offeringForm.addServiceSavedListener(
+    serviceForm.addServiceSavedListener(
         dto -> {
-          var medicalServices = offeringService.findMedicalServices();
+          var medicalServices = serviceService.findMedicalServices();
           serviceComboBox.setItems(medicalServices);
           medicalServices.stream()
               .filter(s -> s.getName().equalsIgnoreCase(dto.getName()))
@@ -569,12 +664,11 @@ public class ConsultationsForm extends Dialog {
       if (editingInvoice != null) {
         if (editingInvoice.getStatus() == InvoiceStatus.PENDING) {
           try {
-            editingInvoice.setStatus(InvoiceStatus.CANCELLED);
             invoiceService.delete(editingInvoice.getCode());
-            NotificationUtils.info("Factura asociada pendiente anulada.");
+            NotificationUtils.info("Factura asociada pendiente eliminada.");
           } catch (Exception e) {
-            log.error("Error anulando factura pendiente: {}", editingInvoice.getCode(), e);
-            NotificationUtils.error("Error al anular la factura asociada pendiente.");
+            log.error("Error eliminando factura pendiente: {}", editingInvoice.getCode(), e);
+            NotificationUtils.error("Error al eliminar la factura asociada pendiente.");
           }
         } else {
           NotificationUtils.info(
@@ -591,12 +685,11 @@ public class ConsultationsForm extends Dialog {
         return;
       } else {
         try {
-          editingInvoice.setStatus(InvoiceStatus.CANCELLED);
           invoiceService.delete(editingInvoice.getCode());
-          NotificationUtils.info(" Factura previa anulada, se ha creado una nueva.");
+          NotificationUtils.info("Factura anterior eliminada para crear una nueva.");
         } catch (Exception e) {
-          log.error("Error anulando factura pendiente anterior: {}", editingInvoice.getCode(), e);
-          NotificationUtils.error("Error al anular la factura asociada pendiente anterior.");
+          log.error("Error eliminando factura pendiente anterior: {}", editingInvoice.getCode(), e);
+          NotificationUtils.error("Error al eliminar la factura asociada pendiente anterior.");
           return;
         }
         invoiceToSave =
@@ -607,7 +700,6 @@ public class ConsultationsForm extends Dialog {
                 .paymentDate(LocalDate.now().plusDays(30))
                 .status(InvoiceStatus.PENDING)
                 .paidToDate(BigDecimal.ZERO)
-                .active(true)
                 .build();
       }
     } else {
@@ -619,19 +711,18 @@ public class ConsultationsForm extends Dialog {
               .paymentDate(LocalDate.now().plusDays(30))
               .status(InvoiceStatus.PENDING)
               .paidToDate(BigDecimal.ZERO)
-              .active(true)
               .build();
     }
 
-    invoiceToSave.getOfferings().clear();
+    invoiceToSave.getServices().clear();
     for (ServiceItem serviceItem : selectedServices) {
-      InvoiceOffering serviceInvoice =
-          InvoiceOffering.builder()
-              .offering(serviceItem.getService())
+      ServiceInvoice serviceInvoice =
+          ServiceInvoice.builder()
+              .service(serviceItem.getService())
               .quantity(serviceItem.getQuantity())
               .amount(serviceItem.getSubtotal())
               .build();
-      invoiceToSave.addOffering(serviceInvoice);
+      invoiceToSave.addService(serviceInvoice);
     }
 
     invoiceToSave.getProducts().clear();
@@ -659,18 +750,18 @@ public class ConsultationsForm extends Dialog {
   }
 
   public static class ServiceItem {
-    private final Offering offering;
+    private final Service service;
     private final Double quantity;
     private final BigDecimal subtotal;
 
-    public ServiceItem(Offering offering, Double quantity) {
-      this.offering = offering;
+    public ServiceItem(Service service, Double quantity) {
+      this.service = service;
       this.quantity = quantity;
-      this.subtotal = offering.getPrice().multiply(BigDecimal.valueOf(quantity));
+      this.subtotal = service.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 
-    public Offering getService() {
-      return offering;
+    public Service getService() {
+      return service;
     }
 
     public Double getQuantity() {
@@ -703,6 +794,54 @@ public class ConsultationsForm extends Dialog {
 
     public BigDecimal getSubtotal() {
       return subtotal;
+    }
+  }
+
+  public void presetForVetAndPet(Pet pet, Employee vet, boolean lockVetField) {
+    // Mascota
+    this.selectedPet = pet;
+    this.petName.setValue(pet != null ? pet.getName() : "");
+    this.petName.setInvalid(false);
+
+    // evitar que cambien la mascota
+    this.petName.setReadOnly(true);
+    this.selectPetButton.setEnabled(false);
+
+    // Veterinario
+    if (vet != null) {
+      // Asegurar que el combo contiene al vet
+      java.util.List<Employee> items = new java.util.ArrayList<>();
+      this.veterinarianComboBox
+          .getDataProvider()
+          .fetch(new com.vaadin.flow.data.provider.Query<>())
+          .forEach(items::add);
+      boolean present = items.stream().anyMatch(e -> e.getId().equals(vet.getId()));
+      if (!present) {
+        items.add(vet);
+        this.veterinarianComboBox.setItems(items);
+      }
+      this.veterinarianComboBox.setValue(vet);
+      if (lockVetField) {
+        this.veterinarianComboBox.setReadOnly(true);
+      }
+    }
+  }
+
+  public void attachWaitingRoom(WaitingRoom wr) {
+    this.sourceWaitingRoom = wr;
+  }
+
+  private void applyDefaultVetSelection() {
+    if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
+      Employee currentVet = UserUtils.getCurrentEmployee().orElse(null);
+      if (currentVet != null) {
+        veterinarianComboBox.setItems(java.util.List.of(currentVet));
+        veterinarianComboBox.setValue(currentVet);
+        veterinarianComboBox.setReadOnly(true);
+      }
+    } else if (employeeService != null) {
+      veterinarianComboBox.setReadOnly(false);
+      veterinarianComboBox.setItems(employeeService.getVeterinarians());
     }
   }
 }

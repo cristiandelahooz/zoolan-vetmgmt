@@ -1,6 +1,7 @@
 package com.wornux.dto.request;
 
 import com.wornux.data.enums.Priority;
+import com.wornux.data.enums.VisitType;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +22,10 @@ public class WaitingRoomCreateRequestDto {
 
   @NotBlank(message = "La razón de la visita es requerida")
   private String reasonForVisit;
+
+  @NotNull(message = "El tipo es requerido")
+  @Builder.Default
+  private VisitType type = VisitType.MEDICA;
 
   @NotNull(message = "La prioridad es requerida")
   private Priority priority;

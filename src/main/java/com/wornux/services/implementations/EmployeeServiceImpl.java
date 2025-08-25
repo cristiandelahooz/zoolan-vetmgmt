@@ -12,6 +12,7 @@ import com.wornux.dto.request.WorkScheduleDayDto;
 import com.wornux.exception.*;
 import com.wornux.mapper.EmployeeMapper;
 import com.wornux.services.interfaces.EmployeeService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import java.time.DayOfWeek;
@@ -224,5 +225,40 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
         .sorted((e1, e2) -> Double.compare(calculateWeeklyHours(e2), calculateWeeklyHours(e1)))
         .limit(limit)
         .collect(Collectors.toList());
+  }
+
+  public List<Employee> getAvailableVets() {
+    return employeeRepository.findByEmployeeRoleAndAvailable(EmployeeRole.VETERINARIAN, true);
+  }
+
+  @Transactional
+  public void markVetBusy(Long vetId) {
+    Employee e =
+        employeeRepository
+            .findById(vetId)
+            .orElseThrow(() -> new EntityNotFoundException("Vet not found: " + vetId));
+    e.setAvailable(false);
+    employeeRepository.save(e);
+  }
+
+  @Transactional
+  public void markVetAvailable(Long vetId) {
+    Employee e =
+        employeeRepository
+            .findById(vetId)
+            .orElseThrow(() -> new EntityNotFoundException("Vet not found: " + vetId));
+    e.setAvailable(true);
+    employeeRepository.save(e);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Employee> findByUsername(String username) {
+    return employeeRepository.findByUsername(username);
+  }
+
+  @Override
+  public List<Employee> getAvailableGroomers() {
+    return employeeRepository.findByEmployeeRoleAndAvailable(EmployeeRole.GROOMER, true);
   }
 }
