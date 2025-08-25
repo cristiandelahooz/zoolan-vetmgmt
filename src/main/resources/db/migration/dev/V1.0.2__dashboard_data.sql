@@ -9,7 +9,7 @@
 
 -- To ensure a clean slate, we remove previous transactional data.
 -- Master data (users, pets, products, etc.) is preserved.
-TRUNCATE TABLE appointments, consultations, invoices, invoice_product, invoice_offerings, payments, payments_detail, waiting_room RESTART IDENTITY;
+TRUNCATE TABLE appointments, consultations, grooming_sessions, invoices, invoice_product, invoice_offerings, payments, payments_detail, waiting_room RESTART IDENTITY CASCADE;
 
 -- =================================================================================================
 --  1. APPOINTMENTS & CONSULTATIONS
@@ -47,7 +47,7 @@ FROM date_series d
 WHERE extract(isodow from d.appointment_date) < 6; -- Monday to Friday
 
 -- Generate consultations linked to some of these appointments
-INSERT INTO consultations (pet, veterinarian, medical_history, consultation_date, diagnosis, treatment, notes, created_at, updated_at, active)
+INSERT INTO consultations (pet, veterinarian, medical_history, consultation_date, diagnosis, treatment, notes, status, created_at, updated_at, active)
 SELECT
     a.pet_id,
     a.employee_id,
@@ -61,6 +61,7 @@ SELECT
         END,
     'Tratamiento estándar aplicado',
     'Consulta histórica generada para dashboard',
+    'COMPLETADO',
     a.created_date,
     a.last_modified_date,
     TRUE
