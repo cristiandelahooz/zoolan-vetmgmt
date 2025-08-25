@@ -23,8 +23,12 @@ import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 @SuperBuilder
 @ToString
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "suppliers")
+@Table(
+    name = "suppliers",
+    uniqueConstraints = {
+      @UniqueConstraint(columnNames = {"rnc"}),
+      @UniqueConstraint(columnNames = {"contact_email"})
+    })
 @Audited(withModifiedFlag = true)
 public class Supplier {
 

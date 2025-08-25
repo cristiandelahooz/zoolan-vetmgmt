@@ -2,20 +2,23 @@ package com.wornux.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.*;
 import org.hibernate.envers.Audited;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "medical_histories")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString(exclude = {"consultations", "pet"})
+@Table(
+    name = "medical_histories",
+    indexes = {@Index(columnList = "pet")})
 @Audited(withModifiedFlag = true)
 public class MedicalHistory {
   @Id
