@@ -715,7 +715,7 @@ SELECT po.owners,
        NOW() - (INTERVAL '1 hour' * (ROW_NUMBER() OVER ())),
        CASE (ROW_NUMBER() OVER () % 3)
            WHEN 0 THEN 'ESPERANDO'
-           WHEN 1 THEN 'EN_CONSULTA'
+           WHEN 1 THEN 'EN_PROCESO'
            ELSE 'ESPERANDO'
            END,
        CASE (ROW_NUMBER() OVER () % 5)
