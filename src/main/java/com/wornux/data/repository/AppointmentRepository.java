@@ -59,6 +59,6 @@ public interface AppointmentRepository
   @Query("SELECT COUNT(a) FROM Appointment a WHERE a.status = :status")
   Long countByStatus(@Param("status") AppointmentStatus status);
 
-  @Query("SELECT a.serviceType, COUNT(a) FROM Appointment a GROUP BY a.serviceType")
-  List<Object[]> getAppointmentCountByServiceType();
+  @Query("SELECT a.offeringType, COUNT(a) FROM Appointment a GROUP BY a.offeringType")
+  List<Object[]> getAppointmentCountByOfferingType();
 }
