@@ -625,9 +625,9 @@ public class AppointmentForm extends Div {
 
   private void populateForm(AppointmentResponseDto appointment) {
     if (appointment != null) {
+      offeringTypeSelect.setValue(appointment.getOfferingType());
       titleField.setValue(
           appointment.getAppointmentTitle() != null ? appointment.getAppointmentTitle() : "");
-      offeringTypeSelect.setValue(appointment.getOfferingType());
 
       if (appointment.getStartAppointmentDate() != null) {
         appointmentDate.setValue(appointment.getStartAppointmentDate().toLocalDate());
