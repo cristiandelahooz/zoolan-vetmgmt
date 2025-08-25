@@ -225,13 +225,26 @@ public class AppointmentForm extends Div {
 
   private void setupBinder() {
     binder
-        .getFields()
-        .forEach(
-            field -> {
-              if (field instanceof HasClearButton clear) {
-                clear.setClearButtonVisible(true);
-              }
-            });
+        .forField(titleField)
+        .bind(AppointmentCreateRequestDto::getReason, AppointmentCreateRequestDto::setReason);
+
+    binder
+        .forField(notesField)
+        .bind(AppointmentCreateRequestDto::getNotes, AppointmentCreateRequestDto::setNotes);
+
+    binder
+        .forField(offeringTypeSelect)
+        .asRequired("El tipo de servicio es obligatorio")
+        .bind(
+            AppointmentCreateRequestDto::getOfferingType,
+            AppointmentCreateRequestDto::setOfferingType);
+
+    titleField.setClearButtonVisible(true);
+    notesField.setClearButtonVisible(true);
+    guestClientName.setClearButtonVisible(true);
+    guestClientPhone.setClearButtonVisible(true);
+    guestClientEmail.setClearButtonVisible(true);
+    guestPetBreed.setClearButtonVisible(true);
   }
 
   private void setupClientCombo() {
@@ -319,11 +332,11 @@ public class AppointmentForm extends Div {
     startTime.setEnabled(enabled);
     endTime.setEnabled(enabled);
     notesField.setEnabled(enabled);
-    
+
     clientCombo.setEnabled(enabled && !isGroomingWorkflow);
     addClient.setEnabled(enabled && !isGroomingWorkflow);
     addPet.setEnabled(enabled && !isGroomingWorkflow && clientCombo.getValue() != null);
-    
+
     if (enabled && isGroomingWorkflow) {
       guestClientName.setEnabled(true);
       guestClientPhone.setEnabled(true);
@@ -661,7 +674,7 @@ public class AppointmentForm extends Div {
   public void openForEdit(AppointmentResponseDto appointment) {
     currentAppointment = appointment;
     populateForm(appointment);
-    
+
     recreateHeaderContent();
     sidebar.getCancel().setText("Descartar cambios");
     sidebar.editObject("Editar Cita");
