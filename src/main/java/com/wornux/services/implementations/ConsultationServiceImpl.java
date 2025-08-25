@@ -316,7 +316,7 @@ public class ConsultationServiceImpl
           "Solo se puede iniciar una consulta si el estado es ESPERANDO.");
     }
 
-    wr.startConsultation();
+    wr.startService();
     waitingRoomRepository.save(wr);
 
     Consultation c = new Consultation();
@@ -352,11 +352,11 @@ public class ConsultationServiceImpl
           waitingRoomRepository
               .findTopByPet_IdAndStatusInOrderByArrivalTimeDesc(
                   c.getPet().getId(),
-                  List.of(WaitingRoomStatus.EN_CONSULTA, WaitingRoomStatus.ESPERANDO))
+                  List.of(WaitingRoomStatus.EN_PROCESO, WaitingRoomStatus.ESPERANDO))
               .orElse(null);
     }
     if (wr != null) {
-      wr.completeConsultation();
+      wr.completeService();
       waitingRoomRepository.save(wr);
     }
 
