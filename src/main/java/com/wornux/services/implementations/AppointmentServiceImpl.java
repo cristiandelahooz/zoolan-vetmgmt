@@ -29,20 +29,19 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   @Transactional
-  public AppointmentResponseDto createAppointment(AppointmentCreateRequestDto createRequest) {
+  public void createAppointment(AppointmentCreateRequestDto createRequest) {
     log.debug("Creating appointment for {}", createRequest.getAppointmentDateTime());
 
     Appointment appointment = appointmentMapper.toEntity(createRequest);
     appointment = appointmentRepository.save(appointment);
 
     log.info("Created appointment with ID: {}", appointment.getId());
-    return appointmentMapper.toResponseDTO(appointment);
+    appointmentMapper.toResponseDTO(appointment);
   }
 
   @Override
   @Transactional
-  public AppointmentResponseDto updateAppointment(
-      Long id, AppointmentUpdateRequestDto updateRequest) {
+  public void updateAppointment(Long id, AppointmentUpdateRequestDto updateRequest) {
     log.debug("Updating appointment with ID: {}", id);
 
     Appointment appointment = findAppointmentById(id);
@@ -51,7 +50,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     appointment = appointmentRepository.save(appointment);
 
     log.info("Updated appointment with ID: {}", id);
-    return appointmentMapper.toResponseDTO(appointment);
+    appointmentMapper.toResponseDTO(appointment);
+  }
+
+  @Override
+  @Transactional
+  public void createOrUpdateAppointment(@Valid @NotNull Appointment appointment) {
+    if (appointment.getId() != null && appointmentRepository.existsById(appointment.getId())) {
+      log.debug("Updating existing appointment with ID: {}", appointment.getId());
+    } else {
+      log.debug("Creating new appointment");
+    }
+    appointmentRepository.save(appointment);
+    log.info(
+        "Appointment with ID: {} has been created or updated",
+        appointment.getId() != null ? appointment.getId() : "newly created");
   }
 
   @Override

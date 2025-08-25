@@ -1,19 +1,23 @@
 package com.wornux.services.interfaces;
 
+import com.wornux.data.entity.Appointment;
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.dto.request.AppointmentCreateRequestDto;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.dto.response.AppointmentResponseDto;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public interface AppointmentService {
 
-  AppointmentResponseDto createAppointment(AppointmentCreateRequestDto createDTO);
+  void createAppointment(AppointmentCreateRequestDto createDTO);
 
-  AppointmentResponseDto updateAppointment(Long id, AppointmentUpdateRequestDto updateDTO);
+  void updateAppointment(Long id, AppointmentUpdateRequestDto updateDTO);
+
+  void createOrUpdateAppointment(Appointment appointment);
 
   AppointmentResponseDto getAppointmentById(Long id);
 
