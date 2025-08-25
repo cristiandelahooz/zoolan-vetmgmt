@@ -1,8 +1,9 @@
 package com.wornux.data.enums;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
 
 @Getter
 public enum PetType {
@@ -22,7 +23,8 @@ public enum PetType {
           "Bóxer",
           "Border Collie",
           "Pastor Australiano",
-          "Shih Tzu")),
+          "Shih Tzu"),
+      "Perro"),
 
   GATO(
       Arrays.asList(
@@ -40,7 +42,8 @@ public enum PetType {
           "Birmano",
           "Oriental de Pelo Corto",
           "Devon Rex",
-          "Bosque de Noruega")),
+          "Bosque de Noruega"),
+      "Gato"),
 
   AVE(
       Arrays.asList(
@@ -53,7 +56,8 @@ public enum PetType {
           "Guacamaya",
           "Loro Gris Africano",
           "Cacatúa",
-          "Periquito")),
+          "Periquito"),
+      "Ave"),
 
   CONEJO(
       Arrays.asList(
@@ -66,11 +70,13 @@ public enum PetType {
           "Holandés",
           "Mini Lop",
           "Rex",
-          "Himalaya")),
+          "Himalaya"),
+      "Conejo"),
 
   HAMSTER(
       Arrays.asList(
-          "Sirio", "Campbell Enano Ruso", "Winter White Enano Ruso", "Roborovski", "Chino")),
+          "Sirio", "Campbell Enano Ruso", "Winter White Enano Ruso", "Roborovski", "Chino"),
+      "Hámster"),
 
   REPTIL(
       Arrays.asList(
@@ -83,14 +89,17 @@ public enum PetType {
           "Galápago de Orejas Rojas",
           "Iguana Verde",
           "Camaleón",
-          "Lagarto Monitor")),
+          "Lagarto Monitor"),
+      "Reptil"),
 
-  OTRO(Arrays.asList("Mixto", "Desconocido", "Otro"));
+  OTRO(Arrays.asList("Mixto", "Desconocido", "Otro"), "Otro");
 
   private final List<String> breeds;
+  private final String displayName;
 
-  PetType(List<String> breeds) {
+  PetType(List<String> breeds, String displayName) {
     this.breeds = breeds;
+    this.displayName = displayName;
   }
 
   public boolean isValidBreedForType(String breed) {
