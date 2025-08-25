@@ -11,6 +11,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.*;
 import com.vaadin.flow.component.icon.Icon;
+import java.util.Collections;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -35,6 +36,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Pageable;
+
+import com.wornux.data.entity.Invoice;
+import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.security.UserUtils;
 
 @Route(value = "grooming", layout = com.wornux.views.MainLayout.class)
 @PageTitle("Grooming")
@@ -101,7 +109,7 @@ public class GroomingSessionsView extends Div {
     add(createTitle(), createFilter(), gridLayout);
     addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
     setSizeFull();
-    updateQuantity();
+   // updateQuantity();
 
     create.addClickListener(event -> groomingForm.openForNew());
   }
@@ -220,7 +228,7 @@ public class GroomingSessionsView extends Div {
     return toolbar;
   }
 
-  private void refreshAll() {
+  /*private void refreshAll() {
     List<GroomingSession> sessions =
         groomingSessionService.findAll(Pageable.unpaged()).getContent();
     String filter = searchField.getValue().trim().toLowerCase();
@@ -249,9 +257,58 @@ public class GroomingSessionsView extends Div {
     }
     grid.setItems(sessions);
     updateQuantity();
+  }*/
+
+  private void refreshAll() {
+    // 1) Carga base
+    List<GroomingSession> sessions =
+            groomingSessionService.findAll(Pageable.unpaged()).getContent();
+
+    // 2) Si es groomer (y no admin/manager), deja sólo sus sesiones
+    if (isGroomerOnly()) {
+      Long gid = currentGroomerId();
+      if (gid != null) {
+        sessions =
+                sessions.stream()
+                        .filter(s -> s.getGroomer() != null && gid.equals(s.getGroomer().getId()))
+                        .toList();
+      } else {
+        sessions = Collections.emptyList();
+      }
+    }
+
+    // 3) Filtro de texto
+    String filter = searchField.getValue().trim().toLowerCase();
+    if (!filter.isEmpty()) {
+      sessions =
+              sessions.stream()
+                      .filter(
+                              s ->
+                                      (s.getNotes() != null && s.getNotes().toLowerCase().contains(filter))
+                                              || (s.getPet() != null
+                                              && s.getPet().getName() != null
+                                              && s.getPet().getName().toLowerCase().contains(filter))
+                                              || (s.getGroomer() != null
+                                              && ((s.getGroomer().getFirstName() != null
+                                              && s.getGroomer()
+                                              .getFirstName()
+                                              .toLowerCase()
+                                              .contains(filter))
+                                              || (s.getGroomer().getLastName() != null
+                                              && s.getGroomer()
+                                              .getLastName()
+                                              .toLowerCase()
+                                              .contains(filter)))))
+                      .toList();
+    }
+
+    // 4) Pinta y actualiza contador
+    grid.setItems(sessions);
+    quantity.setText("Grooming (" + sessions.size() + ")");
   }
 
-  private Component createActionsColumn(GroomingSession session) {
+
+  /*private Component createActionsColumn(GroomingSession session) {
     Button edit = new Button(new Icon(VaadinIcon.EDIT));
     edit.addThemeVariants(
         ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
@@ -276,7 +333,42 @@ public class GroomingSessionsView extends Div {
     actions.setMargin(false);
     actions.setWidth(null);
     return actions;
+  }*/
+
+  private Component createActionsColumn(GroomingSession session) {
+    Button edit = new Button(new Icon(VaadinIcon.EDIT));
+    edit.addThemeVariants(
+            ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+    edit.getElement().setProperty("title", "Editar");
+    edit.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+    Button delete = new Button(new Icon(VaadinIcon.TRASH));
+    delete.addThemeVariants(
+            ButtonVariant.LUMO_ICON,
+            ButtonVariant.LUMO_TERTIARY_INLINE,
+            ButtonVariant.LUMO_SMALL,
+            ButtonVariant.LUMO_ERROR);
+    delete.getElement().setProperty("title", "Eliminar");
+    delete.getStyle().set("min-width", "32px").set("width", "32px").set("padding", "0");
+
+    // Igual que en consultas: controlar edición por estado de factura
+    edit.addClickListener(e -> evaluateForEdit(session));
+
+    delete.addClickListener(e -> showDeleteConfirmationDialog(session));
+
+    // Mostrar "Eliminar" sólo para Manager / System Admin
+    if (!(isAdminOrManager())) {
+      delete.setVisible(false);
+    }
+
+    HorizontalLayout actions = new HorizontalLayout(edit, delete);
+    actions.setSpacing(true);
+    actions.setPadding(false);
+    actions.setMargin(false);
+    actions.setWidth(null);
+    return actions;
   }
+
 
   private void showDeleteConfirmationDialog(GroomingSession session) {
     Dialog confirmDialog = new Dialog();
@@ -331,10 +423,53 @@ public class GroomingSessionsView extends Div {
 
   private void updateQuantity() {
     try {
-      long count = groomingSessionService.getRepository().count();
-      quantity.setText("Grooming (" + count + ")");
+      int size = (int) grid.getListDataView().getItems().count();
+      quantity.setText("Grooming (" + size + ")");
     } catch (Exception e) {
       quantity.setText("Grooming");
     }
   }
+
+  public void evaluateForEdit(GroomingSession session) {
+    try {
+      // Usa el método que tengas disponible; aquí asumimos findByGroomingId(...)
+      var opt = invoiceService.findByGroomingId(session.getId());
+      if (opt.isPresent()) {
+        Invoice inv = opt.get();
+        if (inv.getStatus() != InvoiceStatus.PENDING) {
+          NotificationUtils.error(
+                  "No se puede editar el grooming porque su factura asociada no está en estado PENDIENTE.");
+          refreshAll();
+        } else {
+          groomingForm.openForEdit(session);
+        }
+      } else {
+        NotificationUtils.error("No se encontró una factura asociada a este grooming.");
+        refreshAll();
+      }
+    } catch (Exception e) {
+      NotificationUtils.error("El grooming está corrupto porque no tiene factura asociada.");
+    }
+  }
+
+  private boolean isAdminOrManager() {
+    return UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
+            || UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER);
+  }
+
+  private boolean isGroomerOnly() {
+    // Si también quieres que el kennel assistant vea “todo”, déjalo fuera del filtro:
+    // Sólo filtra cuando sea exclusivamente groomer y NO admin/manager
+    return UserUtils.hasEmployeeRole(EmployeeRole.GROOMER) && !isAdminOrManager();
+  }
+
+  /*private Long currentGroomerId() {
+    return UserUtils.getCurrentEmployee().map(Employee::getId).orElse(null);
+  }*/
+
+  private Long currentGroomerId() {
+    return UserUtils.getCurrentEmployee().map(e -> e.getId()).orElse(null);
+  }
+
+
 }
