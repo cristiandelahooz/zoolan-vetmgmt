@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Framework Versions -->
-        <vaadin.version>24.8.3</vaadin.version>
+        <vaadin.version>24.8.6</vaadin.version>
         <hibernate.version>6.6.4.Final</hibernate.version>
         <!-- Library Versions -->
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
@@ -50,7 +50,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
