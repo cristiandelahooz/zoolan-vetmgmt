@@ -4,5 +4,5 @@ public enum ConsultationStatus {
   PENDIENTE,
   EN_PROCESO,
   COMPLETADO,
-  CANCELEDO
+  CANCELADO
 }
