@@ -24,7 +24,9 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.*;
+import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.security.UserUtils;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
@@ -86,6 +88,7 @@ public class ConsultationsForm extends Dialog {
   private final List<ServiceItem> selectedServices = new ArrayList<>();
   private final List<ProductItem> selectedProducts = new ArrayList<>();
   private final ServiceForm serviceForm;
+  private WaitingRoom sourceWaitingRoom;
 
   @Setter private transient Consumer<Consultation> onSaveCallback;
 
@@ -432,15 +435,52 @@ public class ConsultationsForm extends Dialog {
     grandTotalSpan.setText("$" + grandTotal);
   }
 
-  private void loadComboBoxData() {
+  /*private void loadComboBoxData() {
+
+      if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
+        Employee currentVet = UserUtils.getCurrentEmployee().orElse(null);
+        veterinarianComboBox.setItems(List.of(currentVet));
+        veterinarianComboBox.setValue(currentVet);
+        veterinarianComboBox.setReadOnly(true);
+      } else {
+        veterinarianComboBox.setItems(employeeService.getVeterinarians());
+      }
+
+      serviceComboBox.setItems(serviceService.findMedicalServices());
+      productComboBox.setItems(productService.findInternalUseProducts());
+
+
     veterinarianComboBox.setItems(employeeService.getVeterinarians());
 
     serviceComboBox.setItems(serviceService.findMedicalServices());
 
     productComboBox.setItems(productService.findInternalUseProducts());
+  }*/
+
+  private void loadComboBoxData() {
+    // Veterinario: si es VETERINARIAN, fijar el vet logueado y bloquear el campo
+    if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
+      Employee currentVet = UserUtils.getCurrentEmployee().orElse(null);
+      if (currentVet != null) {
+        veterinarianComboBox.setItems(java.util.List.of(currentVet));
+        veterinarianComboBox.setValue(currentVet);
+        veterinarianComboBox.setReadOnly(true);
+      }
+    } else if (employeeService != null) {
+      // Admin/manager: lista completa
+      veterinarianComboBox.setItems(employeeService.getVeterinarians());
+    }
+
+    if (serviceService != null) {
+      serviceComboBox.setItems(serviceService.findMedicalServices());
+    }
+    if (productService != null) {
+      productComboBox.setItems(productService.findInternalUseProducts());
+    }
   }
 
-  private void save(ClickEvent<Button> event) {
+
+  /*private void save(ClickEvent<Button> event) {
     try {
       if (editingConsultation == null) {
         editingConsultation = new Consultation();
@@ -478,7 +518,62 @@ public class ConsultationsForm extends Dialog {
     } catch (Exception e) {
       NotificationUtils.error("Error al guardar la consulta: " + e.getMessage());
     }
+  }*/
+
+  private void save(ClickEvent<Button> event) {
+    try {
+      if (editingConsultation == null) {
+        editingConsultation = new Consultation();
+        editingConsultation.setConsultationDate(LocalDateTime.now());
+      }
+
+      if (selectedPet == null) {
+        petName.setInvalid(true);
+        petName.setErrorMessage("Debe seleccionar una mascota");
+        NotificationUtils.error("Debe seleccionar una mascota");
+        return;
+      }
+
+      binder.writeBean(editingConsultation);
+      
+      editingConsultation.setPet(selectedPet);
+      if (veterinarianComboBox.getValue() != null) {
+        editingConsultation.setVeterinarian(veterinarianComboBox.getValue());
+      }
+
+      // vincular con la entrada del WaitingRoom (si viene de allí)
+      if (sourceWaitingRoom != null) {
+        editingConsultation.setWaitingRoom(sourceWaitingRoom);
+      }
+
+      Consultation saved = consultationService.save(editingConsultation);
+
+      // generar/actualizar factura
+      saveOrUpdateInvoice(saved);
+
+      // si venía de sala de espera, finalizamos la consulta y cerramos la entrada
+      if (sourceWaitingRoom != null) {
+        try {
+          consultationService.finish(saved.getId());   // <— libera vet y marca WR COMPLETADO
+        } catch (Exception ex) {
+          NotificationUtils.error("La consulta se guardó, pero no se pudo cerrar la sala de espera: " + ex.getMessage());
+        }
+      }
+
+      NotificationUtils.success("Consulta registrada y finalizada.");
+      if (onSaveCallback != null) onSaveCallback.accept(saved);
+      close();
+
+    } catch (ValidationException e) {
+      NotificationUtils.error("Por favor, complete todos los campos requeridos");
+    } catch (ObjectOptimisticLockingFailureException ex) {
+      log.error(ex.getLocalizedMessage());
+      NotificationUtils.error("El registro fue modificado por otro usuario.");
+    } catch (Exception e) {
+      NotificationUtils.error("Error al guardar la consulta: " + e.getMessage());
+    }
   }
+
 
   public void openForNew() {
     clearForm();
@@ -699,4 +794,38 @@ public class ConsultationsForm extends Dialog {
       return subtotal;
     }
   }
+
+  public void presetForVetAndPet(Pet pet, Employee vet, boolean lockVetField) {
+    // Mascota
+    this.selectedPet = pet;
+    this.petName.setValue(pet != null ? pet.getName() : "");
+    this.petName.setInvalid(false);
+
+    // evitar que cambien la mascota
+    this.petName.setReadOnly(true);
+    this.selectPetButton.setEnabled(false);
+
+
+    // Veterinario
+    if (vet != null) {
+      // Asegurar que el combo contiene al vet
+      java.util.List<Employee> items = new java.util.ArrayList<>();
+      this.veterinarianComboBox.getDataProvider()
+              .fetch(new com.vaadin.flow.data.provider.Query<>())
+              .forEach(items::add);
+      boolean present = items.stream().anyMatch(e -> e.getId().equals(vet.getId()));
+      if (!present) {
+        items.add(vet);
+        this.veterinarianComboBox.setItems(items);
+      }
+      this.veterinarianComboBox.setValue(vet);
+      if (lockVetField) {
+        this.veterinarianComboBox.setReadOnly(true);
+      }
+    }
+  }
+  public void attachWaitingRoom(WaitingRoom wr) {
+    this.sourceWaitingRoom = wr;
+  }
+
 }
