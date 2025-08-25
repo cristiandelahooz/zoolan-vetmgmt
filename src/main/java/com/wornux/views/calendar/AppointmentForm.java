@@ -1,5 +1,6 @@
 package com.wornux.views.calendar;
 
+import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
@@ -20,16 +21,14 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.Sidebar;
-import com.wornux.data.entity.Appointment;
-import com.wornux.data.entity.AppointmentClientInfo;
-import com.wornux.data.entity.Client;
-import com.wornux.data.entity.Pet;
+import com.wornux.data.entity.*;
 import com.wornux.data.enums.OfferingType;
 import com.wornux.data.enums.PetType;
 import com.wornux.dto.request.AppointmentCreateRequestDto;
@@ -70,6 +69,7 @@ public class AppointmentForm extends Div {
   private final Select<OfferingType> offeringTypeSelect = new Select<>();
   private final ComboBox<Client> clientCombo = new ComboBox<>("Selecciona un cliente");
   private final ComboBox<Pet> petCombo = new ComboBox<>("Selecciona una mascota");
+  private final ComboBox<Employee> assignedEmployeeCombo = new ComboBox<>("Empleado asignado");
   private final TextField titleField = new TextField("Título de la Cita");
   private final DatePicker appointmentDate = new DatePicker("Fecha de la Cita");
   private final TimePicker startTime = new TimePicker("Hora de Inicio");
@@ -82,6 +82,8 @@ public class AppointmentForm extends Div {
   private final Select<PetType> guestPetType = new Select<>();
   private final TextField guestPetBreed = new TextField("Raza de la Mascota");
   private final Binder<Appointment> binder = new BeanValidationBinder<>(Appointment.class);
+  private final Binder<AppointmentClientInfo> guestInfoBinder =
+      new BeanValidationBinder<>(AppointmentClientInfo.class);
   private final Sidebar sidebar = new Sidebar();
   private final Button addClient = new Button(VaadinIcon.PLUS_CIRCLE.create());
   private final Button addPet = new Button(VaadinIcon.PLUS_CIRCLE.create());
@@ -111,6 +113,27 @@ public class AppointmentForm extends Div {
     setupBinder();
 
     add(sidebar, clientCreationDialog, petForm);
+  }
+
+  public static void setActiveClients(List<Client> allActiveClients, ComboBox<Client> clientCombo) {
+    clientCombo.setItems(
+        comboBoxItemFilter(Client::getFirstName, String::contains), allActiveClients);
+    clientCombo.setItemLabelGenerator(Client::getFirstName);
+    clientCombo.setRenderer(
+        new ComponentRenderer<>(
+            item -> {
+              Div container = new Div();
+              container.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
+
+              Span title = new Span(item.getFirstName());
+              title.addClassNames(LumoUtility.FontWeight.BOLD);
+
+              Span subtitle = new Span(item.getFullName());
+              subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.SMALL);
+
+              container.add(title, subtitle);
+              return container;
+            }));
   }
 
   private void initializeForm() {
@@ -181,23 +204,17 @@ public class AppointmentForm extends Div {
   }
 
   private void initializeGuestClientFields() {
-    guestClientName.setRequired(true);
-    guestClientName.setWidthFull();
-
-    guestClientPhone.setRequired(true);
-    guestClientPhone.setWidthFull();
-
-    guestClientEmail.setRequired(true);
-    guestClientEmail.setWidthFull();
-
+    Stream.of(guestClientName, guestClientPhone, guestClientEmail, guestPetBreed)
+        .forEach(
+            field -> {
+              field.setRequired(true);
+              field.setWidthFull();
+            });
     guestPetType.setLabel("Tipo de Mascota");
     guestPetType.setItems(PetType.values());
-    guestPetType.setItemLabelGenerator(PetType::name);
+    guestPetType.setItemLabelGenerator(PetType::getDisplayName);
     guestPetType.setRequiredIndicatorVisible(true);
     guestPetType.setWidthFull();
-
-    guestPetBreed.setRequired(true);
-    guestPetBreed.setWidthFull();
 
     Arrays.<Component>asList(
             guestClientName, guestClientPhone, guestClientEmail, guestPetType, guestPetBreed)
@@ -225,43 +242,52 @@ public class AppointmentForm extends Div {
   }
 
   private void setupBinder() {
-    binder.forField(titleField).bind(Appointment::getReason, Appointment::setReason);
-
-    binder.forField(notesField).bind(Appointment::getNotes, Appointment::setNotes);
-
     binder
         .forField(offeringTypeSelect)
         .asRequired("El tipo de servicio es obligatorio")
         .bind(Appointment::getOfferingType, Appointment::setOfferingType);
+    binder
+        .forField(titleField)
+        .asRequired("El titulo de la cita es obligatorio")
+        .bind(Appointment::getReason, Appointment::setReason);
 
-    titleField.setClearButtonVisible(true);
-    notesField.setClearButtonVisible(true);
-    guestClientName.setClearButtonVisible(true);
-    guestClientPhone.setClearButtonVisible(true);
-    guestClientEmail.setClearButtonVisible(true);
-    guestPetBreed.setClearButtonVisible(true);
+    binder.forField(notesField).bind(Appointment::getNotes, Appointment::setNotes);
+    binder.forField(notesField).bind(Appointment::getNotes, Appointment::setNotes);
+    binder.forField(clientCombo).bind(Appointment::getClient, Appointment::setClient);
+    binder.forField(petCombo).bind(Appointment::getPet, Appointment::setPet);
+    binder
+        .forField(assignedEmployeeCombo)
+        .bind(Appointment::getAssignedEmployee, Appointment::setAssignedEmployee);
+
+    guestInfoBinder
+        .forField(guestClientName)
+        .bind(AppointmentClientInfo::getName, AppointmentClientInfo::setName);
+    guestInfoBinder
+        .forField(guestClientPhone)
+        .bind(AppointmentClientInfo::getPhone, AppointmentClientInfo::setPhone);
+    guestInfoBinder
+        .forField(guestClientEmail)
+        .bind(AppointmentClientInfo::getEmail, AppointmentClientInfo::setEmail);
+    guestInfoBinder
+        .forField(guestPetType)
+        .bind(AppointmentClientInfo::getPetType, AppointmentClientInfo::setPetType);
+    guestInfoBinder
+        .forField(guestPetBreed)
+        .bind(AppointmentClientInfo::getBreed, AppointmentClientInfo::setBreed);
+
+    Stream.<TextFieldBase<?, ?>>of(
+            titleField,
+            notesField,
+            guestClientName,
+            guestClientPhone,
+            guestClientEmail,
+            guestPetBreed)
+        .forEach(field -> field.setClearButtonVisible(true));
   }
 
   private void setupClientCombo() {
     List<Client> allActiveClients = clientService.getAllActiveClients();
-    clientCombo.setItems(
-        comboBoxItemFilter(Client::getFirstName, String::contains), allActiveClients);
-    clientCombo.setItemLabelGenerator(Client::getFirstName);
-    clientCombo.setRenderer(
-        new ComponentRenderer<>(
-            item -> {
-              Div container = new Div();
-              container.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
-
-              Span title = new Span(item.getFirstName());
-              title.addClassNames(LumoUtility.FontWeight.BOLD);
-
-              Span subtitle = new Span(item.getFullName());
-              subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.SMALL);
-
-              container.add(title, subtitle);
-              return container;
-            }));
+    setActiveClients(allActiveClients, clientCombo);
     clientCombo.addValueChangeListener(
         event -> {
           Client selectedClient = event.getValue();
@@ -322,29 +348,21 @@ public class AppointmentForm extends Div {
   }
 
   private void enableFormFields(boolean enabled) {
-    titleField.setEnabled(enabled);
-    appointmentDate.setEnabled(enabled);
-    startTime.setEnabled(enabled);
-    endTime.setEnabled(enabled);
-    notesField.setEnabled(enabled);
+    Stream.<AbstractSinglePropertyField<?, ?>>of(
+            titleField, appointmentDate, startTime, endTime, notesField)
+        .forEach(field -> field.setEnabled(enabled));
 
     clientCombo.setEnabled(enabled && !isGroomingWorkflow);
     addClient.setEnabled(enabled && !isGroomingWorkflow);
     addPet.setEnabled(enabled && !isGroomingWorkflow && clientCombo.getValue() != null);
 
-    if (enabled && isGroomingWorkflow) {
-      guestClientName.setEnabled(true);
-      guestClientPhone.setEnabled(true);
-      guestClientEmail.setEnabled(true);
-      guestPetType.setEnabled(true);
-      guestPetBreed.setEnabled(true);
-    } else {
-      guestClientName.setEnabled(false);
-      guestClientPhone.setEnabled(false);
-      guestClientEmail.setEnabled(false);
-      guestPetType.setEnabled(false);
-      guestPetBreed.setEnabled(false);
-    }
+    toggleGuestInfoFields(enabled && isGroomingWorkflow);
+  }
+
+  private void toggleGuestInfoFields(boolean visible) {
+    Stream.<AbstractSinglePropertyField<?, ?>>of(
+            guestClientName, guestClientPhone, guestClientEmail, guestPetType, guestPetBreed)
+        .forEach(field -> field.setEnabled(visible));
   }
 
   private void updateWorkflowVisibility() {
