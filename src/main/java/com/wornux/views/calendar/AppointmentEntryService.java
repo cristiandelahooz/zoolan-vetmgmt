@@ -110,9 +110,7 @@ public class AppointmentEntryService {
     return switch (offeringType) {
       case CONSULTATION -> "Consulta";
       case VACCINATION -> "Vacunación";
-      case SURGERY -> "Cirugía";
       case GROOMING -> "Peluquería";
-      case EMERGENCY -> "Emergencia";
       default -> offeringType.name();
     };
   }
@@ -122,9 +120,7 @@ public class AppointmentEntryService {
       return switch (appointment.getOfferingType()) {
         case CONSULTATION -> new AppointmentStyle("#E3F2FD", "#2196F3", "#1565C0");
         case VACCINATION -> new AppointmentStyle("#E8F5E8", "#4CAF50", "#2E7D32");
-        case SURGERY -> new AppointmentStyle("#FFEBEE", "#FF5722", "#C62828");
         case GROOMING -> new AppointmentStyle("#F3E5F5", "#9C27B0", "#6A1B9A");
-        case EMERGENCY -> new AppointmentStyle("#FFEBEE", "#F44336", "#FFFFFF");
         default -> new AppointmentStyle("#F5F5F5", "#607D8B", "#37474F");
       };
     }
