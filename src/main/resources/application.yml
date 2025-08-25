@@ -27,13 +27,14 @@ spring:
     placeholderReplacement: false
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
     properties:
-      hibernate:
-        envers:
-          audit_table_suffix: _log
-          store_data_at_delete: true
+      org:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          envers:
+            audit_table_suffix: _log
+            store_data_at_delete: true
     hibernate:
       ddl-auto: validate
 
@@ -47,16 +48,13 @@ vaadin:
   # To improve the performance during development.
   # For more information https://vaadin.com/docs/latest/flow/integrations/spring/configuration#special-configuration-parameters
   allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux
-  bun:
+  pnpm:
     enable: true
 ---
 spring:
   config:
     activate:
       on-profile: dev
-  flyway:
-    enabled: false
-    locations: [ classpath:db/migration/prod, classpath:db/migration/dev ]
   jpa:
     show-sql: true
     properties:
