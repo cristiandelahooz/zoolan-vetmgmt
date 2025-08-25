@@ -60,6 +60,11 @@ public class WaitingRoom {
   @Column(name = "completed_at")
   private LocalDateTime completedAt;
 
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "assigned_veterinarian")
+  private Employee assignedVeterinarian;
+
+
   @PrePersist
   public void prePersist() {
     if (arrivalTime == null) {
@@ -100,4 +105,6 @@ public class WaitingRoom {
         ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
         : getClass().hashCode();
   }
+
+
 }
