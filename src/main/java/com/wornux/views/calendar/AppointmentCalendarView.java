@@ -88,6 +88,7 @@ public class AppointmentCalendarView extends VerticalLayout {
             .withAutoBrowserLocale()
             .withInitialOptions(createDefaultInitialOptions())
             .withEntryLimit(3)
+            .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
             .build();
 
     configureCalendar();
