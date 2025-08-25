@@ -219,7 +219,6 @@ public class AppointmentForm extends Div {
 
     generalFormDiv.add(createGeneralForm());
 
-    sidebar.createHeaderContent(createTabBar());
     sidebar.createContent(layoutTabBar, generalFormDiv);
     sidebar.addClassNames(SLIDER_RESPONSIVE_WIDTH);
     sidebar.addSubTitle("Completa el formulario para crear una cita.");
@@ -365,12 +364,15 @@ public class AppointmentForm extends Div {
 
     MenuItem general =
         createIconItem(menuBar, VaadinIcon.INFO_CIRCLE.create(), "Información general");
-    MenuItem activityLog =
-        createIconItem(menuBar, VaadinIcon.TIME_BACKWARD.create(), "Registro de actividad");
 
     MenuBarHandler menuBarHandler = new MenuBarHandler(menuBar, layoutTabBar);
     menuBarHandler.addMenuItem(general, generalFormDiv);
-    menuBarHandler.addMenuItem(activityLog, createActivityLogForm());
+
+    if (currentAppointment != null) {
+      MenuItem activityLog =
+          createIconItem(menuBar, VaadinIcon.TIME_BACKWARD.create(), "Registro de actividad");
+      menuBarHandler.addMenuItem(activityLog, createActivityLogForm());
+    }
 
     menuBarHandler.setDefaultMenuItem(general);
 
@@ -635,13 +637,14 @@ public class AppointmentForm extends Div {
       if (appointment.getEndAppointmentDate() != null) {
         endTime.setValue(appointment.getEndAppointmentDate().toLocalTime());
       }
-
-      // Note: Pet and client population will need additional logic based on appointment data
-      // structure
     }
   }
 
-  // Public API methods
+  private void recreateHeaderContent() {
+    sidebar.clearHeaderContent();
+    sidebar.createHeaderContent(createTabBar());
+  }
+
   public void openForNew(LocalDateTime startTime, LocalDateTime endTime) {
     currentAppointment = null;
     clearForm();
@@ -656,12 +659,17 @@ public class AppointmentForm extends Div {
       }
     }
 
+    recreateHeaderContent();
+    sidebar.getCancel().setText("Cancelar");
     sidebar.newObject("Nueva Cita");
   }
 
   public void openForEdit(AppointmentResponseDto appointment) {
     currentAppointment = appointment;
     populateForm(appointment);
+    
+    recreateHeaderContent();
+    sidebar.getCancel().setText("Descartar cambios");
     sidebar.editObject("Editar Cita");
   }
 
