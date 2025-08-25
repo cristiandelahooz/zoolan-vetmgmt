@@ -176,9 +176,9 @@ SELECT
     'Factura mensual para cliente recurrente',
     TRUE,
     'system',
-    (NOW() - (m.month || 'month')::interval)::date,
+    (NOW() - (m.month || ' month')::interval)::date,
     'system',
-    (NOW() - (m.month || 'month')::interval)::date
+    (NOW() - (m.month || ' month')::interval)::date
 FROM RECURRING_CLIENTS rc, generate_series(1, 9) m(month)
                                CROSS JOIN LATERAL (SELECT (random() * 2000 + 500)::numeric(10,2) AS subtotal_val) AS sub;
 
@@ -192,11 +192,11 @@ SELECT
     i.issued_date + (random() * 10)::int * '1 day'::interval,
     i.total,
     CASE (random() * 3)::int
-        WHEN 0 THEN 'EFECTIVO'
-        WHEN 1 THEN 'TARJETA'
-        ELSE 'TRANSFERENCIA'
+        WHEN 0 THEN 'CASH'
+        WHEN 1 THEN 'ELECTRONIC'
+        ELSE 'TRANSFER'
         END,
-    'COMPLETADO',
+    'SUCCESS',
     'PAY-' || i.code || '-' || (random() * 10000)::int,
     'Pago para factura histórica',
     'system',
@@ -207,15 +207,17 @@ FROM invoices i
 WHERE i.status = 'PAID';
 
 -- Link payments to invoices
-INSERT INTO payments_detail (payment, invoice, amount, created_by, created_date)
+INSERT INTO payments_detail (payment, invoice, amount, created_by, created_date, last_modified_by, last_modified_date)
 SELECT
     p.code,
     i.code,
     i.total,
     'system',
+    p.payment_date,
+    'system',
     p.payment_date
 FROM payments p
-         JOIN invoices i ON p.reference_number LIKE 'PAY-' || i.code || '-% '
+         JOIN invoices i ON p.reference_number LIKE 'PAY-' || i.code || '-%'
 WHERE NOT EXISTS (SELECT 1 FROM payments_detail pd WHERE pd.invoice = i.code);
 
 -- Final check: Ensure all PAID invoices have their paid_to_date amount updated correctly.
