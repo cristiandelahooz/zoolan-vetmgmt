@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS grooming_sessions
     active        BOOLEAN                                 NOT NULL DEFAULT TRUE,
     created_at    TIMESTAMP WITHOUT TIME ZONE,
     updated_at    TIMESTAMP WITHOUT TIME ZONE,
+    waiting_room_id    BIGINT,
+
     CONSTRAINT pk_grooming_sessions PRIMARY KEY (id)
 );
 
@@ -48,6 +50,8 @@ CREATE TABLE IF NOT EXISTS grooming_sessions_log
 
     active            BOOLEAN,
     active_mod        BOOLEAN,
+    waiting_room_id    BIGINT,
+    waiting_room_mod   BOOLEAN,
 
     CONSTRAINT pk_grooming_sessions_log PRIMARY KEY (rev, id)
 );
@@ -728,6 +732,8 @@ CREATE TABLE waiting_room
     consultation_started_at TIMESTAMP WITHOUT TIME ZONE,
     completed_at            TIMESTAMP WITHOUT TIME ZONE,
     assigned_veterinarian   BIGINT,
+    assigned_groomer        BIGINT,
+    type                    VARCHAR(20) NOT NULL DEFAULT 'MEDICA',
     CONSTRAINT pk_waiting_room PRIMARY KEY (id)
 );
 
@@ -756,6 +762,10 @@ CREATE TABLE waiting_room_log
     completed_at_mod            BOOLEAN,
     assigned_veterinarian       BIGINT,
     assigned_veterinarian_mod   BOOLEAN,
+    assigned_groomer            BIGINT,
+    assigned_groomer_mod        BOOLEAN,
+    type                        VARCHAR(20),
+    type_mod                    BOOLEAN,
     CONSTRAINT pk_waiting_room_log PRIMARY KEY (rev, id)
 );
 
@@ -933,6 +943,8 @@ CREATE INDEX idx_waiting_room_status ON waiting_room (status);
 CREATE INDEX idx_waiting_room_assigned_vet ON waiting_room (assigned_veterinarian);
 CREATE INDEX idx_consultations_status ON consultations (status);
 CREATE INDEX idx_consultations_vet_status ON consultations (veterinarian, status);
+CREATE INDEX idx_wr_groomer_open ON waiting_room(assigned_groomer)      WHERE status IN ('ESPERANDO','EN_PROCESO');
+
 
 
 ALTER TABLE appointments_log
@@ -1072,6 +1084,11 @@ ALTER TABLE grooming_sessions
 
 ALTER TABLE grooming_sessions_log
     ADD CONSTRAINT fk_gs_log_on_rev FOREIGN KEY (rev) REFERENCES revision (id);
+
+ALTER TABLE waiting_room
+    ADD CONSTRAINT fk_waiting_room_assigned_groomer
+        FOREIGN KEY (assigned_groomer) REFERENCES employee (employee_id);
+
 
 --  ██████╗  █████╗ ████████╗ █████╗       ─────▀▄▀─────▄─────▄
 --  ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗      ──▄███████▄──▀██▄██▀
