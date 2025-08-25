@@ -98,4 +98,10 @@ public interface ConsultationService {
    * @return the ConsultationService instance
    */
   ConsultationRepository getRepository();
+
+  public void assignFromWaitingRoom(Long waitingRoomId, Long veterinarianId);
+
+  public Consultation start(Long waitingRoomId);
+  void finish(Long consultationId);
+  List<Consultation> findForVeterinarian(Long veterinarianId);
 }
