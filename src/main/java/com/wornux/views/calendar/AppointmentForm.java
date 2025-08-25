@@ -554,6 +554,7 @@ public class AppointmentForm extends Div {
 
   private void createNewAppointment() {
     AppointmentCreateRequestDto createDto = new AppointmentCreateRequestDto();
+    Appointment appointment = new Appointment();
     populateCreateDto(createDto);
 
     appointmentService.createAppointment(createDto);
@@ -606,20 +607,21 @@ public class AppointmentForm extends Div {
   }
 
   private void clearForm() {
-    titleField.clear();
-    offeringTypeSelect.clear();
-    clientCombo.clear();
-    petCombo.clear();
-    appointmentDate.clear();
-    startTime.clear();
-    endTime.clear();
-    notesField.clear();
-
-    guestClientName.clear();
-    guestClientPhone.clear();
-    guestClientEmail.clear();
-    guestPetType.clear();
-    guestPetBreed.clear();
+    Stream.of(
+            titleField,
+            offeringTypeSelect,
+            clientCombo,
+            petCombo,
+            appointmentDate,
+            startTime,
+            endTime,
+            notesField,
+            guestClientName,
+            guestClientPhone,
+            guestClientEmail,
+            guestPetType,
+            guestPetBreed)
+        .forEach(HasValue::clear);
 
     isGroomingWorkflow = false;
     updateWorkflowVisibility();
