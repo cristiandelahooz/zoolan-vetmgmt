@@ -179,9 +179,14 @@ CREATE TABLE consultations
     pet               BIGINT                                  NOT NULL,
     veterinarian      BIGINT                                  NOT NULL,
     medical_history   BIGINT,
+    status            VARCHAR(255)                            NOT NULL DEFAULT 'PENDIENTE',
+    assigned_at       TIMESTAMP WITHOUT TIME ZONE,
+    started_at        TIMESTAMP WITHOUT TIME ZONE,
+    finished_at       TIMESTAMP WITHOUT TIME ZONE,
     created_at        TIMESTAMP WITHOUT TIME ZONE,
     updated_at        TIMESTAMP WITHOUT TIME ZONE,
     active            BOOLEAN                                 NOT NULL,
+    waiting_room_id   BIGINT,
     CONSTRAINT pk_consultations PRIMARY KEY (id)
 );
 
@@ -212,6 +217,16 @@ CREATE TABLE consultations_log
     updated_at_mod        BOOLEAN,
     active                BOOLEAN,
     active_mod            BOOLEAN,
+    status                VARCHAR(255),
+    status_mod            BOOLEAN,
+    assigned_at           TIMESTAMP WITHOUT TIME ZONE,
+    assigned_at_mod       BOOLEAN,
+    started_at            TIMESTAMP WITHOUT TIME ZONE,
+    started_at_mod        BOOLEAN,
+    finished_at           TIMESTAMP WITHOUT TIME ZONE,
+    finished_at_mod       BOOLEAN,
+    waiting_room_id       BIGINT,
+    waiting_room_mod   BOOLEAN,
     CONSTRAINT pk_consultations_log PRIMARY KEY (rev, id)
 );
 
@@ -712,6 +727,7 @@ CREATE TABLE waiting_room
     notes                   VARCHAR(255),
     consultation_started_at TIMESTAMP WITHOUT TIME ZONE,
     completed_at            TIMESTAMP WITHOUT TIME ZONE,
+    assigned_veterinarian   BIGINT,
     CONSTRAINT pk_waiting_room PRIMARY KEY (id)
 );
 
@@ -738,6 +754,8 @@ CREATE TABLE waiting_room_log
     consultation_started_at_mod BOOLEAN,
     completed_at                TIMESTAMP WITHOUT TIME ZONE,
     completed_at_mod            BOOLEAN,
+    assigned_veterinarian       BIGINT,
+    assigned_veterinarian_mod   BOOLEAN,
     CONSTRAINT pk_waiting_room_log PRIMARY KEY (rev, id)
 );
 
@@ -910,6 +928,11 @@ CREATE INDEX IF NOT EXISTS idx_gs_grooming_date ON grooming_sessions (grooming_d
 CREATE INDEX IF NOT EXISTS idx_gs_pet ON grooming_sessions (pet);
 CREATE INDEX IF NOT EXISTS idx_gs_groomer ON grooming_sessions (groomer);
 CREATE INDEX IF NOT EXISTS idx_gs_active ON grooming_sessions (active);
+CREATE INDEX idx_employee_role_available ON employee (employee_role, available);
+CREATE INDEX idx_waiting_room_status ON waiting_room (status);
+CREATE INDEX idx_waiting_room_assigned_vet ON waiting_room (assigned_veterinarian);
+CREATE INDEX idx_consultations_status ON consultations (status);
+CREATE INDEX idx_consultations_vet_status ON consultations (veterinarian, status);
 
 
 ALTER TABLE appointments_log
@@ -1007,6 +1030,9 @@ ALTER TABLE waiting_room
 
 ALTER TABLE waiting_room
     ADD CONSTRAINT FK_WAITING_ROOM_ON_PET FOREIGN KEY (pet) REFERENCES pets (id);
+
+ALTER TABLE waiting_room
+    ADD CONSTRAINT FK_WAITING_ROOM_ASSIGNED_VET FOREIGN KEY (assigned_veterinarian) REFERENCES employee (employee_id);
 
 ALTER TABLE warehouses_log
     ADD CONSTRAINT FK_WAREHOUSES_log_ON_REV FOREIGN KEY (rev) REFERENCES revision (id);
