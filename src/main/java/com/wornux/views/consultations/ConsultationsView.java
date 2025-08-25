@@ -113,7 +113,9 @@ public class ConsultationsView extends Div {
     add(createTitle(), createFilter(), gridLayout);
     addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
     setSizeFull();
-    updateQuantity();
+
+    refreshAll();
+    //updateQuantity();
 
     create.addClickListener(event -> consultationsForm.openForNew());
   }
@@ -240,6 +242,50 @@ public class ConsultationsView extends Div {
   }
 
   private void refreshAll() {
+    // 1) Carga base
+    List<Consultation> consultations =
+            consultationService.findAll(Pageable.unpaged()).getContent();
+
+    // 2) Si es vet (y no admin/manager), deja sólo sus consultas
+    if (isVetOnly()) {
+      Long vid = currentVetId();
+      if (vid != null) {
+        consultations = consultations.stream()
+                .filter(c -> c.getVeterinarian() != null
+                        && vid.equals(c.getVeterinarian().getId()))
+                .toList();
+      } else {
+        consultations = Collections.emptyList();
+      }
+    }
+
+    // 3) Filtro de texto
+    String filter = searchField.getValue().trim().toLowerCase();
+    if (!filter.isEmpty()) {
+      consultations = consultations.stream()
+              .filter(c ->
+                      (c.getNotes() != null && c.getNotes().toLowerCase().contains(filter)) ||
+                              (c.getDiagnosis() != null && c.getDiagnosis().toLowerCase().contains(filter)) ||
+                              (c.getTreatment() != null && c.getTreatment().toLowerCase().contains(filter)) ||
+                              (c.getPrescription() != null && c.getPrescription().toLowerCase().contains(filter)) ||
+                              (c.getPet() != null && c.getPet().getName() != null &&
+                                      c.getPet().getName().toLowerCase().contains(filter)) ||
+                              (c.getVeterinarian() != null && (
+                                      (c.getVeterinarian().getFirstName() != null &&
+                                              c.getVeterinarian().getFirstName().toLowerCase().contains(filter)) ||
+                                              (c.getVeterinarian().getLastName() != null &&
+                                                      c.getVeterinarian().getLastName().toLowerCase().contains(filter))
+                              ))
+              )
+              .toList();
+    }
+
+    // 4) Pinta y actualiza contador
+    grid.setItems(consultations);
+    quantity.setText("Consultas (" + consultations.size() + ")");
+  }
+
+  /*private void refreshAll() {
     List<Consultation> consultations = consultationService.findAll(Pageable.unpaged()).getContent();
     String filter = searchField.getValue().trim().toLowerCase();
 
@@ -262,7 +308,7 @@ public class ConsultationsView extends Div {
     }
     grid.setItems(consultations);
     updateQuantity();
-  }
+  }*/
 
   private Component createActionsColumn(Consultation consultation) {
     Button edit = new Button(new Icon(VaadinIcon.EDIT));
@@ -374,6 +420,19 @@ public class ConsultationsView extends Div {
       log.warn("Error getting consultations count", e);
       quantity.setText("Consultas");
     }
+  }
+
+  private boolean isAdminOrManager() {
+    return UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
+            || UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER);
+  }
+
+  private boolean isVetOnly() {
+    return UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN) && !isAdminOrManager();
+  }
+
+  private Long currentVetId() {
+    return UserUtils.getCurrentEmployee().map(e -> e.getId()).orElse(null);
   }
 
 
