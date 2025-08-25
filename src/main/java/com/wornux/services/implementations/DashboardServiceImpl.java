@@ -185,4 +185,9 @@ public class DashboardServiceImpl implements DashboardService {
             })
         .collect(Collectors.toList());
   }
+
+  @Override
+  public long getHealthyStockCount() {
+    return productRepository.countProductsWithAvailableStockGreaterThanReorderLevel();
+  }
 }

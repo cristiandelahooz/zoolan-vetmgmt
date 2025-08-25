@@ -68,4 +68,7 @@ public interface ProductRepository
       "SELECT p.id, p.name, p.accountingStock, p.availableStock, p.category "
           + "FROM Product p WHERE p.active = true")
   List<Object[]> findProductStockLevels();
+
+  @Query("SELECT COUNT(p) FROM Product p WHERE p.availableStock > p.reorderLevel")
+  long countProductsWithAvailableStockGreaterThanReorderLevel();
 }
