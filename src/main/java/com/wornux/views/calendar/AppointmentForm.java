@@ -120,7 +120,6 @@ public class AppointmentForm extends Div {
   }
 
   private void initializeForm() {
-    // Initialize offering type selection
     offeringTypeSelect.setLabel("Tipo de Servicio");
     offeringTypeSelect.setItems(OfferingType.values());
     offeringTypeSelect.setItemLabelGenerator(OfferingType::getDisplay);
@@ -202,7 +201,6 @@ public class AppointmentForm extends Div {
     guestPetBreed.setRequired(true);
     guestPetBreed.setWidthFull();
 
-    // Initially hide guest fields
     Arrays.asList(guestClientName, guestClientPhone, guestClientEmail, guestPetType, guestPetBreed)
         .forEach(field -> field.setVisible(false));
   }
@@ -399,7 +397,6 @@ public class AppointmentForm extends Div {
   }
 
   private Div createAppointmentDetailsSection() {
-    // Create horizontal layout for time components with shared label
     Div timeLabelDiv = new Div(new Span("Horario de la Cita"));
     timeLabelDiv.addClassNames(
         LumoUtility.FontSize.SMALL, LumoUtility.FontWeight.MEDIUM, LumoUtility.TextColor.SECONDARY);
@@ -563,7 +560,6 @@ public class AppointmentForm extends Div {
     dto.setEndAppointmentDate(endDateTime);
 
     if (isGroomingWorkflow) {
-      // Create AppointmentClientInfo for grooming workflow
       AppointmentClientInfo guestInfo =
           AppointmentClientInfo.builder()
               .name(guestClientName.getValue())
@@ -574,7 +570,6 @@ public class AppointmentForm extends Div {
               .build();
       dto.setGuestClientInfo(guestInfo);
     } else {
-      // Use selected pet for regular workflow
       if (petCombo.getValue() != null) {
         dto.setPetId(petCombo.getValue().getId());
       }
