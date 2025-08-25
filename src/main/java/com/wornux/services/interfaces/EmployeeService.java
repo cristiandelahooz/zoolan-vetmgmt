@@ -88,4 +88,12 @@ public interface EmployeeService {
   void updateEmployee(@NonNull Long id, @Valid EmployeeUpdateRequestDto dto);
 
   List<Employee> getGroomers();
+
+  public List<Employee> getAvailableVets();
+
+  public void markVetBusy(Long vetId);
+
+  public void markVetAvailable(Long vetId);
+
+  Optional<Employee> findByUsername(String username);
 }
