@@ -6,6 +6,9 @@ import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.GroomingSession;
 import com.wornux.data.entity.Pet;
+import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.data.repository.GroomingSessionRepository;
 import com.wornux.data.repository.PetRepository;
@@ -27,9 +30,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.wornux.data.entity.WaitingRoom;
-import com.wornux.data.enums.WaitingRoomStatus;
-import com.wornux.data.enums.EmployeeRole;
 
 @Service
 @Transactional
@@ -212,14 +212,20 @@ public class GroomingSessionServiceImpl
   @Override
   @Transactional
   public void assignFromWaitingRoom(Long waitingRoomId, Long groomerId) {
-    WaitingRoom wr = waitingRoomRepository.findById(waitingRoomId)
-            .orElseThrow(() -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
+    WaitingRoom wr =
+        waitingRoomRepository
+            .findById(waitingRoomId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
 
     if (wr.getStatus() != WaitingRoomStatus.ESPERANDO) {
-      throw new IllegalStateException("Solo se puede asignar un groomer cuando el estado es ESPERANDO.");
+      throw new IllegalStateException(
+          "Solo se puede asignar un groomer cuando el estado es ESPERANDO.");
     }
 
-    Employee groomer = employeeRepository.findById(groomerId)
+    Employee groomer =
+        employeeRepository
+            .findById(groomerId)
             .orElseThrow(() -> new EntityNotFoundException("Groomer no encontrado: " + groomerId));
 
     if (groomer.getEmployeeRole() != EmployeeRole.GROOMER) {
@@ -242,8 +248,11 @@ public class GroomingSessionServiceImpl
   @Override
   @Transactional
   public GroomingSession start(Long waitingRoomId) {
-    WaitingRoom wr = waitingRoomRepository.findById(waitingRoomId)
-            .orElseThrow(() -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
+    WaitingRoom wr =
+        waitingRoomRepository
+            .findById(waitingRoomId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
 
     if (wr.getStatus() != WaitingRoomStatus.ESPERANDO) {
       throw new IllegalStateException("Solo se puede iniciar si el estado es ESPERANDO.");
@@ -274,8 +283,12 @@ public class GroomingSessionServiceImpl
   @Override
   @Transactional
   public void finish(Long groomingSessionId) {
-    GroomingSession s = groomingSessionRepository.findById(groomingSessionId)
-            .orElseThrow(() -> new EntityNotFoundException("GroomingSession not found: " + groomingSessionId));
+    GroomingSession s =
+        groomingSessionRepository
+            .findById(groomingSessionId)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException("GroomingSession not found: " + groomingSessionId));
 
     // Marcar sesión como finalizada (si tienes campos de estado/fin)
     // s.setStatus(GroomingStatus.COMPLETADO); // opcional
@@ -287,10 +300,12 @@ public class GroomingSessionServiceImpl
     // si tu entidad tiene getWaitingRoom():
     // wr = s.getWaitingRoom();
     if (wr == null) {
-      wr = waitingRoomRepository.findTopByPet_IdAndStatusInOrderByArrivalTimeDesc(
-              s.getPet().getId(),
-              List.of(WaitingRoomStatus.EN_PROCESO, WaitingRoomStatus.ESPERANDO)
-      ).orElse(null);
+      wr =
+          waitingRoomRepository
+              .findTopByPet_IdAndStatusInOrderByArrivalTimeDesc(
+                  s.getPet().getId(),
+                  List.of(WaitingRoomStatus.EN_PROCESO, WaitingRoomStatus.ESPERANDO))
+              .orElse(null);
     }
     if (wr != null) {
       wr.completeService();
@@ -311,5 +326,4 @@ public class GroomingSessionServiceImpl
     // Reutiliza tu query existente ordenando si lo necesitas
     return groomingSessionRepository.findByGroomerIdAndActiveTrue(groomerId);
   }
-
 }

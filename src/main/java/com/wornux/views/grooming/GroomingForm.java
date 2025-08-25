@@ -24,7 +24,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.*;
+import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.security.UserUtils;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.*;
 import com.wornux.utils.NotificationUtils;
@@ -37,10 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.Setter;
-import com.vaadin.flow.component.ClickEvent;
-import com.wornux.data.entity.WaitingRoom;
-import com.wornux.data.enums.EmployeeRole;
-import com.wornux.security.UserUtils;
 
 /**
  * Form para registrar sesiones de Grooming (estética), siguiendo el patrón de ConsultationsForm
@@ -513,7 +512,7 @@ public class GroomingForm extends Dialog {
           groomingSessionService.finish(saved.getId()); // <<<
         } catch (Exception ex) {
           NotificationUtils.error(
-                  "La sesión se guardó, pero no se pudo cerrar la sala de espera: " + ex.getMessage());
+              "La sesión se guardó, pero no se pudo cerrar la sala de espera: " + ex.getMessage());
         }
       }
 
@@ -527,8 +526,6 @@ public class GroomingForm extends Dialog {
       NotificationUtils.error("Error al guardar: " + e.getMessage());
     }
   }
-
-
 
   /*private void save(ClickEvent<Button> event) {
     try {
@@ -887,9 +884,10 @@ public class GroomingForm extends Dialog {
     // Groomer
     if (groomer != null) {
       java.util.List<Employee> items = new java.util.ArrayList<>();
-      this.groomerComboBox.getDataProvider()
-              .fetch(new com.vaadin.flow.data.provider.Query<>())
-              .forEach(items::add);
+      this.groomerComboBox
+          .getDataProvider()
+          .fetch(new com.vaadin.flow.data.provider.Query<>())
+          .forEach(items::add);
       boolean present = items.stream().anyMatch(e -> e.getId().equals(groomer.getId()));
       if (!present) {
         items.add(groomer);
@@ -901,6 +899,7 @@ public class GroomingForm extends Dialog {
       }
     }
   }
+
   public void attachWaitingRoom(WaitingRoom wr) {
     this.sourceWaitingRoom = wr;
   }
@@ -918,6 +917,4 @@ public class GroomingForm extends Dialog {
       groomerComboBox.setItems(employeeService.getGroomers());
     }
   }
-
-
 }

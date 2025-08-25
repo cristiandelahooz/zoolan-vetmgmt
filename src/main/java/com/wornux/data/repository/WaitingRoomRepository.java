@@ -92,7 +92,8 @@ public interface WaitingRoomRepository
 
   List<WaitingRoom> findByAssignedGroomer_Id(Long groomerId);
 
-  @Query("""
+  @Query(
+      """
     SELECT wr FROM WaitingRoom wr
       JOIN FETCH wr.client c
       JOIN FETCH wr.pet p
@@ -101,9 +102,5 @@ public interface WaitingRoomRepository
     ORDER BY wr.priority DESC, wr.arrivalTime ASC
 """)
   List<WaitingRoom> findByGroomerAndStatuses(
-          @Param("groomerId") Long groomerId,
-          @Param("statuses") List<WaitingRoomStatus> statuses
-  );
-
-
+      @Param("groomerId") Long groomerId, @Param("statuses") List<WaitingRoomStatus> statuses);
 }

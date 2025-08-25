@@ -25,7 +25,6 @@ import com.wornux.views.MainLayout;
 import com.wornux.views.consultations.ConsultationsForm;
 import com.wornux.views.grooming.GroomingForm;
 import jakarta.annotation.security.RolesAllowed;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,14 +48,14 @@ public class MyWaitingRoomView extends VerticalLayout {
   private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
 
   public MyWaitingRoomView(
-          WaitingRoomService waitingRoomService,
-          ServiceService serviceService,
-          ConsultationService consultationService,
-          GroomingSessionService groomingSessionService, // 👈 inyecta
-          EmployeeService employeeService,
-          PetService petService,
-          InvoiceService invoiceService,
-          ProductService productService) {
+      WaitingRoomService waitingRoomService,
+      ServiceService serviceService,
+      ConsultationService consultationService,
+      GroomingSessionService groomingSessionService, // 👈 inyecta
+      EmployeeService employeeService,
+      PetService petService,
+      InvoiceService invoiceService,
+      ProductService productService) {
 
     this.waitingRoomService = waitingRoomService;
     this.consultationService = consultationService;
@@ -73,28 +72,33 @@ public class MyWaitingRoomView extends VerticalLayout {
 
     grid.addColumn(wr -> wr.getPet().getName()).setHeader("Mascota");
     grid.addColumn(wr -> wr.getClient().getFirstName() + " " + wr.getClient().getLastName())
-            .setHeader("Cliente");
+        .setHeader("Cliente");
     grid.addColumn(WaitingRoom::getReasonForVisit).setHeader("Motivo");
     grid.addColumn(wr -> wr.getStatus().name()).setHeader("Estado");
 
     // Acción contextual: si es vet → abrir consulta; si es groomer → iniciar/atender grooming
-    grid.addComponentColumn(wr -> {
-      Button open = new Button(resolveActionLabel());
-      open.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-      open.addClickListener(e -> {
-        if (isVet()) openConsultationForm(wr);
-        else if (isGroomer()) openGroomingFlow(wr);
-      });
-      return open;
-    }).setHeader("Acción");
+    grid.addComponentColumn(
+            wr -> {
+              Button open = new Button(resolveActionLabel());
+              open.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+              open.addClickListener(
+                  e -> {
+                    if (isVet()) openConsultationForm(wr);
+                    else if (isGroomer()) openGroomingFlow(wr);
+                  });
+              return open;
+            })
+        .setHeader("Acción");
 
     // Al hacer click en una fila, abre el diálogo de detalles (mismo para ambos)
-    grid.asSingleSelect().addValueChangeListener(event -> {
-      WaitingRoom selected = event.getValue();
-      if (selected != null) {
-        openDetailsDialog(selected);
-      }
-    });
+    grid.asSingleSelect()
+        .addValueChangeListener(
+            event -> {
+              WaitingRoom selected = event.getValue();
+              if (selected != null) {
+                openDetailsDialog(selected);
+              }
+            });
 
     add(grid);
     refreshGrid();
@@ -136,9 +140,12 @@ public class MyWaitingRoomView extends VerticalLayout {
     }
 
     // (opcional) Si tu findForX ya filtra por estados activos no necesitas este filtro:
-    items = items.stream()
-            .filter(wr -> wr.getStatus() == WaitingRoomStatus.ESPERANDO
-                    || wr.getStatus() == WaitingRoomStatus.EN_PROCESO)
+    items =
+        items.stream()
+            .filter(
+                wr ->
+                    wr.getStatus() == WaitingRoomStatus.ESPERANDO
+                        || wr.getStatus() == WaitingRoomStatus.EN_PROCESO)
             .toList();
 
     grid.setItems(items);
@@ -152,14 +159,14 @@ public class MyWaitingRoomView extends VerticalLayout {
       return;
     }
 
-    ConsultationsForm form = new ConsultationsForm(
+    ConsultationsForm form =
+        new ConsultationsForm(
             consultationService,
             employeeService,
             petService,
             serviceService,
             invoiceService,
-            productService
-    );
+            productService);
     form.openForNew();
 
     // bloquear vet (siempre en esta vista)
@@ -168,10 +175,11 @@ public class MyWaitingRoomView extends VerticalLayout {
     // pasar la entrada de waiting room para que el form la cierre al guardar
     form.attachWaitingRoom(wr);
 
-    form.setOnSaveCallback(c -> {
-      NotificationUtils.success("Consulta finalizada para " + wr.getPet().getName());
-      refreshGrid();
-    });
+    form.setOnSaveCallback(
+        c -> {
+          NotificationUtils.success("Consulta finalizada para " + wr.getPet().getName());
+          refreshGrid();
+        });
 
     form.open();
   }
@@ -203,8 +211,14 @@ public class MyWaitingRoomView extends VerticalLayout {
       return;
     }
 
-    GroomingForm form = new GroomingForm(
-            groomingSessionService, employeeService, petService, serviceService, invoiceService, productService);
+    GroomingForm form =
+        new GroomingForm(
+            groomingSessionService,
+            employeeService,
+            petService,
+            serviceService,
+            invoiceService,
+            productService);
 
     form.openForNew();
 
@@ -214,14 +228,14 @@ public class MyWaitingRoomView extends VerticalLayout {
     // pasar la WR para que el form, al guardar, haga finish() y cierre la entrada
     form.attachWaitingRoom(wr);
 
-    form.setOnSaveCallback(s -> {
-      NotificationUtils.success("Grooming finalizado para " + wr.getPet().getName());
-      refreshGrid();
-    });
+    form.setOnSaveCallback(
+        s -> {
+          NotificationUtils.success("Grooming finalizado para " + wr.getPet().getName());
+          refreshGrid();
+        });
 
     form.open();
   }
-
 
   // === Diálogo de detalles (reutilizable para ambas áreas) ===
   private void openDetailsDialog(WaitingRoom wr) {
@@ -234,11 +248,12 @@ public class MyWaitingRoomView extends VerticalLayout {
 
     VerticalLayout layout = new VerticalLayout();
     layout.setWidthFull();
-    layout.getStyle()
-            .set("padding", "1.5rem")
-            .set("border-radius", "10px")
-            .set("background-color", "var(--lumo-base-color)")
-            .set("box-shadow", "var(--lumo-box-shadow-m)");
+    layout
+        .getStyle()
+        .set("padding", "1.5rem")
+        .set("border-radius", "10px")
+        .set("background-color", "var(--lumo-base-color)")
+        .set("box-shadow", "var(--lumo-box-shadow-m)");
     layout.setSpacing(true);
     layout.setPadding(false);
 
@@ -268,24 +283,34 @@ public class MyWaitingRoomView extends VerticalLayout {
     Span clientName = new Span(wr.getClient().getFirstName() + " " + wr.getClient().getLastName());
     clientName.getElement().getStyle().set("font-weight", "bold").set("font-size", "1.2em");
 
-    Icon phoneIcon = VaadinIcon.PHONE.create(); phoneIcon.setColor("var(--lumo-secondary-text-color)");
+    Icon phoneIcon = VaadinIcon.PHONE.create();
+    phoneIcon.setColor("var(--lumo-secondary-text-color)");
     Span phoneText = new Span(wr.getClient().getPhoneNumber());
-    Icon mailIcon = VaadinIcon.ENVELOPE.create(); mailIcon.setColor("var(--lumo-secondary-text-color)");
+    Icon mailIcon = VaadinIcon.ENVELOPE.create();
+    mailIcon.setColor("var(--lumo-secondary-text-color)");
     Span emailText = new Span(wr.getClient().getEmail());
 
     HorizontalLayout contactInfo =
-            new HorizontalLayout(phoneIcon, phoneText, new Span("•"), mailIcon, emailText);
+        new HorizontalLayout(phoneIcon, phoneText, new Span("•"), mailIcon, emailText);
     contactInfo.setAlignItems(FlexComponent.Alignment.CENTER);
     contactInfo.setSpacing(true);
 
     // Mascota
-    Span petInfo = new Span(
-            wr.getPet().getName() + " • " + wr.getPet().getType().name() + " • " +
-                    wr.getPet().getBreed() + " • " + wr.getPet().getGender());
-    petInfo.getElement().getStyle()
-            .set("font-weight", "600")
-            .set("color", "var(--lumo-primary-text-color)")
-            .set("font-size", "1.05em");
+    Span petInfo =
+        new Span(
+            wr.getPet().getName()
+                + " • "
+                + wr.getPet().getType().name()
+                + " • "
+                + wr.getPet().getBreed()
+                + " • "
+                + wr.getPet().getGender());
+    petInfo
+        .getElement()
+        .getStyle()
+        .set("font-weight", "600")
+        .set("color", "var(--lumo-primary-text-color)")
+        .set("font-size", "1.05em");
 
     // Datos de visita
     Icon reasonIcon = VaadinIcon.CLIPBOARD_TEXT.create();
@@ -295,12 +320,18 @@ public class MyWaitingRoomView extends VerticalLayout {
 
     Icon notesIcon = VaadinIcon.NOTEBOOK.create();
     notesIcon.setColor("var(--lumo-secondary-text-color)");
-    Span notesText = new Span("Notas: " + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr.getNotes() : "N/A"));
+    Span notesText =
+        new Span(
+            "Notas: "
+                + (wr.getNotes() != null && !wr.getNotes().isBlank() ? wr.getNotes() : "N/A"));
     HorizontalLayout notes = new HorizontalLayout(notesIcon, notesText);
 
     Icon arrivalIcon = VaadinIcon.CLOCK.create();
     arrivalIcon.setColor("var(--lumo-secondary-text-color)");
-    Span arrivalText = new Span("Hora de llegada: " + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
+    Span arrivalText =
+        new Span(
+            "Hora de llegada: "
+                + wr.getArrivalTime().format(DateTimeFormatter.ofPattern("hh:mm a")));
     HorizontalLayout arrival = new HorizontalLayout(arrivalIcon, arrivalText);
 
     Duration waitTime = Duration.ZERO;
@@ -319,26 +350,28 @@ public class MyWaitingRoomView extends VerticalLayout {
     cancelBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
     cancelBtn.setMinWidth("200px");
 
-    cancelBtn.addClickListener(e -> {
-      ConfirmDialog dialogConfirm = new ConfirmDialog();
-      dialogConfirm.setHeader("¿Estás seguro?");
-      dialogConfirm.setText("Esto cancelará la atención y marcará la entrada como cancelada.");
-      dialogConfirm.setCancelable(true);
-      dialogConfirm.setCancelText("No");
-      dialogConfirm.setConfirmText("Sí, cancelar");
+    cancelBtn.addClickListener(
+        e -> {
+          ConfirmDialog dialogConfirm = new ConfirmDialog();
+          dialogConfirm.setHeader("¿Estás seguro?");
+          dialogConfirm.setText("Esto cancelará la atención y marcará la entrada como cancelada.");
+          dialogConfirm.setCancelable(true);
+          dialogConfirm.setCancelText("No");
+          dialogConfirm.setConfirmText("Sí, cancelar");
 
-      dialogConfirm.addConfirmListener(ev -> {
-        if (wr.getStatus() == WaitingRoomStatus.EN_PROCESO) {
-          NotificationUtils.error("No se puede cancelar una entrada en proceso.");
-          return;
-        }
-        waitingRoomService.delete(wr.getId());
-        refreshGrid();
-        dialog.close();
-      });
+          dialogConfirm.addConfirmListener(
+              ev -> {
+                if (wr.getStatus() == WaitingRoomStatus.EN_PROCESO) {
+                  NotificationUtils.error("No se puede cancelar una entrada en proceso.");
+                  return;
+                }
+                waitingRoomService.delete(wr.getId());
+                refreshGrid();
+                dialog.close();
+              });
 
-      dialogConfirm.open();
-    });
+          dialogConfirm.open();
+        });
 
     HorizontalLayout buttons = new HorizontalLayout(cancelBtn);
     buttons.setSpacing(true);

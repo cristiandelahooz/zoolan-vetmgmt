@@ -403,10 +403,7 @@ public class WaitingRoomServiceImpl
   @Override
   public List<WaitingRoom> findForGroomer(Long groomerId) {
     List<WaitingRoomStatus> activeStatuses =
-            Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
+        Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
     return waitingRoomRepository.findByGroomerAndStatuses(groomerId, activeStatuses);
   }
-
-
-
 }

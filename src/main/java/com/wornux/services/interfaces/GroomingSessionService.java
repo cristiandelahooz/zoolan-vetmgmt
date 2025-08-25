@@ -116,5 +116,4 @@ public interface GroomingSessionService {
 
   // Listar sesiones activas del groomer (similar a findForVeterinarian)
   List<GroomingSession> findForGroomer(Long groomerId);
-
 }

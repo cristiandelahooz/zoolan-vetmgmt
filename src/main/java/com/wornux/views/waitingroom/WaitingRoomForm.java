@@ -12,6 +12,7 @@ import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Pet;
 import com.wornux.data.entity.WaitingRoom;
 import com.wornux.data.enums.Priority;
+import com.wornux.data.enums.VisitType;
 import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
@@ -22,8 +23,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.Setter;
-import com.wornux.data.enums.VisitType;
-
 
 public class WaitingRoomForm extends Dialog {
 
@@ -92,13 +91,12 @@ public class WaitingRoomForm extends Dialog {
     // ===== Campos simples
     priorityField.setItems(Priority.values());
 
-    //tipo
+    // tipo
     // ===== Tipo (Médica / Grooming)
     typeField.setItems(VisitType.values());
     typeField.setItemLabelGenerator(t -> t == VisitType.MEDICA ? "Médica" : "Grooming");
     typeField.setRequiredIndicatorVisible(true);
     typeField.setPlaceholder("Seleccione el tipo de atención");
-
 
     // Hora de llegada: solo lectura y automática
     arrivalTimeField.setReadOnly(true);
@@ -111,7 +109,7 @@ public class WaitingRoomForm extends Dialog {
             clientField, // Cliente (readonly) + botón suffix
             petField, // Mascota (se habilita con el cliente)
             reasonField,
-                typeField,
+            typeField,
             priorityField,
             notesField,
             arrivalTimeField);
@@ -145,7 +143,7 @@ public class WaitingRoomForm extends Dialog {
             .clientId(selectedClient.getId())
             .petId(petField.getValue().getId())
             .reasonForVisit(reasonField.getValue())
-                .type(typeField.getValue())
+            .type(typeField.getValue())
             .priority(priorityField.getValue())
             .notes(notesField.getValue())
             .arrivalTime(arrival)
@@ -190,7 +188,6 @@ public class WaitingRoomForm extends Dialog {
       typeField.setErrorMessage("Debe seleccionar el tipo");
       valid = false;
     } else typeField.setInvalid(false);
-
 
     if (petField.isEmpty()) {
       petField.setInvalid(true);
@@ -261,7 +258,6 @@ public class WaitingRoomForm extends Dialog {
 
     typeField.clear();
     typeField.setInvalid(false);
-
 
     priorityField.clear();
     priorityField.setInvalid(false);

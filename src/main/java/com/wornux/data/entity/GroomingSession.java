@@ -44,7 +44,6 @@ public class GroomingSession {
   @JoinColumn(name = "waiting_room_id")
   private WaitingRoom waitingRoom;
 
-
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 

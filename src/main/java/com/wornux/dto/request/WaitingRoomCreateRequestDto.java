@@ -1,12 +1,12 @@
 package com.wornux.dto.request;
 
 import com.wornux.data.enums.Priority;
+import com.wornux.data.enums.VisitType;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import lombok.*;
-import com.wornux.data.enums.VisitType;
 
 @Data
 @Builder

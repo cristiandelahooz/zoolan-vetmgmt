@@ -1,6 +1,7 @@
 package com.wornux.data.entity;
 
 import com.wornux.data.enums.Priority;
+import com.wornux.data.enums.VisitType;
 import com.wornux.data.enums.WaitingRoomStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +10,6 @@ import java.util.Objects;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.proxy.HibernateProxy;
-import com.wornux.data.enums.VisitType;
 
 @Entity
 @Table(name = "waiting_room")
