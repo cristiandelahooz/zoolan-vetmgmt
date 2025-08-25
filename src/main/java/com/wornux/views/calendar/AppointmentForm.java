@@ -1,6 +1,7 @@
 package com.wornux.views.calendar;
 
 import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -24,6 +25,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.components.Sidebar;
+import com.wornux.data.entity.Appointment;
 import com.wornux.data.entity.AppointmentClientInfo;
 import com.wornux.data.entity.Client;
 import com.wornux.data.entity.Pet;
@@ -48,6 +50,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -77,8 +80,7 @@ public class AppointmentForm extends Div {
   private final TextField guestClientEmail = new TextField("Email");
   private final Select<PetType> guestPetType = new Select<>();
   private final TextField guestPetBreed = new TextField("Raza de la Mascota");
-  private final Binder<AppointmentCreateRequestDto> binder =
-      new BeanValidationBinder<>(AppointmentCreateRequestDto.class);
+  private final Binder<Appointment> binder = new BeanValidationBinder<>(Appointment.class);
   private final Sidebar sidebar = new Sidebar();
   private final Button addClient = new Button(VaadinIcon.PLUS_CIRCLE.create());
   private final Button addPet = new Button(VaadinIcon.PLUS_CIRCLE.create());
@@ -198,9 +200,9 @@ public class AppointmentForm extends Div {
     guestPetBreed.setRequired(true);
     guestPetBreed.setWidthFull();
 
-    //    Arrays.asList(guestClientName, guestClientPhone, guestClientEmail, guestPetType,
-    // guestPetBreed)
-    //        .forEach(field -> field.setVisible(false));
+    Arrays.<Component>asList(
+            guestClientName, guestClientPhone, guestClientEmail, guestPetType, guestPetBreed)
+        .forEach(field -> field.setVisible(false));
   }
 
   private void setupSidebar() {
@@ -224,20 +226,14 @@ public class AppointmentForm extends Div {
   }
 
   private void setupBinder() {
-    binder
-        .forField(titleField)
-        .bind(AppointmentCreateRequestDto::getReason, AppointmentCreateRequestDto::setReason);
+    binder.forField(titleField).bind(Appointment::getReason, Appointment::setReason);
 
-    binder
-        .forField(notesField)
-        .bind(AppointmentCreateRequestDto::getNotes, AppointmentCreateRequestDto::setNotes);
+    binder.forField(notesField).bind(Appointment::getNotes, Appointment::setNotes);
 
     binder
         .forField(offeringTypeSelect)
         .asRequired("El tipo de servicio es obligatorio")
-        .bind(
-            AppointmentCreateRequestDto::getOfferingType,
-            AppointmentCreateRequestDto::setOfferingType);
+        .bind(Appointment::getOfferingType, Appointment::setOfferingType);
 
     titleField.setClearButtonVisible(true);
     notesField.setClearButtonVisible(true);
@@ -356,9 +352,9 @@ public class AppointmentForm extends Div {
     boolean showGuestFields = isGroomingWorkflow;
     boolean showClientPetSelection = !isGroomingWorkflow;
 
-    //    Arrays.asList(guestClientName, guestClientPhone, guestClientEmail, guestPetType,
-    // guestPetBreed)
-    //        .forEach(field -> field.setVisible(showGuestFields));
+    Arrays.<Component>asList(
+            guestClientName, guestClientPhone, guestClientEmail, guestPetType, guestPetBreed)
+        .forEach(field -> field.setVisible(showGuestFields));
 
     clientCombo.setVisible(showClientPetSelection);
     petCombo.setVisible(showClientPetSelection);
