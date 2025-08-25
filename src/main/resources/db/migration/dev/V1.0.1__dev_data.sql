@@ -780,7 +780,7 @@ LIMIT 10;
 --  WAITING ROOM TABLE
 -- =================================================================================================
 INSERT INTO waiting_room (client, pet, arrival_time, status, reason_for_visit,
-                          priority, notes,
+                          priority, type, notes,
                           consultation_started_at, completed_at)
 SELECT po.owners,
        po.pet_id,
@@ -801,6 +801,11 @@ SELECT po.owners,
            WHEN 0 THEN 'NORMAL'
            WHEN 1 THEN 'URGENTE'
            ELSE 'EMERGENCIA'
+           END,
+       CASE (ROW_NUMBER() OVER () % 4)
+           WHEN 0 THEN 'MEDICA'
+           WHEN 1 THEN 'GROOMING'
+           ELSE 'MEDICA'
            END,
        'Paciente en sala de espera',
        CASE
