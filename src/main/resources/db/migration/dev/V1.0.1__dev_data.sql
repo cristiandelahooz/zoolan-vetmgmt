@@ -738,7 +738,7 @@ LIMIT 15;
 -- =================================================================================================
 INSERT INTO consultations (notes, diagnosis, treatment, prescription,
                            consultation_date, pet, veterinarian,
-                           medical_history, created_at, updated_at, active)
+                           medical_history, status, created_at, updated_at, active)
 SELECT 'Consulta de rutina',
        CASE (ROW_NUMBER() OVER () % 5)
            WHEN 0 THEN 'Saludable'
@@ -765,6 +765,7 @@ SELECT 'Consulta de rutina',
        mh.pet,
        e.employee_id,
        mh.id,
+       'COMPLETADO',
        NOW(),
        NOW(),
        TRUE
