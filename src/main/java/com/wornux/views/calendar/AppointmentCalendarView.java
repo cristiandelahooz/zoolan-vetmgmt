@@ -76,7 +76,7 @@ public class AppointmentCalendarView extends VerticalLayout {
         LumoUtility.Background.CONTRAST_5,
         LumoUtility.Display.FLEX,
         LumoUtility.FlexDirection.COLUMN,
-        LumoUtility.Padding.MEDIUM);
+        LumoUtility.Padding.XSMALL);
     setSizeFull();
     setPadding(false);
     setSpacing(false);
@@ -97,7 +97,7 @@ public class AppointmentCalendarView extends VerticalLayout {
     createCalendarContainer();
 
     // Create header and toolbar
-    VerticalLayout header = createHeader();
+    HorizontalLayout header = createHeader();
 
     // Layout composition with spacing
     header.addClassNames(LumoUtility.Margin.Bottom.SMALL);
@@ -128,24 +128,34 @@ public class AppointmentCalendarView extends VerticalLayout {
     calendar.addDatesRenderedListener(this::onDatesRendered);
   }
 
-  private VerticalLayout createHeader() {
-    VerticalLayout header = new VerticalLayout();
+  private HorizontalLayout createHeader() {
+    HorizontalLayout header = new HorizontalLayout();
+    header.setWidthFull();
     header.setPadding(false);
     header.setSpacing(false);
+    header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+    header.setAlignItems(FlexComponent.Alignment.CENTER);
     header.addClassNames(
-        LumoUtility.Background.BASE, LumoUtility.BoxShadow.SMALL, LumoUtility.Padding.LARGE);
+        LumoUtility.Background.BASE,
+        LumoUtility.BoxShadow.SMALL,
+        LumoUtility.Padding.Vertical.MEDIUM,
+        LumoUtility.Padding.Horizontal.MEDIUM,
+        LumoUtility.Gap.MEDIUM);
 
-    // Main toolbar
-    HorizontalLayout toolbar = createMainToolbar();
+    // Left section: Navigation buttons
+    HorizontalLayout leftSection = createNavigationSection();
 
-    // View info section
-    HorizontalLayout viewInfo = createViewInfoSection();
+    // Center section: Month display
+    HorizontalLayout centerSection = createCenterSection();
 
-    header.add(toolbar, viewInfo);
+    // Right section: Other buttons
+    HorizontalLayout rightSection = createActionSection();
+
+    header.add(leftSection, centerSection, rightSection);
     return header;
   }
 
-  private HorizontalLayout createMainToolbar() {
+  private HorizontalLayout createNavigationSection() {
     // Navigation buttons with professional styling
     Button prevBtn = new Button(VaadinIcon.ANGLE_LEFT.create());
     prevBtn.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_CONTRAST);
@@ -164,10 +174,39 @@ public class AppointmentCalendarView extends VerticalLayout {
     todayBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
     todayBtn.addClickListener(e -> calendar.today());
 
+    // Navigation section layout
+    HorizontalLayout navSection = new HorizontalLayout(prevBtn, todayBtn, nextBtn);
+    navSection.setAlignItems(FlexComponent.Alignment.CENTER);
+    navSection.addClassNames(LumoUtility.Gap.SMALL, LumoUtility.FlexWrap.NOWRAP);
+    navSection.getStyle().set("flex-shrink", "0");
+
+    return navSection;
+  }
+
+  private HorizontalLayout createCenterSection() {
+    // Center section with month display
+    HorizontalLayout centerSection = new HorizontalLayout();
+    centerSection.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+    centerSection.setAlignItems(FlexComponent.Alignment.CENTER);
+    centerSection.addClassNames(LumoUtility.Flex.GROW);
+
+    // Style the current view label for center display
+    currentViewLabel.addClassNames(
+        LumoUtility.FontSize.LARGE,
+        LumoUtility.FontWeight.MEDIUM,
+        LumoUtility.TextColor.SECONDARY,
+        LumoUtility.TextAlignment.CENTER);
+
+    centerSection.add(currentViewLabel);
+    return centerSection;
+  }
+
+  private HorizontalLayout createActionSection() {
     // Action buttons group - responsive design
     Button newAppointmentBtn = new Button("Nueva Cita", createStyledIcon(VaadinIcon.PLUS));
     newAppointmentBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
     newAppointmentBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
+    newAppointmentBtn.addClickListener(e -> openNewAppointmentDialog());
 
     // Mobile-friendly button with icon only
     Button mobileNewBtn = new Button(createStyledIcon(VaadinIcon.PLUS));
@@ -183,53 +222,19 @@ public class AppointmentCalendarView extends VerticalLayout {
     refreshBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
     refreshBtn.addClickListener(e -> loadAppointments());
 
-    // Navigation group - responsive
-    HorizontalLayout navGroup = new HorizontalLayout(prevBtn, todayBtn, nextBtn);
-    navGroup.addClassNames(
-        LumoUtility.Gap.SMALL, LumoUtility.AlignItems.CENTER, LumoUtility.FlexWrap.NOWRAP);
-
-    // Action group - responsive
-    HorizontalLayout actionGroup =
-        new HorizontalLayout(newAppointmentBtn, mobileNewBtn, refreshBtn);
-    actionGroup.addClassNames(
-        LumoUtility.Gap.SMALL, LumoUtility.AlignItems.CENTER, LumoUtility.FlexWrap.NOWRAP);
-    newAppointmentBtn.addClickListener(e -> openNewAppointmentDialog());
-
-    // Main toolbar layout with responsive behavior
-    HorizontalLayout toolbar = new HorizontalLayout();
-    toolbar.setWidthFull();
-    toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-    toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
-    toolbar.addClassNames(LumoUtility.Gap.MEDIUM, LumoUtility.Padding.Vertical.MEDIUM);
-
-    toolbar.add(navGroup, actionGroup);
-    return toolbar;
-  }
-
-  private HorizontalLayout createViewInfoSection() {
-    // Current period label with professional styling and responsive behavior
-    currentViewLabel.addClassNames(
-        LumoUtility.FontSize.LARGE,
-        LumoUtility.FontWeight.MEDIUM,
-        LumoUtility.TextColor.SECONDARY,
-        LumoUtility.Overflow.HIDDEN);
-    currentViewLabel.getStyle().set("flex-grow", "1");
-
     // View selector styling with responsive width
     viewSelector.addClassNames(LumoUtility.BorderRadius.MEDIUM);
     viewSelector.setWidth("180px");
     viewSelector.getStyle().set("min-width", "150px");
-    viewSelector.getStyle().set("flex-shrink", "0");
 
-    HorizontalLayout viewInfo = new HorizontalLayout(currentViewLabel, viewSelector);
-    viewInfo.setWidthFull();
-    viewInfo.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-    viewInfo.setAlignItems(FlexComponent.Alignment.CENTER);
-    viewInfo.addClassNames(
-        LumoUtility.Gap.MEDIUM, LumoUtility.Padding.Vertical.SMALL, LumoUtility.Padding.Top.MEDIUM);
-    viewInfo.getStyle().set("border-top", "1px solid var(--lumo-contrast-10pct)");
+    // Action section layout
+    HorizontalLayout actionSection =
+        new HorizontalLayout(mobileNewBtn, refreshBtn, viewSelector, newAppointmentBtn);
+    actionSection.setAlignItems(FlexComponent.Alignment.CENTER);
+    actionSection.addClassNames(LumoUtility.Gap.SMALL, LumoUtility.FlexWrap.NOWRAP);
+    actionSection.getStyle().set("flex-shrink", "0");
 
-    return viewInfo;
+    return actionSection;
   }
 
   private void createCalendarContainer() {
@@ -237,8 +242,7 @@ public class AppointmentCalendarView extends VerticalLayout {
         LumoUtility.Background.BASE,
         LumoUtility.BorderRadius.MEDIUM,
         LumoUtility.BoxShadow.SMALL,
-        LumoUtility.Padding.MEDIUM,
-        LumoUtility.Overflow.HIDDEN);
+        LumoUtility.Padding.MEDIUM);
     calendar.setSizeFull();
     setFlexGrow(1, calendar);
   }
