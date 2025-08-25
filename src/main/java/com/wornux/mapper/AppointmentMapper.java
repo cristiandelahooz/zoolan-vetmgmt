@@ -15,8 +15,6 @@ public interface AppointmentMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "status", constant = "PROGRAMADA")
-  @Mapping(target = "createdAt", ignore = true)
-  @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "notes", source = "dto.notes")
   @Mapping(target = "client", source = "dto.clientId", qualifiedByName = "mapClient")
   @Mapping(target = "pet", source = "dto.petId", qualifiedByName = "mapPet")
