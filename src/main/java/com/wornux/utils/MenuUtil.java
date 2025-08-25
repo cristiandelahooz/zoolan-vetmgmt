@@ -10,6 +10,7 @@ import com.wornux.views.clients.IndividualClientView;
 import com.wornux.views.consultations.ConsultationsView;
 import com.wornux.views.employees.EmployeeView;
 import com.wornux.views.inventory.InventoryView;
+import com.wornux.views.medicalhistory.MedicalHistoryView;
 import com.wornux.views.pets.PetMergeView;
 import com.wornux.views.pets.PetView;
 import com.wornux.views.suppliers.SupplierView;
@@ -105,6 +106,13 @@ public class MenuUtil {
     if (accessChecker.hasAccess(SupplierView.class))
       nav.addItem(
           new SideNavItem("Suplidores", SupplierView.class, LineAwesomeIcon.TRUCK_SOLID.create()));
+
+    if (accessChecker.hasAccess(MedicalHistoryView.class))
+      nav.addItem(
+          new SideNavItem(
+              "Historial Médico",
+              MedicalHistoryView.class,
+              LineAwesomeIcon.CLIPBOARD_LIST_SOLID.create()));
 
     return nav;
   }
