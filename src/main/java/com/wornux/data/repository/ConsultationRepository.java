@@ -4,8 +4,12 @@ import com.wornux.data.base.AbstractRepository;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.Pet;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import com.wornux.data.enums.ConsultationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -23,4 +27,6 @@ public interface ConsultationRepository
   List<Consultation> findByPetIdAndActiveTrue(Long petId);
 
   List<Consultation> findByVeterinarianIdAndActiveTrue(Long veterinarianId);
+
+  List<Consultation> findByVeterinarian_IdAndActiveTrueOrderByConsultationDateDesc(Long vetId);
 }
