@@ -147,6 +147,7 @@ public class Appointment extends Auditable implements Serializable {
   @AssertTrue(message = "Si se especifica una mascota, debe tener un cliente registrado asociado")
   private boolean isValidPetClientRelation() {
     if (pet != null) {
+      log.info("Validating pet-client relation: pet={}, client={}", pet, client);
       return client != null && pet.getOwners().contains(client);
     }
     return true;
