@@ -3,6 +3,7 @@ package com.wornux.services.interfaces;
 import com.vaadin.hilla.BrowserCallable;
 import com.wornux.data.entity.WaitingRoom;
 import com.wornux.data.enums.Priority;
+import com.wornux.data.enums.WaitingRoomStatus;
 import com.wornux.data.repository.WaitingRoomRepository;
 import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import java.util.List;
@@ -73,4 +74,8 @@ public interface WaitingRoomService {
   List<WaitingRoom> findByAssignedVeterinarian(Long veterinarianId);
 
   List<WaitingRoom> findForVeterinarian(Long veterinarianId);
+
+  List<WaitingRoom> findByAssignedGroomer(Long groomerId);
+  List<WaitingRoom> findForGroomer(Long groomerId);
+
 }
