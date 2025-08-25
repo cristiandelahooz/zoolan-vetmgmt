@@ -9,6 +9,7 @@ import com.wornux.data.entity.Pet;
 import com.wornux.data.repository.EmployeeRepository;
 import com.wornux.data.repository.GroomingSessionRepository;
 import com.wornux.data.repository.PetRepository;
+import com.wornux.data.repository.WaitingRoomRepository;
 import com.wornux.dto.request.CreateGroomingSessionRequestDto;
 import com.wornux.dto.request.UpdateGroomingSessionRequestDto;
 import com.wornux.exception.EmployeeNotFoundException;
@@ -26,6 +27,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.WaitingRoomStatus;
+import com.wornux.data.enums.EmployeeRole;
 
 @Service
 @Transactional
@@ -43,6 +47,7 @@ public class GroomingSessionServiceImpl
   private final PetRepository petRepository;
   private final EmployeeRepository employeeRepository;
   private final GroomingSessionMapper groomingSessionMapper;
+  private final WaitingRoomRepository waitingRoomRepository;
 
   @Override
   public GroomingSession save(GroomingSession session) {
@@ -200,4 +205,108 @@ public class GroomingSessionServiceImpl
   public GroomingSessionRepository getRepository() {
     return groomingSessionRepository;
   }
+
+  @Override
+  @Transactional
+  public void assignFromWaitingRoom(Long waitingRoomId, Long groomerId) {
+    WaitingRoom wr = waitingRoomRepository.findById(waitingRoomId)
+            .orElseThrow(() -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
+
+    if (wr.getStatus() != WaitingRoomStatus.ESPERANDO) {
+      throw new IllegalStateException("Solo se puede asignar un groomer cuando el estado es ESPERANDO.");
+    }
+
+    Employee groomer = employeeRepository.findById(groomerId)
+            .orElseThrow(() -> new EntityNotFoundException("Groomer no encontrado: " + groomerId));
+
+    if (groomer.getEmployeeRole() != EmployeeRole.GROOMER) {
+      throw new IllegalStateException("El empleado seleccionado no es groomer.");
+    }
+    if (!groomer.isAvailable()) {
+      throw new IllegalStateException("El groomer seleccionado no está disponible.");
+    }
+
+    // marcar ocupado y guardar
+    groomer.setAvailable(false);
+    employeeRepository.save(groomer);
+
+    wr.setAssignedGroomer(groomer);
+    waitingRoomRepository.save(wr);
+
+    log.info("Groomer {} asignado a WaitingRoom {}", groomer.getId(), wr.getId());
+  }
+
+  @Override
+  @Transactional
+  public GroomingSession start(Long waitingRoomId) {
+    WaitingRoom wr = waitingRoomRepository.findById(waitingRoomId)
+            .orElseThrow(() -> new EntityNotFoundException("WaitingRoom no encontrado: " + waitingRoomId));
+
+    if (wr.getStatus() != WaitingRoomStatus.ESPERANDO) {
+      throw new IllegalStateException("Solo se puede iniciar si el estado es ESPERANDO.");
+    }
+    if (wr.getAssignedGroomer() == null) {
+      throw new IllegalStateException("No hay groomer asignado a esta entrada.");
+    }
+
+    // mover WR a EN_PROCESO
+    wr.startService();
+    waitingRoomRepository.save(wr);
+
+    // crear sesión
+    GroomingSession s = new GroomingSession();
+    s.setPet(wr.getPet());
+    s.setGroomer(wr.getAssignedGroomer());
+    s.setGroomingDate(LocalDateTime.now());
+    s.setActive(true);
+    // s.setStatus(GroomingStatus.EN_PROCESO); // opcional si tienes enum/estado
+
+    // si tu entidad tiene relación con WR, guárdala:
+    // s.setWaitingRoom(wr); // opcional
+
+    GroomingSession saved = groomingSessionRepository.save(s);
+    return saved;
+  }
+
+  @Override
+  @Transactional
+  public void finish(Long groomingSessionId) {
+    GroomingSession s = groomingSessionRepository.findById(groomingSessionId)
+            .orElseThrow(() -> new EntityNotFoundException("GroomingSession not found: " + groomingSessionId));
+
+    // Marcar sesión como finalizada (si tienes campos de estado/fin)
+    // s.setStatus(GroomingStatus.COMPLETADO); // opcional
+    // s.setFinishedAt(LocalDateTime.now());   // opcional
+    groomingSessionRepository.save(s);
+
+    // Cerrar WaitingRoom asociado (si no hay relación directa, busca por mascota + estado activo)
+    WaitingRoom wr = null;
+    // si tu entidad tiene getWaitingRoom():
+    // wr = s.getWaitingRoom();
+    if (wr == null) {
+      wr = waitingRoomRepository.findTopByPet_IdAndStatusInOrderByArrivalTimeDesc(
+              s.getPet().getId(),
+              List.of(WaitingRoomStatus.EN_PROCESO, WaitingRoomStatus.ESPERANDO)
+      ).orElse(null);
+    }
+    if (wr != null) {
+      wr.completeService();
+      waitingRoomRepository.save(wr);
+    }
+
+    // Liberar groomer
+    Employee groomer = s.getGroomer();
+    if (groomer != null) {
+      groomer.setAvailable(true);
+      employeeRepository.save(groomer);
+    }
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<GroomingSession> findForGroomer(Long groomerId) {
+    // Reutiliza tu query existente ordenando si lo necesitas
+    return groomingSessionRepository.findByGroomerIdAndActiveTrue(groomerId);
+  }
+
 }
