@@ -1,8 +1,5 @@
 package com.wornux.data.entity;
 
-import static com.wornux.constants.AppointmentConstants.MAX_APPOINTMENT_NOTES_LENGTH;
-import static com.wornux.constants.AppointmentConstants.MAX_REASON_LENGTH;
-
 import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.data.enums.OfferingType;
 import jakarta.persistence.*;
@@ -11,13 +8,16 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+import static com.wornux.constants.AppointmentConstants.MAX_APPOINTMENT_NOTES_LENGTH;
+import static com.wornux.constants.AppointmentConstants.MAX_REASON_LENGTH;
 
 @Entity
 @Table(name = "appointments")
@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
 @AllArgsConstructor
 @Slf4j
 @Audited(withModifiedFlag = true)
-public class Appointment {
+public class Appointment extends Auditable implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,22 +82,6 @@ public class Appointment {
   private Employee assignedEmployee;
 
   @Embedded @Valid @Nullable private AppointmentClientInfo guestClientInfo;
-
-  @CreationTimestamp
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @UpdateTimestamp
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
-
-  @Column(name = "created_by")
-  @Nullable
-  private String createdBy;
-
-  @Column(name = "updated_by")
-  @Nullable
-  private String updatedBy;
 
   public String getAppointmentTitle() {
     return getClientDisplayName() + " - " + offeringType.getDisplay();
