@@ -256,4 +256,9 @@ public class EmployeeServiceImpl extends ListRepositoryService<Employee, Long, E
   public Optional<Employee> findByUsername(String username) {
     return employeeRepository.findByUsername(username);
   }
+
+  @Override
+  public List<Employee> getAvailableGroomers() {
+    return employeeRepository.findByEmployeeRoleAndAvailable(EmployeeRole.GROOMER, true);
+  }
 }
