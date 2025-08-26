@@ -1,12 +1,13 @@
 package com.wornux.dto.report;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 /**
  * DTO para representar todos los datos de una factura necesarios para generar el reporte PDF.
@@ -31,4 +32,5 @@ public class InvoiceReportDto {
   private String salesOrder;
 
   private List<Map<String, Object>> productsData;
+  private List<Map<String, Object>> servicesData;
 }
