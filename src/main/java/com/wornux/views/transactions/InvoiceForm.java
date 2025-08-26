@@ -21,6 +21,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.HasClearButton;
+import com.vaadin.flow.component.HasEnabled;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -82,6 +83,8 @@ public class InvoiceForm extends Div {
   private final List<InvoiceProduct> invoiceProducts = new ArrayList<>();
   private final List<Object> displayedItems = new ArrayList<>();
   private final Binder<Invoice> binder = new BeanValidationBinder<>(Invoice.class);
+  private final List<Component> restrictableFields = new ArrayList<>();
+  private final List<Component> alwaysEditableFields = new ArrayList<>();
   private final Sidebar sidebar = new Sidebar();
   private final Button add = new Button(VaadinIcon.PLUS_CIRCLE.create());
   private final Button exportPdfButton =
@@ -212,6 +215,55 @@ public class InvoiceForm extends Div {
     paymentDate.addValueChangeListener(e -> updateHelperText.run());
 
     updateHelperText.run();
+    
+    initializeFieldCollections();
+  }
+  
+  private void initializeFieldCollections() {
+    restrictableFields.addAll(List.of(
+        customer, salesOrder, issuedDate, paymentDate, add
+    ));
+    
+    alwaysEditableFields.addAll(List.of(
+        notes, statusButton, exportPdfButton
+    ));
+  }
+  
+  private void updateFieldStatesBasedOnStatus() {
+    boolean isDraft = element == null || element.getStatus() == null || element.getStatus() == InvoiceStatus.DRAFT;
+    String disabledTooltip = "Campo bloqueado: solo editable en estado Borrador";
+    
+    for (Component field : restrictableFields) {
+      if (field instanceof HasEnabled hasEnabled) {
+        hasEnabled.setEnabled(isDraft);
+      }
+      
+      if (field == customer) {
+        customer.setTooltipText(isDraft ? "Selecciona un cliente" : disabledTooltip);
+      } else if (field == salesOrder) {
+        salesOrder.setTooltipText(isDraft ? "Número de orden/servicio" : disabledTooltip);
+      } else if (field == issuedDate) {
+        issuedDate.setTooltipText(isDraft ? "Fecha de emisión" : disabledTooltip);
+      } else if (field == paymentDate) {
+        paymentDate.setTooltipText(isDraft ? "Fecha de pago" : disabledTooltip);
+      }
+    }
+    
+    for (Component field : alwaysEditableFields) {
+      if (field instanceof HasEnabled hasEnabled) {
+        hasEnabled.setEnabled(true);
+      }
+    }
+    
+    add.setVisible(isDraft);
+    
+    if (!isDraft) {
+      add.setTooltipText("No se pueden agregar productos cuando el estado no es Borrador");
+    } else {
+      add.setTooltipText("Agregar un cliente");
+    }
+    
+    refreshGrid();
   }
 
   private static Div headerLayout(Component... components) {
@@ -375,6 +427,7 @@ public class InvoiceForm extends Div {
       
       // Refresh the form with the updated entity
       populateForm(element);
+      updateFieldStatesBasedOnStatus();
       
       NotificationUtils.success("Estado de la factura actualizado a: " + newStatus.getDisplay());
       Optional.ofNullable(callable).ifPresent(Runnable::run);
@@ -484,9 +537,12 @@ public class InvoiceForm extends Div {
     gridItems.getDataProvider().addDataProviderListener(event -> calculateTotals());
     gridItems.addItemDoubleClickListener(
         event -> {
-          Object item = event.getItem();
-          if (item instanceof InvoiceProduct) {
-            createProductDialog((InvoiceProduct) item);
+          boolean isDraft = element == null || element.getStatus() == null || element.getStatus() == InvoiceStatus.DRAFT;
+          if (isDraft) {
+            Object item = event.getItem();
+            if (item instanceof InvoiceProduct) {
+              createProductDialog((InvoiceProduct) item);
+            }
           }
         });
   }
@@ -516,25 +572,45 @@ public class InvoiceForm extends Div {
 
   private Component renderActions(Object item) {
     if (item instanceof InvoiceProduct) {
+      boolean isDraft = element == null || element.getStatus() == null || element.getStatus() == InvoiceStatus.DRAFT;
       boolean isNew = ((InvoiceProduct) item).getProduct() == null;
+      
       Button actionButton;
       if (isNew) {
         actionButton = new Button(VaadinIcon.PLUS_CIRCLE_O.create());
         actionButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        actionButton.addClickListener(e -> createProductDialog((InvoiceProduct) item));
+        actionButton.setEnabled(isDraft);
+        if (isDraft) {
+          actionButton.addClickListener(e -> createProductDialog((InvoiceProduct) item));
+          actionButton.setTooltipText("Agregar producto");
+        } else {
+          actionButton.setTooltipText("No se pueden agregar productos cuando el estado no es Borrador");
+        }
         return actionButton;
       } else {
         actionButton = new Button(LumoIcon.EDIT.create());
         actionButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        actionButton.addClickListener(e -> createProductDialog((InvoiceProduct) item));
+        actionButton.setEnabled(isDraft);
+        if (isDraft) {
+          actionButton.addClickListener(e -> createProductDialog((InvoiceProduct) item));
+          actionButton.setTooltipText("Editar producto");
+        } else {
+          actionButton.setTooltipText("No se pueden editar productos cuando el estado no es Borrador");
+        }
 
         Button removeButton = new Button(VaadinIcon.MINUS_CIRCLE_O.create());
         removeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-        removeButton.addClickListener(
-            e -> {
-              invoiceProducts.remove(item);
-              refreshGrid();
-            });
+        removeButton.setEnabled(isDraft);
+        if (isDraft) {
+          removeButton.addClickListener(
+              e -> {
+                invoiceProducts.remove(item);
+                refreshGrid();
+              });
+          removeButton.setTooltipText("Eliminar producto");
+        } else {
+          removeButton.setTooltipText("No se pueden eliminar productos cuando el estado no es Borrador");
+        }
 
         Div actions = new Div(actionButton, removeButton);
         actions.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, "-mx-s");
@@ -849,6 +925,7 @@ public class InvoiceForm extends Div {
 
     refreshGrid();
     updateStatusButton();
+    updateFieldStatesBasedOnStatus();
   }
 
   private void refreshGrid() {
