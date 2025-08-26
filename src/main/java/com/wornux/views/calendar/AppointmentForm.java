@@ -65,7 +65,7 @@ public class AppointmentForm extends Div {
   private final transient AppointmentService appointmentService;
   private final transient ClientService clientService;
   private final transient PetService petService;
-  private final Consumer<Void> onSaveCallback;
+  private final transient Consumer<Void> onSaveCallback;
   private final Select<OfferingType> offeringTypeSelect = new Select<>();
   private final ComboBox<Client> clientCombo = new ComboBox<>("Selecciona un cliente");
   private final ComboBox<Pet> petCombo = new ComboBox<>("Selecciona una mascota");
