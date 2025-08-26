@@ -1,7 +1,5 @@
 package com.wornux.services.implementations;
 
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.constants.ValidationConstants;
 import com.wornux.data.entity.Client;
@@ -15,8 +13,6 @@ import com.wornux.mapper.ClientMapper;
 import com.wornux.services.interfaces.ClientService;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,15 +23,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @Service
 @Validated
 @RequiredArgsConstructor
-@BrowserCallable
-@AnonymousAllowed
 @Transactional
-// TODO: Remove @AnonymousAllowed and restrict access before deploying to production. This is only
-// for development/testing purposes.
 public class ClientServiceImpl extends ListRepositoryService<Client, Long, ClientRepository>
     implements ClientService {
 
@@ -44,7 +39,6 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
   @Override
   @Transactional
-  // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
   public Client createClient(@Valid ClientCreateRequestDto clientRequest) {
     log.debug("Request to create Client : {}", clientRequest);
 
@@ -64,7 +58,6 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
   @Override
   @Transactional
-  @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
   public Client updateClient(Long id, @Valid ClientUpdateRequestDto clientRequest) {
     log.debug("Request to update Client : {}", clientRequest);
 
@@ -198,7 +191,6 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
   @Override
   @Transactional
-  @PreAuthorize("hasRole('ADMIN')")
   public void reactivateClient(Long id) {
     log.debug("Request to reactivate Client : {}", id);
 
@@ -213,7 +205,6 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
   @Override
   @Transactional
-  @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
   public boolean verifyClient(Long id) {
     log.debug("Request to verify Client : {}", id);
 
@@ -229,7 +220,6 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
   @Override
   @Transactional
-  @PreAuthorize("hasRole('ADMIN')")
   public void updateCreditLimit(Long id, Double newLimit) {
     log.debug("Request to update Client credit limit : {} to {}", id, newLimit);
 
@@ -249,7 +239,6 @@ public class ClientServiceImpl extends ListRepositoryService<Client, Long, Clien
 
   @Override
   @Transactional
-  @PreAuthorize("hasRole('ADMIN')")
   public void deleteClient(Long id) {
     log.debug("Request to hard delete Client : {}", id);
     clientRepository.deleteById(id);
