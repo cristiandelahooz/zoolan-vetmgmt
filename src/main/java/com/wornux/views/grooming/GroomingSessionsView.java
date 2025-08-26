@@ -110,6 +110,7 @@ public class GroomingSessionsView extends Div {
     // updateQuantity();
 
     create.addClickListener(event -> groomingForm.openForNew());
+    refreshAll();
   }
 
   private void createGrid(
