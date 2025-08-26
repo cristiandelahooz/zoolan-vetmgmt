@@ -17,15 +17,20 @@ import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
 import com.wornux.services.interfaces.ConsultationService;
 import com.wornux.services.interfaces.PetService;
+import com.wornux.utils.NotificationUtils;
 import com.wornux.views.MainLayout;
 import com.wornux.views.pets.SelectPetDialog;
 import jakarta.annotation.security.RolesAllowed;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @PageTitle("Historial Médico")
 @Route(value = "historial-medico/:petId", layout = MainLayout.class)
 @RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
+@Slf4j
 public class MedicalHistoryView extends VerticalLayout {
 
   private final PetService petService;
@@ -102,17 +107,24 @@ public class MedicalHistoryView extends VerticalLayout {
   }
 
   public void setParameter(BeforeEvent event, @OptionalParameter Long petId) {
+    log.info("setParameter called with petId: {}", petId); // Add this log
     if (petId != null) {
       lockedByParam = true;
-      petService
-          .getPetById(petId)
-          .ifPresent(
-              p -> {
-                selectedPet = p;
-                selectedPetField.setValue(p.getName());
-                loadMedicalHistory(p.getId());
-                updateSelectorUI();
-              });
+      Optional<Pet> petOptional = petService.getPetById(petId); // Get the Optional
+      if (petOptional.isPresent()) { // Check if pet is found
+        Pet p = petOptional.get();
+        selectedPet = p;
+        selectedPetField.setValue(p.getName());
+        loadMedicalHistory(p.getId());
+        updateSelectorUI();
+      } else {
+        // Pet not found, handle this case
+        NotificationUtils.error("Mascota con ID " + petId + " no encontrada.");
+        selectedPet = null; // Clear selected pet
+        selectedPetField.clear(); // Clear pet field
+        consultationsGrid.setItems(List.of()); // Clear grid
+        updateSelectorUI(); // Update UI for no selected pet
+      }
     } else {
       lockedByParam = false;
       selectedPet = null;
@@ -123,14 +135,21 @@ public class MedicalHistoryView extends VerticalLayout {
   }
 
   private void updateSelectorUI() {
-    selectPetBtn.setVisible(!lockedByParam);
-    if (!lockedByParam) {
+    selectPetBtn.setVisible(true); // Always visible
+    if (lockedByParam) {
+      selectPetBtn.setText(selectedPet != null ? selectedPet.getName() : "Seleccionado (URL)"); // Show pet name or a placeholder
+      selectPetBtn.setEnabled(false); // Disable the button
+    } else {
       selectPetBtn.setText(selectedPet == null ? "Seleccionar" : "Cambiar");
+      selectPetBtn.setEnabled(true); // Enable the button
     }
   }
 
   private void loadMedicalHistory(Long petId) {
-    consultationsGrid.setItems(consultationService.findByPetId(petId));
+    log.info("Loading medical history for petId: {}", petId);
+    List<Consultation> consultations = consultationService.findByPetId(petId);
+    log.info("Found {} consultations for petId: {}", consultations.size(), petId);
+    consultationsGrid.setItems(consultations);
   }
 
   private void openConsultationDetail(Consultation c) {
