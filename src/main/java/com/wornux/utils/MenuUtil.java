@@ -9,11 +9,15 @@ import com.wornux.views.clients.CompanyClientView;
 import com.wornux.views.clients.IndividualClientView;
 import com.wornux.views.consultations.ConsultationsView;
 import com.wornux.views.employees.EmployeeView;
+import com.wornux.views.grooming.GroomingSessionsView;
 import com.wornux.views.inventory.InventoryView;
+import com.wornux.views.medicalhistory.MedicalHistoryView;
 import com.wornux.views.pets.PetMergeView;
 import com.wornux.views.pets.PetView;
+import com.wornux.views.services.OfferingView;
 import com.wornux.views.suppliers.SupplierView;
 import com.wornux.views.transactions.InvoiceView;
+import com.wornux.views.waitingroom.MyWaitingRoomView;
 import com.wornux.views.waitingroom.WaitingRoomView;
 import com.wornux.views.warehouses.WarehouseView;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +62,11 @@ public class MenuUtil {
           new SideNavItem(
               "Consultas", ConsultationsView.class, LineAwesomeIcon.USER_MD_SOLID.create()));
 
+    if (accessChecker.hasAccess(MedicalHistoryView.class))
+      nav.addItem(
+          new SideNavItem(
+              "Historial Médico", MedicalHistoryView.class, LineAwesomeIcon.STETHOSCOPE_SOLID.create()));
+
     if (accessChecker.hasAccess(InvoiceView.class)) {
       SideNavItem transactions = new SideNavItem("Transacciones");
       transactions.setPrefixComponent(LineAwesomeIcon.CREDIT_CARD_SOLID.create());
@@ -71,6 +80,11 @@ public class MenuUtil {
       nav.addItem(
           new SideNavItem(
               "Sala de Espera", WaitingRoomView.class, LineAwesomeIcon.COUCH_SOLID.create()));
+
+    if (accessChecker.hasAccess(MyWaitingRoomView.class))
+      nav.addItem(
+          new SideNavItem(
+              "Mi Sala de Espera", MyWaitingRoomView.class, LineAwesomeIcon.USER_MD_SOLID.create()));
 
     if (accessChecker.hasAccess(IndividualClientView.class)
         || accessChecker.hasAccess(CompanyClientView.class)) {
@@ -97,6 +111,11 @@ public class MenuUtil {
       nav.addItem(pets);
     }
 
+    if (accessChecker.hasAccess(GroomingSessionsView.class))
+      nav.addItem(
+          new SideNavItem(
+              "Peluquería", GroomingSessionsView.class, LineAwesomeIcon.CUT_SOLID.create()));
+
     if (accessChecker.hasAccess(EmployeeView.class))
       nav.addItem(
           new SideNavItem(
@@ -105,6 +124,10 @@ public class MenuUtil {
     if (accessChecker.hasAccess(SupplierView.class))
       nav.addItem(
           new SideNavItem("Suplidores", SupplierView.class, LineAwesomeIcon.TRUCK_SOLID.create()));
+
+    if (accessChecker.hasAccess(OfferingView.class))
+      nav.addItem(
+          new SideNavItem("Servicios", OfferingView.class, LineAwesomeIcon.CONCIERGE_BELL_SOLID.create()));
 
     return nav;
   }
