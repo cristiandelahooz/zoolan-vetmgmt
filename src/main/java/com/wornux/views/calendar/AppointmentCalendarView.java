@@ -51,7 +51,6 @@ public class AppointmentCalendarView extends VerticalLayout {
   private final FullCalendar calendar;
   private final transient AppointmentEntryService appointmentEntryService;
   private final transient AppointmentService appointmentService;
-  private final transient AuditService auditService;
   private final AppointmentForm appointmentForm;
   private final Span currentViewLabel;
   private final ComboBox<CalendarViewImpl> viewSelector;
@@ -65,7 +64,6 @@ public class AppointmentCalendarView extends VerticalLayout {
       ClientMapper clientMapper) {
     this.appointmentEntryService = appointmentEntryService;
     this.appointmentService = appointmentService;
-    this.auditService = auditService;
 
     appointmentForm =
         new AppointmentForm(
