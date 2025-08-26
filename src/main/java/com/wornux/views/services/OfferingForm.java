@@ -21,9 +21,11 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Offering;
+import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.OfferingType;
 import com.wornux.dto.request.ServiceCreateRequestDto;
 import com.wornux.dto.request.ServiceUpdateRequestDto;
+import com.wornux.security.UserUtils;
 import com.wornux.services.interfaces.OfferingService;
 import com.wornux.utils.NotificationUtils;
 import java.math.BigDecimal;
@@ -279,6 +281,13 @@ public class OfferingForm extends Dialog {
     isEditMode = false;
     currentOffering = null;
     validationBean = new ValidationBean();
+    if(UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)){
+      validationBean.setOfferingType(OfferingType.MEDICAL);
+      offeringType.setReadOnly(true);
+    } else if (UserUtils.hasEmployeeRole(EmployeeRole.GROOMER)) {
+      validationBean.setOfferingType(OfferingType.GROOMING);
+      offeringType.setReadOnly(true);
+    }
 
     updateHeaderTitle("Nuevo Servicio");
     clearForm();
