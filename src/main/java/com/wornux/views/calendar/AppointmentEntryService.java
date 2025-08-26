@@ -84,7 +84,6 @@ public class AppointmentEntryService {
 
   private String getOfferingTypeDisplayName(OfferingType offeringType) {
     return switch (offeringType) {
-      case CONSULTATION -> "Consulta";
       case VACCINATION -> "Vacunación";
       case GROOMING -> "Peluquería";
       default -> offeringType.name();
@@ -94,7 +93,6 @@ public class AppointmentEntryService {
   private AppointmentStyle getAppointmentStyle(AppointmentResponseDto appointment) {
     if (appointment.getOfferingType() != null) {
       return switch (appointment.getOfferingType()) {
-        case CONSULTATION -> new AppointmentStyle("#E3F2FD", "#2196F3", "#1565C0");
         case VACCINATION -> new AppointmentStyle("#E8F5E8", "#4CAF50", "#2E7D32");
         case GROOMING -> new AppointmentStyle("#F3E5F5", "#9C27B0", "#6A1B9A");
         default -> new AppointmentStyle("#F5F5F5", "#607D8B", "#37474F");

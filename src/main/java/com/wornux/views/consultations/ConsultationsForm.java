@@ -48,7 +48,7 @@ public class ConsultationsForm extends Dialog {
 
   private final TextField petName = new TextField("Mascota");
   private final Button selectPetButton = new Button("Seleccionar");
-  private Pet selectedPet;
+  private transient Pet selectedPet;
   private final SelectPetDialog selectPetDialog;
 
   private final ComboBox<Employee> veterinarianComboBox = new ComboBox<>("Veterinario");
@@ -88,7 +88,7 @@ public class ConsultationsForm extends Dialog {
   private final List<OfferingItem> selectedServices = new ArrayList<>();
   private final List<ProductItem> selectedProducts = new ArrayList<>();
   private final OfferingForm offeringForm;
-  private WaitingRoom sourceWaitingRoom;
+  private transient WaitingRoom sourceWaitingRoom;
 
   @Setter private transient Consumer<Consultation> onSaveCallback;
 
@@ -161,7 +161,12 @@ public class ConsultationsForm extends Dialog {
     addServiceButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
 
     productComboBox.setItemLabelGenerator(
-        product -> product.getName() + " - $" + product.getSalesPrice());
+        product ->
+            product.getName()
+                + " (Stock: "
+                + product.getAvailableStock()
+                + ") - $"
+                + product.getSalesPrice());
     productComboBox.setWidthFull();
     productComboBox.setPlaceholder("Buscar productos de uso interno...");
 
@@ -373,7 +378,6 @@ public class ConsultationsForm extends Dialog {
     Offering selectedOffering = serviceComboBox.getValue();
     if (selectedOffering == null) return;
 
-    // Check if service already added
     boolean alreadyAdded =
         selectedServices.stream()
             .anyMatch(item -> item.getOffering().getId().equals(selectedOffering.getId()));
@@ -399,6 +403,16 @@ public class ConsultationsForm extends Dialog {
     Double quantity = productQuantityField.getValue();
 
     if (selectedProduct == null || quantity == null || quantity <= 0) return;
+
+    if (quantity > selectedProduct.getAvailableStock()) {
+      NotificationUtils.error(
+          "La cantidad ("
+              + quantity.intValue()
+              + ") excede el stock disponible ("
+              + selectedProduct.getAvailableStock()
+              + ")");
+      return;
+    }
 
     boolean alreadyAdded =
         selectedProducts.stream()
@@ -454,49 +468,14 @@ public class ConsultationsForm extends Dialog {
       serviceComboBox.setItems(offeringService.findMedicalServices());
     }
     if (productService != null) {
-      productComboBox.setItems(productService.findInternalUseProducts());
+      productComboBox.setItems(
+          productService.findInternalUseProducts().stream()
+              .filter(p -> p.getFormattedAvailableStock() != null && p.getAvailableStock() > 0)
+              .toList());
     }
   }
 
-  /*private void save(ClickEvent<Button> event) {
-    try {
-      if (editingConsultation == null) {
-        editingConsultation = new Consultation();
-        editingConsultation.setConsultationDate(LocalDateTime.now());
-      }
 
-      if (selectedPet == null) {
-        petName.setInvalid(true);
-        petName.setErrorMessage("Debe seleccionar una mascota");
-        NotificationUtils.error("Debe seleccionar una mascota");
-        return;
-      }
-
-      binder.writeBean(editingConsultation);
-
-      editingConsultation.setPet(selectedPet);
-
-      Consultation savedConsultation = consultationService.save(editingConsultation);
-
-      saveOrUpdateInvoice(savedConsultation);
-
-      NotificationUtils.success("Consulta registrada exitosamente");
-
-      if (onSaveCallback != null) {
-        onSaveCallback.accept(savedConsultation);
-      }
-      close();
-
-    } catch (ValidationException e) {
-      NotificationUtils.error("Por favor, complete todos los campos requeridos");
-    } catch (ObjectOptimisticLockingFailureException ex) {
-      log.error(ex.getLocalizedMessage());
-      NotificationUtils.error(
-          "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
-    } catch (Exception e) {
-      NotificationUtils.error("Error al guardar la consulta: " + e.getMessage());
-    }
-  }*/
 
   private void save(ClickEvent<Button> event) {
     try {
@@ -526,13 +505,11 @@ public class ConsultationsForm extends Dialog {
 
       Consultation saved = consultationService.save(editingConsultation);
 
-      // generar/actualizar factura
       saveOrUpdateInvoice(saved);
 
-      // si venía de sala de espera, finalizamos la consulta y cerramos la entrada
       if (sourceWaitingRoom != null) {
         try {
-          consultationService.finish(saved.getId()); // <— libera vet y marca WR COMPLETADO
+          consultationService.finish(saved.getId());
         } catch (Exception ex) {
           NotificationUtils.error(
               "La consulta se guardó, pero no se pudo cerrar la sala de espera: "
@@ -722,6 +699,20 @@ public class ConsultationsForm extends Dialog {
     try {
       invoiceService.create(invoiceToSave);
       NotificationUtils.success("Factura guardada automáticamente.");
+
+      // Update product stock
+      for (ProductItem productItem : selectedProducts) {
+        Product product = productItem.getProduct();
+        Double quantity = productItem.getQuantity();
+        if (product != null && quantity != null) {
+          Integer currentStock = product.getAvailableStock();
+          if (currentStock != null) {
+            product.setAvailableStock(currentStock - quantity.intValue());
+            productService.save(product);
+          }
+        }
+      }
+
     } catch (Exception e) {
       log.error("Error al guardar la factura para la consulta: {}", consultation.getId(), e);
       NotificationUtils.error("Error al generar/actualizar la factura: " + e.getMessage());

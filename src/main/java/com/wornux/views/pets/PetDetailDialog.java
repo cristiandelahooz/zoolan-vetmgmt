@@ -26,6 +26,9 @@ import java.util.*;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PetDetailDialog extends Dialog {
 
   private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -73,10 +76,17 @@ public class PetDetailDialog extends Dialog {
             "Ver historial",
             e -> {
               close();
-              UI.getCurrent()
-                  .navigate(
-                      MedicalHistoryView.class,
-                      new RouteParameters(Map.of("petId", pet.getId().toString())));
+              if (pet != null && pet.getId() != null) {
+                log.info("Navigating to MedicalHistoryView with petId: {}", pet.getId());
+                UI.getCurrent()
+                    .navigate(
+                        MedicalHistoryView.class,
+                        new RouteParameters(Map.of("petId", pet.getId().toString())));
+              } else {
+                log.warn("Cannot navigate to MedicalHistoryView: pet or petId is null.");
+                // Optionally, show a notification to the user
+                // Notification.show("No se puede ver el historial: ID de mascota no disponible.");
+              }
             });
     viewHistoryBtn.setIcon(VaadinIcon.OPEN_BOOK.create());
     viewHistoryBtn

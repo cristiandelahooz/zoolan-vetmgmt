@@ -5,7 +5,6 @@ import lombok.Getter;
 /** Enum for categorizing services by type (Medical or Grooming) */
 @Getter
 public enum OfferingType {
-  CONSULTATION("Consulta", "Consulta médica veterinaria"),
   VACCINATION("Vacunación", "Aplicación de vacunas"),
   GROOMING("Estética", "Servicios de estética y cuidado personal"),
   MEDICAL("Médico", "Servicios médicos veterinarios generales");

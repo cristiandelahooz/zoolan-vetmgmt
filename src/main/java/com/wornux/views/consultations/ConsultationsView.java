@@ -23,6 +23,7 @@ import com.wornux.components.BreadcrumbItem;
 import com.wornux.components.InfoIcon;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Invoice;
+import com.wornux.data.enums.ConsultationStatus;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.InvoiceStatus;
 import com.wornux.data.enums.SystemRole;
@@ -110,8 +111,6 @@ public class ConsultationsView extends Div {
     setSizeFull();
 
     refreshAll();
-    // updateQuantity();
-
     create.addClickListener(event -> consultationsForm.openForNew());
   }
 
@@ -125,14 +124,23 @@ public class ConsultationsView extends Div {
         c -> c.getVeterinarian() != null ? c.getVeterinarian().getFirstName() : "",
         "Veterinario",
         "veterinarian");
-    GridUtils.addColumn(
-        grid, Consultation::getConsultationDate, "Fecha de Consulta", "consultationDate");
-    GridUtils.addColumn(grid, Consultation::getNotes, "Notas", "notes");
+    grid.addComponentColumn(this::formatDateTime).setHeader("Fecha de Consulta").setSortable(true);
     GridUtils.addColumn(grid, Consultation::getDiagnosis, "Diagnóstico", "diagnosis");
     GridUtils.addColumn(grid, Consultation::getTreatment, "Tratamiento", "treatment");
-    GridUtils.addColumn(grid, Consultation::getPrescription, "Prescripción", "prescription");
-    GridUtils.addComponentColumn(grid, this::renderStatus, "Estado", "active");
-    grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+    GridUtils.addComponentColumn(grid, this::renderStatus, "Estado", "status");
+    if(isAdminOrManager() || isVetOnly()) {
+      grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
+    }
+  }
+
+  private Component formatDateTime(Consultation consultation) {
+    if (consultation.getConsultationDate() == null) {
+      return new Span("-");
+    }
+    java.time.format.DateTimeFormatter formatter =
+        java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    String formatted = consultation.getConsultationDate().format(formatter);
+    return new Span(formatted);
   }
 
   public Specification<Consultation> createFilterSpecification() {
@@ -237,10 +245,8 @@ public class ConsultationsView extends Div {
   }
 
   private void refreshAll() {
-    // 1) Carga base
     List<Consultation> consultations = consultationService.findAll(Pageable.unpaged()).getContent();
 
-    // 2) Si es vet (y no admin/manager), deja sólo sus consultas
     if (isVetOnly()) {
       Long vid = currentVetId();
       if (vid != null) {
@@ -253,7 +259,6 @@ public class ConsultationsView extends Div {
       }
     }
 
-    // 3) Filtro de texto
     String filter = searchField.getValue().trim().toLowerCase();
     if (!filter.isEmpty()) {
       consultations =
@@ -284,35 +289,9 @@ public class ConsultationsView extends Div {
               .toList();
     }
 
-    // 4) Pinta y actualiza contador
     grid.setItems(consultations);
     quantity.setText("Consultas (" + consultations.size() + ")");
   }
-
-  /*private void refreshAll() {
-    List<Consultation> consultations = consultationService.findAll(Pageable.unpaged()).getContent();
-    String filter = searchField.getValue().trim().toLowerCase();
-
-    if (!filter.isEmpty()) {
-      consultations =
-          consultations.stream()
-              .filter(
-                  c ->
-                      (c.getNotes() != null && c.getNotes().toLowerCase().contains(filter))
-                          || (c.getDiagnosis() != null
-                              && c.getDiagnosis().toLowerCase().contains(filter))
-                          || (c.getTreatment() != null
-                              && c.getTreatment().toLowerCase().contains(filter))
-                          || (c.getPrescription() != null
-                              && c.getPrescription().toLowerCase().contains(filter))
-                          || (c.getPet() != null && c.getPet().getId().toString().contains(filter))
-                          || (c.getVeterinarian() != null
-                              && c.getVeterinarian().getId().toString().contains(filter)))
-              .toList();
-    }
-    grid.setItems(consultations);
-    updateQuantity();
-  }*/
 
   private Component createActionsColumn(Consultation consultation) {
     Button edit = new Button(new Icon(VaadinIcon.EDIT));
@@ -339,8 +318,7 @@ public class ConsultationsView extends Div {
     actions.setMargin(false);
     actions.setWidth(null);
 
-    if (!(UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)
-        || UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN))) {
+    if (!(isAdminOrManager())) {
       delete.setVisible(false);
     }
 
@@ -385,11 +363,31 @@ public class ConsultationsView extends Div {
     confirmButton.addClickListener(
         e -> {
           try {
-            NotificationUtils.error("Favor solicite al manager que borre la factura.");
-            // refreshAll();
-            confirmDialog.close();
+            if (isAdminOrManager()) {
+              Invoice invoice = invoiceService.findByConsultation(consultation);
+              if (invoice != null) {
+                if (invoice.getStatus() == InvoiceStatus.PENDING) {
+                  consultationService.delete(consultation.getId());
+                  NotificationUtils.success("Consulta eliminada correctamente.");
+                  confirmDialog.close();
+                  refreshAll();
+                } else {
+                  NotificationUtils.error("No se puede eliminar la consulta porque su factura asociada no está en estado PENDIENTE.");
+                  confirmDialog.close();
+                  refreshAll();
+                }
+              } else {
+                NotificationUtils.error("No se encontró una factura asociada a esta consulta.");
+                confirmDialog.close();
+                refreshAll();
+              }
+            } else {
+              NotificationUtils.error("No tiene permisos para eliminar consultas.");
+              confirmDialog.close();
+            }
           } catch (Exception ex) {
             NotificationUtils.error("Error al eliminar la consulta: " + ex.getMessage());
+            confirmDialog.close();
           }
         });
 
@@ -409,23 +407,22 @@ public class ConsultationsView extends Div {
     confirmDialog.open();
   }
 
-  private Component renderStatus(Consultation consultation) {
-    boolean isActive = consultation.isActive();
-    Span badge = new Span(isActive ? "Activo" : "Inactivo");
-    badge.getElement().getThemeList().add("badge pill");
-    badge.getElement().getThemeList().add(isActive ? "success" : "error");
-    return badge;
-  }
-
-  private void updateQuantity() {
-    try {
-      long count = consultationService.getRepository().count();
-      quantity.setText("Consultas (" + count + ")");
-    } catch (Exception e) {
-      log.warn("Error getting consultations count", e);
-      quantity.setText("Consultas");
-    }
-  }
+ private Component renderStatus(Consultation consultation) {
+   ConsultationStatus status = consultation.getStatus();
+   String label;
+   String theme;
+   switch (status) {
+     case PENDIENTE -> { label = "Pendiente"; theme = "contrast"; }
+     case EN_PROCESO -> { label = "En proceso"; theme = "primary"; }
+     case COMPLETADO -> { label = "Completado"; theme = "success"; }
+     case CANCELADO -> { label = "Cancelado"; theme = "error"; }
+     default -> { label = "Desconocido"; theme = "error"; }
+   }
+   Span badge = new Span(label);
+   badge.getElement().getThemeList().add("badge pill");
+   badge.getElement().getThemeList().add(theme);
+   return badge;
+ }
 
   private boolean isAdminOrManager() {
     return UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
