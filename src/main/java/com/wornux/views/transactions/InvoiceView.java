@@ -266,7 +266,6 @@ public class InvoiceView extends Div {
   private Component createFilter() {
     docNum.focus();
     docNum.setClearButtonVisible(true);
-    docNum.setPlaceholder("Enter invoice #");
     docNum.setPrefixComponent(LumoIcon.SEARCH.create());
     docNum.setValueChangeMode(ValueChangeMode.EAGER);
     docNum.addValueChangeListener(e -> refreshAll());
