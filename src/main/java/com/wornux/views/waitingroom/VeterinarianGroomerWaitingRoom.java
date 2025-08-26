@@ -32,8 +32,7 @@ import java.util.List;
 
 @Route(value = "mi-sala-espera", layout = MainLayout.class)
 @PageTitle("Mi Sala de Espera")
-// 👇 permite que entren VETERINARIAN y/o GROOMER
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_VETERINARIAN", "ROLE_EMP_GROOMER"})
+@RolesAllowed({"ROLE_EMP_VETERINARIAN", "ROLE_EMP_GROOMER"})
 public class MyWaitingRoomView extends VerticalLayout {
 
   private final WaitingRoomService waitingRoomService;
