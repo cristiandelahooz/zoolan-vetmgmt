@@ -32,5 +32,4 @@ public class InvoiceReportDto {
   private String salesOrder;
 
   private List<Map<String, Object>> productsData;
-  private List<Map<String, Object>> servicesData;
 }

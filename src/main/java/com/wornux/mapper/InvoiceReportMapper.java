@@ -25,6 +25,6 @@ public interface InvoiceReportMapper {
   @Mapping(target = "tax", qualifiedByName = "formatCurrency", source = "tax")
   @Mapping(target = "notes", source = "notes")
   @Mapping(target = "salesOrder", source = "salesOrder")
-  @Mapping(target = "productsData", qualifiedByName = "mapProductsToData", source = "products")
+  @Mapping(target = "productsData", qualifiedByName = "mapAllItemsToData", source = "invoice")
   InvoiceReportDto toReportDto(Invoice invoice);
 }
