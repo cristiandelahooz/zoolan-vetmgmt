@@ -6,6 +6,7 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.HasClearButton;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -28,10 +30,14 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.components.ConfirmationDialogBuilder;
 import com.wornux.components.DecimalField;
 import com.wornux.components.Sidebar;
 import com.wornux.data.entity.*;
+import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.data.enums.SystemRole;
 import com.wornux.mapper.ClientMapper;
+import com.wornux.security.UserUtils;
 import com.wornux.services.AuditService;
 import com.wornux.services.implementations.InvoiceService;
 import com.wornux.services.interfaces.ClientService;
@@ -42,9 +48,6 @@ import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
-import com.wornux.security.UserUtils;
-import com.wornux.data.enums.SystemRole;
-import com.wornux.components.ConfirmationDialogBuilder;
 import com.wornux.views.customers.ClientCreationDialog;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +60,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
 import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
@@ -84,6 +86,8 @@ public class InvoiceForm extends Div {
   private final Button add = new Button(VaadinIcon.PLUS_CIRCLE.create());
   private final Button exportPdfButton =
       new Button("Exportar PDF", VaadinIcon.FILE_TEXT_O.create());
+  private final Button statusButton = new Button();
+  private ContextMenu statusContextMenu;
   private final Div layoutTabBar = new Div();
   private final Div layoutGrid = new Div();
   private final Div createDetails = new Div();
@@ -160,7 +164,7 @@ public class InvoiceForm extends Div {
         LumoUtility.AlignItems.END,
         LumoUtility.JustifyContent.END,
         LumoUtility.Width.FULL);
-    
+
     footer.add(notes, moneyFieldsContainer);
     footer.addClassNames(
         LumoUtility.Display.FLEX,
@@ -183,8 +187,9 @@ public class InvoiceForm extends Div {
     sidebar.setOnDeleteClickListener(this::handleDeleteClick);
 
     sidebar.getSave().setText("Guardar y continuar");
-    
+
     configureDeleteButtonVisibility();
+    configureStatusButton();
 
     add(sidebar, clientCreationDialog);
 
@@ -224,10 +229,11 @@ public class InvoiceForm extends Div {
   }
 
   private void configureDeleteButtonVisibility() {
-    boolean canDelete = UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN) ||
-                       UserUtils.hasSystemRole(SystemRole.MANAGER);
+    boolean canDelete =
+        UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
+            || UserUtils.hasSystemRole(SystemRole.MANAGER);
     boolean isEditingExisting = element != null && element.getCode() != null;
-    
+
     sidebar.getDelete().setVisible(canDelete && isEditingExisting);
     sidebar.getDelete().setText("Eliminar");
     sidebar.getDelete().setTooltipText("Eliminar factura");
@@ -241,7 +247,8 @@ public class InvoiceForm extends Div {
 
     new ConfirmationDialogBuilder()
         .withHeader("Confirmar Eliminación")
-        .withText("¿Estás seguro de que deseas desactivar esta factura? Esta acción no se puede deshacer y la factura será eliminada.")
+        .withText(
+            "¿Estás seguro de que deseas desactivar esta factura? Esta acción no se puede deshacer y la factura será eliminada.")
         .withIcon(VaadinIcon.WARNING)
         .withConfirmText("Sí, eliminar")
         .withCancelText("Cancelar")
@@ -258,6 +265,121 @@ public class InvoiceForm extends Div {
       sidebar.close();
     } catch (Exception ex) {
       NotificationUtils.error("Error al eliminar la factura: " + ex.getMessage());
+    }
+  }
+
+  private void configureStatusButton() {
+    statusButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
+    statusButton.setVisible(false);
+    createStatusContextMenu();
+    updateStatusButton();
+  }
+
+  private void updateStatusButton() {
+    if (element == null || element.getCode() == null) {
+      statusButton.setVisible(false);
+      return;
+    }
+
+    statusButton.setText(element.getStatus().getDisplay());
+    statusButton.setIcon(element.getStatusIcon().create());
+    statusButton.removeThemeVariants(
+        ButtonVariant.LUMO_SUCCESS,
+        ButtonVariant.LUMO_ERROR,
+        ButtonVariant.LUMO_WARNING,
+        ButtonVariant.LUMO_PRIMARY,
+        ButtonVariant.LUMO_CONTRAST);
+    statusButton.addThemeVariants(getStatusVariant(element.getStatusColor()));
+    statusButton.setVisible(true);
+    refreshStatusContextMenu();
+  }
+
+  private ButtonVariant getStatusVariant(String color) {
+    return switch (color) {
+      case "success" -> ButtonVariant.LUMO_SUCCESS;
+      case "error" -> ButtonVariant.LUMO_ERROR;
+      case "warning" -> ButtonVariant.LUMO_WARNING;
+      case "primary" -> ButtonVariant.LUMO_PRIMARY;
+      default -> ButtonVariant.LUMO_CONTRAST;
+    };
+  }
+
+  private void createStatusContextMenu() {
+    statusContextMenu = new ContextMenu();
+    statusContextMenu.setTarget(statusButton);
+    statusContextMenu.setOpenOnClick(true);
+  }
+
+  private void refreshStatusContextMenu() {
+    if (element == null || statusContextMenu == null) {
+      return;
+    }
+
+    statusContextMenu.removeAll();
+
+    Set<InvoiceStatus> validStatuses = element.getValidNextStatuses();
+    log.debug("Valid statuses for invoice {}: {}", element.getCode(), validStatuses);
+
+    if (validStatuses.isEmpty()) {
+      statusContextMenu.addItem("Sin cambios disponibles").setEnabled(false);
+    } else {
+      for (InvoiceStatus status : validStatuses) {
+        statusContextMenu.addItem(status.getDisplay(), e -> {
+          changeInvoiceStatus(status);
+        });
+      }
+    }
+  }
+
+  private void changeInvoiceStatus(InvoiceStatus newStatus) {
+    if (element == null || element.getCode() == null) {
+      NotificationUtils.error("No se puede cambiar el estado de una factura no guardada.");
+      return;
+    }
+
+    String confirmationMessage = getStatusChangeConfirmation(element.getStatus(), newStatus);
+
+    if (confirmationMessage != null) {
+      new ConfirmationDialogBuilder()
+          .withHeader("Confirmar Cambio de Estado")
+          .withText(confirmationMessage)
+          .withIcon(VaadinIcon.QUESTION)
+          .withConfirmText("Sí, cambiar")
+          .withCancelText("Cancelar")
+          .onConfirm(confirmEvent -> performStatusChange(newStatus))
+          .build()
+          .open();
+    } else {
+      performStatusChange(newStatus);
+    }
+  }
+
+  private String getStatusChangeConfirmation(InvoiceStatus current, InvoiceStatus target) {
+    return switch (target) {
+      case CANCELLED ->
+          "¿Estás seguro de que deseas anular esta factura? Esta acción afectará los reportes y no se puede deshacer.";
+      case PAID ->
+          current == InvoiceStatus.OVERDUE
+              ? "¿Confirmas que esta factura vencida ha sido pagada?"
+              : null;
+      default -> null;
+    };
+  }
+
+  private void performStatusChange(InvoiceStatus newStatus) {
+    try {
+      element = invoiceService.changeInvoiceStatus(element.getCode(), newStatus);
+      
+      // Reload the full invoice entity to ensure all collections are properly loaded
+      element = invoiceService.findByIdWithDetails(element.getCode());
+      
+      // Refresh the form with the updated entity
+      populateForm(element);
+      
+      NotificationUtils.success("Estado de la factura actualizado a: " + newStatus.getDisplay());
+      Optional.ofNullable(callable).ifPresent(Runnable::run);
+    } catch (Exception ex) {
+      NotificationUtils.error("Error al cambiar el estado: " + ex.getMessage());
     }
   }
 
@@ -377,10 +499,8 @@ public class InvoiceForm extends Div {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     BigDecimal servicesTotal =
-        Optional.ofNullable(element)
-            .map(Invoice::getOfferings)
-            .map(List::stream)
-            .orElse(Stream.empty())
+        Optional.ofNullable(element).map(Invoice::getOfferings).stream()
+            .flatMap(Collection::stream)
             .filter(s -> s.getOffering() != null && s.getAmount() != null)
             .map(InvoiceOffering::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -728,6 +848,7 @@ public class InvoiceForm extends Div {
     }
 
     refreshGrid();
+    updateStatusButton();
   }
 
   private void refreshGrid() {
@@ -804,8 +925,8 @@ public class InvoiceForm extends Div {
     List<Client> allCustomerByDisabledIsFalse = customerService.getAllActiveClients();
     customer.setClearButtonVisible(true);
     customer.setItems(
-        comboBoxItemFilter(Client::getFirstName, String::contains), allCustomerByDisabledIsFalse);
-    customer.setItemLabelGenerator(Client::getFirstName);
+        comboBoxItemFilter(Client::getFullName, String::contains), allCustomerByDisabledIsFalse);
+    customer.setItemLabelGenerator(Client::getFullName);
     customer.setRenderer(
         new ComponentRenderer<>(
             item -> {
@@ -853,7 +974,9 @@ public class InvoiceForm extends Div {
     header.addClassNames(
         LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.AlignItems.END);
 
-    Div form = new Div(header, bill, contactName, contactEmail, address, line, phone, email);
+    phone.addClassNames(LumoUtility.Margin.Top.SMALL);
+    HorizontalLayout horizontalLayout = new HorizontalLayout(phone, statusButton);
+    Div form = new Div(header, bill, contactEmail, address, line, horizontalLayout);
     form.setWidthFull();
     form.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN);
     form.setMaxWidth(500, Unit.PIXELS);
