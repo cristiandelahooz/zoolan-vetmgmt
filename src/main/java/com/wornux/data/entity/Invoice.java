@@ -4,14 +4,15 @@ import com.wornux.data.enums.InvoiceStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.proxy.HibernateProxy;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
-import lombok.*;
-import org.hibernate.envers.Audited;
-import org.hibernate.proxy.HibernateProxy;
 
 @Getter
 @Setter
@@ -29,7 +30,7 @@ import org.hibernate.proxy.HibernateProxy;
 @AllArgsConstructor
 public class Invoice extends Auditable implements Serializable {
 
-  private static final BigDecimal TAX_RATE =
+  public static final BigDecimal TAX_RATE =
       new BigDecimal("0.18").setScale(2, RoundingMode.HALF_UP);
 
   @Id

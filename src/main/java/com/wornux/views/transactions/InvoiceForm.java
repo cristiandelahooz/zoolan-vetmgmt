@@ -333,7 +333,7 @@ public class InvoiceForm extends Div {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     BigDecimal currentSubtotal = productsTotal.add(servicesTotal);
-    BigDecimal currentTax = currentSubtotal.multiply(TAX_RATE);
+    BigDecimal currentTax = currentSubtotal.multiply(Invoice.TAX_RATE);
     BigDecimal currentTotal = currentSubtotal.add(currentTax);
 
     subtotalField.setValue(currentSubtotal.doubleValue());
