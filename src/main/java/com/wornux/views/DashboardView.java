@@ -1,5 +1,6 @@
 package com.wornux.views;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.charts.Chart;
@@ -9,10 +10,9 @@ import com.vaadin.flow.component.charts.model.style.SolidColor;
 import com.vaadin.flow.component.dashboard.DashboardWidget;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -22,20 +22,27 @@ import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Product;
+import com.wornux.data.enums.EmployeeRole;
+import com.wornux.data.enums.SystemRole;
 import com.wornux.dto.dashboard.ChartDataDto;
 import com.wornux.dto.dashboard.RevenueDataDto;
 import com.wornux.dto.dashboard.StockAlertDto;
+import com.wornux.security.UserUtils;
 import com.wornux.services.interfaces.DashboardService;
 import com.wornux.services.interfaces.ProductService;
 import com.wornux.services.interfaces.SupplierService;
 import com.wornux.services.interfaces.WarehouseService;
+import com.wornux.views.calendar.AppointmentCalendarView;
 import com.wornux.views.products.ProductForm;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
@@ -44,10 +51,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
+//@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
+@PermitAll
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Dashboard Ejecutivo")
-public class DashboardView extends VerticalLayout {
+//public class DashboardView extends VerticalLayout {
+public class DashboardView extends VerticalLayout  {
+
 
   private final DashboardService dashboardService;
   private final ProductService productService;
@@ -55,7 +65,9 @@ public class DashboardView extends VerticalLayout {
   private final WarehouseService warehouseService;
   private final NumberFormat currencyFormat;
   private final DateTimeFormatter dateFormatter;
-  private final ProductForm productForm;
+  //private final ProductForm productForm;
+  private ProductForm productForm;
+
   // Paleta de colores moderna
   private final String[] modernColors = {
     "#10B981", "#3B82F6", "#8B5CF6", "#F59E0B",
@@ -64,6 +76,7 @@ public class DashboardView extends VerticalLayout {
   };
   private Grid<StockAlertDto> alertsGrid; // New field
   private Product selectedProduct;
+  private boolean dashboardBuilt = false;
 
   public DashboardView(
       DashboardService dashboardService,
@@ -76,13 +89,47 @@ public class DashboardView extends VerticalLayout {
     this.warehouseService = warehouseService;
     this.currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "DO"));
     this.dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    /*if (isAdminOrManager()) {
     this.productForm = new ProductForm(productService, supplierService, warehouseService);
     add(productForm);
     productForm.setOnSaveCallback(this::refreshStockAlertsGrid);
 
     initializeDashboard();
     showStockAlerts();
+    } else
+    {
+      buildNonAdminHero();
+
+    }*/
   }
+
+  @Override
+  protected void onAttach(AttachEvent e) {
+    if (!isAdminOrManager()) {
+      e.getUI().navigate(AppointmentCalendarView.class);           // o AppointmentsView.class
+      return;
+    }
+    buildAdminDashboard(); // tu initializeDashboard() + showStockAlerts()
+  }
+
+  private void buildAdminDashboard() {
+    if (dashboardBuilt) return;          // evita construir dos veces
+
+    removeAll();                         // limpia cualquier hero previo
+
+    if (productForm == null) {           // crea el form solo una vez
+      productForm = new ProductForm(productService, supplierService, warehouseService);
+      productForm.setOnSaveCallback(this::refreshStockAlertsGrid);
+    }
+
+    add(productForm);                    // arriba del dashboard (como tenías)
+    initializeDashboard();               // tabs + widgets
+    showStockAlerts();                   // notificaciones críticas
+
+    dashboardBuilt = true;
+  }
+
 
   private void initializeDashboard() {
     Tab financialTab = new Tab("Análisis Financiero");
@@ -1091,5 +1138,98 @@ public class DashboardView extends VerticalLayout {
       case "OUT_OF_STOCK" -> "Agotado";
       default -> "Saludable";
     };
+  }
+
+  //----------------------------------------------------------
+  private boolean isAdminOrManager() {
+    return UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
+            || UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER);
+  }
+
+  // Opcional, si quieres mostrar el rol en el mensaje
+  private String currentRoleLabel() {
+    if (UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)) return "Administrador";
+    if (UserUtils.hasEmployeeRole(EmployeeRole.CLINIC_MANAGER)) return "Gerente de Clínica";
+    // agrega aquí otros roles si quieres mostrarlos
+    return "Usuario";
+  }
+
+  // ====== Hero para no-admins ======
+  private void dashboard(){
+    this.productForm = new ProductForm(productService, supplierService, warehouseService);
+    add(productForm);
+    productForm.setOnSaveCallback(this::refreshStockAlertsGrid);
+
+    initializeDashboard();
+    showStockAlerts();
+  }
+  private void buildNonAdminHero(/* String roleLabel */) {
+    removeAll();
+
+    Div bg = new Div();
+    bg.setSizeFull();
+    bg.getStyle()
+            .set("display", "grid")
+            .set("place-items", "center")
+            .set("background", "linear-gradient(135deg,#4FA7A4 0%,#2F6F6D 100%)");
+
+    // “Badge” grande tipo la imagen (icono + texto)
+    Div badge = new Div();
+    badge.getStyle()
+            .set("display", "inline-flex")
+            .set("align-items", "center")
+            .set("gap", "12px")
+            .set("background", "#4FA7A4")
+            .set("color", "white")
+            .set("padding", "16px 24px")
+            .set("border-radius", "8px")
+            .set("box-shadow", "0 8px 24px rgba(0,0,0,0.20)");
+
+    //Icon paw = VaadinIcon.STETHOSCOPE.create();
+    //paw.setSize("28px");
+    //paw.getStyle().set("color", "white");
+
+    SvgIcon brandIcon = LineAwesomeIcon.PAW_SOLID.create();
+    brandIcon.addClassNames(
+            LumoUtility.IconSize.LARGE,
+            LumoUtility.Margin.End.SMALL,
+            LumoUtility.TextColor.PRIMARY_CONTRAST);
+
+    Span brand = new Span("Zoolandia");
+    brand.getStyle()
+            .set("font-size", "22px")
+            .set("font-weight", "700")
+            .set("letter-spacing", "0.4px")
+            .set("color", "white");
+
+    badge.add(brandIcon, brand);
+
+    Div text = new Div();
+    text.getElement().setProperty("innerHTML",
+            "<div style='color:white;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.3)'>"
+                    + "  <div style='font-size:28px;font-weight:800;margin-top:16px'>Bienvenido a Zoolandia</div>"
+                    + "  <div style='font-size:16px;opacity:.95;margin-top:6px'>"
+                    + "    Tu cuenta no tiene acceso al Panel Ejecutivo.<br>"
+                    + "    Si necesitas acceso, contacta al administrador."
+                    + "  </div>"
+                    // + "  <div style='font-size:14px;opacity:.85;margin-top:8px'>Rol: " + roleLabel + "</div>"
+                    + "</div>");
+
+    Button goHome = new Button("Volver al inicio", VaadinIcon.HOME.create(), e -> {
+      getUI().ifPresent(ui -> ui.navigate("")); // o a la vista que prefieras
+    });
+    goHome.getStyle()
+            .set("margin-top", "18px")
+            .set("background", "white")
+            .set("color", "#2F6F6D");
+
+    Div container = new Div(badge, text);
+    container.getStyle()
+            .set("display", "flex")
+            .set("flex-direction", "column")
+            .set("align-items", "center");
+
+    bg.add(container);
+    add(bg);
   }
 }
