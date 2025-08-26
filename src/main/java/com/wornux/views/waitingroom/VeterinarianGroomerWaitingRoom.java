@@ -33,7 +33,7 @@ import java.util.List;
 @Route(value = "mi-sala-espera", layout = MainLayout.class)
 @PageTitle("Mi Sala de Espera")
 @RolesAllowed({"ROLE_EMP_VETERINARIAN", "ROLE_EMP_GROOMER"})
-public class MyWaitingRoomView extends VerticalLayout {
+public class VeterinarianGroomerWaitingRoom extends VerticalLayout {
 
   private final WaitingRoomService waitingRoomService;
   private final ConsultationService consultationService;
@@ -46,7 +46,7 @@ public class MyWaitingRoomView extends VerticalLayout {
 
   private final Grid<WaitingRoom> grid = new Grid<>(WaitingRoom.class, false);
 
-  public MyWaitingRoomView(
+  public VeterinarianGroomerWaitingRoom(
       WaitingRoomService waitingRoomService,
       OfferingService offeringService,
       ConsultationService consultationService,

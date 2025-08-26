@@ -11,13 +11,12 @@ import com.wornux.views.consultations.ConsultationsView;
 import com.wornux.views.employees.EmployeeView;
 import com.wornux.views.grooming.GroomingSessionsView;
 import com.wornux.views.inventory.InventoryView;
-import com.wornux.views.medicalhistory.MedicalHistoryView;
 import com.wornux.views.pets.PetMergeView;
 import com.wornux.views.pets.PetView;
 import com.wornux.views.services.OfferingView;
 import com.wornux.views.suppliers.SupplierView;
 import com.wornux.views.transactions.InvoiceView;
-import com.wornux.views.waitingroom.MyWaitingRoomView;
+import com.wornux.views.waitingroom.VeterinarianGroomerWaitingRoom;
 import com.wornux.views.waitingroom.WaitingRoomView;
 import com.wornux.views.warehouses.WarehouseView;
 import lombok.extern.slf4j.Slf4j;
@@ -57,16 +56,6 @@ public class MenuUtil {
       nav.addItem(inventory);
     }
 
-    if (accessChecker.hasAccess(ConsultationsView.class))
-      nav.addItem(
-          new SideNavItem(
-              "Consultas", ConsultationsView.class, LineAwesomeIcon.USER_MD_SOLID.create()));
-
-    if (accessChecker.hasAccess(MedicalHistoryView.class))
-      nav.addItem(
-          new SideNavItem(
-              "Historial Médico", MedicalHistoryView.class, LineAwesomeIcon.STETHOSCOPE_SOLID.create()));
-
     if (accessChecker.hasAccess(InvoiceView.class)) {
       SideNavItem transactions = new SideNavItem("Transacciones");
       transactions.setPrefixComponent(LineAwesomeIcon.CREDIT_CARD_SOLID.create());
@@ -75,59 +64,74 @@ public class MenuUtil {
               "Facturas", InvoiceView.class, LineAwesomeIcon.FILE_INVOICE_DOLLAR_SOLID.create()));
       nav.addItem(transactions);
     }
+    if (accessChecker.hasAccess(OfferingView.class)) {
+      nav.addItem(
+          new SideNavItem(
+              "Servicios", OfferingView.class, LineAwesomeIcon.CONCIERGE_BELL_SOLID.create()));
+    }
 
-    if (accessChecker.hasAccess(WaitingRoomView.class))
+    if (accessChecker.hasAccess(WaitingRoomView.class)) {
       nav.addItem(
           new SideNavItem(
               "Sala de Espera", WaitingRoomView.class, LineAwesomeIcon.COUCH_SOLID.create()));
+    }
 
-    if (accessChecker.hasAccess(MyWaitingRoomView.class))
+    if (accessChecker.hasAccess(VeterinarianGroomerWaitingRoom.class)) {
       nav.addItem(
           new SideNavItem(
-              "Mi Sala de Espera", MyWaitingRoomView.class, LineAwesomeIcon.USER_MD_SOLID.create()));
+              "Sala de espera",
+              VeterinarianGroomerWaitingRoom.class,
+              LineAwesomeIcon.COUCH_SOLID.create()));
+    }
+    if (accessChecker.hasAccess(ConsultationsView.class))
+      nav.addItem(
+          new SideNavItem(
+              "Consultas", ConsultationsView.class, LineAwesomeIcon.USER_MD_SOLID.create()));
 
     if (accessChecker.hasAccess(IndividualClientView.class)
         || accessChecker.hasAccess(CompanyClientView.class)) {
       SideNavItem clients = new SideNavItem("Clientes");
       clients.setPrefixComponent(LineAwesomeIcon.USERS_SOLID.create());
-      if (accessChecker.hasAccess(IndividualClientView.class))
+      if (accessChecker.hasAccess(IndividualClientView.class)) {
         clients.addItem(
             new SideNavItem(
                 "Individuales", IndividualClientView.class, LineAwesomeIcon.USER_SOLID.create()));
-      if (accessChecker.hasAccess(CompanyClientView.class))
+      }
+      if (accessChecker.hasAccess(CompanyClientView.class)) {
         clients.addItem(
             new SideNavItem(
                 "Empresariales", CompanyClientView.class, LineAwesomeIcon.BUILDING_SOLID.create()));
+      }
       nav.addItem(clients);
     }
 
     if (accessChecker.hasAccess(PetView.class)) {
       SideNavItem pets =
           new SideNavItem("Mascotas", PetView.class, LineAwesomeIcon.PAW_SOLID.create());
-      if (accessChecker.hasAccess(PetMergeView.class))
+      if (accessChecker.hasAccess(PetMergeView.class)) {
         pets.addItem(
             new SideNavItem(
                 "Fusionar", PetMergeView.class, LineAwesomeIcon.CODE_BRANCH_SOLID.create()));
+      }
       nav.addItem(pets);
     }
 
-    if (accessChecker.hasAccess(GroomingSessionsView.class))
+    if (accessChecker.hasAccess(GroomingSessionsView.class)) {
       nav.addItem(
           new SideNavItem(
               "Peluquería", GroomingSessionsView.class, LineAwesomeIcon.CUT_SOLID.create()));
+    }
 
-    if (accessChecker.hasAccess(EmployeeView.class))
+    if (accessChecker.hasAccess(EmployeeView.class)) {
       nav.addItem(
           new SideNavItem(
               "Empleados", EmployeeView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+    }
 
-    if (accessChecker.hasAccess(SupplierView.class))
+    if (accessChecker.hasAccess(SupplierView.class)) {
       nav.addItem(
           new SideNavItem("Suplidores", SupplierView.class, LineAwesomeIcon.TRUCK_SOLID.create()));
-
-    if (accessChecker.hasAccess(OfferingView.class))
-      nav.addItem(
-          new SideNavItem("Servicios", OfferingView.class, LineAwesomeIcon.CONCIERGE_BELL_SOLID.create()));
+    }
 
     return nav;
   }
