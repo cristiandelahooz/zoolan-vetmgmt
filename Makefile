@@ -109,7 +109,7 @@ db-logs:
 	@echo "${BLUE}Viewing PostgreSQL container logs...${NC}"
 	docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f db
 
-db-migrate: db-up
+db-migrate: db-restart
 	@echo "${BLUE}Applying Flyway migrations...${NC}"
 	@sleep 3
 	$(MAVEN_CMD) flyway:migrate
