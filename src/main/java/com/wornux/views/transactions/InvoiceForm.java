@@ -42,6 +42,9 @@ import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
+import com.wornux.security.UserUtils;
+import com.wornux.data.enums.SystemRole;
+import com.wornux.components.ConfirmationDialogBuilder;
 import com.wornux.views.customers.ClientCreationDialog;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -177,8 +180,11 @@ public class InvoiceForm extends Div {
 
     sidebar.setOnSaveClickListener(this::saveOrUpdate);
     sidebar.setOnCancelClickListener(this::cancel);
+    sidebar.setOnDeleteClickListener(this::handleDeleteClick);
 
     sidebar.getSave().setText("Guardar y continuar");
+    
+    configureDeleteButtonVisibility();
 
     add(sidebar, clientCreationDialog);
 
@@ -215,6 +221,44 @@ public class InvoiceForm extends Div {
         LumoUtility.Padding.NONE,
         LumoUtility.Margin.Top.SMALL);
     return layoutForm;
+  }
+
+  private void configureDeleteButtonVisibility() {
+    boolean canDelete = UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN) ||
+                       UserUtils.hasSystemRole(SystemRole.MANAGER);
+    boolean isEditingExisting = element != null && element.getCode() != null;
+    
+    sidebar.getDelete().setVisible(canDelete && isEditingExisting);
+    sidebar.getDelete().setText("Eliminar");
+    sidebar.getDelete().setTooltipText("Eliminar factura");
+  }
+
+  private void handleDeleteClick(ClickEvent<Button> event) {
+    if (element == null || element.getCode() == null) {
+      NotificationUtils.error("No se puede eliminar una factura que no ha sido guardada.");
+      return;
+    }
+
+    new ConfirmationDialogBuilder()
+        .withHeader("Confirmar Eliminación")
+        .withText("¿Estás seguro de que deseas desactivar esta factura? Esta acción no se puede deshacer y la factura será eliminada.")
+        .withIcon(VaadinIcon.WARNING)
+        .withConfirmText("Sí, eliminar")
+        .withCancelText("Cancelar")
+        .onConfirm(confirmEvent -> performDelete())
+        .build()
+        .open();
+  }
+
+  private void performDelete() {
+    try {
+      invoiceService.delete(element.getCode());
+      NotificationUtils.success("Factura eliminada exitosamente.");
+      Optional.ofNullable(callable).ifPresent(Runnable::run);
+      sidebar.close();
+    } catch (Exception ex) {
+      NotificationUtils.error("Error al eliminar la factura: " + ex.getMessage());
+    }
   }
 
   private void createGrid() {
@@ -502,11 +546,13 @@ public class InvoiceForm extends Div {
   public void open() {
     populateForm(null);
     sidebar.newObject("Nueva Factura");
+    configureDeleteButtonVisibility();
   }
 
   public void edit(Invoice element) {
     populateForm(element);
     sidebar.editObject("Editar Factura");
+    configureDeleteButtonVisibility();
   }
 
   private void cancel(ClickEvent<Button> buttonClickEvent) {
