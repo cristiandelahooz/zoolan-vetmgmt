@@ -3,13 +3,14 @@ package com.wornux.views.calendar;
 import com.wornux.data.enums.OfferingType;
 import com.wornux.dto.response.AppointmentResponseDto;
 import com.wornux.services.interfaces.AppointmentService;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.vaadin.stefan.fullcalendar.Entry;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,26 +30,12 @@ public class AppointmentEntryService {
 
   public List<Entry> getAppointmentEntriesInRange(LocalDateTime start, LocalDateTime end) {
     List<AppointmentResponseDto> appointments =
-        appointmentService.getAllAppointments(PageRequest.of(0, 1000)).getContent();
+        appointmentService.getAppointmentsByDateRange(start, end);
 
-    return appointments.stream()
-        .filter(apt -> isWithinRange(apt, start, end))
-        .map(this::convertToEntry)
-        .toList();
+    return appointments.stream().map(this::convertToEntry).toList();
   }
 
-  private boolean isWithinRange(
-      AppointmentResponseDto appointment, LocalDateTime start, LocalDateTime end) {
-    LocalDateTime aptStart = appointment.getStartAppointmentDate();
-    LocalDateTime aptEnd = appointment.getEndAppointmentDate();
-
-    return aptStart != null
-        && aptEnd != null
-        && (aptStart.isBefore(end) || aptStart.isEqual(end))
-        && (aptEnd.isAfter(start) || aptEnd.isEqual(start));
-  }
-
-  private Entry convertToEntry(AppointmentResponseDto appointment) {
+  public Entry convertToEntry(AppointmentResponseDto appointment) {
     Entry entry = new Entry(String.valueOf(appointment.getEventId()));
     entry.setTitle(buildAppointmentTitle(appointment));
     entry.setStart(appointment.getStartAppointmentDate());
