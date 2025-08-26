@@ -4,7 +4,6 @@ import com.wornux.data.enums.OfferingType;
 import com.wornux.dto.response.AppointmentResponseDto;
 import com.wornux.services.interfaces.AppointmentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.vaadin.stefan.fullcalendar.Entry;
 
@@ -17,16 +16,6 @@ import java.util.Optional;
 public class AppointmentEntryService {
 
   private final AppointmentService appointmentService;
-
-  public List<Entry> getAppointmentEntries() {
-    return getAppointmentEntries(0, 1000);
-  }
-
-  public List<Entry> getAppointmentEntries(int page, int size) {
-    List<AppointmentResponseDto> appointments =
-        appointmentService.getAllAppointments(PageRequest.of(page, size)).getContent();
-    return appointments.stream().map(this::convertToEntry).toList();
-  }
 
   public List<Entry> getAppointmentEntriesInRange(LocalDateTime start, LocalDateTime end) {
     List<AppointmentResponseDto> appointments =
