@@ -29,8 +29,8 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -334,8 +334,25 @@ public class AppointmentCalendarView extends VerticalLayout {
 
   public void loadAppointments() {
     try {
-      List<Entry> entries = appointmentEntryService.getAppointmentEntries();
-      InMemoryEntryProvider<Entry> entryProvider = EntryProvider.inMemoryFrom(entries);
+      CallbackEntryProvider<Entry> entryProvider =
+          EntryProvider.fromCallbacks(
+              query -> {
+                LocalDate start = query.getStart().toLocalDate();
+                LocalDate end = query.getEnd().toLocalDate();
+                LocalDate bufferedStart = start.minusDays(7);
+                LocalDate bufferedEnd = end.plusDays(7);
+
+                return appointmentEntryService
+                    .getAppointmentEntriesInRange(
+                        bufferedStart.atStartOfDay(), bufferedEnd.atTime(23, 59, 59))
+                    .stream();
+              },
+              entryId ->
+                  appointmentEntryService
+                      .getAppointment(Long.valueOf(entryId))
+                      .map(appointmentEntryService::convertToEntry)
+                      .orElse(null));
+
       calendar.setEntryProvider(entryProvider);
       calendar.getEntryProvider().refreshAll();
     } catch (Exception e) {
