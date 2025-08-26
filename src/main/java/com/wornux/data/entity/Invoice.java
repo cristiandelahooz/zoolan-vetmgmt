@@ -1,6 +1,8 @@
 package com.wornux.data.entity;
 
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.exception.InvalidInvoiceStatusChangeException;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -195,6 +197,60 @@ public class Invoice extends Auditable implements Serializable {
     this.subtotal = offeringsTotal.add(productsTotal);
     this.tax = this.subtotal.multiply(TAX_RATE);
     this.total = this.subtotal.add(this.tax);
+  }
+
+  private static final Map<InvoiceStatus, Set<InvoiceStatus>> VALID_TRANSITIONS = Map.of(
+      InvoiceStatus.DRAFT, Set.of(InvoiceStatus.PENDING, InvoiceStatus.SENT, InvoiceStatus.CANCELLED),
+      InvoiceStatus.UNSENT, Set.of(InvoiceStatus.SENT, InvoiceStatus.PENDING, InvoiceStatus.CANCELLED),
+      InvoiceStatus.SENT, Set.of(InvoiceStatus.PENDING, InvoiceStatus.PAID, InvoiceStatus.PARTIAL, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED),
+      InvoiceStatus.PENDING, Set.of(InvoiceStatus.PAID, InvoiceStatus.PARTIAL, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED),
+      InvoiceStatus.PARTIAL, Set.of(InvoiceStatus.PAID, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED),
+      InvoiceStatus.OVERDUE, Set.of(InvoiceStatus.PAID, InvoiceStatus.PARTIAL, InvoiceStatus.CANCELLED),
+      InvoiceStatus.PAID, Set.of(InvoiceStatus.OVERPAID),
+      InvoiceStatus.OVERPAID, Set.of(InvoiceStatus.PAID),
+      InvoiceStatus.CANCELLED, Set.of()
+  );
+
+  public Set<InvoiceStatus> getValidNextStatuses() {
+    return VALID_TRANSITIONS.getOrDefault(this.status, Set.of());
+  }
+
+  public boolean canTransitionTo(InvoiceStatus targetStatus) {
+    return getValidNextStatuses().contains(targetStatus);
+  }
+
+  public void changeStatusTo(InvoiceStatus targetStatus) {
+    if (!canTransitionTo(targetStatus)) {
+      throw new InvalidInvoiceStatusChangeException(this.status, targetStatus);
+    }
+    this.status = targetStatus;
+  }
+
+  public String getStatusColor() {
+    return switch (this.status) {
+      case DRAFT, UNSENT -> "contrast";
+      case PENDING -> "primary";
+      case SENT -> "contrast";
+      case PAID -> "success";
+      case PARTIAL -> "warning";
+      case OVERDUE -> "error";
+      case CANCELLED -> "error";
+      case OVERPAID -> "contrast";
+    };
+  }
+
+  public LineAwesomeIcon getStatusIcon() {
+    return switch (this.status) {
+      case DRAFT -> LineAwesomeIcon.EDIT_SOLID;
+      case UNSENT -> LineAwesomeIcon.ENVELOPE_OPEN_SOLID;
+      case SENT -> LineAwesomeIcon.ENVELOPE_SOLID;
+      case PENDING -> LineAwesomeIcon.CLOCK_SOLID;
+      case PAID -> LineAwesomeIcon.CHECK_CIRCLE_SOLID;
+      case PARTIAL -> LineAwesomeIcon.CHART_PIE_SOLID;
+      case OVERDUE -> LineAwesomeIcon.EXCLAMATION_TRIANGLE_SOLID;
+      case CANCELLED -> LineAwesomeIcon.BAN_SOLID;
+      case OVERPAID -> LineAwesomeIcon.DOLLAR_SIGN_SOLID;
+    };
   }
 
   public void addProduct(InvoiceProduct productToAdd) {

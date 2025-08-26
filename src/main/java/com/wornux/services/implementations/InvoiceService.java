@@ -4,6 +4,8 @@ import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Invoice;
 import com.wornux.data.entity.InvoiceOffering;
 import com.wornux.data.repository.InvoiceRepository;
+import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.exception.InvalidInvoiceStatusChangeException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
@@ -127,5 +129,18 @@ public class InvoiceService {
   @Transactional
   public Optional<Invoice> findByConsultationIdWithDetails(Long consultationId) {
     return repository.findByConsultationIdWithDetails(consultationId);
+  }
+
+  @Transactional
+  public Invoice changeInvoiceStatus(Long invoiceId, InvoiceStatus newStatus) {
+    Invoice invoice = repository.findByCodeWithServicesAndProducts(invoiceId)
+        .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + invoiceId));
+    
+    try {
+      invoice.changeStatusTo(newStatus);
+      return repository.save(invoice);
+    } catch (InvalidInvoiceStatusChangeException ex) {
+      throw ex;
+    }
   }
 }
