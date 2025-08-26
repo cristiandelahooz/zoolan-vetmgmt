@@ -35,13 +35,14 @@ import com.wornux.services.interfaces.SupplierService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.views.products.ProductForm;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 @RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
 @Route(value = "", layout = MainLayout.class)
@@ -55,15 +56,14 @@ public class DashboardView extends VerticalLayout {
   private final NumberFormat currencyFormat;
   private final DateTimeFormatter dateFormatter;
   private final ProductForm productForm;
-  private Grid<StockAlertDto> alertsGrid; // New field
-  private Product selectedProduct;
-
   // Paleta de colores moderna
   private final String[] modernColors = {
     "#10B981", "#3B82F6", "#8B5CF6", "#F59E0B",
     "#EF4444", "#06B6D4", "#84CC16", "#F97316",
     "#EC4899", "#6366F1", "#14B8A6", "#F43F5E"
   };
+  private Grid<StockAlertDto> alertsGrid; // New field
+  private Product selectedProduct;
 
   public DashboardView(
       DashboardService dashboardService,
@@ -127,7 +127,7 @@ public class DashboardView extends VerticalLayout {
   /** Modern Revenue Analysis with enhanced visual design */
   private DashboardWidget createModernRevenueAnalysisWidget() {
     try {
-      DashboardWidget widget = new DashboardWidget("Análisis de Ingresos Inteligente");
+      DashboardWidget widget = new DashboardWidget("Análisis de Ingresos");
 
       Div content = new Div();
       content.addClassName("modern-chart-widget");
@@ -1007,7 +1007,7 @@ public class DashboardView extends VerticalLayout {
     chart.setHeight("350px");
 
     Configuration config = chart.getConfiguration();
-    config.setTitle("Distribución Inteligente del Inventario");
+    config.setTitle("Distribución del Inventario");
 
     Map<String, Long> statusCounts =
         stockAlerts.stream()
