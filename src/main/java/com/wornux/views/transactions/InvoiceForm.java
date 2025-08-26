@@ -58,12 +58,12 @@ import java.util.stream.Stream;
 
 import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
 import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
 import static com.wornux.utils.CommonUtils.createIconItem;
 
 @Slf4j
 public class InvoiceForm extends Div {
 
-  private static final BigDecimal TAX_RATE = new BigDecimal("0.18"); // Assuming 18% tax rate
   private final ComboBox<Client> customer = new ComboBox<>("Selecciona un cliente");
   private final TextField docNum = new TextField("Número de factura");
   private final TextField salesOrder = new TextField("Número de orden/servicio");
