@@ -35,17 +35,18 @@ import com.wornux.data.enums.PetType;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.dto.response.AppointmentResponseDto;
 import com.wornux.mapper.ClientMapper;
+import com.wornux.services.AuditService;
 import com.wornux.services.interfaces.AppointmentService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
 import com.wornux.utils.CommonUtils;
 import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.ValidationNotificationUtils;
+import com.wornux.utils.logs.RevisionView;
 import com.wornux.views.customers.ClientCreationDialog;
 import com.wornux.views.pets.PetForm;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
@@ -85,6 +86,7 @@ public class AppointmentForm extends Div {
   private final Binder<AppointmentClientInfo> guestInfoBinder =
       new BeanValidationBinder<>(AppointmentClientInfo.class);
   private final Sidebar sidebar = new Sidebar();
+  private final transient RevisionView<Appointment> revisionView;
   private final Button addClient = new Button(VaadinIcon.PLUS_CIRCLE.create());
   private final Button addPet = new Button(VaadinIcon.PLUS_CIRCLE.create());
   private final Div layoutTabBar = new Div();
@@ -98,6 +100,7 @@ public class AppointmentForm extends Div {
       AppointmentService appointmentService,
       ClientService clientService,
       PetService petService,
+      AuditService auditService,
       ClientMapper clientMapper,
       Consumer<Void> onSaveCallback) {
     this.appointmentService = appointmentService;
@@ -107,6 +110,9 @@ public class AppointmentForm extends Div {
 
     this.clientCreationDialog = new ClientCreationDialog(clientService, clientMapper);
     this.petForm = new PetForm(petService, clientService);
+
+    this.revisionView = new RevisionView<>(auditService, Appointment.class);
+    revisionView.configureGridRevision();
 
     initializeForm();
     setupSidebar();
@@ -304,16 +310,7 @@ public class AppointmentForm extends Div {
 
   private void loadClientPets(Client client) {
     try {
-      List<Pet> clientPets =
-          petService.getPetsByOwnerId(client.getId(), PageRequest.of(0, 1000)).stream()
-              .map(
-                  dto -> {
-                    Pet pet = new Pet();
-                    pet.setId(dto.getId());
-                    pet.setName(dto.getName());
-                    return pet;
-                  })
-              .toList();
+      List<Pet> clientPets = petService.finAllByOwenersContaining(client);
 
       petCombo.setItems(clientPets);
       petCombo.setItemLabelGenerator(Pet::getName);
@@ -486,7 +483,7 @@ public class AppointmentForm extends Div {
     description.addClassNames(
         LumoUtility.Display.HIDDEN, LumoUtility.Display.Breakpoint.Large.FLEX);
 
-    Div headerLayout = new Div(headerTitle, description);
+    Div headerLayout = new Div(headerTitle, description, revisionView.getGrid());
     headerLayout.addClassNames(
         LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN, LumoUtility.Margin.Top.SMALL);
 
@@ -614,21 +611,9 @@ public class AppointmentForm extends Div {
   }
 
   private void clearForm() {
-    Stream.of(
-            titleField,
-            offeringTypeSelect,
-            clientCombo,
-            petCombo,
-            appointmentDate,
-            startTime,
-            endTime,
-            notesField,
-            guestClientName,
-            guestClientPhone,
-            guestClientEmail,
-            guestPetType,
-            guestPetBreed)
-        .forEach(HasValue::clear);
+    binder.getFields().forEach(HasValue::clear);
+    guestInfoBinder.getFields().forEach(HasValue::clear);
+    Stream.of(clientCombo, petCombo, assignedEmployeeCombo).forEach(HasValue::clear);
 
     isGroomingWorkflow = false;
     updateWorkflowVisibility();
@@ -637,6 +622,7 @@ public class AppointmentForm extends Div {
   private void populateForm(AppointmentResponseDto appointment) {
     if (appointment != null) {
       offeringTypeSelect.setValue(appointment.getOfferingType());
+      revisionView.loadRevisions(appointment.getEventId());
       titleField.setValue(
           appointment.getAppointmentTitle() != null ? appointment.getAppointmentTitle() : "");
 
@@ -657,8 +643,8 @@ public class AppointmentForm extends Div {
   }
 
   public void openForNew(LocalDateTime startTime, LocalDateTime endTime) {
-    currentAppointment = null;
     clearForm();
+    currentAppointment = null;
 
     if (startTime != null) {
       appointmentDate.setValue(startTime.toLocalDate());

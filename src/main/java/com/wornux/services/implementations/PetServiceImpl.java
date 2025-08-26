@@ -57,7 +57,6 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
 
   @Override
   @Transactional
-  // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'VETERINARIAN')")
   public Pet createPet(@Valid PetCreateRequestDto petDTO) {
     log.debug("Request to create Pet : {}", petDTO);
 

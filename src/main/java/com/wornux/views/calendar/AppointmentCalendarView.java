@@ -16,6 +16,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.mapper.ClientMapper;
+import com.wornux.services.AuditService;
 import com.wornux.services.interfaces.AppointmentService;
 import com.wornux.services.interfaces.ClientService;
 import com.wornux.services.interfaces.PetService;
@@ -50,6 +51,7 @@ public class AppointmentCalendarView extends VerticalLayout {
   private final FullCalendar calendar;
   private final transient AppointmentEntryService appointmentEntryService;
   private final transient AppointmentService appointmentService;
+  private final transient AuditService auditService;
   private final AppointmentForm appointmentForm;
   private final Span currentViewLabel;
   private final ComboBox<CalendarViewImpl> viewSelector;
@@ -58,20 +60,25 @@ public class AppointmentCalendarView extends VerticalLayout {
       AppointmentEntryService appointmentEntryService,
       AppointmentService appointmentService,
       PetService petService,
+      AuditService auditService,
       ClientService clientService,
       ClientMapper clientMapper) {
     this.appointmentEntryService = appointmentEntryService;
     this.appointmentService = appointmentService;
+    this.auditService = auditService;
 
     appointmentForm =
         new AppointmentForm(
-            appointmentService, clientService, petService, clientMapper, v -> loadAppointments());
+            appointmentService,
+            clientService,
+            petService,
+            auditService,
+            clientMapper,
+            v -> loadAppointments());
 
-    // Initialize UI components
     currentViewLabel = new Span();
     viewSelector = createViewSelector();
 
-    // Layout configuration with professional styling
     addClassNames(
         LumoUtility.Background.CONTRAST_5,
         LumoUtility.Display.FLEX,
@@ -94,13 +101,10 @@ public class AppointmentCalendarView extends VerticalLayout {
     configureCalendar();
     setupCalendarEventListeners();
 
-    // Create calendar container with proper styling
     createCalendarContainer();
 
-    // Create header and toolbar
     HorizontalLayout header = createHeader();
 
-    // Layout composition with spacing
     header.addClassNames(LumoUtility.Margin.Bottom.SMALL);
     add(header, calendar, appointmentForm);
 
@@ -143,13 +147,10 @@ public class AppointmentCalendarView extends VerticalLayout {
         LumoUtility.Padding.Horizontal.MEDIUM,
         LumoUtility.Gap.MEDIUM);
 
-    // Left section: Navigation buttons
     HorizontalLayout leftSection = createNavigationSection();
 
-    // Center section: Month display
     HorizontalLayout centerSection = createCenterSection();
 
-    // Right section: Other buttons
     HorizontalLayout rightSection = createActionSection();
 
     header.add(leftSection, centerSection, rightSection);
@@ -157,7 +158,6 @@ public class AppointmentCalendarView extends VerticalLayout {
   }
 
   private HorizontalLayout createNavigationSection() {
-    // Navigation buttons with professional styling
     Button prevBtn = new Button(VaadinIcon.ANGLE_LEFT.create());
     prevBtn.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_CONTRAST);
     prevBtn.setTooltipText("Anterior");
@@ -175,7 +175,6 @@ public class AppointmentCalendarView extends VerticalLayout {
     todayBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
     todayBtn.addClickListener(e -> calendar.today());
 
-    // Navigation section layout
     HorizontalLayout navSection = new HorizontalLayout(prevBtn, todayBtn, nextBtn);
     navSection.setAlignItems(FlexComponent.Alignment.CENTER);
     navSection.addClassNames(LumoUtility.Gap.SMALL, LumoUtility.FlexWrap.NOWRAP);
@@ -185,13 +184,11 @@ public class AppointmentCalendarView extends VerticalLayout {
   }
 
   private HorizontalLayout createCenterSection() {
-    // Center section with month display
     HorizontalLayout centerSection = new HorizontalLayout();
     centerSection.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
     centerSection.setAlignItems(FlexComponent.Alignment.CENTER);
     centerSection.addClassNames(LumoUtility.Flex.GROW);
 
-    // Style the current view label for center display
     currentViewLabel.addClassNames(
         LumoUtility.FontSize.LARGE,
         LumoUtility.FontWeight.MEDIUM,
@@ -203,13 +200,11 @@ public class AppointmentCalendarView extends VerticalLayout {
   }
 
   private HorizontalLayout createActionSection() {
-    // Action buttons group - responsive design
     Button newAppointmentBtn = new Button("Nueva Cita", createStyledIcon(VaadinIcon.PLUS));
     newAppointmentBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
     newAppointmentBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
     newAppointmentBtn.addClickListener(e -> openNewAppointmentDialog());
 
-    // Mobile-friendly button with icon only
     Button mobileNewBtn = new Button(createStyledIcon(VaadinIcon.PLUS));
     mobileNewBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ICON);
     mobileNewBtn.setTooltipText("Nueva Cita");
@@ -223,12 +218,10 @@ public class AppointmentCalendarView extends VerticalLayout {
     refreshBtn.addClassNames(LumoUtility.BorderRadius.MEDIUM);
     refreshBtn.addClickListener(e -> loadAppointments());
 
-    // View selector styling with responsive width
     viewSelector.addClassNames(LumoUtility.BorderRadius.MEDIUM);
     viewSelector.setWidth("180px");
     viewSelector.getStyle().set("min-width", "150px");
 
-    // Action section layout
     HorizontalLayout actionSection =
         new HorizontalLayout(mobileNewBtn, refreshBtn, viewSelector, newAppointmentBtn);
     actionSection.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -395,7 +388,6 @@ public class AppointmentCalendarView extends VerticalLayout {
 
       appointmentService.updateAppointment(appointmentId, updateDto);
 
-      // Professional styled notification
       Notification notification = Notification.show("Cita actualizada correctamente");
       notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
       notification.setPosition(Notification.Position.TOP_END);
@@ -403,28 +395,25 @@ public class AppointmentCalendarView extends VerticalLayout {
     } catch (ConstraintViolationException e) {
       log.error("Validation error updating appointment", e);
       ValidationNotificationUtils.handleCalendarValidationErrors(e);
-      loadAppointments(); // Reload to revert visual changes
+      loadAppointments();
     } catch (Exception e) {
       log.error("Error updating appointment", e);
 
-      // Professional styled error notification
       Notification notification =
           Notification.show("Error al actualizar la cita. Inténtelo de nuevo.");
       notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
       notification.setPosition(Notification.Position.TOP_CENTER);
       notification.setDuration(5000);
 
-      loadAppointments(); // Reload to revert visual changes
+      loadAppointments();
     }
   }
 
   private JsonObject createDefaultInitialOptions() {
     JsonObject initialOptions = Json.createObject();
 
-    // Hide default header as we create custom toolbar
     initialOptions.put("headerToolbar", false);
 
-    // Professional calendar settings
     initialOptions.put("height", "auto");
     initialOptions.put("weekNumbers", true);
     initialOptions.put("weekNumberCalculation", "ISO");
@@ -433,7 +422,6 @@ public class AppointmentCalendarView extends VerticalLayout {
     initialOptions.put("moreLinkClick", "popover");
     initialOptions.put("eventDisplay", "block");
 
-    // Time formatting
     initialOptions.put(
         "eventTimeFormat",
         Json.parse("{\"hour\": \"2-digit\", \"minute\": \"2-digit\", \"meridiem\": false}"));
@@ -442,17 +430,14 @@ public class AppointmentCalendarView extends VerticalLayout {
         "slotLabelFormat",
         Json.parse("{\"hour\": \"2-digit\", \"minute\": \"2-digit\", \"meridiem\": false}"));
 
-    // Spanish localization with better formatting
     initialOptions.put("locale", "es");
-    initialOptions.put("firstDay", 1); // Monday
+    initialOptions.put("firstDay", 1);
 
-    // Enhanced interaction
     initialOptions.put("selectable", true);
     initialOptions.put("selectMirror", true);
     initialOptions.put("editable", true);
     initialOptions.put("eventResizableFromStart", true);
 
-    // Better mobile experience
     initialOptions.put("handleWindowResize", true);
     initialOptions.put("windowResizeDelay", 100);
 
