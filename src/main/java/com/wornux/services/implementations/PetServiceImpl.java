@@ -254,4 +254,10 @@ public class PetServiceImpl extends ListRepositoryService<Pet, Long, PetReposito
   public PetRepository getRepository() {
     return petRepository;
   }
+
+  @Override
+  @Transactional
+  public List<Pet> finAllByOwenersContaining(Client client) {
+    return petRepository.findByOwnersContaining(client);
+  }
 }
