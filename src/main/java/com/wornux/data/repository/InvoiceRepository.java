@@ -2,7 +2,9 @@ package com.wornux.data.repository;
 
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Invoice;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -46,4 +48,13 @@ public interface InvoiceRepository
   @EntityGraph(attributePaths = {"client", "products.product", "offerings.offering"})
   @Query("SELECT i FROM Invoice i WHERE i.consultation.id = :consultationId AND i.active = true")
   Optional<Invoice> findByConsultationIdWithDetails(@Param("consultationId") Long consultationId);
+
+  @Query("SELECT COALESCE(SUM(i.total - i.paidToDate), 0) FROM Invoice i WHERE i.status = 'OVERDUE' AND i.active = true")
+  BigDecimal findTotalOverdueAmount();
+
+  @Query("SELECT COALESCE(SUM(i.total - i.paidToDate), 0) FROM Invoice i WHERE i.paymentDate <= :targetDate AND i.status IN ('PENDING', 'PARTIAL') AND i.active = true")
+  BigDecimal findTotalAmountDueByDate(@Param("targetDate") LocalDate targetDate);
+
+  @Query("SELECT i FROM Invoice i WHERE i.status = 'PAID' AND i.paymentDate IS NOT NULL AND i.active = true")
+  List<Invoice> findAllPaidInvoices();
 }

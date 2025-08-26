@@ -1,9 +1,5 @@
 package com.wornux.views.transactions;
 
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
-import static com.wornux.utils.PredicateUtils.predicateForNumericField;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
@@ -59,16 +55,21 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.core5.http.ContentType;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.io.ByteArrayInputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.core5.http.ContentType;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.jpa.domain.Specification;
+
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
+import static com.wornux.utils.PredicateUtils.predicateForNumericField;
 
 @Slf4j
 @Uses(Icon.class)
@@ -260,6 +261,7 @@ public class InvoiceView extends Div {
   private void refreshAll() {
     grid.getDataProvider().refreshAll();
     quantity.setText("Facturas (%s)".formatted(service.getCount(createFilterSpecification())));
+    recreateBoardCards();
   }
 
   private Component createFilter() {
@@ -396,18 +398,38 @@ public class InvoiceView extends Div {
     boardCards.removeAll();
 
     DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
-    DecimalFormat numberFormat = new DecimalFormat("#,##0");
+    DecimalFormat numberFormat = new DecimalFormat("#,##0.0");
 
-    BoardCard card = createBoardCard("Vencido", decimalFormat.format(0.00), "DOP");
-    boardCards.add(card);
+    try {
+      var overdueAmount = service.getTotalOverdueAmount();
+      BoardCard card = createBoardCard("Vencido", decimalFormat.format(overdueAmount), "DOP");
+      boardCards.add(card);
 
-    card =
-        createBoardCard(
-            "Deuda a pagar dentro de los próximos 30 días", decimalFormat.format(0.00), "DOP");
-    boardCards.add(card);
+      var amountDueWithin30Days = service.getTotalAmountDueWithin30Days();
+      card =
+          createBoardCard(
+              "Deuda a pagar dentro de los próximos 30 días",
+              decimalFormat.format(amountDueWithin30Days),
+              "DOP");
+      boardCards.add(card);
 
-    card = createBoardCard("Tiempo promedio para recibir pago", numberFormat.format(0), "días");
-    boardCards.add(card);
+      var averagePaymentTime = service.getAveragePaymentTimeInDays();
+      card =
+          createBoardCard(
+              "Tiempo promedio para recibir pago", numberFormat.format(averagePaymentTime), "días");
+      boardCards.add(card);
+    } catch (Exception e) {
+      log.error("Error loading board card metrics", e);
+
+      BoardCard errorCard = createBoardCard("Error cargando datos", "N/A", "");
+      boardCards.add(errorCard);
+
+      Notification.show(
+              "Error al cargar las métricas del dashboard. Intente nuevamente.",
+              5000,
+              Notification.Position.TOP_CENTER)
+          .addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
   }
 
   private BoardCard createBoardCard(String title, String value, String subValue) {

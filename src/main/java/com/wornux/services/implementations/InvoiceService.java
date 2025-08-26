@@ -10,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -144,6 +146,46 @@ public class InvoiceService {
       return repository.save(invoice);
     } catch (InvalidInvoiceStatusChangeException ex) {
       throw ex;
+    }
+  }
+
+  public BigDecimal getTotalOverdueAmount() {
+    try {
+      BigDecimal result = repository.findTotalOverdueAmount();
+      return result != null ? result : BigDecimal.ZERO;
+    } catch (Exception e) {
+      return BigDecimal.ZERO;
+    }
+  }
+
+  public BigDecimal getTotalAmountDueWithin30Days() {
+    try {
+      LocalDate targetDate = LocalDate.now().plusDays(30);
+      BigDecimal result = repository.findTotalAmountDueByDate(targetDate);
+      return result != null ? result : BigDecimal.ZERO;
+    } catch (Exception e) {
+      return BigDecimal.ZERO;
+    }
+  }
+
+  public double getAveragePaymentTimeInDays() {
+    try {
+      List<Invoice> paidInvoices = repository.findAllPaidInvoices();
+      
+      if (paidInvoices == null || paidInvoices.isEmpty()) {
+        return 0.0;
+      }
+      
+      double totalDays = paidInvoices.stream()
+          .filter(invoice -> invoice.getPaymentDate() != null && invoice.getIssuedDate() != null)
+          .mapToLong(invoice -> ChronoUnit.DAYS.between(invoice.getIssuedDate(), invoice.getPaymentDate()))
+          .filter(days -> days >= 0)
+          .average()
+          .orElse(0.0);
+          
+      return Math.max(0.0, totalDays);
+    } catch (Exception e) {
+      return 0.0;
     }
   }
 }
