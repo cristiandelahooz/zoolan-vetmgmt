@@ -25,11 +25,17 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wornux.data.entity.Product;
 import com.wornux.dto.dashboard.ChartDataDto;
 import com.wornux.dto.dashboard.RevenueDataDto;
 import com.wornux.dto.dashboard.StockAlertDto;
 import com.wornux.services.interfaces.DashboardService;
+import com.wornux.services.interfaces.ProductService;
+import com.wornux.services.interfaces.SupplierService;
+import com.wornux.services.interfaces.WarehouseService;
+import com.wornux.views.products.ProductForm;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
@@ -44,8 +50,14 @@ import java.util.stream.Collectors;
 public class DashboardView extends VerticalLayout {
 
   private final DashboardService dashboardService;
+  private final ProductService productService;
+  private final SupplierService supplierService;
+  private final WarehouseService warehouseService;
   private final NumberFormat currencyFormat;
   private final DateTimeFormatter dateFormatter;
+  private final ProductForm productForm;
+  private Grid<StockAlertDto> alertsGrid; // New field
+  private Product selectedProduct;
 
   // Paleta de colores moderna
   private final String[] modernColors = {
@@ -54,10 +66,20 @@ public class DashboardView extends VerticalLayout {
       "#EC4899", "#6366F1", "#14B8A6", "#F43F5E"
   };
 
-  public DashboardView(DashboardService dashboardService) {
+  public DashboardView(DashboardService dashboardService,
+                       @Qualifier("productServiceImpl") ProductService productService,
+                       @Qualifier("supplierServiceImpl") SupplierService supplierService,
+                       @Qualifier("warehouseServiceImpl") WarehouseService warehouseService) {
     this.dashboardService = dashboardService;
+    this.productService = productService;
+    this.supplierService = supplierService;
+    this.warehouseService = warehouseService;
     this.currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "DO"));
     this.dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    this.productForm = new ProductForm(productService, supplierService, warehouseService);
+    add(productForm);
+    productForm.setOnSaveCallback(this::refreshStockAlertsGrid);
+
 
     initializeDashboard();
     showStockAlerts();
@@ -759,7 +781,7 @@ public class DashboardView extends VerticalLayout {
         .set("font-weight", "700");
 
     // Grid moderno para mostrar alertas
-    Grid<StockAlertDto> alertsGrid = new Grid<>(StockAlertDto.class, false);
+    alertsGrid = new Grid<>(StockAlertDto.class, false);
     alertsGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_ROW_STRIPES);
     alertsGrid.setHeight("300px");
 
@@ -829,8 +851,10 @@ public class DashboardView extends VerticalLayout {
       Button actionBtn = new Button("Gestionar");
       actionBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
       actionBtn.addClickListener(e -> {
-        Notification.show("Redirigiendo a gestión de producto: " + alert.getProductName(),
-            3000, Notification.Position.TOP_END);
+        productService.getProductById(alert.getProductId()).ifPresentOrElse(this::openProductForm, () -> {
+          Notification.show("Producto no encontrado", 3000, Notification.Position.TOP_END)
+              .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        });
       });
       return actionBtn;
     })).setHeader("Acciones").setWidth("120px");
@@ -846,6 +870,19 @@ public class DashboardView extends VerticalLayout {
     alertsPanel.add(alertsTitle, alertsGrid);
     alertsPanel.setWidth("97%");
     return alertsPanel;
+  }
+
+  private void openProductForm(Product product) {
+    productForm.openForEdit(product);
+  }
+
+  private void refreshStockAlertsGrid() {
+    List<StockAlertDto> stockAlerts = dashboardService.getStockHealthAnalysis();
+    List<StockAlertDto> criticalAlerts = stockAlerts.stream()
+        .filter(alert -> "CRITICAL".equals(alert.getAlertLevel()) || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
+        .limit(10)
+        .collect(Collectors.toList());
+    alertsGrid.setItems(criticalAlerts);
   }
 
   private Div createModernKPICard(String value, String title, Icon icon, String color) {
@@ -889,10 +926,6 @@ public class DashboardView extends VerticalLayout {
     card.add(cardContent);
     return card;
   }
-
-  // [Resto de métodos de stock permanecen iguales desde la respuesta anterior...
-  // [Incluir todos los métodos: createAdvancedMetricsRow, createAnimatedMetricCard,
-  //  createInteractiveAlertsPanel, createAdvancedAnalyticsSection, etc.]
 
   private HorizontalLayout createAdvancedAnalyticsSection(List<StockAlertDto> stockAlerts) {
     HorizontalLayout analyticsSection = new HorizontalLayout();
