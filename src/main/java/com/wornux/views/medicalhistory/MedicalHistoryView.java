@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
@@ -11,21 +12,25 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Pet;
-import com.wornux.services.interfaces.ConsultationService;
-import com.wornux.services.interfaces.PetService;
+import com.wornux.services.implementations.InvoiceService;
+import com.wornux.services.interfaces.*;
 import com.wornux.views.MainLayout;
+import com.wornux.views.consultations.ConsultationDetailsSidebar;
+import com.wornux.views.consultations.ConsultationsForm;
 import com.wornux.views.pets.SelectPetDialog;
 import jakarta.annotation.security.RolesAllowed;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import java.util.Locale;
 
 @PageTitle("Historial Médico")
 @Route(value = "historial-medico/:petId", layout = MainLayout.class)
-@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
+@RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER", "ROLE_EMP_VETERINARIAN"})
 public class MedicalHistoryView extends VerticalLayout {
 
   private final PetService petService;
@@ -35,12 +40,40 @@ public class MedicalHistoryView extends VerticalLayout {
   private final TextField selectedPetField;
   private final Button selectPetBtn;
   private final HorizontalLayout petSelector;
+  private final transient InvoiceService invoiceService;
+  private final transient OfferingService offeringService;
+  private final transient ProductService productService;
+  private final transient ConsultationsForm consultationsForm;
+  private final ConsultationDetailsSidebar detailsSidebar;
+
   private Pet selectedPet;
   private boolean lockedByParam = false;
 
-  public MedicalHistoryView(PetService petService, ConsultationService consultationService) {
-    this.petService = petService;
+
+  private boolean urlBootstrapped = false;
+
+  public MedicalHistoryView (@Qualifier("consultationServiceImpl") ConsultationService consultationService,
+                             @Qualifier("employeeServiceImpl")
+                             EmployeeService employeeService,
+                             @Qualifier("petServiceImpl") PetService petService,
+                             @Qualifier("offeringServiceImpl") OfferingService offeringService,
+                             @Qualifier("productServiceImpl") ProductService productService,
+                             InvoiceService invoiceService) {
     this.consultationService = consultationService;
+    this.invoiceService = invoiceService;
+    this.productService = productService;
+    this.offeringService = offeringService;
+    this.consultationsForm =
+            new ConsultationsForm(
+                    consultationService,
+                    employeeService,
+                    petService,
+                    offeringService,
+                    invoiceService,
+                    productService);
+    this.petService = petService;
+    this.detailsSidebar = new ConsultationDetailsSidebar(invoiceService, consultationsForm);
+    add(detailsSidebar);
 
     setSizeFull();
     setPadding(true);
@@ -52,78 +85,105 @@ public class MedicalHistoryView extends VerticalLayout {
     selectedPetField = new TextField("Mascota");
     selectedPetField.setReadOnly(true);
 
-    selectPetBtn =
-        new Button(
-            "Seleccionar",
-            e -> {
-              SelectPetDialog dialog = new SelectPetDialog(petService);
-              dialog.addPetSelectedListener(
-                  pet -> {
-                    selectedPet = pet;
-                    selectedPetField.setValue(pet.getName());
-                    loadMedicalHistory(pet.getId());
-                    // Si NO está bloqueado por parámetro, el botón debe seguir visible para poder
-                    // cambiar
-                    updateSelectorUI();
-                  });
-              dialog.open();
-            });
+    selectPetBtn = new Button("Seleccionar", e -> {
+      SelectPetDialog dialog = new SelectPetDialog(petService);
+      dialog.addPetSelectedListener(pet -> {
+        selectedPet = pet;
+        selectedPetField.setValue(pet.getName());
+        loadMedicalHistory(pet.getId());
+        updateSelectorUI();
+      });
+      dialog.open();
+    });
 
     petSelector = new HorizontalLayout(selectedPetField, selectPetBtn);
     petSelector.setAlignItems(Alignment.END);
 
     consultationsGrid = new Grid<>(Consultation.class, false);
+    consultationsGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
     consultationsGrid
-        .addColumn(c -> c.getConsultationDate().toLocalDate())
-        .setHeader("Fecha")
-        .setAutoWidth(true);
+            .addColumn(c -> c.getConsultationDate().toLocalDate())
+            .setHeader("Fecha")
+            .setAutoWidth(true);
     consultationsGrid
-        .addColumn(
-            c -> {
+            .addColumn(c -> {
               var v = c.getVeterinarian();
               return v != null ? v.getFirstName() + " " + v.getLastName() : "—";
             })
-        .setHeader("Veterinario")
-        .setAutoWidth(true);
+            .setHeader("Veterinario")
+            .setAutoWidth(true);
     consultationsGrid
-        .addColumn(Consultation::getDiagnosis)
-        .setHeader("Diagnóstico")
-        .setAutoWidth(true);
+            .addColumn(Consultation::getDiagnosis)
+            .setHeader("Diagnóstico")
+            .setAutoWidth(true);
     consultationsGrid
-        .addColumn(Consultation::getTreatment)
-        .setHeader("Tratamiento")
-        .setAutoWidth(true);
-    consultationsGrid.addItemClickListener(e -> openConsultationDetail(e.getItem()));
+            .addColumn(Consultation::getTreatment)
+            .setHeader("Tratamiento")
+            .setAutoWidth(true);
+    //consultationsGrid.addItemClickListener(e -> openConsultationDetail(e.getItem()));
+    consultationsGrid.asSingleSelect()
+            .addValueChangeListener(
+                    e -> {
+                      Consultation sel = e.getValue();
+                      if (sel != null) {
+                        detailsSidebar.open(sel);
+                      }
+                    });
 
     add(title, petSelector, consultationsGrid);
     setFlexGrow(1, consultationsGrid);
 
+    addAttachListener(e -> bootstrapFromUrlIfAny());
+
     updateSelectorUI();
   }
 
-  public void setParameter(BeforeEvent event, @OptionalParameter Long petId) {
-    if (petId != null) {
-      lockedByParam = true;
-      petService
-          .getPetById(petId)
-          .ifPresent(
-              p -> {
-                selectedPet = p;
-                selectedPetField.setValue(p.getName());
-                loadMedicalHistory(p.getId());
-                updateSelectorUI();
-              });
-    } else {
-      lockedByParam = false;
-      selectedPet = null;
-      selectedPetField.clear();
-      consultationsGrid.setItems(List.of());
-      updateSelectorUI();
+  /**
+   * Lee el último segmento de la URL activa (espera ".../historial-medico/{id}"),
+   * busca la mascota, bloquea el selector y carga el historial.
+   */
+  private void bootstrapFromUrlIfAny() {
+    if (urlBootstrapped) return;
+
+    var ui = com.vaadin.flow.component.UI.getCurrent();
+    if (ui == null) return;
+
+    var loc = ui.getInternals().getActiveViewLocation();
+    if (loc == null) return;
+
+    var segments = loc.getSegments();
+    if (segments == null || segments.isEmpty()) return;
+
+    String last = segments.get(segments.size() - 1);
+    Long petId;
+    try {
+      petId = Long.valueOf(last);
+    } catch (NumberFormatException ex) {
+
+      return;
     }
+
+    petService.getPetById(petId).ifPresent(p -> {
+      urlBootstrapped = true;
+      lockedByParam = true;
+
+      selectedPet = p;
+      selectedPetField.setValue(p.getName());
+      selectedPetField.setReadOnly(true);
+
+      selectPetBtn.setEnabled(false);
+      selectPetBtn.setVisible(false);
+
+      loadMedicalHistory(p.getId());
+      updateSelectorUI();
+    });
   }
 
   private void updateSelectorUI() {
+    // Si vino por URL, se bloquea el cambio de mascota
     selectPetBtn.setVisible(!lockedByParam);
+    selectPetBtn.setEnabled(!lockedByParam);
+
     if (!lockedByParam) {
       selectPetBtn.setText(selectedPet == null ? "Seleccionar" : "Cambiar");
     }
@@ -139,12 +199,12 @@ public class MedicalHistoryView extends VerticalLayout {
     detailDialog.setWidth("720px");
     detailDialog.setMaxWidth("95vw");
 
-    // ===== Contenido principal
+
     VerticalLayout content = new VerticalLayout();
     content.setPadding(true);
     content.setSpacing(true);
 
-    // === Cabecera: Mascota + tipo (badge) + veterinario (badge)
+
     HorizontalLayout headerRow = new HorizontalLayout();
     headerRow.setAlignItems(HorizontalLayout.Alignment.CENTER);
     headerRow.setWidthFull();
@@ -158,18 +218,19 @@ public class MedicalHistoryView extends VerticalLayout {
     headerRow.add(petName, petTypeBadge, vetBadge);
     headerRow.expand(petName);
 
-    // === Meta (responsive): fecha, veterinario, dueño, estado
+
     FormLayout meta = new FormLayout();
     meta.setWidthFull();
     meta.setResponsiveSteps(
-        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("600px", 2));
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("600px", 2)
+    );
     meta.addFormItem(new Span(formatDateTime(c.getConsultationDate())), "Fecha y hora");
     meta.addFormItem(new Span(vetName(c)), "Veterinario");
     meta.addFormItem(new Span(primaryOwnerName(c.getPet())), "Dueño principal");
-    meta.addFormItem(
-        new Span(Boolean.TRUE.equals(c.getActive()) ? "ACTIVA" : "INACTIVA"), "Estado");
+    meta.addFormItem(new Span(Boolean.TRUE.equals(c.getActive()) ? "ACTIVA" : "INACTIVA"), "Estado");
 
-    // === Secciones (Dx / Tx / Rx / Notas) con estilo de tarjeta
+
     VerticalLayout dxCard = sectionCard("Diagnóstico", textOrNA(c.getDiagnosis()), "primary");
     VerticalLayout txCard = sectionCard("Tratamiento", textOrNA(c.getTreatment()), "success");
     VerticalLayout rxCard = sectionCard("Prescripción", textOrNA(c.getPrescription()), "warning");
@@ -178,7 +239,6 @@ public class MedicalHistoryView extends VerticalLayout {
     content.add(headerRow, meta, dxCard, txCard, rxCard, ntCard);
     detailDialog.add(content);
 
-    // ===== Footer con botón cerrar
     Button close = new Button("Cerrar", e -> detailDialog.close());
     close.addThemeVariants(com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY);
     detailDialog.getFooter().add(close);
@@ -186,7 +246,7 @@ public class MedicalHistoryView extends VerticalLayout {
     detailDialog.open();
   }
 
-  // --- Badges Vaadin (sin CSS externo)
+
   private Span badge(String text, String theme) {
     Span b = new Span(text == null || text.isBlank() ? "—" : text);
     b.getElement().getThemeList().add("badge");
@@ -247,9 +307,9 @@ public class MedicalHistoryView extends VerticalLayout {
     card.setSpacing(false);
     card.setPadding(true);
     card.addClassNames(
-        LumoUtility.Border.ALL,
-        LumoUtility.BorderColor.CONTRAST_10,
-        LumoUtility.BorderRadius.LARGE);
+            LumoUtility.Border.ALL,
+            LumoUtility.BorderColor.CONTRAST_10,
+            LumoUtility.BorderRadius.LARGE);
 
     // título + badge
     HorizontalLayout head = new HorizontalLayout();

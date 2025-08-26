@@ -10,6 +10,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -151,7 +152,19 @@ public class WaitingRoomView extends VerticalLayout {
     newEntryButton.addThemeVariants(
         ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
 
-    HorizontalLayout header = new HorizontalLayout(titleWithInfo, newEntryButton);
+      /*Button refreshBtn = new Button("Refrescar", VaadinIcon.REFRESH.create());
+      refreshBtn.addClickListener(e -> {
+          try {
+              waitingRoomService.syncTodayFromAppointments();      // 1) trae citas de hoy → crea WR si faltan
+              grid.setItems(waitingRoomService.getCurrentWaitingRoom()); // 2) recarga grid
+              NotificationUtils.success("Sala actualizada");
+          } catch (Exception ex) {
+              NotificationUtils.error("No se pudo refrescar: " + ex.getMessage());
+          }
+      });*/
+
+
+      HorizontalLayout header = new HorizontalLayout(titleWithInfo, newEntryButton);
     header.setWidthFull();
     header.setJustifyContentMode(JustifyContentMode.BETWEEN);
     header.setAlignItems(Alignment.CENTER);
@@ -276,6 +289,7 @@ public class WaitingRoomView extends VerticalLayout {
   }
 
   private void refreshGrid() {
+    waitingRoomService.syncTodayFromAppointments();
     Specification<WaitingRoom> spec = createFilterSpecification();
     List<WaitingRoom> filtered = waitingRoomService.getRepository().findAll(spec);
     grid.setItems(filtered);
@@ -719,4 +733,17 @@ public class WaitingRoomView extends VerticalLayout {
     d.setResizable(true);
     d.open();
   }
+
+  @Override
+  protected void onAttach(AttachEvent event) {
+    super.onAttach(event);
+    try {
+      waitingRoomService.syncTodayFromAppointments();
+      refreshGrid();
+      updateQuantity();
+    } catch (Exception ex) {
+      NotificationUtils.error("No se pudo sincronizar: " + ex.getMessage());
+    }
+  }
+
 }

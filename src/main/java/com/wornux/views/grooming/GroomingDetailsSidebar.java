@@ -57,6 +57,8 @@ public class GroomingDetailsSidebar extends Div {
     sidebar.addSubTitle("Información de la sesión");
 
     // botones del Sidebar
+    // Ocultar el botón Eliminar
+    sidebar.getDelete().getElement().getStyle().set("display", "none");
     sidebar.getSave().setText("Editar grooming");
     sidebar.getSave().addThemeVariants(ButtonVariant.LUMO_PRIMARY);
     sidebar.setOnSaveClickListener(

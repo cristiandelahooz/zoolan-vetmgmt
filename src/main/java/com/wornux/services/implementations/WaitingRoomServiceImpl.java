@@ -27,6 +27,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import com.wornux.data.entity.Appointment;
+import com.wornux.data.enums.AppointmentStatus;
+import com.wornux.data.enums.OfferingType;
+import com.wornux.data.enums.VisitType;
+import com.wornux.data.repository.AppointmentRepository;
+
 
 @Slf4j
 @Service
@@ -45,6 +51,7 @@ public class WaitingRoomServiceImpl
   private final ClientRepository clientRepository;
   private final PetRepository petRepository;
   private final WaitingRoomMapper waitingRoomMapper;
+  private final AppointmentRepository appointmentRepository;
 
   @Override
   public WaitingRoom save(WaitingRoomCreateRequestDto dto) {
@@ -390,10 +397,17 @@ public class WaitingRoomServiceImpl
 
   @Override
   public List<WaitingRoom> findForVeterinarian(Long veterinarianId) {
+    // sincroniza citas del día
+    syncTodayAppointmentsForEmployee(veterinarianId, /*forGroomer=*/ false);
+    // trae MEDICA activas: sin vet asignado o asignadas al actual
+    return waitingRoomRepository.findActiveMedicalForVetOrUnassigned(
+            veterinarianId, VisitType.MEDICA, activeStatuses());
+  }
+  /*public List<WaitingRoom> findForVeterinarian(Long veterinarianId) {
     List<WaitingRoomStatus> activeStatuses =
         Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
     return waitingRoomRepository.findByVeterinarianAndStatuses(veterinarianId, activeStatuses);
-  }
+  }*/
 
   @Override
   public List<WaitingRoom> findByAssignedGroomer(Long groomerId) {
@@ -402,8 +416,123 @@ public class WaitingRoomServiceImpl
 
   @Override
   public List<WaitingRoom> findForGroomer(Long groomerId) {
+    // sincroniza citas del día
+    syncTodayAppointmentsForEmployee(groomerId, /*forGroomer=*/ true);
+    // trae GROOMING activas: sin groomer asignado o asignadas al actual
+    return waitingRoomRepository.findActiveGroomingForGroomerOrUnassigned(
+            groomerId, VisitType.GROOMING, activeStatuses());
+  }
+  /*public List<WaitingRoom> findForGroomer(Long groomerId) {
     List<WaitingRoomStatus> activeStatuses =
         Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
     return waitingRoomRepository.findByGroomerAndStatuses(groomerId, activeStatuses);
+  }*/
+
+  // +++ helpers
+
+
+
+  //-----------------------------------------
+  private List<WaitingRoomStatus> activeStatuses() {
+    return Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
   }
+
+  private VisitType toVisitType(OfferingType type) {
+    return switch (type) {
+      case CONSULTATION, VACCINATION, MEDICAL -> VisitType.MEDICA;
+      case GROOMING -> VisitType.GROOMING;
+    };
+  }
+
+  /** Crea WR desde citas de HOY del empleado; no asigna empleado (queda NULL). */
+  @Transactional
+  protected void syncTodayAppointmentsForEmployee(Long employeeId, boolean forGroomer) {
+    // Si tu server no está en RD, considera ZoneId.of("America/Santo_Domingo")
+    LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+    LocalDateTime endOfDay   = startOfDay.plusDays(1);
+
+    // NO filtramos por assignedEmployee (es null). Traemos todas las de hoy.
+    List<Appointment> todays =
+            appointmentRepository.findTodayAppointments(startOfDay, endOfDay);
+
+    for (Appointment a : todays) {
+      // descarta canceladas/completadas
+      if (a.getStatus() == AppointmentStatus.CANCELADA
+              || a.getStatus() == AppointmentStatus.COMPLETADA) {
+        continue;
+      }
+
+      if (a.getClient() == null || a.getPet() == null) continue;
+
+      // mapea OfferingType -> VisitType una sola vez
+      VisitType vt = toVisitType(a.getOfferingType());
+
+      // si esta sync es para groomer, solo GROOMING; si es para vet, solo MEDICA
+      if (forGroomer && vt != VisitType.GROOMING) continue;
+      if (!forGroomer && vt != VisitType.MEDICA) continue;
+
+      // evita duplicados por (pet, hora cita, tipo)
+      boolean exists = waitingRoomRepository.existsByPet_IdAndArrivalTimeAndType(
+              a.getPet().getId(), a.getStartAppointmentDate(), vt);
+      if (exists) continue;
+
+      // crea WR sin asignar empleado
+      WaitingRoom wr = new WaitingRoom();
+      wr.setClient(a.getClient());
+      wr.setPet(a.getPet());
+      wr.setArrivalTime(a.getStartAppointmentDate()); // o LocalDateTime.now() si prefieres
+      wr.setStatus(WaitingRoomStatus.ESPERANDO);
+      wr.setPriority(Priority.NORMAL);
+      wr.setReasonForVisit(a.getReason());
+      wr.setNotes(a.getNotes());
+      wr.setType(vt);
+      // wr.setAssignedVeterinarian(null);
+      // wr.setAssignedGroomer(null);
+
+      waitingRoomRepository.save(wr);
+    }
+  }
+
+  @Override
+  @Transactional
+  public void syncTodayFromAppointments() {
+    syncTodayAppointmentsForAll(); // el método que ya implementamos
+  }
+
+  @Transactional
+  protected void syncTodayAppointmentsForAll() {
+    LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+    LocalDateTime endOfDay   = startOfDay.plusDays(1);
+
+    List<Appointment> todays = appointmentRepository.findTodayAppointments(startOfDay, endOfDay);
+
+    for (Appointment a : todays) {
+      if (a.getStatus() == AppointmentStatus.CANCELADA
+              || a.getStatus() == AppointmentStatus.COMPLETADA) continue;
+      if (a.getClient() == null || a.getPet() == null) continue;
+
+      VisitType vt = toVisitType(a.getOfferingType());
+
+      boolean exists = waitingRoomRepository.existsByPet_IdAndArrivalTimeAndType(
+              a.getPet().getId(), a.getStartAppointmentDate(), vt);
+      if (exists) continue;
+
+      WaitingRoom wr = new WaitingRoom();
+      wr.setClient(a.getClient());
+      wr.setPet(a.getPet());
+      wr.setArrivalTime(a.getStartAppointmentDate()); // no usamos la hora actual
+      wr.setStatus(WaitingRoomStatus.ESPERANDO);
+      wr.setPriority(Priority.NORMAL);
+      wr.setReasonForVisit(a.getReason());
+      wr.setNotes(a.getNotes());
+      wr.setType(vt);
+      // no asignamos empleado aquí
+
+      waitingRoomRepository.save(wr);
+    }
+  }
+
+
+
+
 }
