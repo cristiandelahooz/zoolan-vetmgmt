@@ -1,10 +1,5 @@
 package com.wornux.views.transactions;
 
-import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
-import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.CommonUtils.createIconItem;
-
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasEnabled;
@@ -55,16 +50,22 @@ import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
 import com.wornux.views.customers.ClientCreationDialog;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
+import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
+import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.CommonUtils.createIconItem;
 
 @Slf4j
 public class InvoiceForm extends Div {
@@ -89,7 +90,6 @@ public class InvoiceForm extends Div {
   private final Button exportPdfButton =
       new Button("Exportar PDF", VaadinIcon.FILE_TEXT_O.create());
   private final Button statusButton = new Button();
-  private ContextMenu statusContextMenu;
   private final Div layoutTabBar = new Div();
   private final Div layoutGrid = new Div();
   private final Div createDetails = new Div();
@@ -100,6 +100,7 @@ public class InvoiceForm extends Div {
   private final transient RevisionView<Invoice> revisionView;
   private final ClientCreationDialog clientCreationDialog;
   private final transient List<Product> products;
+  private ContextMenu statusContextMenu;
   private Invoice element;
   @Setter private transient Runnable callable;
 
@@ -218,6 +219,20 @@ public class InvoiceForm extends Div {
     initializeFieldCollections();
   }
 
+  private static Div headerLayout(Component... components) {
+    Div layoutForm = new Div(components);
+    layoutForm.addClassNames(
+        LumoUtility.Display.FLEX,
+        LumoUtility.FlexDirection.ROW,
+        LumoUtility.FlexDirection.COLUMN,
+        LumoUtility.Gap.Column.MEDIUM,
+        LumoUtility.AlignItems.START,
+        LumoUtility.JustifyContent.BETWEEN,
+        LumoUtility.Padding.NONE,
+        LumoUtility.Margin.Top.SMALL);
+    return layoutForm;
+  }
+
   private void initializeFieldCollections() {
     restrictableFields.addAll(List.of(customer, salesOrder, issuedDate, paymentDate, add));
 
@@ -264,20 +279,6 @@ public class InvoiceForm extends Div {
     refreshGrid();
   }
 
-  private static Div headerLayout(Component... components) {
-    Div layoutForm = new Div(components);
-    layoutForm.addClassNames(
-        LumoUtility.Display.FLEX,
-        LumoUtility.FlexDirection.ROW,
-        LumoUtility.FlexDirection.COLUMN,
-        LumoUtility.Gap.Column.MEDIUM,
-        LumoUtility.AlignItems.START,
-        LumoUtility.JustifyContent.BETWEEN,
-        LumoUtility.Padding.NONE,
-        LumoUtility.Margin.Top.SMALL);
-    return layoutForm;
-  }
-
   private void configureDeleteButtonVisibility() {
     boolean canDelete =
         UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)
@@ -298,7 +299,8 @@ public class InvoiceForm extends Div {
     new ConfirmationDialogBuilder()
         .withHeader("Confirmar Eliminación")
         .withText(
-            "¿Estás seguro de que deseas desactivar esta factura? Esta acción no se puede deshacer y la factura será eliminada.")
+            "¿Estás seguro de que deseas desactivar esta factura? Esta acción no se puede deshacer"
+                + " y la factura será eliminada.")
         .withIcon(VaadinIcon.WARNING)
         .withConfirmText("Sí, eliminar")
         .withCancelText("Cancelar")
@@ -409,7 +411,8 @@ public class InvoiceForm extends Div {
   private String getStatusChangeConfirmation(InvoiceStatus current, InvoiceStatus target) {
     return switch (target) {
       case CANCELLED ->
-          "¿Estás seguro de que deseas anular esta factura? Esta acción afectará los reportes y no se puede deshacer.";
+          "¿Estás seguro de que deseas anular esta factura? Esta acción afectará los reportes y no"
+              + " se puede deshacer.";
       case PAID ->
           current == InvoiceStatus.OVERDUE
               ? "¿Confirmas que esta factura vencida ha sido pagada?"
@@ -828,7 +831,8 @@ public class InvoiceForm extends Div {
     } catch (ObjectOptimisticLockingFailureException ex) {
       log.error(ex.getLocalizedMessage());
       NotificationUtils.error(
-          "Error al actualizar los datos. Alguien más ha actualizado el registro mientras realizabas cambios.");
+          "Error al actualizar los datos. Alguien más ha actualizado el registro mientras"
+              + " realizabas cambios.");
     } catch (ValidationException ex) {
       log.error(ex.getLocalizedMessage());
       NotificationUtils.error(ex);
@@ -1095,7 +1099,9 @@ public class InvoiceForm extends Div {
 
     Paragraph description =
         new Paragraph(
-            "Registro cronológico de todas las acciones realizadas en esta factura. Incluye cambios de estado, interacciones de usuario, notas y cualquier modificación para trazabilidad completa.");
+            "Registro cronológico de todas las acciones realizadas en esta factura. Incluye cambios"
+                + " de estado, interacciones de usuario, notas y cualquier modificación para"
+                + " trazabilidad completa.");
     description.addClassNames(
         LumoUtility.Display.HIDDEN, LumoUtility.Display.Breakpoint.Large.FLEX);
 
