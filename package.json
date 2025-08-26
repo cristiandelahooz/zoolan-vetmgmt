@@ -168,6 +168,7 @@
       "react": "$react",
       "react-router": "$react-router",
       "@fullcalendar/interaction": "$@fullcalendar/interaction",
+      "tippy.js": "$tippy.js",
       "@fullcalendar/resource-timeline": "$@fullcalendar/resource-timeline",
       "date-fns": "$date-fns",
       "@fullcalendar/resource": "$@fullcalendar/resource",
@@ -186,8 +187,7 @@
       "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
       "@fullcalendar/daygrid": "$@fullcalendar/daygrid",
       "@vaadin/vaadin-lumo-styles": "$@vaadin/vaadin-lumo-styles",
-      "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles",
-      "tippy.js": "$tippy.js"
+      "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles"
     }
   },
   "vaadin": {

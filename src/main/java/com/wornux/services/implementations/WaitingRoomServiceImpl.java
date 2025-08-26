@@ -5,11 +5,7 @@ import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.ListRepositoryService;
 import com.wornux.data.entity.Appointment;
 import com.wornux.data.entity.WaitingRoom;
-import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.data.enums.OfferingType;
-import com.wornux.data.enums.Priority;
-import com.wornux.data.enums.VisitType;
-import com.wornux.data.enums.WaitingRoomStatus;
+import com.wornux.data.enums.*;
 import com.wornux.data.repository.AppointmentRepository;
 import com.wornux.data.repository.ClientRepository;
 import com.wornux.data.repository.PetRepository;
@@ -18,12 +14,6 @@ import com.wornux.dto.request.WaitingRoomCreateRequestDto;
 import com.wornux.exception.WaitingRoomNotFoundException;
 import com.wornux.mapper.WaitingRoomMapper;
 import com.wornux.services.interfaces.WaitingRoomService;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +22,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -438,7 +435,7 @@ public class WaitingRoomServiceImpl
 
   private VisitType toVisitType(OfferingType type) {
     return switch (type) {
-      case CONSULTATION, VACCINATION, MEDICAL -> VisitType.MEDICA;
+      case VACCINATION, MEDICAL -> VisitType.MEDICA;
       case GROOMING -> VisitType.GROOMING;
     };
   }
