@@ -9,11 +9,14 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.wornux.data.entity.Revision;
 import com.wornux.services.AuditService;
 import jakarta.annotation.security.PermitAll;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import org.hibernate.envers.RevisionType;
+
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @PermitAll
 public class RevisionView<T> {
@@ -53,13 +56,13 @@ public class RevisionView<T> {
 
   public void configureGridRevision() {
     grid.setHeight("800px");
-    grid.addColumn(rev -> rev.getDate().toString()).setHeader("Date").setAutoWidth(true);
-    grid.addColumn(RevisionDto::getModifierUser).setHeader("User").setAutoWidth(true);
-    grid.addColumn(rev -> rev.getIpAddress() != null ? rev.getIpAddress() : "Unknown")
-        .setHeader("IP Address")
+    grid.addColumn(rev -> formatDateToSpanish(rev.getDate())).setHeader("Fecha").setAutoWidth(true);
+    grid.addColumn(RevisionDto::getModifierUser).setHeader("Usuario").setAutoWidth(true);
+    grid.addColumn(rev -> rev.getIpAddress() != null ? rev.getIpAddress() : "Desconocida")
+        .setHeader("Dirección IP")
         .setAutoWidth(true);
-    grid.addColumn(rev -> rev.getType() != null ? rev.getType() : "N/A")
-        .setHeader("Type")
+    grid.addColumn(rev -> translateOperationType(rev.getType()))
+        .setHeader("Tipo")
         .setAutoWidth(true);
 
     grid.setItemDetailsRenderer(new ComponentRenderer<>(this::createDetailsComponent));
@@ -74,7 +77,7 @@ public class RevisionView<T> {
     Map<String, Object[]> changes =
         auditService.getChangedProperties(tClass, entityId, revision.getId());
     if (changes.isEmpty()) {
-      detailsLayout.add(new Text("No changes found for this revision."));
+      detailsLayout.add(new Text("No se encontraron cambios para esta revisión."));
       return detailsLayout;
     }
 
@@ -86,15 +89,35 @@ public class RevisionView<T> {
     }
 
     Grid<ChangeDTO> changesGrid = new Grid<>(ChangeDTO.class, false);
-    changesGrid.addColumn(ChangeDTO::getProperty).setHeader("Property").setAutoWidth(true);
+    changesGrid.addColumn(ChangeDTO::getProperty).setHeader("Propiedad").setAutoWidth(true);
     changesGrid
         .addColumn(ChangeDTO::getPreviousValue)
-        .setHeader("Previous Value")
+        .setHeader("Valor Anterior")
         .setAutoWidth(true);
-    changesGrid.addColumn(ChangeDTO::getCurrentValue).setHeader("Current Value").setAutoWidth(true);
+    changesGrid.addColumn(ChangeDTO::getCurrentValue).setHeader("Valor Actual").setAutoWidth(true);
     changesGrid.setItems(list);
 
-    detailsLayout.add(new H4("Changes in this Revision"), changesGrid);
+    detailsLayout.add(new H4("Cambios en esta Revisión"), changesGrid);
     return detailsLayout;
+  }
+
+  private String formatDateToSpanish(java.util.Date date) {
+    if (date == null) {
+      return "Fecha no disponible";
+    }
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy 'a las' HH:mm", Locale.forLanguageTag("es-ES"));
+    return date.toInstant().atZone(java.time.ZoneId.systemDefault()).format(formatter);
+  }
+
+  private String translateOperationType(String operationType) {
+    if (operationType == null) {
+      return "N/A";
+    }
+    return switch (operationType) {
+      case "Add" -> "Creación";
+      case "Mod" -> "Modificación";
+      case "Del" -> "Eliminación";
+      default -> operationType;
+    };
   }
 }
