@@ -48,6 +48,7 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     return this;
   }
 
+
   @Override
   public byte[] execute() throws ReportErrorException {
     try {
@@ -90,19 +91,19 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
 
   private JasperPrint fillReportWithData(JasperReport jasperReport) throws JRException {
     if (productsData != null) {
-      log.info("Filling report with {} products", productsData.size());
+      log.info("Filling report with {} total items", productsData.size());
     } else {
-      log.warn("No product data provided, filling report with empty dataset");
+      log.warn("No data provided, filling report with empty dataset");
     }
+    
     JRBeanCollectionDataSource dataSource =
         new JRBeanCollectionDataSource(productsData != null ? productsData : new ArrayList<>());
-
     parameters.put("productsDataSource", dataSource);
 
     JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
 
     log.info(
-        "Report filled successfully with {} parameters and {} products",
+        "Report filled successfully with {} parameters and {} total items",
         parameters.size(),
         productsData != null ? productsData.size() : 0);
 
