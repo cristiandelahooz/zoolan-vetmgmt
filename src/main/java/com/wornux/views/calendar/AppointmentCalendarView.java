@@ -269,11 +269,16 @@ public class AppointmentCalendarView extends VerticalLayout {
 
   private void onDatesRendered(DatesRenderedEvent event) {
     LocalDate intervalStart = event.getIntervalStart();
+    LocalDate intervalEnd = event.getIntervalEnd();
     CalendarViewImpl currentView = viewSelector.getValue();
 
     if (currentView != null && intervalStart != null) {
       String formattedInterval = formatIntervalForView(intervalStart, currentView);
       currentViewLabel.setText(formattedInterval);
+
+      if (intervalEnd != null) {
+        loadAppointmentsForDateRange(intervalStart, intervalEnd);
+      }
     }
   }
 
@@ -357,6 +362,24 @@ public class AppointmentCalendarView extends VerticalLayout {
       calendar.getEntryProvider().refreshAll();
     } catch (Exception e) {
       log.error("Error loading appointments", e);
+    }
+  }
+
+  private void loadAppointmentsForDateRange(LocalDate start, LocalDate end) {
+    try {
+      LocalDate bufferedStart = start.minusDays(3);
+      LocalDate bufferedEnd = end.plusDays(3);
+
+      List<Entry> entries =
+          appointmentEntryService.getAppointmentEntriesInRange(
+              bufferedStart.atStartOfDay(), bufferedEnd.atTime(23, 59, 59));
+
+      org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry> entryProvider =
+          EntryProvider.inMemoryFrom(entries);
+      calendar.setEntryProvider(entryProvider);
+      calendar.getEntryProvider().refreshAll();
+    } catch (Exception e) {
+      log.error("Error loading appointments for date range: {} to {}", start, end, e);
     }
   }
 
