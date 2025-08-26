@@ -76,7 +76,8 @@ public class InvoiceReportService {
     log.info("Generando PDF para factura #{}", invoice.getCode());
 
     try {
-      ReportServiceDatabase reportService = prepareInvoiceReport(invoice);
+      Invoice invoiceWithDetails = invoiceService.findByIdWithDetails(invoice.getCode());
+      ReportServiceDatabase reportService = prepareInvoiceReport(invoiceWithDetails);
       byte[] pdfData = reportService.execute();
 
       log.info(
