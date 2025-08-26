@@ -12,8 +12,6 @@ import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
-
 import static com.wornux.constants.ValidationConstants.*;
 
 @Entity
@@ -101,17 +99,6 @@ public class Client extends User {
   @Column(name = "verified")
   @Builder.Default
   private boolean verified = false;
-
-  @Override
-  public boolean equals(Object o) {
-    if (!(o instanceof Client client)) return false;
-    return Objects.equals(id, client.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(cedula, passport, rnc);
-  }
 
   @AssertTrue(
       message = "Debe proporcionar exactamente uno de los siguientes: cédula, pasaporte o RNC")
