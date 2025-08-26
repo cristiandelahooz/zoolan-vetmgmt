@@ -107,7 +107,7 @@ public class InvoiceForm extends Div {
     this.invoiceReportService = invoiceReportService;
 
     CommonUtils.commentsFormat(notes, 500);
-
+    notes.setWidthFull();
     notes.setMinRows(4);
     notes.setMaxRows(4);
 
@@ -149,12 +149,21 @@ public class InvoiceForm extends Div {
         LumoUtility.Width.AUTO,
         LumoUtility.Height.FULL);
 
-    footer.add(notes, subtotalField, taxField, total);
-    footer.addClassNames(
+    Div moneyFieldsContainer = new Div(subtotalField, taxField, total);
+    moneyFieldsContainer.addClassNames(
         LumoUtility.Display.FLEX,
         LumoUtility.FlexDirection.ROW,
+        LumoUtility.Gap.MEDIUM,
+        LumoUtility.AlignItems.END,
+        LumoUtility.JustifyContent.END,
+        LumoUtility.Width.FULL);
+    
+    footer.add(notes, moneyFieldsContainer);
+    footer.addClassNames(
+        LumoUtility.Display.FLEX,
+        LumoUtility.FlexDirection.COLUMN,
         LumoUtility.Padding.SMALL,
-        LumoUtility.JustifyContent.BETWEEN,
+        LumoUtility.Gap.MEDIUM,
         LumoUtility.Background.CONTRAST_5);
     footer.getStyle().set("border-bottom-left-radius", "var(--lumo-space-m)");
     footer.getStyle().set("border-bottom-right-radius", "var(--lumo-space-m)");
@@ -551,7 +560,7 @@ public class InvoiceForm extends Div {
           displayedItems.stream()
               .filter(item -> item instanceof InvoiceOffering)
               .map(item -> (InvoiceOffering) item)
-              .collect(Collectors.toList());
+              .toList();
       servicesFromDisplayedItems.forEach(element::addOffering);
 
       if (element.getProducts().isEmpty() && element.getOfferings().isEmpty()) {
