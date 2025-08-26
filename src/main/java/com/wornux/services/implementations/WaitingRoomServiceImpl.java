@@ -3,9 +3,14 @@ package com.wornux.services.implementations;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.ListRepositoryService;
+import com.wornux.data.entity.Appointment;
 import com.wornux.data.entity.WaitingRoom;
+import com.wornux.data.enums.AppointmentStatus;
+import com.wornux.data.enums.OfferingType;
 import com.wornux.data.enums.Priority;
+import com.wornux.data.enums.VisitType;
 import com.wornux.data.enums.WaitingRoomStatus;
+import com.wornux.data.repository.AppointmentRepository;
 import com.wornux.data.repository.ClientRepository;
 import com.wornux.data.repository.PetRepository;
 import com.wornux.data.repository.WaitingRoomRepository;
@@ -27,12 +32,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import com.wornux.data.entity.Appointment;
-import com.wornux.data.enums.AppointmentStatus;
-import com.wornux.data.enums.OfferingType;
-import com.wornux.data.enums.VisitType;
-import com.wornux.data.repository.AppointmentRepository;
-
 
 @Slf4j
 @Service
@@ -398,11 +397,12 @@ public class WaitingRoomServiceImpl
   @Override
   public List<WaitingRoom> findForVeterinarian(Long veterinarianId) {
     // sincroniza citas del día
-    syncTodayAppointmentsForEmployee(veterinarianId, /*forGroomer=*/ false);
+    syncTodayAppointmentsForEmployee(veterinarianId, /* forGroomer= */ false);
     // trae MEDICA activas: sin vet asignado o asignadas al actual
     return waitingRoomRepository.findActiveMedicalForVetOrUnassigned(
-            veterinarianId, VisitType.MEDICA, activeStatuses());
+        veterinarianId, VisitType.MEDICA, activeStatuses());
   }
+
   /*public List<WaitingRoom> findForVeterinarian(Long veterinarianId) {
     List<WaitingRoomStatus> activeStatuses =
         Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
@@ -417,11 +417,12 @@ public class WaitingRoomServiceImpl
   @Override
   public List<WaitingRoom> findForGroomer(Long groomerId) {
     // sincroniza citas del día
-    syncTodayAppointmentsForEmployee(groomerId, /*forGroomer=*/ true);
+    syncTodayAppointmentsForEmployee(groomerId, /* forGroomer= */ true);
     // trae GROOMING activas: sin groomer asignado o asignadas al actual
     return waitingRoomRepository.findActiveGroomingForGroomerOrUnassigned(
-            groomerId, VisitType.GROOMING, activeStatuses());
+        groomerId, VisitType.GROOMING, activeStatuses());
   }
+
   /*public List<WaitingRoom> findForGroomer(Long groomerId) {
     List<WaitingRoomStatus> activeStatuses =
         Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
@@ -430,9 +431,7 @@ public class WaitingRoomServiceImpl
 
   // +++ helpers
 
-
-
-  //-----------------------------------------
+  // -----------------------------------------
   private List<WaitingRoomStatus> activeStatuses() {
     return Arrays.asList(WaitingRoomStatus.ESPERANDO, WaitingRoomStatus.EN_PROCESO);
   }
@@ -449,16 +448,15 @@ public class WaitingRoomServiceImpl
   protected void syncTodayAppointmentsForEmployee(Long employeeId, boolean forGroomer) {
     // Si tu server no está en RD, considera ZoneId.of("America/Santo_Domingo")
     LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-    LocalDateTime endOfDay   = startOfDay.plusDays(1);
+    LocalDateTime endOfDay = startOfDay.plusDays(1);
 
     // NO filtramos por assignedEmployee (es null). Traemos todas las de hoy.
-    List<Appointment> todays =
-            appointmentRepository.findTodayAppointments(startOfDay, endOfDay);
+    List<Appointment> todays = appointmentRepository.findTodayAppointments(startOfDay, endOfDay);
 
     for (Appointment a : todays) {
       // descarta canceladas/completadas
       if (a.getStatus() == AppointmentStatus.CANCELADA
-              || a.getStatus() == AppointmentStatus.COMPLETADA) {
+          || a.getStatus() == AppointmentStatus.COMPLETADA) {
         continue;
       }
 
@@ -472,7 +470,8 @@ public class WaitingRoomServiceImpl
       if (!forGroomer && vt != VisitType.MEDICA) continue;
 
       // evita duplicados por (pet, hora cita, tipo)
-      boolean exists = waitingRoomRepository.existsByPet_IdAndArrivalTimeAndType(
+      boolean exists =
+          waitingRoomRepository.existsByPet_IdAndArrivalTimeAndType(
               a.getPet().getId(), a.getStartAppointmentDate(), vt);
       if (exists) continue;
 
@@ -502,18 +501,19 @@ public class WaitingRoomServiceImpl
   @Transactional
   protected void syncTodayAppointmentsForAll() {
     LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-    LocalDateTime endOfDay   = startOfDay.plusDays(1);
+    LocalDateTime endOfDay = startOfDay.plusDays(1);
 
     List<Appointment> todays = appointmentRepository.findTodayAppointments(startOfDay, endOfDay);
 
     for (Appointment a : todays) {
       if (a.getStatus() == AppointmentStatus.CANCELADA
-              || a.getStatus() == AppointmentStatus.COMPLETADA) continue;
+          || a.getStatus() == AppointmentStatus.COMPLETADA) continue;
       if (a.getClient() == null || a.getPet() == null) continue;
 
       VisitType vt = toVisitType(a.getOfferingType());
 
-      boolean exists = waitingRoomRepository.existsByPet_IdAndArrivalTimeAndType(
+      boolean exists =
+          waitingRoomRepository.existsByPet_IdAndArrivalTimeAndType(
               a.getPet().getId(), a.getStartAppointmentDate(), vt);
       if (exists) continue;
 
@@ -531,8 +531,4 @@ public class WaitingRoomServiceImpl
       waitingRoomRepository.save(wr);
     }
   }
-
-
-
-
 }

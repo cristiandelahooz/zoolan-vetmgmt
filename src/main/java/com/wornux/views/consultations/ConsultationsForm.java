@@ -449,7 +449,6 @@ public class ConsultationsForm extends Dialog {
     grandTotalSpan.setText("$" + grandTotal);
   }
 
-
   private void loadComboBoxData() {
     // Veterinario: si es VETERINARIAN, fijar el vet logueado y bloquear el campo
     if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
@@ -474,8 +473,6 @@ public class ConsultationsForm extends Dialog {
               .toList());
     }
   }
-
-
 
   private void save(ClickEvent<Button> event) {
     try {

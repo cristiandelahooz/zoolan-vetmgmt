@@ -27,11 +27,6 @@ import elemental.json.Json;
 import elemental.json.JsonObject;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
-import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,6 +36,10 @@ import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
 @Slf4j
 @Route(value = "calendar", layout = MainLayout.class)

@@ -9,14 +9,13 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.wornux.data.entity.Revision;
 import com.wornux.services.AuditService;
 import jakarta.annotation.security.PermitAll;
-import lombok.Getter;
-import org.hibernate.envers.RevisionType;
-
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import lombok.Getter;
+import org.hibernate.envers.RevisionType;
 
 @PermitAll
 public class RevisionView<T> {
@@ -105,7 +104,9 @@ public class RevisionView<T> {
     if (date == null) {
       return "Fecha no disponible";
     }
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy 'a las' HH:mm", Locale.forLanguageTag("es-ES"));
+    DateTimeFormatter formatter =
+        DateTimeFormatter.ofPattern(
+            "d 'de' MMMM 'de' yyyy 'a las' HH:mm", Locale.forLanguageTag("es-ES"));
     return date.toInstant().atZone(java.time.ZoneId.systemDefault()).format(formatter);
   }
 

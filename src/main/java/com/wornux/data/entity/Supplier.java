@@ -1,20 +1,19 @@
 package com.wornux.data.entity;
 
+import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
+import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
-import static com.wornux.constants.ValidationConstants.RNC_PATTERN;
 
 @Getter
 @Setter

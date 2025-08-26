@@ -2,19 +2,18 @@ package com.wornux.data.entity;
 
 import com.wornux.data.enums.InvoiceStatus;
 import com.wornux.exception.InvalidInvoiceStatusChangeException;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
-import org.hibernate.envers.Audited;
-import org.hibernate.proxy.HibernateProxy;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
+import lombok.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.proxy.HibernateProxy;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 @Getter
 @Setter
@@ -199,17 +198,32 @@ public class Invoice extends Auditable implements Serializable {
     this.total = this.subtotal.add(this.tax);
   }
 
-  private static final Map<InvoiceStatus, Set<InvoiceStatus>> VALID_TRANSITIONS = Map.of(
-      InvoiceStatus.DRAFT, Set.of(InvoiceStatus.PENDING, InvoiceStatus.SENT, InvoiceStatus.CANCELLED),
-      InvoiceStatus.UNSENT, Set.of(InvoiceStatus.SENT, InvoiceStatus.PENDING, InvoiceStatus.CANCELLED),
-      InvoiceStatus.SENT, Set.of(InvoiceStatus.PENDING, InvoiceStatus.PAID, InvoiceStatus.PARTIAL, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED),
-      InvoiceStatus.PENDING, Set.of(InvoiceStatus.PAID, InvoiceStatus.PARTIAL, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED),
-      InvoiceStatus.PARTIAL, Set.of(InvoiceStatus.PAID, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED),
-      InvoiceStatus.OVERDUE, Set.of(InvoiceStatus.PAID, InvoiceStatus.PARTIAL, InvoiceStatus.CANCELLED),
-      InvoiceStatus.PAID, Set.of(InvoiceStatus.OVERPAID),
-      InvoiceStatus.OVERPAID, Set.of(InvoiceStatus.PAID),
-      InvoiceStatus.CANCELLED, Set.of()
-  );
+  private static final Map<InvoiceStatus, Set<InvoiceStatus>> VALID_TRANSITIONS =
+      Map.of(
+          InvoiceStatus.DRAFT,
+              Set.of(InvoiceStatus.PENDING, InvoiceStatus.SENT, InvoiceStatus.CANCELLED),
+          InvoiceStatus.UNSENT,
+              Set.of(InvoiceStatus.SENT, InvoiceStatus.PENDING, InvoiceStatus.CANCELLED),
+          InvoiceStatus.SENT,
+              Set.of(
+                  InvoiceStatus.PENDING,
+                  InvoiceStatus.PAID,
+                  InvoiceStatus.PARTIAL,
+                  InvoiceStatus.OVERDUE,
+                  InvoiceStatus.CANCELLED),
+          InvoiceStatus.PENDING,
+              Set.of(
+                  InvoiceStatus.PAID,
+                  InvoiceStatus.PARTIAL,
+                  InvoiceStatus.OVERDUE,
+                  InvoiceStatus.CANCELLED),
+          InvoiceStatus.PARTIAL,
+              Set.of(InvoiceStatus.PAID, InvoiceStatus.OVERDUE, InvoiceStatus.CANCELLED),
+          InvoiceStatus.OVERDUE,
+              Set.of(InvoiceStatus.PAID, InvoiceStatus.PARTIAL, InvoiceStatus.CANCELLED),
+          InvoiceStatus.PAID, Set.of(InvoiceStatus.OVERPAID),
+          InvoiceStatus.OVERPAID, Set.of(InvoiceStatus.PAID),
+          InvoiceStatus.CANCELLED, Set.of());
 
   public Set<InvoiceStatus> getValidNextStatuses() {
     return VALID_TRANSITIONS.getOrDefault(this.status, Set.of());

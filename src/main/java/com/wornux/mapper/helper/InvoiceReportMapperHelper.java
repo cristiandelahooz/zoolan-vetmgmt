@@ -3,13 +3,12 @@ package com.wornux.mapper.helper;
 import com.wornux.data.entity.Invoice;
 import com.wornux.data.entity.InvoiceOffering;
 import com.wornux.data.entity.InvoiceProduct;
-import lombok.RequiredArgsConstructor;
-import org.mapstruct.Named;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.Named;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper para InvoiceReportMapper que proporciona métodos de utilidad para el mapeo. Maneja

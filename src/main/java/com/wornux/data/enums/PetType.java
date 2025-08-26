@@ -1,9 +1,8 @@
 package com.wornux.data.enums;
 
-import lombok.Getter;
-
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public enum PetType {

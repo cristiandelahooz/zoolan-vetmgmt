@@ -281,7 +281,7 @@ public class OfferingForm extends Dialog {
     isEditMode = false;
     currentOffering = null;
     validationBean = new ValidationBean();
-    if(UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)){
+    if (UserUtils.hasEmployeeRole(EmployeeRole.VETERINARIAN)) {
       validationBean.setOfferingType(OfferingType.MEDICAL);
       offeringType.setReadOnly(true);
     } else if (UserUtils.hasEmployeeRole(EmployeeRole.GROOMER)) {

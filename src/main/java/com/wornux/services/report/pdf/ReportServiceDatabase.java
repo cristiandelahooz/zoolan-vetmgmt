@@ -48,7 +48,6 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     return this;
   }
 
-
   @Override
   public byte[] execute() throws ReportErrorException {
     try {
@@ -95,7 +94,7 @@ public class ReportServiceDatabase implements ReportService<ReportServiceDatabas
     } else {
       log.warn("No data provided, filling report with empty dataset");
     }
-    
+
     JRBeanCollectionDataSource dataSource =
         new JRBeanCollectionDataSource(productsData != null ? productsData : new ArrayList<>());
     parameters.put("productsDataSource", dataSource);

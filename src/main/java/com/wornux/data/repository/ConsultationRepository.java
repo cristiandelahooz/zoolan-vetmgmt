@@ -41,5 +41,6 @@ public interface ConsultationRepository
   List<Object[]> findEmployeeUtilizationByHour(
       @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-  List<Consultation> findByVeterinarian_IdAndActiveTrueOrderByConsultationDateDesc(Long veterinarianId);
+  List<Consultation> findByVeterinarian_IdAndActiveTrueOrderByConsultationDateDesc(
+      Long veterinarianId);
 }

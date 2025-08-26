@@ -3,8 +3,8 @@ package com.wornux.services.implementations;
 import com.wornux.data.entity.Consultation;
 import com.wornux.data.entity.Invoice;
 import com.wornux.data.entity.InvoiceOffering;
-import com.wornux.data.repository.InvoiceRepository;
 import com.wornux.data.enums.InvoiceStatus;
+import com.wornux.data.repository.InvoiceRepository;
 import com.wornux.exception.InvalidInvoiceStatusChangeException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -133,9 +133,12 @@ public class InvoiceService {
 
   @Transactional
   public Invoice changeInvoiceStatus(Long invoiceId, InvoiceStatus newStatus) {
-    Invoice invoice = repository.findByCodeWithServicesAndProducts(invoiceId)
-        .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + invoiceId));
-    
+    Invoice invoice =
+        repository
+            .findByCodeWithServicesAndProducts(invoiceId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("Invoice not found with id: " + invoiceId));
+
     try {
       invoice.changeStatusTo(newStatus);
       return repository.save(invoice);

@@ -1,5 +1,7 @@
 package com.wornux.data.entity;
 
+import static com.wornux.constants.ValidationConstants.*;
+
 import com.wornux.data.enums.ClientRating;
 import com.wornux.data.enums.PreferredContactMethod;
 import com.wornux.data.enums.ReferenceSource;
@@ -11,8 +13,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
-
-import static com.wornux.constants.ValidationConstants.*;
 
 @Entity
 @Table(

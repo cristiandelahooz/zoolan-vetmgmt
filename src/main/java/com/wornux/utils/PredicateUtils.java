@@ -1,12 +1,11 @@
 package com.wornux.utils;
 
-import jakarta.persistence.criteria.*;
+import static com.wornux.utils.CommonUtils.normalizeText;
 
+import jakarta.persistence.criteria.*;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static com.wornux.utils.CommonUtils.normalizeText;
 
 public final class PredicateUtils {
 

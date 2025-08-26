@@ -1,12 +1,14 @@
 package com.wornux.views;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.*;
 import com.vaadin.flow.component.charts.model.style.FontWeight;
 import com.vaadin.flow.component.charts.model.style.SolidColor;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.dashboard.DashboardWidget;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
@@ -17,10 +19,8 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -35,14 +35,13 @@ import com.wornux.services.interfaces.SupplierService;
 import com.wornux.services.interfaces.WarehouseService;
 import com.wornux.views.products.ProductForm;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @RolesAllowed({"ROLE_SYSTEM_ADMIN", "ROLE_MANAGER"})
 @Route(value = "", layout = MainLayout.class)
@@ -61,15 +60,16 @@ public class DashboardView extends VerticalLayout {
 
   // Paleta de colores moderna
   private final String[] modernColors = {
-      "#10B981", "#3B82F6", "#8B5CF6", "#F59E0B",
-      "#EF4444", "#06B6D4", "#84CC16", "#F97316",
-      "#EC4899", "#6366F1", "#14B8A6", "#F43F5E"
+    "#10B981", "#3B82F6", "#8B5CF6", "#F59E0B",
+    "#EF4444", "#06B6D4", "#84CC16", "#F97316",
+    "#EC4899", "#6366F1", "#14B8A6", "#F43F5E"
   };
 
-  public DashboardView(DashboardService dashboardService,
-                       @Qualifier("productServiceImpl") ProductService productService,
-                       @Qualifier("supplierServiceImpl") SupplierService supplierService,
-                       @Qualifier("warehouseServiceImpl") WarehouseService warehouseService) {
+  public DashboardView(
+      DashboardService dashboardService,
+      @Qualifier("productServiceImpl") ProductService productService,
+      @Qualifier("supplierServiceImpl") SupplierService supplierService,
+      @Qualifier("warehouseServiceImpl") WarehouseService warehouseService) {
     this.dashboardService = dashboardService;
     this.productService = productService;
     this.supplierService = supplierService;
@@ -79,7 +79,6 @@ public class DashboardView extends VerticalLayout {
     this.productForm = new ProductForm(productService, supplierService, warehouseService);
     add(productForm);
     productForm.setOnSaveCallback(this::refreshStockAlertsGrid);
-
 
     initializeDashboard();
     showStockAlerts();
@@ -116,24 +115,24 @@ public class DashboardView extends VerticalLayout {
     operationsContent.setSizeFull();
     operationsContent.setVisible(false);
 
-    tabs.addSelectedChangeListener(event -> {
-      financialContent.setVisible(tabs.getSelectedTab() == financialTab);
-      operationsContent.setVisible(tabs.getSelectedTab() == operationsTab);
-    });
+    tabs.addSelectedChangeListener(
+        event -> {
+          financialContent.setVisible(tabs.getSelectedTab() == financialTab);
+          operationsContent.setVisible(tabs.getSelectedTab() == operationsTab);
+        });
 
     add(centeredTabsLayout, financialContent, operationsContent);
   }
 
-  /**
-   * Modern Revenue Analysis with enhanced visual design
-   */
+  /** Modern Revenue Analysis with enhanced visual design */
   private DashboardWidget createModernRevenueAnalysisWidget() {
     try {
       DashboardWidget widget = new DashboardWidget("Análisis de Ingresos Inteligente");
 
       Div content = new Div();
       content.addClassName("modern-chart-widget");
-      content.getStyle()
+      content
+          .getStyle()
           .set("background", "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)")
           .set("border-radius", "16px")
           .set("padding", "var(--lumo-space-l)")
@@ -146,7 +145,8 @@ public class DashboardView extends VerticalLayout {
 
       Chart chart = new Chart(ChartType.AREASPLINE);
       chart.setHeight("400px");
-      chart.getStyle()
+      chart
+          .getStyle()
           .set("background", "white")
           .set("border-radius", "12px")
           .set("box-shadow", "0 4px 16px rgba(0,0,0,0.05)");
@@ -168,13 +168,12 @@ public class DashboardView extends VerticalLayout {
       config.getyAxis().setGridLineWidth(1);
       config.getxAxis().setGridLineColor(new SolidColor("#f1f5f9"));
 
-      String[] categories = revenueData.stream()
-          .map(data -> data.getPeriod().format(dateFormatter))
-          .toArray(String[]::new);
+      String[] categories =
+          revenueData.stream()
+              .map(data -> data.getPeriod().format(dateFormatter))
+              .toArray(String[]::new);
 
-      Number[] values = revenueData.stream()
-          .map(RevenueDataDto::getRevenue)
-          .toArray(Number[]::new);
+      Number[] values = revenueData.stream().map(RevenueDataDto::getRevenue).toArray(Number[]::new);
 
       config.getxAxis().setCategories(categories);
 
@@ -197,7 +196,8 @@ public class DashboardView extends VerticalLayout {
 
       // Tooltip moderno
       Tooltip tooltip = config.getTooltip();
-      tooltip.setFormatter("function() { return '<b>' + this.x + '</b><br/>' + this.series.name + ': ' + Highcharts.numberFormat(this.y, 0, '.', ',') + ' RD$'; }");
+      tooltip.setFormatter(
+          "function() { return '<b>' + this.x + '</b><br/>' + this.series.name + ': ' + Highcharts.numberFormat(this.y, 0, '.', ',') + ' RD$'; }");
       tooltip.setBackgroundColor(new SolidColor("#1f2937"));
       tooltip.getStyle().setColor(new SolidColor("white"));
 
@@ -220,35 +220,34 @@ public class DashboardView extends VerticalLayout {
     kpiLayout.getStyle().set("margin-bottom", "var(--lumo-space-l)");
 
     if (!revenueData.isEmpty()) {
-      double totalRevenue = revenueData.stream()
-          .mapToDouble(r -> r.getRevenue().doubleValue())
-          .sum();
+      double totalRevenue =
+          revenueData.stream().mapToDouble(r -> r.getRevenue().doubleValue()).sum();
 
       double avgRevenue = totalRevenue / revenueData.size();
 
       // Calcular crecimiento (simulado)
       double growth = 12.5;
 
-      Div totalCard = createModernKPICard(
-          currencyFormat.format(totalRevenue),
-          "Ingresos Totales",
-          VaadinIcon.DOLLAR.create(),
-          "#10B981"
-      );
+      Div totalCard =
+          createModernKPICard(
+              currencyFormat.format(totalRevenue),
+              "Ingresos Totales",
+              VaadinIcon.DOLLAR.create(),
+              "#10B981");
 
-      Div avgCard = createModernKPICard(
-          currencyFormat.format(avgRevenue),
-          "Promedio Mensual",
-          VaadinIcon.CHART.create(),
-          "#3B82F6"
-      );
+      Div avgCard =
+          createModernKPICard(
+              currencyFormat.format(avgRevenue),
+              "Promedio Mensual",
+              VaadinIcon.CHART.create(),
+              "#3B82F6");
 
-      Div growthCard = createModernKPICard(
-          String.format("%.1f%%", growth),
-          "Crecimiento",
-          VaadinIcon.TRENDING_UP.create(),
-          "#059669"
-      );
+      Div growthCard =
+          createModernKPICard(
+              String.format("%.1f%%", growth),
+              "Crecimiento",
+              VaadinIcon.TRENDING_UP.create(),
+              "#059669");
 
       kpiLayout.add(totalCard, avgCard, growthCard);
     }
@@ -256,15 +255,14 @@ public class DashboardView extends VerticalLayout {
     return kpiLayout;
   }
 
-  /**
-   * Modern Top Services with enhanced visual design
-   */
+  /** Modern Top Services with enhanced visual design */
   private DashboardWidget createModernTopServicesWidget() {
     DashboardWidget widget = new DashboardWidget("Servicios Estrella");
 
     Div content = new Div();
     content.addClassName("modern-chart-widget");
-    content.getStyle()
+    content
+        .getStyle()
         .set("background", "linear-gradient(135deg, #fefbff 0%, #f3e8ff 100%)")
         .set("border-radius", "16px")
         .set("padding", "var(--lumo-space-l)")
@@ -272,7 +270,8 @@ public class DashboardView extends VerticalLayout {
 
     Chart chart = new Chart(ChartType.COLUMN);
     chart.setHeight("400px");
-    chart.getStyle()
+    chart
+        .getStyle()
         .set("background", "white")
         .set("border-radius", "12px")
         .set("box-shadow", "0 4px 16px rgba(0,0,0,0.05)");
@@ -295,13 +294,9 @@ public class DashboardView extends VerticalLayout {
 
     List<ChartDataDto> servicesData = dashboardService.getTopServicesAnalysis();
 
-    String[] categories = servicesData.stream()
-        .map(ChartDataDto::getLabel)
-        .toArray(String[]::new);
+    String[] categories = servicesData.stream().map(ChartDataDto::getLabel).toArray(String[]::new);
 
-    Number[] values = servicesData.stream()
-        .map(ChartDataDto::getValue)
-        .toArray(Number[]::new);
+    Number[] values = servicesData.stream().map(ChartDataDto::getValue).toArray(Number[]::new);
 
     config.getxAxis().setCategories(categories);
 
@@ -312,8 +307,9 @@ public class DashboardView extends VerticalLayout {
     PlotOptionsColumn plotOptions = new PlotOptionsColumn();
 
     // Gradiente para las columnas
-    String[] columnColors = {"#8B5CF6", "#7C3AED", "#6D28D9", "#5B21B6",
-        "#4C1D95", "#3B1F87", "#312E81", "#2D1B69"};
+    String[] columnColors = {
+      "#8B5CF6", "#7C3AED", "#6D28D9", "#5B21B6", "#4C1D95", "#3B1F87", "#312E81", "#2D1B69"
+    };
 
     for (int i = 0; i < Math.min(values.length, columnColors.length); i++) {
       plotOptions.setColor(new SolidColor(columnColors[i % columnColors.length]));
@@ -330,7 +326,8 @@ public class DashboardView extends VerticalLayout {
 
     // Tooltip moderno
     Tooltip tooltip = config.getTooltip();
-    tooltip.setFormatter("function() { return '<b>' + this.x + '</b><br/>' + 'Ingresos: ' + Highcharts.numberFormat(this.y, 0, '.', ',') + ' RD$'; }");
+    tooltip.setFormatter(
+        "function() { return '<b>' + this.x + '</b><br/>' + 'Ingresos: ' + Highcharts.numberFormat(this.y, 0, '.', ',') + ' RD$'; }");
     tooltip.setBackgroundColor(new SolidColor("#1f2937"));
     tooltip.getStyle().setColor(new SolidColor("white"));
 
@@ -340,15 +337,14 @@ public class DashboardView extends VerticalLayout {
     return widget;
   }
 
-  /**
-   * Modern Client Retention with enhanced visual design
-   */
+  /** Modern Client Retention with enhanced visual design */
   private DashboardWidget createModernClientRetentionWidget() {
     DashboardWidget widget = new DashboardWidget("Lealtad de Clientes");
 
     Div content = new Div();
     content.addClassName("modern-chart-widget");
-    content.getStyle()
+    content
+        .getStyle()
         .set("background", "linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)")
         .set("border-radius", "16px")
         .set("padding", "var(--lumo-space-l)")
@@ -361,7 +357,8 @@ public class DashboardView extends VerticalLayout {
 
     Chart chart = new Chart(ChartType.PIE);
     chart.setHeight("350px");
-    chart.getStyle()
+    chart
+        .getStyle()
         .set("background", "white")
         .set("border-radius", "12px")
         .set("box-shadow", "0 4px 16px rgba(0,0,0,0.05)");
@@ -378,7 +375,8 @@ public class DashboardView extends VerticalLayout {
     DataSeriesItem newItem = new DataSeriesItem("Nuevos", (Long) retentionData.get("newClients"));
     newItem.setColor(new SolidColor("#3B82F6"));
 
-    DataSeriesItem returningItem = new DataSeriesItem("Recurrentes", (Long) retentionData.get("returningClients"));
+    DataSeriesItem returningItem =
+        new DataSeriesItem("Recurrentes", (Long) retentionData.get("returningClients"));
     returningItem.setColor(new SolidColor("#10B981"));
 
     series.add(newItem);
@@ -415,40 +413,39 @@ public class DashboardView extends VerticalLayout {
 
     double retentionRate = (Double) retentionData.get("retentionRate");
 
-    Div retentionCard = createModernKPICard(
-        String.format("%.1f%%", retentionRate),
-        "Tasa de Retención",
-        VaadinIcon.HEART.create(),
-        "#10B981"
-    );
+    Div retentionCard =
+        createModernKPICard(
+            String.format("%.1f%%", retentionRate),
+            "Tasa de Retención",
+            VaadinIcon.HEART.create(),
+            "#10B981");
 
-    Div newClientsCard = createModernKPICard(
-        retentionData.get("newClients").toString(),
-        "Clientes Nuevos",
-        VaadinIcon.USERS.create(),
-        "#3B82F6"
-    );
+    Div newClientsCard =
+        createModernKPICard(
+            retentionData.get("newClients").toString(),
+            "Clientes Nuevos",
+            VaadinIcon.USERS.create(),
+            "#3B82F6");
 
-    Div returningCard = createModernKPICard(
-        retentionData.get("returningClients").toString(),
-        "Clientes Leales",
-        VaadinIcon.REFRESH.create(),
-        "#059669"
-    );
+    Div returningCard =
+        createModernKPICard(
+            retentionData.get("returningClients").toString(),
+            "Clientes Leales",
+            VaadinIcon.REFRESH.create(),
+            "#059669");
 
     kpiLayout.add(retentionCard, newClientsCard, returningCard);
     return kpiLayout;
   }
 
-  /**
-   * Modern Consultation Trends with enhanced visual design
-   */
+  /** Modern Consultation Trends with enhanced visual design */
   private DashboardWidget createModernConsultationTrendsWidget() {
     DashboardWidget widget = new DashboardWidget("Tendencias de Consultas");
 
     Div content = new Div();
     content.addClassName("modern-chart-widget");
-    content.getStyle()
+    content
+        .getStyle()
         .set("background", "linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)")
         .set("border-radius", "16px")
         .set("padding", "var(--lumo-space-l)")
@@ -456,7 +453,8 @@ public class DashboardView extends VerticalLayout {
 
     Chart chart = new Chart(ChartType.SPLINE);
     chart.setHeight("350px");
-    chart.getStyle()
+    chart
+        .getStyle()
         .set("background", "white")
         .set("border-radius", "12px")
         .set("box-shadow", "0 4px 16px rgba(0,0,0,0.05)");
@@ -479,13 +477,10 @@ public class DashboardView extends VerticalLayout {
 
     List<ChartDataDto> consultationData = dashboardService.getConsultationTrends();
 
-    String[] categories = consultationData.stream()
-        .map(ChartDataDto::getLabel)
-        .toArray(String[]::new);
+    String[] categories =
+        consultationData.stream().map(ChartDataDto::getLabel).toArray(String[]::new);
 
-    Number[] values = consultationData.stream()
-        .map(ChartDataDto::getValue)
-        .toArray(Number[]::new);
+    Number[] values = consultationData.stream().map(ChartDataDto::getValue).toArray(Number[]::new);
 
     config.getxAxis().setCategories(categories);
 
@@ -508,7 +503,8 @@ public class DashboardView extends VerticalLayout {
 
     // Tooltip moderno
     Tooltip tooltip = config.getTooltip();
-    tooltip.setFormatter("function() { return '<b>' + this.x + '</b><br/>' + 'Consultas: ' + this.y; }");
+    tooltip.setFormatter(
+        "function() { return '<b>' + this.x + '</b><br/>' + 'Consultas: ' + this.y; }");
     tooltip.setBackgroundColor(new SolidColor("#1f2937"));
     tooltip.getStyle().setColor(new SolidColor("white"));
 
@@ -518,15 +514,14 @@ public class DashboardView extends VerticalLayout {
     return widget;
   }
 
-  /**
-   * Modern Employee Utilization with enhanced visual design
-   */
+  /** Modern Employee Utilization with enhanced visual design */
   private DashboardWidget createModernEmployeeUtilizationWidget() {
     DashboardWidget widget = new DashboardWidget("👨‍⚕️ Utilización de Personal");
 
     Div content = new Div();
     content.addClassName("modern-chart-widget");
-    content.getStyle()
+    content
+        .getStyle()
         .set("background", "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)")
         .set("border-radius", "16px")
         .set("padding", "var(--lumo-space-l)")
@@ -534,7 +529,8 @@ public class DashboardView extends VerticalLayout {
 
     Chart chart = new Chart(ChartType.AREASPLINE);
     chart.setHeight("350px");
-    chart.getStyle()
+    chart
+        .getStyle()
         .set("background", "white")
         .set("border-radius", "12px")
         .set("box-shadow", "0 4px 16px rgba(0,0,0,0.05)");
@@ -557,13 +553,10 @@ public class DashboardView extends VerticalLayout {
 
     List<ChartDataDto> utilizationData = dashboardService.getEmployeeUtilizationData();
 
-    String[] categories = utilizationData.stream()
-        .map(ChartDataDto::getLabel)
-        .toArray(String[]::new);
+    String[] categories =
+        utilizationData.stream().map(ChartDataDto::getLabel).toArray(String[]::new);
 
-    Number[] values = utilizationData.stream()
-        .map(ChartDataDto::getValue)
-        .toArray(Number[]::new);
+    Number[] values = utilizationData.stream().map(ChartDataDto::getValue).toArray(Number[]::new);
 
     config.getxAxis().setCategories(categories);
 
@@ -586,7 +579,8 @@ public class DashboardView extends VerticalLayout {
 
     // Tooltip moderno
     Tooltip tooltip = config.getTooltip();
-    tooltip.setFormatter("function() { return '<b>' + this.x + '</b><br/>' + 'Consultas promedio: ' + this.y; }");
+    tooltip.setFormatter(
+        "function() { return '<b>' + this.x + '</b><br/>' + 'Consultas promedio: ' + this.y; }");
     tooltip.setBackgroundColor(new SolidColor("#1f2937"));
     tooltip.getStyle().setColor(new SolidColor("white"));
 
@@ -602,8 +596,11 @@ public class DashboardView extends VerticalLayout {
 
     Div content = new Div();
     content.addClassName("modern-stock-widget");
-    content.getStyle()
-        .set("background", "linear-gradient(135deg, var(--lumo-contrast-5pct) 0%, var(--lumo-primary-color-10pct) 100%)")
+    content
+        .getStyle()
+        .set(
+            "background",
+            "linear-gradient(135deg, var(--lumo-contrast-5pct) 0%, var(--lumo-primary-color-10pct) 100%)")
         .set("border-radius", "16px")
         .set("padding", "var(--lumo-space-l)");
 
@@ -623,6 +620,7 @@ public class DashboardView extends VerticalLayout {
 
     return widget;
   }
+
   private HorizontalLayout createAdvancedMetricsRow(List<StockAlertDto> stockAlerts) {
     HorizontalLayout metricsRow = new HorizontalLayout();
     metricsRow.setWidthFull();
@@ -630,59 +628,57 @@ public class DashboardView extends VerticalLayout {
     metricsRow.addClassName("metrics-row");
 
     // Calcular métricas
-    long criticalCount = stockAlerts.stream()
-        .filter(alert -> "CRITICAL".equals(alert.getAlertLevel()))
-        .count();
+    long criticalCount =
+        stockAlerts.stream().filter(alert -> "CRITICAL".equals(alert.getAlertLevel())).count();
 
-    long lowCount = stockAlerts.stream()
-        .filter(alert -> "LOW".equals(alert.getAlertLevel()))
-        .count();
+    long lowCount =
+        stockAlerts.stream().filter(alert -> "LOW".equals(alert.getAlertLevel())).count();
 
-    long outOfStockCount = stockAlerts.stream()
-        .filter(alert -> "OUT_OF_STOCK".equals(alert.getAlertLevel()))
-        .count();
+    long outOfStockCount =
+        stockAlerts.stream().filter(alert -> "OUT_OF_STOCK".equals(alert.getAlertLevel())).count();
 
     long healthyCount = dashboardService.getHealthyStockCount();
     long totalProducts = criticalCount + lowCount + outOfStockCount + healthyCount;
 
     // Métricas con animaciones y progreso
-    Div healthMetric = createAnimatedMetricCard(
-        "Stock Saludable",
-        String.valueOf(healthyCount),
-        calculatePercentage(healthyCount, totalProducts),
-        "var(--lumo-success-color)",
-        VaadinIcon.CHECK_CIRCLE
-    );
+    Div healthMetric =
+        createAnimatedMetricCard(
+            "Stock Saludable",
+            String.valueOf(healthyCount),
+            calculatePercentage(healthyCount, totalProducts),
+            "var(--lumo-success-color)",
+            VaadinIcon.CHECK_CIRCLE);
 
-    Div criticalMetric = createAnimatedMetricCard(
-        "Críticos",
-        String.valueOf(criticalCount),
-        calculatePercentage(criticalCount, totalProducts),
-        "var(--lumo-error-color)",
-        VaadinIcon.WARNING
-    );
+    Div criticalMetric =
+        createAnimatedMetricCard(
+            "Críticos",
+            String.valueOf(criticalCount),
+            calculatePercentage(criticalCount, totalProducts),
+            "var(--lumo-error-color)",
+            VaadinIcon.WARNING);
 
-    Div lowMetric = createAnimatedMetricCard(
-        "Stock Bajo",
-        String.valueOf(lowCount),
-        calculatePercentage(lowCount, totalProducts),
-        "var(--lumo-warning-color)",
-        VaadinIcon.ARROW_DOWN
-    );
+    Div lowMetric =
+        createAnimatedMetricCard(
+            "Stock Bajo",
+            String.valueOf(lowCount),
+            calculatePercentage(lowCount, totalProducts),
+            "var(--lumo-warning-color)",
+            VaadinIcon.ARROW_DOWN);
 
-    Div outOfStockMetric = createAnimatedMetricCard(
-        "Agotados",
-        String.valueOf(outOfStockCount),
-        calculatePercentage(outOfStockCount, totalProducts),
-        "var(--lumo-error-color)",
-        VaadinIcon.CLOSE_CIRCLE
-    );
+    Div outOfStockMetric =
+        createAnimatedMetricCard(
+            "Agotados",
+            String.valueOf(outOfStockCount),
+            calculatePercentage(outOfStockCount, totalProducts),
+            "var(--lumo-error-color)",
+            VaadinIcon.CLOSE_CIRCLE);
 
     metricsRow.add(healthMetric, criticalMetric, lowMetric, outOfStockMetric);
     return metricsRow;
   }
 
-  private Div createAnimatedMetricCard(String title, String value, double percentage, String color, VaadinIcon icon) {
+  private Div createAnimatedMetricCard(
+      String title, String value, double percentage, String color, VaadinIcon icon) {
     Div card = new Div();
     card.addClassName("animated-metric-card");
     card.getStyle()
@@ -699,21 +695,28 @@ public class DashboardView extends VerticalLayout {
         .set("overflow", "hidden");
 
     // Hover effect
-    card.getElement().addEventListener("mouseenter", e -> {
-      card.getStyle()
-          .set("transform", "translateY(-8px)")
-          .set("box-shadow", "0 16px 48px rgba(0,0,0,0.15)");
-    });
-    card.getElement().addEventListener("mouseleave", e -> {
-      card.getStyle()
-          .set("transform", "translateY(0)")
-          .set("box-shadow", "0 8px 32px rgba(0,0,0,0.1)");
-    });
+    card.getElement()
+        .addEventListener(
+            "mouseenter",
+            e -> {
+              card.getStyle()
+                  .set("transform", "translateY(-8px)")
+                  .set("box-shadow", "0 16px 48px rgba(0,0,0,0.15)");
+            });
+    card.getElement()
+        .addEventListener(
+            "mouseleave",
+            e -> {
+              card.getStyle()
+                  .set("transform", "translateY(0)")
+                  .set("box-shadow", "0 8px 32px rgba(0,0,0,0.1)");
+            });
 
     // Icon con gradiente
     Icon cardIcon = icon.create();
     cardIcon.setSize("32px");
-    cardIcon.getStyle()
+    cardIcon
+        .getStyle()
         .set("color", color)
         .set("margin-bottom", "var(--lumo-space-s)")
         .set("filter", "drop-shadow(0 2px 4px rgba(0,0,0,0.1))");
@@ -722,7 +725,8 @@ public class DashboardView extends VerticalLayout {
     Span valueSpan = new Span(value);
     valueSpan.addClassName(LumoUtility.FontSize.XXLARGE);
     valueSpan.addClassName(LumoUtility.FontWeight.BOLD);
-    valueSpan.getStyle()
+    valueSpan
+        .getStyle()
         .set("color", color)
         .set("text-shadow", "0 2px 4px rgba(0,0,0,0.1)")
         .set("display", "block")
@@ -732,7 +736,8 @@ public class DashboardView extends VerticalLayout {
     Span titleSpan = new Span(title);
     titleSpan.addClassName(LumoUtility.FontSize.SMALL);
     titleSpan.addClassName(LumoUtility.FontWeight.MEDIUM);
-    titleSpan.getStyle()
+    titleSpan
+        .getStyle()
         .set("color", "var(--lumo-contrast-70pct)")
         .set("display", "block")
         .set("margin-bottom", "var(--lumo-space-s)");
@@ -740,7 +745,8 @@ public class DashboardView extends VerticalLayout {
     // Barra de progreso circular simulada con CSS
     ProgressBar progressBar = new ProgressBar();
     progressBar.setValue(percentage / 100.0);
-    progressBar.getStyle()
+    progressBar
+        .getStyle()
         .set("width", "100%")
         .set("height", "4px")
         .set("--lumo-progress-color", color);
@@ -748,7 +754,8 @@ public class DashboardView extends VerticalLayout {
     // Porcentaje
     Span percentageSpan = new Span(String.format("%.1f%%", percentage));
     percentageSpan.addClassName(LumoUtility.FontSize.XSMALL);
-    percentageSpan.getStyle()
+    percentageSpan
+        .getStyle()
         .set("color", color)
         .set("font-weight", "600")
         .set("margin-top", "var(--lumo-space-xs)");
@@ -766,7 +773,8 @@ public class DashboardView extends VerticalLayout {
   private Div createInteractiveAlertsPanel(List<StockAlertDto> stockAlerts) {
     Div alertsPanel = new Div();
     alertsPanel.addClassName("interactive-alerts-panel");
-    alertsPanel.getStyle()
+    alertsPanel
+        .getStyle()
         .set("background", "white")
         .set("border-radius", "16px")
         .set("padding", "var(--lumo-space-l)")
@@ -775,7 +783,8 @@ public class DashboardView extends VerticalLayout {
 
     H4 alertsTitle = new H4("Alertas Prioritarias");
     alertsTitle.addClassName(LumoUtility.Margin.NONE);
-    alertsTitle.getStyle()
+    alertsTitle
+        .getStyle()
         .set("color", "var(--lumo-contrast-90pct)")
         .set("margin-bottom", "var(--lumo-space-m)")
         .set("font-weight", "700");
@@ -786,84 +795,123 @@ public class DashboardView extends VerticalLayout {
     alertsGrid.setHeight("300px");
 
     // Columna de estado con badges
-    alertsGrid.addColumn(new ComponentRenderer<>(alert -> {
-      Span badge = new Span(getStatusLabel(alert.getAlertLevel()));
-      badge.getElement().getThemeList().add("badge");
-      badge.getStyle()
-          .set("background", getAlertColor(alert.getAlertLevel()))
-          .set("color", "white")
-          .set("padding", "4px 12px")
-          .set("border-radius", "20px")
-          .set("font-size", "12px")
-          .set("font-weight", "600");
-      return badge;
-    })).setHeader("Estado").setWidth("120px");
+    alertsGrid
+        .addColumn(
+            new ComponentRenderer<>(
+                alert -> {
+                  Span badge = new Span(getStatusLabel(alert.getAlertLevel()));
+                  badge.getElement().getThemeList().add("badge");
+                  badge
+                      .getStyle()
+                      .set("background", getAlertColor(alert.getAlertLevel()))
+                      .set("color", "white")
+                      .set("padding", "4px 12px")
+                      .set("border-radius", "20px")
+                      .set("font-size", "12px")
+                      .set("font-weight", "600");
+                  return badge;
+                }))
+        .setHeader("Estado")
+        .setWidth("120px");
 
     // Columna de producto con iconos
-    alertsGrid.addColumn(new ComponentRenderer<>(alert -> {
-      HorizontalLayout productLayout = new HorizontalLayout();
-      productLayout.setAlignItems(Alignment.CENTER);
+    alertsGrid
+        .addColumn(
+            new ComponentRenderer<>(
+                alert -> {
+                  HorizontalLayout productLayout = new HorizontalLayout();
+                  productLayout.setAlignItems(Alignment.CENTER);
 
-      Icon productIcon = VaadinIcon.PACKAGE.create();
-      productIcon.setSize("16px");
-      productIcon.getStyle().set("color", "var(--lumo-contrast-60pct)");
+                  Icon productIcon = VaadinIcon.PACKAGE.create();
+                  productIcon.setSize("16px");
+                  productIcon.getStyle().set("color", "var(--lumo-contrast-60pct)");
 
-      Span productName = new Span(alert.getProductName());
-      productName.getStyle().set("font-weight", "500");
+                  Span productName = new Span(alert.getProductName());
+                  productName.getStyle().set("font-weight", "500");
 
-      productLayout.add(productIcon, productName);
-      return productLayout;
-    })).setHeader("Producto").setFlexGrow(1);
+                  productLayout.add(productIcon, productName);
+                  return productLayout;
+                }))
+        .setHeader("Producto")
+        .setFlexGrow(1);
 
     // Columna de stock con progress bar
-    alertsGrid.addColumn(new ComponentRenderer<>(alert -> {
-      VerticalLayout stockLayout = new VerticalLayout();
-      stockLayout.setPadding(false);
-      stockLayout.setSpacing(false);
+    alertsGrid
+        .addColumn(
+            new ComponentRenderer<>(
+                alert -> {
+                  VerticalLayout stockLayout = new VerticalLayout();
+                  stockLayout.setPadding(false);
+                  stockLayout.setSpacing(false);
 
-      HorizontalLayout stockNumbers = new HorizontalLayout();
-      stockNumbers.setJustifyContentMode(JustifyContentMode.BETWEEN);
-      stockNumbers.setWidthFull();
+                  HorizontalLayout stockNumbers = new HorizontalLayout();
+                  stockNumbers.setJustifyContentMode(JustifyContentMode.BETWEEN);
+                  stockNumbers.setWidthFull();
 
-      Span currentStock = new Span("Actual: " + alert.getCurrentStock());
-      currentStock.addClassName(LumoUtility.FontSize.SMALL);
+                  Span currentStock = new Span("Actual: " + alert.getCurrentStock());
+                  currentStock.addClassName(LumoUtility.FontSize.SMALL);
 
-      Span minStock = new Span("Mín: " + alert.getMinimumStock());
-      minStock.addClassName(LumoUtility.FontSize.SMALL);
-      minStock.getStyle().set("color", "var(--lumo-contrast-60pct)");
+                  Span minStock = new Span("Mín: " + alert.getMinimumStock());
+                  minStock.addClassName(LumoUtility.FontSize.SMALL);
+                  minStock.getStyle().set("color", "var(--lumo-contrast-60pct)");
 
-      stockNumbers.add(currentStock, minStock);
+                  stockNumbers.add(currentStock, minStock);
 
-      ProgressBar stockProgress = new ProgressBar();
-      double progressValue = Math.min(1.0, (double) alert.getCurrentStock() / alert.getMinimumStock());
-      stockProgress.setValue(progressValue);
-      stockProgress.getStyle()
-          .set("--lumo-progress-color",
-              progressValue < 0.3 ? "var(--lumo-error-color)" :
-                  progressValue < 0.7 ? "var(--lumo-warning-color)" : "var(--lumo-success-color)");
+                  ProgressBar stockProgress = new ProgressBar();
+                  double progressValue =
+                      Math.min(1.0, (double) alert.getCurrentStock() / alert.getMinimumStock());
+                  stockProgress.setValue(progressValue);
+                  stockProgress
+                      .getStyle()
+                      .set(
+                          "--lumo-progress-color",
+                          progressValue < 0.3
+                              ? "var(--lumo-error-color)"
+                              : progressValue < 0.7
+                                  ? "var(--lumo-warning-color)"
+                                  : "var(--lumo-success-color)");
 
-      stockLayout.add(stockNumbers, stockProgress);
-      return stockLayout;
-    })).setHeader("Stock").setWidth("200px");
+                  stockLayout.add(stockNumbers, stockProgress);
+                  return stockLayout;
+                }))
+        .setHeader("Stock")
+        .setWidth("200px");
 
     // Columna de acciones
-    alertsGrid.addColumn(new ComponentRenderer<>(alert -> {
-      Button actionBtn = new Button("Gestionar");
-      actionBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
-      actionBtn.addClickListener(e -> {
-        productService.getProductById(alert.getProductId()).ifPresentOrElse(this::openProductForm, () -> {
-          Notification.show("Producto no encontrado", 3000, Notification.Position.TOP_END)
-              .addThemeVariants(NotificationVariant.LUMO_ERROR);
-        });
-      });
-      return actionBtn;
-    })).setHeader("Acciones").setWidth("120px");
+    alertsGrid
+        .addColumn(
+            new ComponentRenderer<>(
+                alert -> {
+                  Button actionBtn = new Button("Gestionar");
+                  actionBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
+                  actionBtn.addClickListener(
+                      e -> {
+                        productService
+                            .getProductById(alert.getProductId())
+                            .ifPresentOrElse(
+                                this::openProductForm,
+                                () -> {
+                                  Notification.show(
+                                          "Producto no encontrado",
+                                          3000,
+                                          Notification.Position.TOP_END)
+                                      .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                                });
+                      });
+                  return actionBtn;
+                }))
+        .setHeader("Acciones")
+        .setWidth("120px");
 
     // Filtrar y mostrar alertas críticas
-    List<StockAlertDto> criticalAlerts = stockAlerts.stream()
-        .filter(alert -> "CRITICAL".equals(alert.getAlertLevel()) || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
-        .limit(10)
-        .collect(Collectors.toList());
+    List<StockAlertDto> criticalAlerts =
+        stockAlerts.stream()
+            .filter(
+                alert ->
+                    "CRITICAL".equals(alert.getAlertLevel())
+                        || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
+            .limit(10)
+            .collect(Collectors.toList());
 
     alertsGrid.setItems(criticalAlerts);
 
@@ -878,10 +926,14 @@ public class DashboardView extends VerticalLayout {
 
   private void refreshStockAlertsGrid() {
     List<StockAlertDto> stockAlerts = dashboardService.getStockHealthAnalysis();
-    List<StockAlertDto> criticalAlerts = stockAlerts.stream()
-        .filter(alert -> "CRITICAL".equals(alert.getAlertLevel()) || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
-        .limit(10)
-        .collect(Collectors.toList());
+    List<StockAlertDto> criticalAlerts =
+        stockAlerts.stream()
+            .filter(
+                alert ->
+                    "CRITICAL".equals(alert.getAlertLevel())
+                        || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
+            .limit(10)
+            .collect(Collectors.toList());
     alertsGrid.setItems(criticalAlerts);
   }
 
@@ -899,12 +951,18 @@ public class DashboardView extends VerticalLayout {
         .set("text-align", "center");
 
     // Hover effect
-    card.getElement().addEventListener("mouseenter", e -> {
-      card.getStyle().set("transform", "translateY(-4px)");
-    });
-    card.getElement().addEventListener("mouseleave", e -> {
-      card.getStyle().set("transform", "translateY(0)");
-    });
+    card.getElement()
+        .addEventListener(
+            "mouseenter",
+            e -> {
+              card.getStyle().set("transform", "translateY(-4px)");
+            });
+    card.getElement()
+        .addEventListener(
+            "mouseleave",
+            e -> {
+              card.getStyle().set("transform", "translateY(0)");
+            });
 
     icon.setSize("24px");
     icon.getStyle().set("color", color);
@@ -934,7 +992,8 @@ public class DashboardView extends VerticalLayout {
 
     // Gráfico de distribución modernizado
     Chart distributionChart = createModernDistributionChart(stockAlerts);
-    distributionChart.getStyle()
+    distributionChart
+        .getStyle()
         .set("background", "white")
         .set("border-radius", "16px")
         .set("box-shadow", "0 4px 24px rgba(0,0,0,0.08)");
@@ -950,26 +1009,28 @@ public class DashboardView extends VerticalLayout {
     Configuration config = chart.getConfiguration();
     config.setTitle("Distribución Inteligente del Inventario");
 
-    Map<String, Long> statusCounts = stockAlerts.stream()
-        .collect(Collectors.groupingBy(StockAlertDto::getAlertLevel, Collectors.counting()));
+    Map<String, Long> statusCounts =
+        stockAlerts.stream()
+            .collect(Collectors.groupingBy(StockAlertDto::getAlertLevel, Collectors.counting()));
 
     DataSeries series = new DataSeries();
 
     // Colores modernos y gradientes
     String[] modernColors = {
-        "#10B981", // Verde éxito
-        "#F59E0B", // Ámbar advertencia
-        "#EF4444", // Rojo error
-        "#8B5CF6"  // Púrpura crítico
+      "#10B981", // Verde éxito
+      "#F59E0B", // Ámbar advertencia
+      "#EF4444", // Rojo error
+      "#8B5CF6" // Púrpura crítico
     };
 
     final int[] colorIndex = {0};
-    statusCounts.forEach((status, count) -> {
-      DataSeriesItem item = new DataSeriesItem(getStatusLabel(status), count);
-      item.setColor(new SolidColor(modernColors[colorIndex[0] % modernColors.length]));
-      series.add(item);
-      colorIndex[0]++;
-    });
+    statusCounts.forEach(
+        (status, count) -> {
+          DataSeriesItem item = new DataSeriesItem(getStatusLabel(status), count);
+          item.setColor(new SolidColor(modernColors[colorIndex[0] % modernColors.length]));
+          series.add(item);
+          colorIndex[0]++;
+        });
 
     long healthyCount = dashboardService.getHealthyStockCount();
     if (healthyCount > 0) {
@@ -988,18 +1049,26 @@ public class DashboardView extends VerticalLayout {
   }
 
   private void showStockAlerts() {
-    List<StockAlertDto> criticalAlerts = dashboardService.getStockHealthAnalysis().stream()
-        .filter(alert -> "CRITICAL".equals(alert.getAlertLevel()) || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
-        .limit(3)
-        .collect(Collectors.toList());
+    List<StockAlertDto> criticalAlerts =
+        dashboardService.getStockHealthAnalysis().stream()
+            .filter(
+                alert ->
+                    "CRITICAL".equals(alert.getAlertLevel())
+                        || "OUT_OF_STOCK".equals(alert.getAlertLevel()))
+            .limit(3)
+            .collect(Collectors.toList());
 
-    criticalAlerts.forEach(alert -> {
-      String message = String.format("%s: Stock crítico (%d unidades)",
-          alert.getProductName(), alert.getCurrentStock());
+    criticalAlerts.forEach(
+        alert -> {
+          String message =
+              String.format(
+                  "%s: Stock crítico (%d unidades)",
+                  alert.getProductName(), alert.getCurrentStock());
 
-      Notification notification = Notification.show(message, 5000, Notification.Position.TOP_END);
-      notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-    });
+          Notification notification =
+              Notification.show(message, 5000, Notification.Position.TOP_END);
+          notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        });
   }
 
   private double calculatePercentage(long value, long total) {

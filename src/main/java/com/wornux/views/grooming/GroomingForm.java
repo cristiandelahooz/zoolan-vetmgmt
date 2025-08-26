@@ -764,7 +764,8 @@ public class GroomingForm extends Dialog {
               inv.getOfferings()
                   .forEach(
                       si ->
-                          selectedServices.add(new OfferingItem(si.getOffering(), si.getQuantity())));
+                          selectedServices.add(
+                              new OfferingItem(si.getOffering(), si.getQuantity())));
               servicesGrid.setItems(selectedServices);
 
               selectedProducts.clear();

@@ -3,13 +3,12 @@ package com.wornux.views.calendar;
 import com.wornux.data.enums.OfferingType;
 import com.wornux.dto.response.AppointmentResponseDto;
 import com.wornux.services.interfaces.AppointmentService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.vaadin.stefan.fullcalendar.Entry;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.vaadin.stefan.fullcalendar.Entry;
 
 @Service
 @RequiredArgsConstructor

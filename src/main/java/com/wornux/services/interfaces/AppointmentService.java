@@ -5,11 +5,10 @@ import com.wornux.data.enums.AppointmentStatus;
 import com.wornux.dto.request.AppointmentCreateRequestDto;
 import com.wornux.dto.request.AppointmentUpdateRequestDto;
 import com.wornux.dto.response.AppointmentResponseDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AppointmentService {
 

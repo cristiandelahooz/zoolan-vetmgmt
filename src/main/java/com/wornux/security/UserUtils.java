@@ -5,12 +5,11 @@ import com.wornux.data.entity.Employee;
 import com.wornux.data.entity.User;
 import com.wornux.data.enums.EmployeeRole;
 import com.wornux.data.enums.SystemRole;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 public class UserUtils {

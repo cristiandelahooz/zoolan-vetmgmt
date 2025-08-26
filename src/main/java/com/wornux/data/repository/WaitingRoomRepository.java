@@ -1,7 +1,6 @@
 package com.wornux.data.repository;
 
 import com.wornux.data.entity.WaitingRoom;
-import com.wornux.data.enums.VisitType;
 import com.wornux.data.enums.WaitingRoomStatus;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -105,15 +104,15 @@ public interface WaitingRoomRepository
   List<WaitingRoom> findByGroomerAndStatuses(
       @Param("groomerId") Long groomerId, @Param("statuses") List<WaitingRoomStatus> statuses);
 
-
-//------------------------------------------------------------------
+  // ------------------------------------------------------------------
   boolean existsByPet_IdAndStatusInAndArrivalTimeBetween(
-          Long petId,
-          java.util.Collection<com.wornux.data.enums.WaitingRoomStatus> statuses,
-          java.time.LocalDateTime startInclusive,
-          java.time.LocalDateTime endExclusive);
+      Long petId,
+      java.util.Collection<com.wornux.data.enums.WaitingRoomStatus> statuses,
+      java.time.LocalDateTime startInclusive,
+      java.time.LocalDateTime endExclusive);
 
-  @Query("""
+  @Query(
+      """
   SELECT wr FROM WaitingRoom wr
     JOIN FETCH wr.client c
     JOIN FETCH wr.pet p
@@ -123,12 +122,13 @@ public interface WaitingRoomRepository
   ORDER BY wr.priority DESC, wr.arrivalTime ASC
 """)
   List<WaitingRoom> findActiveMedicalForVetOrUnassigned(
-          @Param("vetId") Long veterinarianId,
-          @Param("visitType") com.wornux.data.enums.VisitType visitType,
-          @Param("statuses") List<com.wornux.data.enums.WaitingRoomStatus> statuses);
+      @Param("vetId") Long veterinarianId,
+      @Param("visitType") com.wornux.data.enums.VisitType visitType,
+      @Param("statuses") List<com.wornux.data.enums.WaitingRoomStatus> statuses);
 
   // GROOMER: traer GROOMING activas donde el groomer sea el actual O esté sin asignar
-  @Query("""
+  @Query(
+      """
   SELECT wr FROM WaitingRoom wr
     JOIN FETCH wr.client c
     JOIN FETCH wr.pet p
@@ -138,24 +138,18 @@ public interface WaitingRoomRepository
   ORDER BY wr.priority DESC, wr.arrivalTime ASC
 """)
   List<WaitingRoom> findActiveGroomingForGroomerOrUnassigned(
-          @Param("groomerId") Long groomerId,
-          @Param("visitType") com.wornux.data.enums.VisitType visitType,
-          @Param("statuses") List<com.wornux.data.enums.WaitingRoomStatus> statuses);
+      @Param("groomerId") Long groomerId,
+      @Param("visitType") com.wornux.data.enums.VisitType visitType,
+      @Param("statuses") List<com.wornux.data.enums.WaitingRoomStatus> statuses);
 
   // evitar duplicados exactos por (mascota, hora de cita, tipo)
   boolean existsByPet_IdAndArrivalTimeAndType(
-          Long petId,
-          java.time.LocalDateTime arrivalTime,
-          com.wornux.data.enums.VisitType type);
+      Long petId, java.time.LocalDateTime arrivalTime, com.wornux.data.enums.VisitType type);
 
   // (opcional) versión “tolerante” por si la hora pudiera variar unos minutos
   boolean existsByPet_IdAndTypeAndArrivalTimeBetween(
-          Long petId,
-          com.wornux.data.enums.VisitType type,
-          java.time.LocalDateTime from,
-          java.time.LocalDateTime to);
-
-
-
-
+      Long petId,
+      com.wornux.data.enums.VisitType type,
+      java.time.LocalDateTime from,
+      java.time.LocalDateTime to);
 }

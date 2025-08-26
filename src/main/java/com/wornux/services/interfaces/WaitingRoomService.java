@@ -79,5 +79,4 @@ public interface WaitingRoomService {
   List<WaitingRoom> findForGroomer(Long groomerId);
 
   void syncTodayFromAppointments();
-
 }

@@ -1,7 +1,13 @@
 package com.wornux.views.transactions;
 
+import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
+import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.CommonUtils.createIconItem;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasEnabled;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,7 +27,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.HasClearButton;
-import com.vaadin.flow.component.HasEnabled;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -50,22 +55,16 @@ import com.wornux.utils.MenuBarHandler;
 import com.wornux.utils.NotificationUtils;
 import com.wornux.utils.logs.RevisionView;
 import com.wornux.views.customers.ClientCreationDialog;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
-import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.CommonUtils.createIconItem;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 @Slf4j
 public class InvoiceForm extends Div {
@@ -215,29 +214,28 @@ public class InvoiceForm extends Div {
     paymentDate.addValueChangeListener(e -> updateHelperText.run());
 
     updateHelperText.run();
-    
+
     initializeFieldCollections();
   }
-  
+
   private void initializeFieldCollections() {
-    restrictableFields.addAll(List.of(
-        customer, salesOrder, issuedDate, paymentDate, add
-    ));
-    
-    alwaysEditableFields.addAll(List.of(
-        notes, statusButton, exportPdfButton
-    ));
+    restrictableFields.addAll(List.of(customer, salesOrder, issuedDate, paymentDate, add));
+
+    alwaysEditableFields.addAll(List.of(notes, statusButton, exportPdfButton));
   }
-  
+
   private void updateFieldStatesBasedOnStatus() {
-    boolean isDraft = element == null || element.getStatus() == null || element.getStatus() == InvoiceStatus.DRAFT;
+    boolean isDraft =
+        element == null
+            || element.getStatus() == null
+            || element.getStatus() == InvoiceStatus.DRAFT;
     String disabledTooltip = "Campo bloqueado: solo editable en estado Borrador";
-    
+
     for (Component field : restrictableFields) {
       if (field instanceof HasEnabled hasEnabled) {
         hasEnabled.setEnabled(isDraft);
       }
-      
+
       if (field == customer) {
         customer.setTooltipText(isDraft ? "Selecciona un cliente" : disabledTooltip);
       } else if (field == salesOrder) {
@@ -248,21 +246,21 @@ public class InvoiceForm extends Div {
         paymentDate.setTooltipText(isDraft ? "Fecha de pago" : disabledTooltip);
       }
     }
-    
+
     for (Component field : alwaysEditableFields) {
       if (field instanceof HasEnabled hasEnabled) {
         hasEnabled.setEnabled(true);
       }
     }
-    
+
     add.setVisible(isDraft);
-    
+
     if (!isDraft) {
       add.setTooltipText("No se pueden agregar productos cuando el estado no es Borrador");
     } else {
       add.setTooltipText("Agregar un cliente");
     }
-    
+
     refreshGrid();
   }
 
@@ -376,9 +374,11 @@ public class InvoiceForm extends Div {
       statusContextMenu.addItem("Sin cambios disponibles").setEnabled(false);
     } else {
       for (InvoiceStatus status : validStatuses) {
-        statusContextMenu.addItem(status.getDisplay(), e -> {
-          changeInvoiceStatus(status);
-        });
+        statusContextMenu.addItem(
+            status.getDisplay(),
+            e -> {
+              changeInvoiceStatus(status);
+            });
       }
     }
   }
@@ -421,14 +421,14 @@ public class InvoiceForm extends Div {
   private void performStatusChange(InvoiceStatus newStatus) {
     try {
       element = invoiceService.changeInvoiceStatus(element.getCode(), newStatus);
-      
+
       // Reload the full invoice entity to ensure all collections are properly loaded
       element = invoiceService.findByIdWithDetails(element.getCode());
-      
+
       // Refresh the form with the updated entity
       populateForm(element);
       updateFieldStatesBasedOnStatus();
-      
+
       NotificationUtils.success("Estado de la factura actualizado a: " + newStatus.getDisplay());
       Optional.ofNullable(callable).ifPresent(Runnable::run);
     } catch (Exception ex) {
@@ -537,7 +537,10 @@ public class InvoiceForm extends Div {
     gridItems.getDataProvider().addDataProviderListener(event -> calculateTotals());
     gridItems.addItemDoubleClickListener(
         event -> {
-          boolean isDraft = element == null || element.getStatus() == null || element.getStatus() == InvoiceStatus.DRAFT;
+          boolean isDraft =
+              element == null
+                  || element.getStatus() == null
+                  || element.getStatus() == InvoiceStatus.DRAFT;
           if (isDraft) {
             Object item = event.getItem();
             if (item instanceof InvoiceProduct) {
@@ -572,9 +575,12 @@ public class InvoiceForm extends Div {
 
   private Component renderActions(Object item) {
     if (item instanceof InvoiceProduct) {
-      boolean isDraft = element == null || element.getStatus() == null || element.getStatus() == InvoiceStatus.DRAFT;
+      boolean isDraft =
+          element == null
+              || element.getStatus() == null
+              || element.getStatus() == InvoiceStatus.DRAFT;
       boolean isNew = ((InvoiceProduct) item).getProduct() == null;
-      
+
       Button actionButton;
       if (isNew) {
         actionButton = new Button(VaadinIcon.PLUS_CIRCLE_O.create());
@@ -584,7 +590,8 @@ public class InvoiceForm extends Div {
           actionButton.addClickListener(e -> createProductDialog((InvoiceProduct) item));
           actionButton.setTooltipText("Agregar producto");
         } else {
-          actionButton.setTooltipText("No se pueden agregar productos cuando el estado no es Borrador");
+          actionButton.setTooltipText(
+              "No se pueden agregar productos cuando el estado no es Borrador");
         }
         return actionButton;
       } else {
@@ -595,7 +602,8 @@ public class InvoiceForm extends Div {
           actionButton.addClickListener(e -> createProductDialog((InvoiceProduct) item));
           actionButton.setTooltipText("Editar producto");
         } else {
-          actionButton.setTooltipText("No se pueden editar productos cuando el estado no es Borrador");
+          actionButton.setTooltipText(
+              "No se pueden editar productos cuando el estado no es Borrador");
         }
 
         Button removeButton = new Button(VaadinIcon.MINUS_CIRCLE_O.create());
@@ -609,7 +617,8 @@ public class InvoiceForm extends Div {
               });
           removeButton.setTooltipText("Eliminar producto");
         } else {
-          removeButton.setTooltipText("No se pueden eliminar productos cuando el estado no es Borrador");
+          removeButton.setTooltipText(
+              "No se pueden eliminar productos cuando el estado no es Borrador");
         }
 
         Div actions = new Div(actionButton, removeButton);

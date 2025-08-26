@@ -2,6 +2,7 @@ package com.wornux.views.waitingroom;
 
 import static com.wornux.utils.PredicateUtils.createPredicateForSelectedItems;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -10,7 +11,6 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -152,19 +152,18 @@ public class WaitingRoomView extends VerticalLayout {
     newEntryButton.addThemeVariants(
         ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_SMALL);
 
-      /*Button refreshBtn = new Button("Refrescar", VaadinIcon.REFRESH.create());
-      refreshBtn.addClickListener(e -> {
-          try {
-              waitingRoomService.syncTodayFromAppointments();      // 1) trae citas de hoy → crea WR si faltan
-              grid.setItems(waitingRoomService.getCurrentWaitingRoom()); // 2) recarga grid
-              NotificationUtils.success("Sala actualizada");
-          } catch (Exception ex) {
-              NotificationUtils.error("No se pudo refrescar: " + ex.getMessage());
-          }
-      });*/
+    /*Button refreshBtn = new Button("Refrescar", VaadinIcon.REFRESH.create());
+    refreshBtn.addClickListener(e -> {
+        try {
+            waitingRoomService.syncTodayFromAppointments();      // 1) trae citas de hoy → crea WR si faltan
+            grid.setItems(waitingRoomService.getCurrentWaitingRoom()); // 2) recarga grid
+            NotificationUtils.success("Sala actualizada");
+        } catch (Exception ex) {
+            NotificationUtils.error("No se pudo refrescar: " + ex.getMessage());
+        }
+    });*/
 
-
-      HorizontalLayout header = new HorizontalLayout(titleWithInfo, newEntryButton);
+    HorizontalLayout header = new HorizontalLayout(titleWithInfo, newEntryButton);
     header.setWidthFull();
     header.setJustifyContentMode(JustifyContentMode.BETWEEN);
     header.setAlignItems(Alignment.CENTER);
@@ -745,5 +744,4 @@ public class WaitingRoomView extends VerticalLayout {
       NotificationUtils.error("No se pudo sincronizar: " + ex.getMessage());
     }
   }
-
 }

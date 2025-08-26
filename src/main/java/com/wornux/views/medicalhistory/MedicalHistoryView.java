@@ -24,9 +24,8 @@ import com.wornux.views.consultations.ConsultationDetailsSidebar;
 import com.wornux.views.consultations.ConsultationsForm;
 import com.wornux.views.pets.SelectPetDialog;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import java.util.Locale;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @PageTitle("Historial Médico")
 @Route(value = "historial-medico/:petId", layout = MainLayout.class)
@@ -49,28 +48,27 @@ public class MedicalHistoryView extends VerticalLayout {
   private Pet selectedPet;
   private boolean lockedByParam = false;
 
-
   private boolean urlBootstrapped = false;
 
-  public MedicalHistoryView (@Qualifier("consultationServiceImpl") ConsultationService consultationService,
-                             @Qualifier("employeeServiceImpl")
-                             EmployeeService employeeService,
-                             @Qualifier("petServiceImpl") PetService petService,
-                             @Qualifier("offeringServiceImpl") OfferingService offeringService,
-                             @Qualifier("productServiceImpl") ProductService productService,
-                             InvoiceService invoiceService) {
+  public MedicalHistoryView(
+      @Qualifier("consultationServiceImpl") ConsultationService consultationService,
+      @Qualifier("employeeServiceImpl") EmployeeService employeeService,
+      @Qualifier("petServiceImpl") PetService petService,
+      @Qualifier("offeringServiceImpl") OfferingService offeringService,
+      @Qualifier("productServiceImpl") ProductService productService,
+      InvoiceService invoiceService) {
     this.consultationService = consultationService;
     this.invoiceService = invoiceService;
     this.productService = productService;
     this.offeringService = offeringService;
     this.consultationsForm =
-            new ConsultationsForm(
-                    consultationService,
-                    employeeService,
-                    petService,
-                    offeringService,
-                    invoiceService,
-                    productService);
+        new ConsultationsForm(
+            consultationService,
+            employeeService,
+            petService,
+            offeringService,
+            invoiceService,
+            productService);
     this.petService = petService;
     this.detailsSidebar = new ConsultationDetailsSidebar(invoiceService, consultationsForm);
     add(detailsSidebar);
@@ -85,16 +83,20 @@ public class MedicalHistoryView extends VerticalLayout {
     selectedPetField = new TextField("Mascota");
     selectedPetField.setReadOnly(true);
 
-    selectPetBtn = new Button("Seleccionar", e -> {
-      SelectPetDialog dialog = new SelectPetDialog(petService);
-      dialog.addPetSelectedListener(pet -> {
-        selectedPet = pet;
-        selectedPetField.setValue(pet.getName());
-        loadMedicalHistory(pet.getId());
-        updateSelectorUI();
-      });
-      dialog.open();
-    });
+    selectPetBtn =
+        new Button(
+            "Seleccionar",
+            e -> {
+              SelectPetDialog dialog = new SelectPetDialog(petService);
+              dialog.addPetSelectedListener(
+                  pet -> {
+                    selectedPet = pet;
+                    selectedPetField.setValue(pet.getName());
+                    loadMedicalHistory(pet.getId());
+                    updateSelectorUI();
+                  });
+              dialog.open();
+            });
 
     petSelector = new HorizontalLayout(selectedPetField, selectPetBtn);
     petSelector.setAlignItems(Alignment.END);
@@ -102,33 +104,35 @@ public class MedicalHistoryView extends VerticalLayout {
     consultationsGrid = new Grid<>(Consultation.class, false);
     consultationsGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
     consultationsGrid
-            .addColumn(c -> c.getConsultationDate().toLocalDate())
-            .setHeader("Fecha")
-            .setAutoWidth(true);
+        .addColumn(c -> c.getConsultationDate().toLocalDate())
+        .setHeader("Fecha")
+        .setAutoWidth(true);
     consultationsGrid
-            .addColumn(c -> {
+        .addColumn(
+            c -> {
               var v = c.getVeterinarian();
               return v != null ? v.getFirstName() + " " + v.getLastName() : "—";
             })
-            .setHeader("Veterinario")
-            .setAutoWidth(true);
+        .setHeader("Veterinario")
+        .setAutoWidth(true);
     consultationsGrid
-            .addColumn(Consultation::getDiagnosis)
-            .setHeader("Diagnóstico")
-            .setAutoWidth(true);
+        .addColumn(Consultation::getDiagnosis)
+        .setHeader("Diagnóstico")
+        .setAutoWidth(true);
     consultationsGrid
-            .addColumn(Consultation::getTreatment)
-            .setHeader("Tratamiento")
-            .setAutoWidth(true);
-    //consultationsGrid.addItemClickListener(e -> openConsultationDetail(e.getItem()));
-    consultationsGrid.asSingleSelect()
-            .addValueChangeListener(
-                    e -> {
-                      Consultation sel = e.getValue();
-                      if (sel != null) {
-                        detailsSidebar.open(sel);
-                      }
-                    });
+        .addColumn(Consultation::getTreatment)
+        .setHeader("Tratamiento")
+        .setAutoWidth(true);
+    // consultationsGrid.addItemClickListener(e -> openConsultationDetail(e.getItem()));
+    consultationsGrid
+        .asSingleSelect()
+        .addValueChangeListener(
+            e -> {
+              Consultation sel = e.getValue();
+              if (sel != null) {
+                detailsSidebar.open(sel);
+              }
+            });
 
     add(title, petSelector, consultationsGrid);
     setFlexGrow(1, consultationsGrid);
@@ -139,8 +143,8 @@ public class MedicalHistoryView extends VerticalLayout {
   }
 
   /**
-   * Lee el último segmento de la URL activa (espera ".../historial-medico/{id}"),
-   * busca la mascota, bloquea el selector y carga el historial.
+   * Lee el último segmento de la URL activa (espera ".../historial-medico/{id}"), busca la mascota,
+   * bloquea el selector y carga el historial.
    */
   private void bootstrapFromUrlIfAny() {
     if (urlBootstrapped) return;
@@ -163,20 +167,23 @@ public class MedicalHistoryView extends VerticalLayout {
       return;
     }
 
-    petService.getPetById(petId).ifPresent(p -> {
-      urlBootstrapped = true;
-      lockedByParam = true;
+    petService
+        .getPetById(petId)
+        .ifPresent(
+            p -> {
+              urlBootstrapped = true;
+              lockedByParam = true;
 
-      selectedPet = p;
-      selectedPetField.setValue(p.getName());
-      selectedPetField.setReadOnly(true);
+              selectedPet = p;
+              selectedPetField.setValue(p.getName());
+              selectedPetField.setReadOnly(true);
 
-      selectPetBtn.setEnabled(false);
-      selectPetBtn.setVisible(false);
+              selectPetBtn.setEnabled(false);
+              selectPetBtn.setVisible(false);
 
-      loadMedicalHistory(p.getId());
-      updateSelectorUI();
-    });
+              loadMedicalHistory(p.getId());
+              updateSelectorUI();
+            });
   }
 
   private void updateSelectorUI() {
@@ -199,11 +206,9 @@ public class MedicalHistoryView extends VerticalLayout {
     detailDialog.setWidth("720px");
     detailDialog.setMaxWidth("95vw");
 
-
     VerticalLayout content = new VerticalLayout();
     content.setPadding(true);
     content.setSpacing(true);
-
 
     HorizontalLayout headerRow = new HorizontalLayout();
     headerRow.setAlignItems(HorizontalLayout.Alignment.CENTER);
@@ -218,18 +223,15 @@ public class MedicalHistoryView extends VerticalLayout {
     headerRow.add(petName, petTypeBadge, vetBadge);
     headerRow.expand(petName);
 
-
     FormLayout meta = new FormLayout();
     meta.setWidthFull();
     meta.setResponsiveSteps(
-            new FormLayout.ResponsiveStep("0", 1),
-            new FormLayout.ResponsiveStep("600px", 2)
-    );
+        new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("600px", 2));
     meta.addFormItem(new Span(formatDateTime(c.getConsultationDate())), "Fecha y hora");
     meta.addFormItem(new Span(vetName(c)), "Veterinario");
     meta.addFormItem(new Span(primaryOwnerName(c.getPet())), "Dueño principal");
-    meta.addFormItem(new Span(Boolean.TRUE.equals(c.getActive()) ? "ACTIVA" : "INACTIVA"), "Estado");
-
+    meta.addFormItem(
+        new Span(Boolean.TRUE.equals(c.getActive()) ? "ACTIVA" : "INACTIVA"), "Estado");
 
     VerticalLayout dxCard = sectionCard("Diagnóstico", textOrNA(c.getDiagnosis()), "primary");
     VerticalLayout txCard = sectionCard("Tratamiento", textOrNA(c.getTreatment()), "success");
@@ -245,7 +247,6 @@ public class MedicalHistoryView extends VerticalLayout {
 
     detailDialog.open();
   }
-
 
   private Span badge(String text, String theme) {
     Span b = new Span(text == null || text.isBlank() ? "—" : text);
@@ -307,9 +308,9 @@ public class MedicalHistoryView extends VerticalLayout {
     card.setSpacing(false);
     card.setPadding(true);
     card.addClassNames(
-            LumoUtility.Border.ALL,
-            LumoUtility.BorderColor.CONTRAST_10,
-            LumoUtility.BorderRadius.LARGE);
+        LumoUtility.Border.ALL,
+        LumoUtility.BorderColor.CONTRAST_10,
+        LumoUtility.BorderRadius.LARGE);
 
     // título + badge
     HorizontalLayout head = new HorizontalLayout();

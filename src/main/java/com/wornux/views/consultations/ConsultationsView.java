@@ -128,7 +128,7 @@ public class ConsultationsView extends Div {
     GridUtils.addColumn(grid, Consultation::getDiagnosis, "Diagnóstico", "diagnosis");
     GridUtils.addColumn(grid, Consultation::getTreatment, "Tratamiento", "treatment");
     GridUtils.addComponentColumn(grid, this::renderStatus, "Estado", "status");
-    if(isAdminOrManager() || isVetOnly()) {
+    if (isAdminOrManager() || isVetOnly()) {
       grid.addComponentColumn(this::createActionsColumn).setHeader("Acciones").setAutoWidth(true);
     }
   }
@@ -372,7 +372,8 @@ public class ConsultationsView extends Div {
                   confirmDialog.close();
                   refreshAll();
                 } else {
-                  NotificationUtils.error("No se puede eliminar la consulta porque su factura asociada no está en estado PENDIENTE.");
+                  NotificationUtils.error(
+                      "No se puede eliminar la consulta porque su factura asociada no está en estado PENDIENTE.");
                   confirmDialog.close();
                   refreshAll();
                 }
@@ -407,22 +408,37 @@ public class ConsultationsView extends Div {
     confirmDialog.open();
   }
 
- private Component renderStatus(Consultation consultation) {
-   ConsultationStatus status = consultation.getStatus();
-   String label;
-   String theme;
-   switch (status) {
-     case PENDIENTE -> { label = "Pendiente"; theme = "contrast"; }
-     case EN_PROCESO -> { label = "En proceso"; theme = "primary"; }
-     case COMPLETADO -> { label = "Completado"; theme = "success"; }
-     case CANCELADO -> { label = "Cancelado"; theme = "error"; }
-     default -> { label = "Desconocido"; theme = "error"; }
-   }
-   Span badge = new Span(label);
-   badge.getElement().getThemeList().add("badge pill");
-   badge.getElement().getThemeList().add(theme);
-   return badge;
- }
+  private Component renderStatus(Consultation consultation) {
+    ConsultationStatus status = consultation.getStatus();
+    String label;
+    String theme;
+    switch (status) {
+      case PENDIENTE -> {
+        label = "Pendiente";
+        theme = "contrast";
+      }
+      case EN_PROCESO -> {
+        label = "En proceso";
+        theme = "primary";
+      }
+      case COMPLETADO -> {
+        label = "Completado";
+        theme = "success";
+      }
+      case CANCELADO -> {
+        label = "Cancelado";
+        theme = "error";
+      }
+      default -> {
+        label = "Desconocido";
+        theme = "error";
+      }
+    }
+    Span badge = new Span(label);
+    badge.getElement().getThemeList().add("badge pill");
+    badge.getElement().getThemeList().add(theme);
+    return badge;
+  }
 
   private boolean isAdminOrManager() {
     return UserUtils.hasSystemRole(SystemRole.SYSTEM_ADMIN)

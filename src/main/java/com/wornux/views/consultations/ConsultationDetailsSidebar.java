@@ -306,7 +306,8 @@ public class ConsultationDetailsSidebar extends Div {
                             "Servicio",
                             si.getOffering() != null ? si.getOffering().getName() : "",
                             Optional.ofNullable(si.getQuantity()).orElse(0.0),
-                            Optional.ofNullable(si.getOffering().getPrice()).orElse(BigDecimal.ZERO),
+                            Optional.ofNullable(si.getOffering().getPrice())
+                                .orElse(BigDecimal.ZERO),
                             Optional.ofNullable(si.getAmount()).orElse(BigDecimal.ZERO)))
                 .collect(Collectors.toList()));
       }

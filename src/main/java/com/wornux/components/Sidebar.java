@@ -102,7 +102,7 @@ public class Sidebar extends Section implements HasEnabled, HasTheme {
   public void createHeaderContent(Component... components) {
     headerContent.add(components);
   }
-  
+
   public void clearHeaderContent() {
     headerContent.removeAll();
   }

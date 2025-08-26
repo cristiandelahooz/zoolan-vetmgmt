@@ -94,9 +94,7 @@ public class InvoiceReportService {
 
   private void calculateCorrectTotals(Invoice invoice) {
     BigDecimal productsTotal =
-        Optional.ofNullable(invoice.getProducts())
-            .orElse(java.util.Collections.emptySet())
-            .stream()
+        Optional.ofNullable(invoice.getProducts()).orElse(java.util.Collections.emptySet()).stream()
             .filter(p -> p.getProduct() != null && p.getAmount() != null)
             .map(InvoiceProduct::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
