@@ -47,7 +47,7 @@ vaadin:
   launch-browser: false
   # To improve the performance during development.
   # For more information https://vaadin.com/docs/latest/flow/integrations/spring/configuration#special-configuration-parameters
-  allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux
+  allowed-packages: com.vaadin,org.vaadin,com.flowingcode,com.wornux,org.vaadin.stefan
   pnpm:
     enable: true
 ---
@@ -59,9 +59,6 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
-        order_inserts: true
-        order_updates: true
 
   devtools:
     restart:
