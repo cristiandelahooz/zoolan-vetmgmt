@@ -1,5 +1,10 @@
 package com.wornux.views.calendar;
 
+import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
+import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
+import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
+import static com.wornux.utils.CommonUtils.createIconItem;
+
 import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
@@ -46,19 +51,13 @@ import com.wornux.utils.logs.RevisionView;
 import com.wornux.views.customers.ClientCreationDialog;
 import com.wornux.views.pets.PetForm;
 import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import static com.wornux.utils.CSSUtility.CARD_BACKGROUND_COLOR;
-import static com.wornux.utils.CSSUtility.SLIDER_RESPONSIVE_WIDTH;
-import static com.wornux.utils.CommonUtils.comboBoxItemFilter;
-import static com.wornux.utils.CommonUtils.createIconItem;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 @Slf4j
 public class AppointmentForm extends Div {
