@@ -2,10 +2,14 @@ package com.wornux.data.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.MappedSuperclass;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.util.ProxyUtils;
 
 @MappedSuperclass
+@NoArgsConstructor
+@SuperBuilder
 public abstract class AbstractEntity<ID> {
 
   @JsonIgnore
