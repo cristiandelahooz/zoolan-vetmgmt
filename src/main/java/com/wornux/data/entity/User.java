@@ -1,18 +1,28 @@
 package com.wornux.data.entity;
 
-import static com.wornux.constants.ValidationConstants.*;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wornux.data.base.AbstractEntity;
 import com.wornux.data.enums.SystemRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import lombok.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
 import org.jspecify.annotations.Nullable;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static com.wornux.constants.ValidationConstants.DATE_PATTERN;
+import static com.wornux.constants.ValidationConstants.DOMINICAN_PHONE_PATTERN;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -25,9 +35,10 @@ import org.jspecify.annotations.Nullable;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 @Audited(withModifiedFlag = true)
-public class User {
+public class User extends AbstractEntity<Long> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
